@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Nimzo is a platform for fire-protection companies to digitize inspection, testing and maintenance (ITM) service forms. The monorepo skeleton is in place: every app builds and runs a placeholder screen, but no business features exist yet. There is no database schema yet (no migrations) and no test runner.
+Nimzo is a platform for fire-protection companies to digitize inspection, testing and maintenance (ITM) service forms. The monorepo skeleton is in place: every app builds and runs a placeholder screen, but no business features exist yet. The first migration (profiles, roles, clients, branches, systems) exists. Database migrations and RLS policies are tested with `pnpm test:db`; there is no app test runner yet.
 
 ## Commands (run from repo root)
 
@@ -17,9 +17,10 @@ pnpm dev                            # all apps via Turborepo
 pnpm dev --filter @nimzo/mobile     # one app only (also @nimzo/admin, @nimzo/pdf)
 pnpm lint | pnpm typecheck | pnpm build
 pnpm format | pnpm format:check     # Prettier (Markdown is excluded)
+pnpm test:db                        # apply all migrations to in-memory Postgres (PGlite) and run RLS tests
 ```
 
-CI runs `format:check`, `lint`, `typecheck` and `build`. Run them before declaring work done.
+CI runs `format:check`, `lint`, `typecheck`, `build` and `test:db`. Run them before declaring work done.
 
 - pnpm is pinned in `package.json` (`packageManager`). If `pnpm` isn't on PATH, use `corepack pnpm`.
 - pnpm blocks dependency install scripts and very new releases (supply-chain protection). Approved build scripts live under `allowBuilds` in `pnpm-workspace.yaml`; add new ones with `pnpm approve-builds <pkg>` only when a package really needs it.
@@ -62,7 +63,7 @@ Roles: **técnico** (fills, signs and submits), **supervisor** (signs and author
 ## Rules
 
 - **Security:** public sign-up is disabled, because only admins create accounts (turn off "Allow new users to sign up" in the dashboard under Authentication; `supabase/config.toml` mirrors it). RLS is enabled on every table. Photos and signatures live in private Storage buckets and are served through short-lived signed URLs. `SUPABASE_SERVICE_ROLE_KEY` is used only in `services/pdf`, never in `apps/mobile` or `apps/admin`.
-- **Database changes** go only through versioned migrations in `supabase/` (`supabase db push` in production). No manual changes in the Supabase dashboard. Use the `supabase` and `supabase-postgres-best-practices` skills for schema, RLS and SQL work. Follow the guides in `docs/ai/supabase/` (SQL style, migrations, database functions, RLS policies).
+- **Database changes** go only through versioned migrations in `supabase/` (`supabase db push` in production). No manual changes in the Supabase dashboard. Use the `supabase` and `supabase-postgres-best-practices` skills for schema, RLS and SQL work. Follow the guides in `docs/ai/supabase/` (SQL style, migrations, database functions, RLS policies). Every migration that adds tables or policies also adds tests in `supabase/tests/` (see `harness.mjs`): who can and cannot read and write. Role checks in policies go through the `private.is_admin()` / `private.current_user_role()` helpers; roles come from `profiles.role`, which only administrators can change (enforced by a trigger). New users get a profile automatically, with the role taken from `app_metadata.role`.
 - **UI:** `docs/ux-principles.es.md` (Spanish) is the UX rulebook for any interface work: Hick/Fitts/Miller, form design, WCAG 2.1, loading states. Apply it when designing screens.
 - **Language:** code, comments, identifiers and file names are in English. The README and user-facing docs are in Spanish.
 - **Git:** see `CONTRIBUTING.md` for the full branch flow. `main` and `develop` only receive PRs. GitHub's free plan can't enforce this on a private repo, so it is enforced by `.githooks/` (enabled automatically by `pnpm install`), deny rules in `.claude/settings.json` (no push to `main`/`develop`, no force push, no `gh pr merge`) and the `protected-branches.yml` workflow. Branches are `develop`, `feature/<name>` and `fix/<name>`. Commits follow Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`). Don't add AI co-author or "generated with" attribution to commits or PRs (enforced in `.claude/settings.json`). Feature work branches from `develop` and opens a PR against it. Request review from the software lead (@Paytini) by hand: `.github/CODEOWNERS` only auto-assigns once the repo moves to a paid plan. CI (`.github/workflows/ci.yml`) runs format, lint, typecheck and build.
