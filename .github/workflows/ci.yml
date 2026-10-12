@@ -10,41 +10,35 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
 jobs:
   checks:
-    name: Lint and typecheck
+    name: Lint, typecheck and build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # The monorepo is not scaffolded yet; skip the checks until package.json exists.
-      - name: Detect workspace
-        id: workspace
-        run: |
-          if [ -f package.json ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No package.json yet, skipping checks."
-          fi
-
+      # Uses the pnpm version pinned in package.json "packageManager".
       - uses: pnpm/action-setup@v4
-        if: steps.workspace.outputs.exists == 'true'
 
       - uses: actions/setup-node@v4
-        if: steps.workspace.outputs.exists == 'true'
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
-        if: steps.workspace.outputs.exists == 'true'
         run: pnpm install --frozen-lockfile
 
+      - name: Format
+        run: pnpm format:check
+
       - name: Lint
-        if: steps.workspace.outputs.exists == 'true'
         run: pnpm lint
 
       - name: Typecheck
-        if: steps.workspace.outputs.exists == 'true'
         run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
