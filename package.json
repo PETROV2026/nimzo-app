@@ -1,0 +1,23 @@
+{
+  "name": "nimzo",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "supabase": "supabase"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "supabase": "^2.120.0",
+    "turbo": "^2.11.7"
+  }
+}

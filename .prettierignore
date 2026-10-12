@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+.claude/skills/
+supabase/
+**/dist/
+**/.expo/
+apps/mobile/assets/
+
+# Documentation is formatted by hand.
+*.md
