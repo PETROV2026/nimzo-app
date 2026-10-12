@@ -86,19 +86,17 @@ React web app built with Vite. Administrators manage users, clients, branches, s
 ```
 apps/admin/
 ├── src/
-│   ├── App.tsx               Refine setup: router, Supabase data provider, routes
+│   ├── App.tsx               Refine setup: MUI theme, router, Supabase data provider, routes
 │   ├── main.tsx              Entry point
-│   ├── pages/                One file per page (home.tsx today)
-│   ├── lib/
-│   │   ├── supabase.ts       Supabase client (public anon key only)
-│   │   └── utils.ts          cn() helper for class names
-│   └── index.css             Tailwind + shadcn/ui theme
-├── components.json           shadcn/ui settings
+│   ├── theme.ts              The only MUI theme (Spanish locale included)
+│   ├── pages/                One folder per resource (home.tsx today)
+│   └── lib/
+│       └── supabase.ts       Supabase client (public anon key only)
 └── vite.config.ts            Vite config (`@/` alias → src/)
 ```
 
 - **Refine** provides data hooks (`useList`, `useCreate`…) that read and write Supabase tables directly.
-- **shadcn/ui** components are added with `npx shadcn@latest add <component>` from `apps/admin`; they are copied into `src/components/ui/`.
+- **Material UI** (v6, through `@refinedev/mui`) provides the components: tables (`DataGrid`), forms, buttons, layout. Follow [docs/ai/material-ui.md](ai/material-ui.md) for the rules (theme tokens, Refine CRUD components, accessibility).
 
 ### `packages/shared` — shared code
 
