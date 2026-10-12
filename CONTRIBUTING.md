@@ -30,7 +30,7 @@
 
 4. Run everything with `pnpm dev`, or one app with `pnpm dev --filter @nimzo/admin`.
 
-Before opening a PR, run `pnpm format`, `pnpm lint`, `pnpm typecheck` and `pnpm build`. CI runs the same checks.
+Before opening a PR, run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm build` and `pnpm test:db`. CI runs the same checks.
 
 ## Branches
 
