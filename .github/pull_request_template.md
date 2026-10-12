@@ -6,7 +6,6 @@
 
 - [ ] `apps/mobile`
 - [ ] `apps/admin`
-- [ ] `services/pdf`
 - [ ] `packages/shared` (types, schemas, form definitions)
 - [ ] `supabase/` (migrations, RLS, seed data)
 
