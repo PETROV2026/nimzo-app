@@ -151,7 +151,7 @@ stateDiagram-v2
 | Estilos móviles | NativeWind |
 | Multimedia | expo-image-picker · expo-image-manipulator · react-native-signature-canvas |
 | Panel web | React · Vite · Refine |
-| Estilos web | Tailwind CSS · shadcn/ui |
+| Interfaz web | Material UI (vía Refine) |
 | Backend | Supabase (PostgreSQL · Auth · Storage · RLS) |
 | Generación de PDF | Node.js · Hono · @react-pdf/renderer |
 | Compilación móvil | EAS Build · EAS Update |

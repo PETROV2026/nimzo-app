@@ -1,18 +1,24 @@
+import Chip from '@mui/material/Chip';
+import Container from '@mui/material/Container';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { reportStatusLabels, reportStatusSchema } from '@nimzo/shared';
 
-// Placeholder page. Confirms the panel builds and consumes @nimzo/shared.
+// Placeholder page. Confirms the panel builds, MUI renders and @nimzo/shared resolves.
 export function HomePage() {
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="text-3xl font-semibold tracking-tight">Nimzo · Panel de administración</h1>
-      <p className="text-muted-foreground mt-2">Estados del reporte:</p>
-      <ul className="mt-4 flex flex-wrap gap-2">
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Nimzo · Panel de administración
+      </Typography>
+      <Typography color="text.secondary" gutterBottom>
+        Estados del reporte:
+      </Typography>
+      <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap', mt: 2 }}>
         {reportStatusSchema.options.map((status) => (
-          <li key={status} className="rounded-md border px-3 py-1 text-sm">
-            {reportStatusLabels[status]}
-          </li>
+          <Chip key={status} label={reportStatusLabels[status]} variant="outlined" />
         ))}
-      </ul>
-    </main>
+      </Stack>
+    </Container>
   );
 }
