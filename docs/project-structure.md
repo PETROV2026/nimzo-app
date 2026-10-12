@@ -6,30 +6,32 @@ For the product overview see the [README](../README.md). For the Git workflow se
 
 ## The big picture
 
-Nimzo is a **monorepo**: one Git repository that holds every piece of the system. Three apps share one Supabase backend and one package of shared code.
+Nimzo is a **monorepo**: one Git repository that holds every piece of the system. Two apps share one Supabase backend and one package of shared code.
 
 ```
-                ┌──────────────────────┐
-                │   packages/shared    │  types, Zod schemas, form definitions
-                └──────────┬───────────┘
-          imported by all three │
-     ┌──────────────────┬───────┴─────────┬──────────────────┐
-     ▼                  ▼                 ▼                  │
-┌─────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│ apps/mobile │  │  apps/admin  │  │ services/pdf │          │
-│ technicians │  │ administrators│ │ PDF reports  │          │
-│ (tablet)    │  │ (web)        │  │ (server)     │          │
-└──────┬──────┘  └──────┬───────┘  └──────┬───────┘          │
-       └────────────────┼─────────────────┘                  │
-                        ▼                                    │
-              ┌───────────────────┐   schema defined in      │
-              │ Supabase (cloud)  │◄── supabase/migrations ──┘
-              │ Postgres · Auth · │
-              │ Storage · RLS     │
-              └───────────────────┘
+              ┌──────────────────────┐
+              │   packages/shared    │  types, Zod schemas, form definitions
+              └──────────┬───────────┘
+               imported by both apps
+          ┌──────────────┴──────────────┐
+          ▼                             ▼
+   ┌─────────────┐               ┌──────────────┐
+   │ apps/mobile │               │  apps/admin  │
+   │ technicians │               │administrators│
+   │ (tablet)    │               │ (web)        │
+   └──────┬──────┘               └──────┬───────┘
+          └──────────────┬──────────────┘
+                         ▼
+               ┌───────────────────┐
+               │ Supabase (cloud)  │◄── schema defined in supabase/migrations
+               │ Postgres · Auth · │
+               │ Storage · RLS     │
+               └───────────────────┘
 ```
 
-The key idea: **anything two apps need to agree on lives in `packages/shared`**. The report statuses are the first example: the mobile app, the admin panel and the PDF service all import the same `reportStatusSchema`, so they cannot drift apart.
+The key idea: **anything both apps need to agree on lives in `packages/shared`**. The report statuses are the first example: the mobile app and the admin panel import the same `reportStatusSchema`, so they cannot drift apart.
+
+A server-side **PDF service** (`services/pdf`) is part of the plan, but it comes later. The current focus is the mobile app and the admin panel.
 
 ## Folder by folder
 
@@ -40,8 +42,6 @@ nimzo-app/
 │   └── admin/                Web panel for administrators
 ├── packages/
 │   └── shared/               Code shared by every app
-├── services/
-│   └── pdf/                  PDF generation service
 ├── supabase/
 │   ├── migrations/           Database changes, one SQL file per change
 │   ├── tests/                Database and RLS tests (pnpm test:db)
@@ -100,20 +100,6 @@ apps/admin/
 - **Refine** provides data hooks (`useList`, `useCreate`…) that read and write Supabase tables directly.
 - **shadcn/ui** components are added with `npx shadcn@latest add <component>` from `apps/admin`; they are copied into `src/components/ui/`.
 
-### `services/pdf` — report PDFs
-
-Small Node server (Hono). It will generate the PDF when a report is submitted. Today it only has a `/health` route.
-
-```
-services/pdf/
-├── src/
-│   ├── index.ts              Server and routes
-│   └── env.ts                Validates environment variables at startup
-└── tsup.config.ts            Build config (bundles @nimzo/shared)
-```
-
-It is the **only** place allowed to use `SUPABASE_SERVICE_ROLE_KEY`, which bypasses all security rules.
-
 ### `packages/shared` — shared code
 
 ```
@@ -125,7 +111,7 @@ packages/shared/
 └── formatos/                 Service form definitions (F-SER-XXX), coming next
 ```
 
-Import it from any app with `import { reportStatusSchema } from '@nimzo/shared'`. There is no build step: each app compiles it directly.
+Import it from either app with `import { reportStatusSchema } from '@nimzo/shared'`. There is no build step: each app compiles it directly.
 
 Values stored in the database are short codes (`activo`, `autorizacion`); the labels next to them (`Activo`, `Autorización`) are what users see.
 
@@ -150,12 +136,11 @@ supabase/
 | Command (from the repo root) | What it does |
 |---|---|
 | `pnpm env:setup` | Creates the `.env` files from the linked Supabase project |
-| `pnpm dev` | Starts every app at once (Turborepo) |
+| `pnpm dev` | Starts both apps at once (Turborepo) |
 | `pnpm mobile:ios` | Opens the mobile app in the iOS/iPad simulator |
 | `pnpm mobile:android` | Opens the mobile app in the Android emulator |
 | `pnpm mobile` | Starts the Expo dev server (scan the QR code with Expo Go) |
 | `pnpm admin` | Admin panel at http://localhost:5173 |
-| `pnpm pdf` | PDF service at http://localhost:3001 |
 | `pnpm check` | Everything CI runs: format, lint, typecheck, build and database tests |
 | `pnpm db:new <name>` | Creates a new migration file |
 | `pnpm db:status` | Shows which migrations are applied in the cloud |

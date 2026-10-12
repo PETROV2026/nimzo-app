@@ -168,8 +168,7 @@ nimzo/
 │   └── admin/           # Panel web para administradores
 ├── packages/
 │   └── shared/          # Tipos, esquemas Zod y definiciones de formatos
-├── services/
-│   └── pdf/             # Servicio de generación de reportes PDF
+├── services/            # (Más adelante) Servicio de generación de reportes PDF
 ├── supabase/            # Migraciones, políticas RLS y datos de prueba
 ├── docs/                # Documentación técnica y de formatos
 ├── .github/             # Flujos de CI y plantillas de PR
@@ -217,12 +216,10 @@ pnpm supabase link --project-ref <project-ref>   # Pide la contraseña de la bas
 **4. Configurar variables de entorno**
 
 ```bash
-cp apps/mobile/.env.example apps/mobile/.env
-cp apps/admin/.env.example apps/admin/.env
-cp services/pdf/.env.example services/pdf/.env
+pnpm env:setup
 ```
 
-Completa cada archivo con la URL y las claves de **Project Settings → API** en el panel de Supabase.
+Crea `apps/mobile/.env` y `apps/admin/.env` con la URL y la clave pública del proyecto vinculado.
 
 **5. Iniciar el entorno de desarrollo**
 
@@ -243,11 +240,9 @@ pnpm dev
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `apps/mobile` | Clave pública de Supabase |
 | `VITE_SUPABASE_URL` | `apps/admin` | URL del proyecto de Supabase |
 | `VITE_SUPABASE_ANON_KEY` | `apps/admin` | Clave pública de Supabase |
-| `SUPABASE_URL` | `services/pdf` | URL del proyecto de Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | `services/pdf` | Clave de servicio (solo servidor) |
 
 > [!CAUTION]
-> La clave `SUPABASE_SERVICE_ROLE_KEY` omite todas las políticas de seguridad. **Nunca** debe incluirse en la app móvil, en el panel web ni en el repositorio.
+> La clave `service_role` de Supabase omite todas las políticas de seguridad. **Nunca** debe incluirse en la app móvil, en el panel web ni en el repositorio. Solo la usará el servicio de PDF, que se desarrollará más adelante.
 
 ---
 
