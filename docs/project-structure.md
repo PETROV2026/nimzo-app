@@ -65,6 +65,8 @@ apps/mobile/
 │   ├── app/                  Screens. Every file is a route (Expo Router)
 │   │   ├── _layout.tsx       Root layout: wraps every screen
 │   │   └── index.tsx         First screen shown when the app opens
+│   ├── theme/
+│   │   └── colors.js         Brand palette (single source of truth for colors)
 │   └── global.css            Tailwind entry point (NativeWind)
 ├── assets/                   Icons and splash screen
 ├── app.json                  App name, icon, orientation, plugins
@@ -77,6 +79,20 @@ apps/mobile/
 - **Routes are files.** `src/app/index.tsx` is the home screen. A new file `src/app/reports.tsx` becomes the `/reports` screen automatically. `_layout.tsx` files define navigation (stacks, tabs).
 - **Non-screen code goes outside `src/app/`**, for example `src/components/`, `src/hooks/` and `src/db/` once they exist.
 - **Styling** uses Tailwind classes through NativeWind: `<View className="flex-1 p-8">`.
+- **Colors** come from the brand palette in `src/theme/colors.js`, exposed as classes:
+
+  | Class | Color | Use |
+  |---|---|---|
+  | `bg-background` | white `#FFFFFF` | Main background |
+  | `bg-surface` | off-white `#F8F7F8` | Grouped sections |
+  | `text-foreground` | black `#000000` | Text and titles |
+  | `text-muted` | gray `#484349` | Subtitles and secondary text |
+  | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
+  | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
+  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
+  | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
+
+  Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
 - **Install packages with `npx expo install <pkg>`** from `apps/mobile`, so versions match the Expo SDK.
 
 ### `apps/admin` — admin panel
