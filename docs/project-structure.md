@@ -149,12 +149,18 @@ supabase/
 
 | Command (from the repo root) | What it does |
 |---|---|
+| `pnpm env:setup` | Creates the `.env` files from the linked Supabase project |
 | `pnpm dev` | Starts every app at once (Turborepo) |
-| `pnpm --filter @nimzo/mobile ios` | Opens the mobile app in the iOS/iPad simulator |
-| `pnpm --filter @nimzo/mobile android` | Opens the mobile app in the Android emulator |
-| `pnpm --filter @nimzo/admin dev` | Admin panel at http://localhost:5173 |
-| `pnpm --filter @nimzo/pdf dev` | PDF service at http://localhost:3001 |
-| `pnpm lint` · `pnpm typecheck` · `pnpm build` · `pnpm test:db` | The same checks CI runs |
+| `pnpm mobile:ios` | Opens the mobile app in the iOS/iPad simulator |
+| `pnpm mobile:android` | Opens the mobile app in the Android emulator |
+| `pnpm mobile` | Starts the Expo dev server (scan the QR code with Expo Go) |
+| `pnpm admin` | Admin panel at http://localhost:5173 |
+| `pnpm pdf` | PDF service at http://localhost:3001 |
+| `pnpm check` | Everything CI runs: format, lint, typecheck, build and database tests |
+| `pnpm db:new <name>` | Creates a new migration file |
+| `pnpm db:status` | Shows which migrations are applied in the cloud |
+| `pnpm db:dry` | Previews pending migrations without applying them |
+| `pnpm db:types` | Regenerates TypeScript types from the cloud database schema |
 
 ## Running the mobile app on a simulator
 
@@ -165,7 +171,7 @@ The app runs inside **Expo Go**, a free app that loads your code over the networ
 Requires Xcode.
 
 ```bash
-pnpm --filter @nimzo/mobile ios
+pnpm mobile:ios
 ```
 
 1. Expo starts the bundler (Metro), boots a simulator and installs Expo Go.
@@ -185,13 +191,13 @@ Requires Android Studio (about 10 GB).
 3. Run:
 
    ```bash
-   pnpm --filter @nimzo/mobile android
+   pnpm mobile:android
    ```
 
 ### Option 3 — a real tablet or phone
 
 1. Install **Expo Go** from Google Play or the App Store.
-2. Run `pnpm --filter @nimzo/mobile dev` and scan the QR code shown in the terminal.
+2. Run `pnpm mobile` and scan the QR code shown in the terminal.
 3. The device must be on the same Wi-Fi network as your computer.
 
 ### While it runs
