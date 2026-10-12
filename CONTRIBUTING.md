@@ -19,18 +19,16 @@
    ```bash
    pnpm supabase login
    pnpm supabase link --project-ref <project-ref>
-   cp apps/mobile/.env.example apps/mobile/.env
-   cp apps/admin/.env.example apps/admin/.env
-   cp services/pdf/.env.example services/pdf/.env
+   pnpm env:setup
    ```
 
-   Fill each `.env` with the URL and keys from the Supabase dashboard (Project Settings → API).
+   `env:setup` creates the three `.env` files with the project URL and public key. The PDF service's `SUPABASE_SERVICE_ROLE_KEY` is secret: paste it by hand from the Supabase dashboard (Project Settings → API) only when you work on that service.
 
-   There is a single Supabase project shared by development and production. Write migrations with `pnpm supabase migration new <name>` and check them with `pnpm supabase db push --dry-run`. Only the software lead runs `db push`, after the PR is reviewed.
+   There is a single Supabase project shared by development and production. Write migrations with `pnpm db:new <name>`, test them with `pnpm test:db` and preview them with `pnpm db:dry`. Only the software lead runs `db push`, after the PR is reviewed.
 
-4. Run everything with `pnpm dev`, or one app with `pnpm dev --filter @nimzo/admin`. To open the mobile app in a simulator, see [docs/project-structure.md](docs/project-structure.md#running-the-mobile-app-on-a-simulator).
+4. Run everything with `pnpm dev`, or one app with `pnpm admin`, `pnpm mobile:ios` or `pnpm pdf`. To open the mobile app in a simulator, see [docs/project-structure.md](docs/project-structure.md#running-the-mobile-app-on-a-simulator).
 
-Before opening a PR, run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm build` and `pnpm test:db`. CI runs the same checks.
+Before opening a PR, run `pnpm format` and then `pnpm check`, which runs the same checks as CI.
 
 ## Branches
 

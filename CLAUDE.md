@@ -10,17 +10,22 @@ Nimzo is a platform for fire-protection companies to digitize inspection, testin
 
 ```bash
 pnpm install                        # also enables .githooks via the "prepare" script
-pnpm supabase link --project-ref <ref>   # once per clone (after `pnpm supabase login`)
-pnpm supabase migration new <name>  # create a migration file in supabase/migrations/
-pnpm supabase db push --dry-run     # preview pending migrations against the cloud database
+pnpm env:setup                      # create .env files from the linked Supabase project (public keys only)
 pnpm dev                            # all apps via Turborepo
-pnpm dev --filter @nimzo/mobile     # one app only (also @nimzo/admin, @nimzo/pdf)
-pnpm lint | pnpm typecheck | pnpm build
-pnpm format | pnpm format:check     # Prettier (Markdown is excluded)
+pnpm mobile | pnpm mobile:ios | pnpm mobile:android   # Expo dev server / iPad simulator / Android emulator
+pnpm admin | pnpm pdf               # admin panel (localhost:5173) / PDF service (localhost:3001)
+pnpm check                          # everything CI runs: format:check, lint, typecheck, build, test:db
+pnpm lint | pnpm typecheck | pnpm build | pnpm format
 pnpm test:db                        # apply all migrations to in-memory Postgres (PGlite) and run RLS tests
+pnpm db:new <name>                  # create a migration file in supabase/migrations/
+pnpm db:status                      # local vs applied migrations in the cloud project
+pnpm db:dry                         # preview pending migrations against the cloud database (no changes)
+pnpm db:types                       # regenerate packages/shared/src/database.types.ts from the cloud schema
 ```
 
-CI runs `format:check`, `lint`, `typecheck`, `build` and `test:db`. Run them before declaring work done.
+Setup once per clone: `pnpm supabase login` and `pnpm supabase link --project-ref <ref>`. Applying migrations (`pnpm supabase db push`) is deliberately not a script: only the software lead runs it.
+
+CI runs the same checks as `pnpm check`. Run it before declaring work done.
 
 - pnpm is pinned in `package.json` (`packageManager`). If `pnpm` isn't on PATH, use `corepack pnpm`.
 - pnpm blocks dependency install scripts and very new releases (supply-chain protection). Approved build scripts live under `allowBuilds` in `pnpm-workspace.yaml`; add new ones with `pnpm approve-builds <pkg>` only when a package really needs it.
@@ -36,7 +41,7 @@ Env files are copied from `.env.example` in `apps/mobile`, `apps/admin` and `ser
 
 ## Architecture
 
-See `docs/project-structure.md` for a folder-by-folder guide and how to run the mobile app on a simulator (`pnpm --filter @nimzo/mobile ios` opens it in the iOS/iPad simulator through Expo Go).
+See `docs/project-structure.md` for a folder-by-folder guide and how to run the mobile app on a simulator (`pnpm mobile:ios` opens it in the iOS/iPad simulator through Expo Go).
 
 Three apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one shared package:
 
