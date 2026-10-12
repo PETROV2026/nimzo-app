@@ -1,0 +1,17 @@
+#!/bin/sh
+# Block direct pushes to protected branches. Changes reach them only through pull requests.
+# GitHub's free plan cannot enforce branch protection on private repos, so this runs locally.
+
+protected="main develop"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  branch="${remote_ref#refs/heads/}"
+  for p in $protected; do
+    if [ "$branch" = "$p" ]; then
+      echo "pre-push: direct pushes to '$p' are not allowed. Push a feature/ or fix/ branch and open a pull request." >&2
+      exit 1
+    fi
+  done
+done
+
+exit 0
