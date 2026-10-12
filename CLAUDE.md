@@ -35,6 +35,8 @@ Env files are copied from `.env.example` in `apps/mobile`, `apps/admin` and `ser
 
 ## Architecture
 
+See `docs/project-structure.md` for a folder-by-folder guide and how to run the mobile app on a simulator (`pnpm --filter @nimzo/mobile ios` opens it in the iOS/iPad simulator through Expo Go).
+
 Three apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one shared package:
 
 | Path | What | Stack |
