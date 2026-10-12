@@ -42,3 +42,6 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Database tests (migrations + RLS)
+        run: pnpm test:db
