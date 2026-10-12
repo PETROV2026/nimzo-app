@@ -21,7 +21,11 @@
       "Bash(git push -f*)",
       "Bash(git push * --force*)",
       "Bash(git push * -f *)",
-      "Bash(gh pr merge*)"
-    ]
+      "Bash(gh pr merge*)",
+      "Bash(*supabase db reset*)",
+      "Bash(*supabase projects delete*)",
+      "Bash(*supabase migration repair*)"
+    ],
+    "ask": ["Bash(*supabase db push*)", "Bash(*supabase config push*)"]
   }
 }

@@ -2,7 +2,7 @@
 
 ## First-time setup
 
-1. Install Node 22 (see `.nvmrc`), Docker Desktop, and pnpm (`corepack enable pnpm`, or `npm install -g pnpm`).
+1. Install Node 22 (see `.nvmrc`) and pnpm (`corepack enable pnpm`, or `npm install -g pnpm`). Ask the software lead for access to the Supabase organization.
 2. Clone the repository and install:
 
    ```bash
@@ -14,16 +14,19 @@
    - `pre-push` blocks direct pushes to `main` and `develop`.
    - `commit-msg` rejects messages that don't follow Conventional Commits.
 
-3. Start local Supabase and create the env files:
+3. Link the Supabase cloud project and create the env files:
 
    ```bash
-   pnpm supabase start
+   pnpm supabase login
+   pnpm supabase link --project-ref <project-ref>
    cp apps/mobile/.env.example apps/mobile/.env
    cp apps/admin/.env.example apps/admin/.env
    cp services/pdf/.env.example services/pdf/.env
    ```
 
-   Fill each `.env` with the URL and keys printed by `supabase start`.
+   Fill each `.env` with the URL and keys from the Supabase dashboard (Project Settings → API).
+
+   There is a single Supabase project shared by development and production. Write migrations with `pnpm supabase migration new <name>` and check them with `pnpm supabase db push --dry-run`. Only the software lead runs `db push`, after the PR is reviewed.
 
 4. Run everything with `pnpm dev`, or one app with `pnpm dev --filter @nimzo/admin`.
 

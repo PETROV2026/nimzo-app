@@ -183,10 +183,10 @@ nimzo/
 
 | Herramienta | Versión recomendada | Uso |
 |---|---|---|
-| [Node.js](https://nodejs.org/) | 20 LTS o superior | Entorno de ejecución |
-| [pnpm](https://pnpm.io/) | 9 o superior | Gestor de paquetes |
-| [Docker](https://www.docker.com/) | Última estable | Supabase local |
-| [Supabase CLI](https://supabase.com/docs/guides/cli) | Última estable | Migraciones y entorno local |
+| [Node.js](https://nodejs.org/) | 22 LTS (ver `.nvmrc`) | Entorno de ejecución |
+| [pnpm](https://pnpm.io/) | La fijada en `package.json` (`corepack enable pnpm`) | Gestor de paquetes |
+| [Supabase CLI](https://supabase.com/docs/guides/cli) | Incluida en el proyecto (`pnpm supabase`) | Migraciones |
+| Acceso al proyecto de Supabase | — | Invitación del líder de software a la organización en Supabase |
 | [EAS CLI](https://docs.expo.dev/build/setup/) | Última estable | Compilación de la app |
 | Android Studio o tablet Android | Android 10+ | Pruebas de la app |
 
@@ -197,8 +197,8 @@ nimzo/
 **1. Clonar el repositorio**
 
 ```bash
-git clone https://github.com/Petrov2026-dev/nimzo-app.git
-cd nimzo
+git clone https://github.com/PETROV2026/nimzo-app.git
+cd nimzo-app
 ```
 
 **2. Instalar dependencias**
@@ -207,11 +207,11 @@ cd nimzo
 pnpm install
 ```
 
-**3. Levantar Supabase en local**
+**3. Vincular el proyecto de Supabase**
 
 ```bash
-supabase start
-supabase db reset   # Aplica migraciones y datos de prueba
+pnpm supabase login
+pnpm supabase link --project-ref <project-ref>   # Pide la contraseña de la base de datos
 ```
 
 **4. Configurar variables de entorno**
@@ -222,7 +222,7 @@ cp apps/admin/.env.example apps/admin/.env
 cp services/pdf/.env.example services/pdf/.env
 ```
 
-Completa cada archivo con los valores que muestra `supabase start`.
+Completa cada archivo con la URL y las claves de **Project Settings → API** en el panel de Supabase.
 
 **5. Iniciar el entorno de desarrollo**
 
@@ -231,7 +231,7 @@ pnpm dev
 ```
 
 > [!IMPORTANT]
-> El desarrollo se realiza **siempre** contra Supabase local. El proyecto de Supabase en la nube está reservado para producción.
+> Por ahora hay **un solo proyecto de Supabase en la nube**, compartido por desarrollo y producción. Mientras no haya clientes reales es aceptable, pero antes del lanzamiento se debe crear un proyecto separado para desarrollo. Las migraciones las aplica únicamente el líder de software con `pnpm supabase db push`, después de revisar el PR.
 
 ---
 

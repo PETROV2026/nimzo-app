@@ -10,8 +10,9 @@ Nimzo is a platform for fire-protection companies to digitize inspection, testin
 
 ```bash
 pnpm install                        # also enables .githooks via the "prepare" script
-pnpm supabase start                 # local Supabase (requires Docker); prints the URL and keys for .env files
-pnpm supabase db reset              # apply migrations + seed data
+pnpm supabase link --project-ref <ref>   # once per clone (after `pnpm supabase login`)
+pnpm supabase migration new <name>  # create a migration file in supabase/migrations/
+pnpm supabase db push --dry-run     # preview pending migrations against the cloud database
 pnpm dev                            # all apps via Turborepo
 pnpm dev --filter @nimzo/mobile     # one app only (also @nimzo/admin, @nimzo/pdf)
 pnpm lint | pnpm typecheck | pnpm build
@@ -24,7 +25,13 @@ CI runs `format:check`, `lint`, `typecheck` and `build`. Run them before declari
 - pnpm blocks dependency install scripts and very new releases (supply-chain protection). Approved build scripts live under `allowBuilds` in `pnpm-workspace.yaml`; add new ones with `pnpm approve-builds <pkg>` only when a package really needs it.
 - In `apps/mobile`, install packages with `npx expo install <pkg>` so versions match the Expo SDK. See `apps/mobile/CLAUDE.md`.
 
-Env files are copied from `.env.example` in `apps/mobile`, `apps/admin` and `services/pdf`, filled with the values printed by `supabase start`. Development always targets **local** Supabase; the cloud project is production only.
+**There is a single Supabase cloud project, shared by development and production. No local Supabase or Docker is used.** This is a deliberate, temporary choice while there are no real customers; a separate dev project must be created before launch. Consequences:
+
+- Never run `supabase db reset --linked` or any destructive SQL against the project (denied in `.claude/settings.json`).
+- Only the software lead applies migrations, with `pnpm supabase db push`, after the PR is reviewed. Claude must ask before running `db push`. Contributors write migrations and check them with `--dry-run`.
+- Seed or test data in the shared database must be clearly fake.
+
+Env files are copied from `.env.example` in `apps/mobile`, `apps/admin` and `services/pdf`, filled with the URL and keys from the Supabase dashboard (Project Settings → API).
 
 ## Architecture
 
@@ -54,7 +61,7 @@ Roles: **técnico** (fills, signs and submits), **supervisor** (signs and author
 
 ## Rules
 
-- **Security:** public sign-up is disabled, because only admins create accounts (`enable_signup = false` in `supabase/config.toml`; mirror it in the cloud project). RLS is enabled on every table. Photos and signatures live in private Storage buckets and are served through short-lived signed URLs. `SUPABASE_SERVICE_ROLE_KEY` is used only in `services/pdf`, never in `apps/mobile` or `apps/admin`.
+- **Security:** public sign-up is disabled, because only admins create accounts (turn off "Allow new users to sign up" in the dashboard under Authentication; `supabase/config.toml` mirrors it). RLS is enabled on every table. Photos and signatures live in private Storage buckets and are served through short-lived signed URLs. `SUPABASE_SERVICE_ROLE_KEY` is used only in `services/pdf`, never in `apps/mobile` or `apps/admin`.
 - **Database changes** go only through versioned migrations in `supabase/` (`supabase db push` in production). No manual changes in the Supabase dashboard. Use the `supabase` and `supabase-postgres-best-practices` skills for schema, RLS and SQL work. Follow the guides in `docs/ai/supabase/` (SQL style, migrations, database functions, RLS policies).
 - **UI:** `docs/ux-principles.es.md` (Spanish) is the UX rulebook for any interface work: Hick/Fitts/Miller, form design, WCAG 2.1, loading states. Apply it when designing screens.
 - **Language:** code, comments, identifiers and file names are in English. The README and user-facing docs are in Spanish.
