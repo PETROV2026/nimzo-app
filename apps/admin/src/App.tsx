@@ -27,19 +27,27 @@ const resources = [
   {
     name: 'dashboard',
     list: '/',
-    meta: { label: 'Inicio', icon: <SpaceDashboardOutlined /> },
+    meta: { label: 'Escritorio', icon: <SpaceDashboardOutlined /> },
   },
   {
     name: 'clients',
     list: '/clients',
     create: '/clients/create',
     edit: '/clients/:id/edit',
-    meta: { label: 'Clientes', icon: <BusinessOutlined />, canDelete: false },
+    meta: {
+      label: 'Clientes',
+      icon: <BusinessOutlined />,
+      canDelete: false,
+      submenu: [
+        { label: 'Todos los clientes', to: '/clients' },
+        { label: 'Agregar cliente', to: '/clients/create' },
+      ],
+    },
   },
 ];
 
 const titles: Record<string, string> = {
-  dashboard: 'Inicio',
+  dashboard: 'Escritorio',
   clients: 'Clientes',
 };
 

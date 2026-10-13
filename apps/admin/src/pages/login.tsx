@@ -1,8 +1,8 @@
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
@@ -57,16 +57,14 @@ export function LoginPage() {
         bgcolor: 'background.default',
       }}
     >
-      {/* Brand panel: the only dark surface in the admin panel (see DESIGN_admin.md). */}
+      {/* Brand panel: same dark chrome as the admin bar. */}
       <Box
         sx={{
           display: { xs: 'none', md: 'flex' },
           position: 'relative',
           overflow: 'hidden',
-          bgcolor: tokens.gray,
+          bgcolor: tokens.adminBar,
           color: 'common.white',
-          m: 1.5,
-          borderRadius: '24px',
           flexDirection: 'column',
           justifyContent: 'space-between',
           p: 6,
@@ -93,7 +91,7 @@ export function LoginPage() {
           }}
         />
         <Box sx={{ position: 'relative', maxWidth: 420 }}>
-          <Typography variant="h2" component="p" sx={{ mb: 2 }}>
+          <Typography variant="h4" component="p" sx={{ mb: 2 }}>
             Inspección, prueba y mantenimiento de sistemas contra incendio.
           </Typography>
           <Typography sx={{ color: alpha(tokens.white, 0.75) }}>
@@ -122,7 +120,7 @@ export function LoginPage() {
             alt="Nimzo"
             sx={{ display: { xs: 'block', md: 'none' }, height: 48, mb: 5 }}
           />
-          <Typography variant="h2" component="h1" gutterBottom>
+          <Typography variant="h1" sx={{ fontSize: 28, fontWeight: 500 }} gutterBottom>
             Inicia sesión
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 4 }}>
@@ -136,6 +134,7 @@ export function LoginPage() {
               </Alert>
             )}
             <TextField
+              size="medium"
               label="Correo electrónico"
               type="email"
               autoComplete="email"
@@ -145,6 +144,7 @@ export function LoginPage() {
               disabled={submitting}
             />
             <TextField
+              size="medium"
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
@@ -167,15 +167,9 @@ export function LoginPage() {
                 },
               }}
             />
-            <LoadingButton
-              type="submit"
-              variant="contained"
-              size="large"
-              loading={submitting}
-              fullWidth
-            >
+            <Button type="submit" variant="contained" size="large" loading={submitting} fullWidth>
               Iniciar sesión
-            </LoadingButton>
+            </Button>
           </Stack>
 
           <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>

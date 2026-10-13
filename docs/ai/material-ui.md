@@ -15,22 +15,24 @@ MUI APIs change between majors. Check the **v6** documentation (https://v6.mui.c
 
 ## Visual style
 
-The look of the panel is defined in [`apps/admin/DESIGN_admin.md`](../../apps/admin/DESIGN_admin.md), adapted to the Nimzo palette in `apps/admin/src/theme.ts` (the header comment there explains every adaptation):
+The panel follows the **WordPress admin** conventions, so administrators recognize the patterns (Jakob's law), with the Nimzo palette. All values live in `apps/admin/src/theme.ts` (`tokens`), with their measured contrast in comments.
 
-- Quiet chrome: surfaces are defined by **1px hairlines** (`hairline` from `theme.ts`, the Paper `outlined` variant), never by drop shadows. No gradients.
-- **Pill buttons** (`borderRadius: 9999`); one `contained` (teal) primary action per screen, `outlined` for the rest.
-- Cards and inputs use a **10px radius**; chips are pills.
-- **Inter** for text, **Barlow Semi Condensed 500** for `h1`–`h4`.
-- The **only dark surface** is the brand panel on the login. Everything else sits on the light canvas (`tokens.canvas`).
-- Colors only from `tokens` / the theme palette. Orange is for errors and destructive actions, never for links.
+- **Chrome:** dark admin bar on top (`tokens.adminBar`: logo, "+ Agregar" menu, "Hola, …" user menu) and dark sidebar (`tokens.sidebar`). The active item is filled teal with the WordPress notch; its submenu opens underneath (`meta.submenu` on the resource in `App.tsx`). Hovered menu text turns brand yellow. The sidebar can be collapsed to icons.
+- **Workspace:** light gray canvas, white boxes with a thin border (`<Postbox>`), notices with a colored left edge (`<Notice>`). No drop shadows, no gradients.
+- **Page header:** title top-left in 23px regular, with its secondary action as an outlined button right next to it (`<PageHeader>`).
+- **Lists:** "Todos (n) | Activos (n) | Inactivos (n)" status links, search box on the right, and row actions ("Editar | Desactivar") under the name, visible on hover, keyboard focus and always on touch screens.
+- **Edit screens:** fields in the main column, a side box with the status and the single primary action (like WordPress' "Publicar").
+- **One brand moment:** the dark welcome panel on the Escritorio (and the login), the only place with the display face (Barlow Semi Condensed). Everything else is Inter.
+- **Buttons:** 4px radius; one `contained` primary per screen, `outlined` for secondary actions.
+- Orange is for errors and destructive actions only.
 
 ## 1. Refine data hooks + Nimzo page building blocks
 
 **Reference implementation: `apps/admin/src/pages/clients/`.** Copy its structure for every new resource.
 
-- Page title, description and the primary action: `<PageHeader>` (`src/components/page-header.tsx`).
-- Tables: `useDataGrid()` + MUI `<DataGrid>` inside a `<Card>`, with search/filter controls above it.
-- Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, sections laid out like `client-form.tsx`.
+- Page title and its secondary action: `<PageHeader>` (`src/components/page-header.tsx`). Boxes: `<Postbox>`. Notices: `<Notice>`.
+- Tables: `useDataGrid()` + MUI `<DataGrid>` inside an outlined `<Paper>`, with status links and search above it (see `clients/list.tsx`).
+- Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, laid out like `client-form.tsx` (main column + side save box).
 - Shell and navigation: `src/components/layout/app-layout.tsx`. Sidebar entries come from the `resources` array in `App.tsx`.
 - Refine's own wrappers (`<List>`, `<Create>`, `<Edit>`) are **not** used: their header and card styles don't match the design. Their hooks are.
 - Texts of Refine's built-in buttons and notifications are translated in `src/providers/i18n-provider.ts`.

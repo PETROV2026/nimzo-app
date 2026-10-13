@@ -1,22 +1,23 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid2';
+import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
+import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { clientFormSchema, type Client, type ClientFormInput } from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
-import type { ReactNode } from 'react';
 import { Controller, type Control, type FieldPath } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link as RouterLink } from 'react-router';
+
+import { Postbox } from '@/components/postbox';
 
 const emptyClient: ClientFormInput = {
   name: '',
@@ -52,35 +53,14 @@ function FormTextField({ control, name, ...props }: FieldProps) {
   );
 }
 
-function Section({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: ReactNode;
-}) {
-  return (
-    <Grid container spacing={{ xs: 2, md: 4 }} sx={{ p: { xs: 3, md: 4 } }}>
-      <Grid size={{ xs: 12, md: 4 }}>
-        <Typography variant="h6" component="h2">
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-          {description}
-        </Typography>
-      </Grid>
-      <Grid size={{ xs: 12, md: 8 }} container spacing={2.5}>
-        {children}
-      </Grid>
-    </Grid>
-  );
-}
-
 type ClientFormProps = { action: 'create' | 'edit'; id?: string };
 
+/**
+ * WordPress edit-screen layout: fields in the main column, a side box with the status and the
+ * single primary action (Hick's law).
+ */
 export function ClientForm({ action, id }: ClientFormProps) {
+  const isEdit = action === 'edit';
   const {
     control,
     handleSubmit,
@@ -91,8 +71,7 @@ export function ClientForm({ action, id }: ClientFormProps) {
     defaultValues: emptyClient,
   });
 
-  const loadingRecord = action === 'edit' && query?.isLoading;
-  const isEdit = action === 'edit';
+  const loadingRecord = isEdit && query?.isLoading;
 
   if (query?.isError) {
     return (
@@ -102,118 +81,159 @@ export function ClientForm({ action, id }: ClientFormProps) {
     );
   }
 
+  const fieldsSkeleton = (
+    <>
+      <Skeleton height={48} />
+      <Skeleton height={48} />
+    </>
+  );
+
   return (
-    <Card component="form" noValidate onSubmit={handleSubmit((values) => onFinish(values))}>
-      {loadingRecord ? (
-        <Box sx={{ p: 4 }}>
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-        </Box>
-      ) : (
-        <>
-          <Section
-            title="Datos del cliente"
-            description="Nombre con el que aparecerá en los reportes."
-          >
-            <Grid size={{ xs: 12 }}>
-              <FormTextField
-                control={control}
-                name="name"
-                label="Nombre o razón social"
-                required
-                autoFocus
-              />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormTextField
-                control={control}
-                name="tax_id"
-                label="RFC"
-                helperText="Opcional. 12 caracteres para empresas, 13 para personas."
-                slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-              />
-            </Grid>
-          </Section>
+    <Box component="form" noValidate onSubmit={handleSubmit((values) => onFinish(values))}>
+      <Grid container spacing={2.5} sx={{ alignItems: 'flex-start' }}>
+        <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
+          <Stack spacing={2.5}>
+            <Postbox title="Datos del cliente">
+              {loadingRecord ? (
+                fieldsSkeleton
+              ) : (
+                <Grid container spacing={2}>
+                  <Grid size={12}>
+                    <FormTextField
+                      control={control}
+                      name="name"
+                      label="Nombre o razón social"
+                      required
+                      autoFocus={!isEdit}
+                      helperText="Así aparecerá en los reportes."
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormTextField
+                      control={control}
+                      name="tax_id"
+                      label="RFC (opcional)"
+                      helperText="12 caracteres para empresas, 13 para personas. Ej. ABC010101AB1"
+                      slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
+                    />
+                  </Grid>
+                </Grid>
+              )}
+            </Postbox>
 
-          <Divider />
+            <Postbox title="Contacto">
+              {loadingRecord ? (
+                fieldsSkeleton
+              ) : (
+                <Grid container spacing={2}>
+                  <Grid size={12}>
+                    <Typography variant="body2" color="text.secondary">
+                      Persona con la que se coordinan las visitas. Todos los campos son opcionales.
+                    </Typography>
+                  </Grid>
+                  <Grid size={12}>
+                    <FormTextField
+                      control={control}
+                      name="contact_name"
+                      label="Nombre del contacto"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormTextField
+                      control={control}
+                      name="contact_email"
+                      label="Correo"
+                      type="email"
+                      autoComplete="off"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormTextField
+                      control={control}
+                      name="contact_phone"
+                      label="Teléfono"
+                      type="tel"
+                    />
+                  </Grid>
+                </Grid>
+              )}
+            </Postbox>
 
-          <Section title="Contacto" description="Persona con la que se coordinan las visitas.">
-            <Grid size={{ xs: 12 }}>
-              <FormTextField control={control} name="contact_name" label="Nombre del contacto" />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormTextField control={control} name="contact_email" label="Correo" type="email" />
-            </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
-              <FormTextField control={control} name="contact_phone" label="Teléfono" type="tel" />
-            </Grid>
-          </Section>
+            <Postbox title="Notas" collapsible>
+              {loadingRecord ? (
+                fieldsSkeleton
+              ) : (
+                <FormTextField
+                  control={control}
+                  name="notes"
+                  label="Notas (opcional)"
+                  helperText="Información útil para el equipo, por ejemplo horarios de acceso."
+                  multiline
+                  minRows={3}
+                />
+              )}
+            </Postbox>
+          </Stack>
+        </Grid>
 
-          <Divider />
-
-          <Section
-            title="Notas"
-            description="Información útil para el equipo, por ejemplo horarios de acceso."
-          >
-            <Grid size={{ xs: 12 }}>
-              <FormTextField control={control} name="notes" label="Notas" multiline minRows={3} />
-            </Grid>
-          </Section>
-
-          {isEdit && (
-            <>
-              <Divider />
-              <Section
-                title="Estado"
-                description="Desactiva al cliente en lugar de borrarlo: así se conserva su historial de reportes."
-              >
-                <Grid size={{ xs: 12 }}>
-                  <Controller
-                    control={control}
-                    name="is_active"
-                    render={({ field }) => (
+        <Grid size={{ xs: 12, lg: 4, xl: 3 }} sx={{ position: { lg: 'sticky' }, top: { lg: 60 } }}>
+          <Postbox title={isEdit ? 'Guardar' : 'Agregar'} flush>
+            <Box sx={{ p: 2 }}>
+              {isEdit ? (
+                <Controller
+                  control={control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <>
                       <FormControlLabel
                         control={
                           <Switch
                             checked={field.value}
                             onChange={(_, checked) => field.onChange(checked)}
+                            disabled={loadingRecord}
                           />
                         }
                         label={field.value ? 'Cliente activo' : 'Cliente inactivo'}
                       />
-                    )}
-                  />
-                </Grid>
-              </Section>
-            </>
-          )}
-        </>
-      )}
-
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: 1.5,
-          px: { xs: 3, md: 4 },
-          py: 2.5,
-          borderTop: 1,
-          borderColor: 'divider',
-        }}
-      >
-        <Button component={Link} to="/clients" variant="outlined">
-          Cancelar
-        </Button>
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          loading={formLoading}
-          disabled={loadingRecord}
-        >
-          {isEdit ? 'Guardar cambios' : 'Agregar cliente'}
-        </LoadingButton>
-      </Box>
-    </Card>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Desactívalo en lugar de borrarlo: así se conserva su historial de reportes.
+                      </Typography>
+                    </>
+                  )}
+                />
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  El cliente se agregará como activo. Después podrás registrar sus sucursales.
+                </Typography>
+              )}
+            </Box>
+            <Divider />
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 2,
+                px: 2,
+                py: 1.5,
+                bgcolor: 'background.default',
+              }}
+            >
+              <Link component={RouterLink} to="/clients" sx={{ fontSize: 13 }}>
+                Cancelar
+              </Link>
+              <Button
+                type="submit"
+                variant="contained"
+                loading={formLoading}
+                disabled={loadingRecord}
+              >
+                {isEdit ? 'Guardar cambios' : 'Agregar cliente'}
+              </Button>
+            </Box>
+          </Postbox>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }
