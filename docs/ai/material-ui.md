@@ -13,9 +13,29 @@ Rules for building `apps/admin` with Material UI (MUI) and Refine. They apply to
 
 MUI APIs change between majors. Check the **v6** documentation (https://v6.mui.com/material-ui/), not the latest site, before using an API you are not sure about.
 
-## 1. Use Refine's MUI building blocks for CRUD
+## Visual style
 
-Every resource page (list, create, edit, show) starts from Refine's components, not from a blank page.
+The look of the panel is defined in [`apps/admin/DESIGN_admin.md`](../../apps/admin/DESIGN_admin.md), adapted to the Nimzo palette in `apps/admin/src/theme.ts` (the header comment there explains every adaptation):
+
+- Quiet chrome: surfaces are defined by **1px hairlines** (`hairline` from `theme.ts`, the Paper `outlined` variant), never by drop shadows. No gradients.
+- **Pill buttons** (`borderRadius: 9999`); one `contained` (teal) primary action per screen, `outlined` for the rest.
+- Cards and inputs use a **10px radius**; chips are pills.
+- **Inter** for text, **Barlow Semi Condensed 500** for `h1`–`h4`.
+- The **only dark surface** is the brand panel on the login. Everything else sits on the light canvas (`tokens.canvas`).
+- Colors only from `tokens` / the theme palette. Orange is for errors and destructive actions, never for links.
+
+## 1. Refine data hooks + Nimzo page building blocks
+
+**Reference implementation: `apps/admin/src/pages/clients/`.** Copy its structure for every new resource.
+
+- Page title, description and the primary action: `<PageHeader>` (`src/components/page-header.tsx`).
+- Tables: `useDataGrid()` + MUI `<DataGrid>` inside a `<Card>`, with search/filter controls above it.
+- Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, sections laid out like `client-form.tsx`.
+- Shell and navigation: `src/components/layout/app-layout.tsx`. Sidebar entries come from the `resources` array in `App.tsx`.
+- Refine's own wrappers (`<List>`, `<Create>`, `<Edit>`) are **not** used: their header and card styles don't match the design. Their hooks are.
+- Texts of Refine's built-in buttons and notifications are translated in `src/providers/i18n-provider.ts`.
+
+The examples below show the hooks; follow the clients pages for the surrounding layout.
 
 | Need | Use |
 |---|---|
