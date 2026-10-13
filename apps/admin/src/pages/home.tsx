@@ -3,7 +3,7 @@ import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import logo from '@nimzo/brand/logos/logo-horizontal-color.png';
+import logo from '@nimzo/brand/logos/logo-horizontal-color.webp';
 import { reportStatusLabels, reportStatusSchema } from '@nimzo/shared';
 
 // Placeholder page. Confirms the panel builds, MUI renders and the shared packages resolve.

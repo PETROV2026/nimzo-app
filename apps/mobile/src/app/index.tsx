@@ -9,7 +9,7 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 items-center justify-center gap-4 p-8">
         <Image
-          source={require('@nimzo/brand/logos/logo-horizontal-color.png')}
+          source={require('@nimzo/brand/logos/logo-horizontal-color.webp')}
           style={{ width: 240, height: 93 }}
           contentFit="contain"
           accessibilityLabel="Nimzo"

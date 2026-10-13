@@ -3,9 +3,14 @@
     python3 packages/brand/scripts/generate.py      (requires Pillow: pip install pillow)
 
 Outputs:
-  packages/brand/logos/*.png           trimmed logos for use inside the apps
+  packages/brand/logos/*.webp          trimmed logos for use inside the apps
   apps/mobile/assets/images/*.png      app icon, Android adaptive icon layers, splash, web favicon
   apps/admin/public/favicon.png        browser tab icon
+
+Size optimizations (the logos are flat colors, so none of this is visible):
+  - in-app logos are capped at 960 px on their longest side (enough for 3x screens at ~320 pt)
+  - every output is reduced to a 128-color palette
+  - in-app logos are lossless WebP; app icons and the splash stay PNG because Expo requires it
 
 Run it again whenever a file in source/ changes, and commit the results.
 """
@@ -21,6 +26,9 @@ MOBILE_IMAGES = ROOT / "apps/mobile/assets/images"
 ADMIN_PUBLIC = ROOT / "apps/admin/public"
 
 WHITE = (255, 255, 255, 255)
+LOGO_MAX_SIZE = 960
+SPLASH_MAX_SIZE = 600
+PALETTE_COLORS = 128
 
 
 def load(name: str) -> Image.Image:
@@ -37,6 +45,12 @@ def trim(image: Image.Image, padding_ratio: float = 0.02) -> Image.Image:
     return out
 
 
+def fit(image: Image.Image, max_size: int) -> Image.Image:
+    image = image.copy()
+    image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+    return image
+
+
 def place(content: Image.Image, size: int, max_ratio: float, background=(0, 0, 0, 0)) -> Image.Image:
     """Centers `content` on a square canvas, scaled so its longest side is `max_ratio` of the canvas."""
     content = trim(content, padding_ratio=0)
@@ -49,25 +63,39 @@ def place(content: Image.Image, size: int, max_ratio: float, background=(0, 0, 0
     return canvas
 
 
+def palette(image: Image.Image) -> Image.Image:
+    return image.quantize(colors=PALETTE_COLORS, method=Image.Quantize.FASTOCTREE)
+
+
+def save_png(image: Image.Image, path: Path) -> None:
+    palette(image).save(path, optimize=True)
+
+
+def save_webp(image: Image.Image, path: Path) -> None:
+    palette(image).convert("RGBA").save(path, lossless=True, method=6)
+
+
 def main() -> None:
     LOGOS.mkdir(exist_ok=True)
+    for old in LOGOS.glob("*.png"):
+        old.unlink()
     for path in sorted(SOURCE.glob("*.png")):
-        trim(load(path.stem)).save(LOGOS / path.name, optimize=True)
+        save_webp(fit(trim(load(path.stem)), LOGO_MAX_SIZE), LOGOS / f"{path.stem}.webp")
 
     icon_color = load("icon-color")
     icon_black = load("icon-black")
 
     # App icon (iOS and legacy Android): opaque, the system applies the rounded mask.
-    place(icon_color, 1024, 0.62, WHITE).convert("RGB").save(MOBILE_IMAGES / "icon.png", optimize=True)
+    save_png(place(icon_color, 1024, 0.62, WHITE).convert("RGB"), MOBILE_IMAGES / "icon.png")
     # Android adaptive icon: the foreground must fit the 66% safe zone; the background is a flat color
     # (android.adaptiveIcon.backgroundColor in app.json). The monochrome layer is used for themed icons.
-    place(icon_color, 1024, 0.56).save(MOBILE_IMAGES / "android-icon-foreground.png", optimize=True)
-    place(icon_black, 1024, 0.56).save(MOBILE_IMAGES / "android-icon-monochrome.png", optimize=True)
+    save_png(place(icon_color, 1024, 0.56), MOBILE_IMAGES / "android-icon-foreground.png")
+    save_png(place(icon_black, 1024, 0.56), MOBILE_IMAGES / "android-icon-monochrome.png")
     # Splash screen image: transparent, shown over the splash background color.
-    trim(icon_color, padding_ratio=0).save(MOBILE_IMAGES / "splash-icon.png", optimize=True)
+    save_png(fit(trim(icon_color, padding_ratio=0), SPLASH_MAX_SIZE), MOBILE_IMAGES / "splash-icon.png")
     # Favicons (Expo web and the admin panel).
-    place(icon_color, 48, 0.9).save(MOBILE_IMAGES / "favicon.png", optimize=True)
-    place(icon_color, 64, 0.9).save(ADMIN_PUBLIC / "favicon.png", optimize=True)
+    save_png(place(icon_color, 48, 0.9), MOBILE_IMAGES / "favicon.png")
+    save_png(place(icon_color, 64, 0.9), ADMIN_PUBLIC / "favicon.png")
 
     print("Brand assets generated.")
 
