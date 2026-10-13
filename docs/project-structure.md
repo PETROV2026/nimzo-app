@@ -41,7 +41,8 @@ nimzo-app/
 │   ├── mobile/               Field app for technicians and supervisors
 │   └── admin/                Web panel for administrators
 ├── packages/
-│   └── shared/               Code shared by every app
+│   ├── shared/               Code shared by every app
+│   └── brand/                Logos shared by both apps (see its README)
 ├── supabase/
 │   ├── migrations/           Database changes, one SQL file per change
 │   ├── tests/                Database and RLS tests (pnpm test:db)

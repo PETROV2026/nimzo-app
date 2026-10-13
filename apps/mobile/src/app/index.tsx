@@ -1,13 +1,19 @@
 import { reportStatusLabels, reportStatusSchema } from '@nimzo/shared';
+import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Placeholder screen. Confirms the app runs, the brand theme applies and @nimzo/shared resolves.
+// Placeholder screen. Confirms the app runs, the brand theme applies and the shared packages resolve.
 export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1 items-center justify-center gap-4 p-8">
-        <Text className="text-4xl font-bold text-foreground">Nimzo</Text>
+        <Image
+          source={require('@nimzo/brand/logos/logo-horizontal-color.webp')}
+          style={{ width: 240, height: 93 }}
+          contentFit="contain"
+          accessibilityLabel="Nimzo"
+        />
         <Text className="text-base text-muted">Estados del reporte:</Text>
         <View className="flex-row flex-wrap justify-center gap-2">
           {reportStatusSchema.options.map((status) => (

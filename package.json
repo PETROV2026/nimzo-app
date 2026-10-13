@@ -24,7 +24,8 @@
     "db:status": "supabase migration list --linked",
     "db:dry": "supabase db push --dry-run",
     "db:types": "supabase gen types typescript --linked --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
-    "supabase": "supabase"
+    "supabase": "supabase",
+    "brand:assets": "python3 packages/brand/scripts/generate.py"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",

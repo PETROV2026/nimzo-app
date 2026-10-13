@@ -50,6 +50,7 @@ Two apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one sha
 | `apps/mobile` (`@nimzo/mobile`) | Field app for technicians and supervisors (Android tablet, landscape + portrait) | Expo SDK 57, Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
 | `apps/admin` (`@nimzo/admin`) | Web panel for administrators (users, clients, branches, systems, service packages, report history) | Vite 8, React 19, Refine 5 with the Supabase data provider, **Material UI v6** via `@refinedev/mui` (pinned: Refine requires MUI v6), oxlint. No Tailwind, no other UI library |
 | `packages/shared` (`@nimzo/shared`) | Types, Zod schemas and **form definitions** consumed by the apps | TypeScript, Zod 4 |
+| `packages/brand` (`@nimzo/brand`) | Logos used by both apps. `source/` holds the originals; `logos/`, the mobile app icons/splash and the favicons are generated with `pnpm brand:assets` (Python + Pillow). See its README for which logo to use where | PNG assets |
 | `supabase/` | Versioned migrations, RLS policies, seed data | Supabase CLI (a root devDependency, run as `pnpm supabase`) |
 
 `@nimzo/shared` exports its TypeScript sources directly (no build step). Metro and Vite compile it. React is pinned to the same version in mobile and admin. Keep them aligned when Expo upgrades.
