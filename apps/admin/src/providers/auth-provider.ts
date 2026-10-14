@@ -12,13 +12,40 @@ export type Identity = {
 
 const NO_ACCESS_MESSAGE = 'Tu cuenta no tiene acceso al panel de administración.';
 
-async function getAdminProfile(userId: string) {
-  const { data } = await supabase
+const PROFILE_TTL_MS = 60_000;
+
+type AdminProfile = { full_name: string; role: UserRole; is_active: boolean };
+
+let profileCache: {
+  userId: string;
+  expiresAt: number;
+  promise: Promise<AdminProfile | null>;
+} | null = null;
+
+async function fetchAdminProfile(userId: string) {
+  const { data, error } = await supabase
     .from('profiles')
     .select('full_name, role, is_active')
     .eq('id', userId)
     .maybeSingle();
+  if (error) throw error;
   return data?.is_active && data.role === 'administrador' ? data : null;
+}
+
+function getAdminProfile(userId: string) {
+  if (profileCache?.userId === userId && profileCache.expiresAt > Date.now()) {
+    return profileCache.promise;
+  }
+  const promise = fetchAdminProfile(userId).catch(() => {
+    profileCache = null;
+    return null;
+  });
+  profileCache = { userId, expiresAt: Date.now() + PROFILE_TTL_MS, promise };
+  return promise;
+}
+
+function clearProfileCache() {
+  profileCache = null;
 }
 
 function loginError(message: string) {
@@ -27,6 +54,7 @@ function loginError(message: string) {
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }: { email: string; password: string }) => {
+    clearProfileCache();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
@@ -48,6 +76,7 @@ export const authProvider: AuthProvider = {
   },
 
   logout: async () => {
+    clearProfileCache();
     await supabase.auth.signOut();
     return { success: true, redirectTo: '/login' };
   },
@@ -74,16 +103,17 @@ export const authProvider: AuthProvider = {
   },
 
   getIdentity: async (): Promise<Identity | null> => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) return null;
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user;
+    if (!user) return null;
 
-    const profile = await getAdminProfile(data.user.id);
+    const profile = await getAdminProfile(user.id);
     if (!profile) return null;
 
     return {
-      id: data.user.id,
-      email: data.user.email,
-      fullName: profile.full_name || data.user.email || 'Administrador',
+      id: user.id,
+      email: user.email,
+      fullName: profile.full_name || user.email || 'Administrador',
       role: profile.role,
     };
   },

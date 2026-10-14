@@ -16,7 +16,7 @@ export default defineConfig({
           groups: [
             {
               name: 'vendor',
-              test: (id) => id.includes('node_modules') && !/@mui[\\/]x-/.test(id),
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router|@mui[\\/](material|system|utils|styled-engine|private-theming)|@emotion[\\/][^\\/]+|@supabase[\\/][^\\/]+|@refinedev[\\/]core|@tanstack[\\/][^\\/]+)[\\/]/,
             },
           ],
         },

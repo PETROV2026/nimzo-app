@@ -47,7 +47,7 @@ Logos are WebP (much lighter than PNG; supported by Expo and every modern browse
 
 ## Images
 
-`images/` holds photos used as decorative backgrounds. They are WebP, ≤1800 px wide and stripped of metadata (`cwebp -q 70 -m 6 -resize 1800 0 -metadata none`), so each one stays around 100 KB.
+`images/` holds photos used as decorative backgrounds. They sit under a 90% brand-color overlay, so they are WebP at 1280 px wide, quality 50 and stripped of metadata (`cwebp -q 50 -m 6 -resize 1280 0 -metadata none`), around 50 KB each.
 
 | File (`images/`) | Use | Source |
 |---|---|---|

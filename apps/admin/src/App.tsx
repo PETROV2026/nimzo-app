@@ -5,7 +5,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { Authenticated, Refine } from '@refinedev/core';
-import { ErrorComponent, RefineSnackbarProvider, useNotificationProvider } from '@refinedev/mui';
 import routerProvider, {
   CatchAllNavigate,
   DocumentTitleHandler,
@@ -13,36 +12,37 @@ import routerProvider, {
   UnsavedChangesNotifier,
 } from '@refinedev/react-router';
 import { dataProvider, liveProvider } from '@refinedev/supabase';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 
+import { AppLayout } from '@/components/layout/app-layout';
+import { SnackbarProvider } from '@/components/snackbar-provider';
 import { supabase } from '@/lib/supabase';
+import { DashboardPage } from '@/pages/dashboard';
+import { LoginPage } from '@/pages/login';
+import { NotFoundPage } from '@/pages/not-found';
 import { authProvider } from '@/providers/auth-provider';
 import { i18nProvider } from '@/providers/i18n-provider';
+import { useNotificationProvider } from '@/providers/notification-provider';
 import { theme } from '@/theme';
 
-const AppLayout = lazy(() =>
-  import('@/components/layout/app-layout').then((module) => ({ default: module.AppLayout })),
-);
-const DashboardPage = lazy(() =>
-  import('@/pages/dashboard').then((module) => ({ default: module.DashboardPage })),
-);
-const ClientList = lazy(() =>
-  import('@/pages/clients').then((module) => ({ default: module.ClientList })),
-);
-const ClientCreate = lazy(() =>
-  import('@/pages/clients').then((module) => ({ default: module.ClientCreate })),
-);
-const ClientEdit = lazy(() =>
-  import('@/pages/clients').then((module) => ({ default: module.ClientEdit })),
-);
-const LoginPage = lazy(() =>
-  import('@/pages/login').then((module) => ({ default: module.LoginPage })),
-);
+const loadClients = () => import('@/pages/clients');
+
+const ClientList = lazy(() => loadClients().then((module) => ({ default: module.ClientList })));
+const ClientCreate = lazy(() => loadClients().then((module) => ({ default: module.ClientCreate })));
+const ClientEdit = lazy(() => loadClients().then((module) => ({ default: module.ClientEdit })));
+
+function ProtectedLayout() {
+  useEffect(() => {
+    const id = setTimeout(() => void loadClients(), 1500);
+    return () => clearTimeout(id);
+  }, []);
+  return <AppLayout />;
+}
 
 function PageLoader() {
   return (
-    <Box sx={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+    <Box sx={{ display: 'grid', placeItems: 'center', py: 12 }}>
       <CircularProgress aria-label="Cargando" />
     </Box>
   );
@@ -81,7 +81,7 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <RefineSnackbarProvider>
+        <SnackbarProvider>
           <Refine
             dataProvider={dataProvider(supabase)}
             liveProvider={liveProvider(supabase)}
@@ -96,37 +96,42 @@ export default function App() {
               warnWhenUnsavedChanges: true,
             }}
           >
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route
-                  element={
-                    <Authenticated key="protected" fallback={<CatchAllNavigate to="/login" />}>
-                      <Outlet />
-                    </Authenticated>
-                  }
-                >
-                  <Route element={<AppLayout />}>
-                    <Route index element={<DashboardPage />} />
-                    <Route path="/clients">
-                      <Route index element={<ClientList />} />
-                      <Route path="create" element={<ClientCreate />} />
-                      <Route path=":id/edit" element={<ClientEdit />} />
-                    </Route>
-                    <Route path="*" element={<ErrorComponent />} />
+            <Routes>
+              <Route
+                element={
+                  <Authenticated key="protected" fallback={<CatchAllNavigate to="/login" />}>
+                    <Outlet />
+                  </Authenticated>
+                }
+              >
+                <Route element={<ProtectedLayout />}>
+                  <Route index element={<DashboardPage />} />
+                  <Route
+                    path="/clients"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<ClientList />} />
+                    <Route path="create" element={<ClientCreate />} />
+                    <Route path=":id/edit" element={<ClientEdit />} />
                   </Route>
+                  <Route path="*" element={<NotFoundPage />} />
                 </Route>
+              </Route>
 
-                <Route
-                  element={
-                    <Authenticated key="public" fallback={<Outlet />}>
-                      <NavigateToResource resource="dashboard" />
-                    </Authenticated>
-                  }
-                >
-                  <Route path="/login" element={<LoginPage />} />
-                </Route>
-              </Routes>
-            </Suspense>
+              <Route
+                element={
+                  <Authenticated key="public" fallback={<Outlet />}>
+                    <NavigateToResource resource="dashboard" />
+                  </Authenticated>
+                }
+              >
+                <Route path="/login" element={<LoginPage />} />
+              </Route>
+            </Routes>
             <UnsavedChangesNotifier />
             <DocumentTitleHandler
               handler={({ resource }) => {
@@ -135,7 +140,7 @@ export default function App() {
               }}
             />
           </Refine>
-        </RefineSnackbarProvider>
+        </SnackbarProvider>
       </ThemeProvider>
     </BrowserRouter>
   );
