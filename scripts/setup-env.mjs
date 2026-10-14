@@ -1,11 +1,4 @@
 #!/usr/bin/env node
-// Creates the .env files for local development from the linked Supabase project.
-//
-//   pnpm env:setup           create missing .env files
-//   pnpm env:setup --force   overwrite existing .env files
-//
-// Only the public URL and anon key are written; they are safe to ship in the apps.
-// Keys are never printed.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -33,9 +26,7 @@ try {
   );
   const keys = JSON.parse(output);
   anonKey = keys.find((key) => key.name === 'anon' || key.type === 'publishable')?.api_key;
-} catch {
-  // Handled below.
-}
+} catch {}
 if (!anonKey) {
   console.error('Could not read the anon key. Check that you are logged in: pnpm supabase login');
   process.exit(1);
