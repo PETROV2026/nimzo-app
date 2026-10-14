@@ -26,7 +26,7 @@
 
    There is a single Supabase project shared by development and production. Write migrations with `pnpm db:new <name>`, test them with `pnpm test:db` and preview them with `pnpm db:dry`. Only the software lead runs `db push`, after the PR is reviewed.
 
-4. Run everything with `pnpm dev`, or one app with `pnpm admin` or `pnpm mobile:ios`. To open the mobile app in a simulator, see [docs/project-structure.md](docs/project-structure.md#running-the-mobile-app-on-a-simulator).
+4. Run everything with `pnpm dev`, or one app with `pnpm admin` or `pnpm mobile:android`. To open the mobile app in a simulator, see [docs/project-structure.md](docs/project-structure.md#running-the-mobile-app-on-a-simulator).
 
 Before opening a PR, run `pnpm format` and then `pnpm check`, which runs the same checks as CI.
 

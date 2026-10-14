@@ -12,15 +12,16 @@ export function Button({ label, onPress, loading, disabled }: ButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={label}
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       onPress={onPress}
       disabled={disabled || loading}
-      className="items-center rounded-md bg-primary-strong px-4 py-3 active:opacity-80 disabled:opacity-50"
+      className="min-h-14 items-center justify-center rounded-lg bg-primary-strong px-6 active:opacity-80 disabled:opacity-50"
     >
       {loading ? (
         <ActivityIndicator color={colors['on-primary']} />
       ) : (
-        <Text className="text-base font-semibold text-on-primary">{label}</Text>
+        <Text className="font-sans-semibold text-lg text-on-primary">{label}</Text>
       )}
     </Pressable>
   );

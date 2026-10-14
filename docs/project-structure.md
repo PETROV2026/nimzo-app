@@ -58,7 +58,7 @@ nimzo-app/
 
 ### `apps/mobile` — technician app
 
-Expo (React Native) app for Android tablets. This is where technicians fill in service forms, offline.
+Expo (React Native) app for Android tablets. This is where technicians fill in service forms, offline. iOS (iPhone and iPad) is not supported.
 
 ```
 apps/mobile/
@@ -177,8 +177,8 @@ supabase/
 |---|---|
 | `pnpm env:setup` | Creates the `.env` files from the linked Supabase project |
 | `pnpm dev` | Starts both apps at once (Turborepo) |
-| `pnpm mobile:ios` | Opens the mobile app in the iOS/iPad simulator |
 | `pnpm mobile:android` | Opens the mobile app in the Android emulator |
+| `pnpm mobile:ios` | Opens the mobile app in the iPad simulator (quick UI preview only) |
 | `pnpm mobile` | Starts the Expo dev server (scan the QR code with Expo Go) |
 | `pnpm admin` | Admin panel at http://localhost:5173 |
 | `pnpm check` | Everything CI runs: format, lint, typecheck, build and database tests |
@@ -191,23 +191,9 @@ supabase/
 
 The app runs inside **Expo Go**, a free app that loads your code over the network. Expo installs it in the simulator automatically. No native build is needed until the app uses libraries that Expo Go doesn't include.
 
-### Option 1 — iPad simulator (fastest on a Mac)
+The app targets **Android tablets only**. Check every screen on an Android tablet, in landscape and portrait, before opening a PR.
 
-Requires Xcode.
-
-```bash
-pnpm mobile:ios
-```
-
-1. Expo starts the bundler (Metro), boots a simulator and installs Expo Go.
-2. The first time, Expo Go shows a developer menu card. Press **Continue**.
-3. The home screen (`src/app/index.tsx`) appears: "Nimzo" and the report statuses.
-
-To use an iPad instead of an iPhone, open **Simulator → File → Open Simulator** and pick an iPad before running the command, or press `Shift + i` in the Expo terminal to choose a device. Rotate with `⌘ ←` / `⌘ →`.
-
-The production app targets Android, but the code is the same on both platforms, so the iPad simulator is fine for day-to-day UI work.
-
-### Option 2 — Android emulator (matches production)
+### Option 1 — Android tablet emulator (recommended)
 
 Requires Android Studio (about 10 GB).
 
@@ -219,11 +205,23 @@ Requires Android Studio (about 10 GB).
    pnpm mobile:android
    ```
 
-### Option 3 — a real tablet or phone
+4. Expo starts the bundler (Metro), installs Expo Go in the emulator and opens the app on the login screen.
 
-1. Install **Expo Go** from Google Play or the App Store.
+### Option 2 — a real Android tablet
+
+1. Install **Expo Go** from Google Play.
 2. Run `pnpm mobile` and scan the QR code shown in the terminal.
-3. The device must be on the same Wi-Fi network as your computer.
+3. The tablet must be on the same Wi-Fi network as your computer.
+
+### Option 3 — iPad simulator (quick preview on a Mac)
+
+Requires Xcode. iOS is not a supported platform: use this only to preview UI quickly when no Android emulator is at hand, and confirm the result on Android.
+
+```bash
+pnpm mobile:ios
+```
+
+To pick an iPad, open **Simulator → File → Open Simulator** before running the command, or press `Shift + i` in the Expo terminal. Rotate with `⌘ ←` / `⌘ →`.
 
 ### While it runs
 

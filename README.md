@@ -43,6 +43,9 @@ Digitaliza los formatos de servicio en campo, trabaja sin conexión y genera rep
 
 El personal técnico llena los **formatos de servicio** directamente en una tablet, incluso sin conexión a internet, capturando checklists, mediciones, fotografías y firmas. Al enviar un reporte, la plataforma lo almacena de forma segura y genera un documento PDF listo para entregarse al cliente.
 
+> [!IMPORTANT]
+> La app móvil está pensada **exclusivamente para tablets Android**. iOS (iPhone y iPad) no está soportado: la app no se compila, publica ni prueba para iOS, y las decisiones de diseño y de librerías se toman pensando solo en Android.
+
 > [!NOTE]
 > El sistema está compuesto por tres piezas que comparten un mismo backend: una **app móvil** para técnicos, un **panel web** para administradores y un **servicio de generación de PDF**.
 
@@ -66,7 +69,7 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 - **Evidencia fotográfica** con descripción, comprimida automáticamente antes de subirse.
 - **Firmas digitales** de técnico y supervisor, con firma guardada en el perfil del técnico.
 - **Funcionamiento sin conexión**: los borradores y reportes terminados se guardan en el dispositivo hasta que el técnico decide enviarlos.
-- **Diseño optimizado para tablet**, en orientación horizontal y vertical.
+- **Diseño optimizado para tablets Android**, en orientación horizontal y vertical.
 
 ### Panel web (administradores)
 
@@ -187,7 +190,7 @@ nimzo/
 | [Supabase CLI](https://supabase.com/docs/guides/cli) | Incluida en el proyecto (`pnpm supabase`) | Migraciones |
 | Acceso al proyecto de Supabase | — | Invitación del líder de software a la organización en Supabase |
 | [EAS CLI](https://docs.expo.dev/build/setup/) | Última estable | Compilación de la app |
-| Android Studio o tablet Android | Android 10+ | Pruebas de la app |
+| Android Studio (emulador de tablet) o tablet Android | Android 10+ | Pruebas de la app |
 
 ---
 
@@ -325,7 +328,6 @@ chore: actualiza dependencias
 - [ ] MVP con los primeros 5 formatos
 - [ ] Captura del catálogo completo de formatos
 - [ ] Pruebas en campo y publicación
-- [ ] Soporte para iOS
 
 ---
 
