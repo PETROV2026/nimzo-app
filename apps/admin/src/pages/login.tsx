@@ -5,19 +5,59 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import { alpha } from '@mui/material/styles';
+import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import iconColor from '@nimzo/brand/logos/icon-color.webp';
 import iconWhite from '@nimzo/brand/logos/icon-white.webp';
 import logoColor from '@nimzo/brand/logos/logo-horizontal-color.webp';
-import logoStackedWhite from '@nimzo/brand/logos/logo-stacked-white.webp';
+import logoWhite from '@nimzo/brand/logos/logo-horizontal-white.webp';
 import { useInvalidateAuthStore } from '@refinedev/core';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 import { authProvider } from '@/providers/auth-provider';
-import { tokens } from '@/theme';
+import { displayFont, tokens } from '@/theme';
+
+const OVERLAP = 96;
+
+function LabeledField({ id, label, ...props }: TextFieldProps & { id: string; label: string }) {
+  return (
+    <Box>
+      <Typography
+        component="label"
+        htmlFor={id}
+        sx={{ display: 'block', fontWeight: 500, mb: 0.75 }}
+      >
+        {label}
+      </Typography>
+      <TextField
+        id={id}
+        size="medium"
+        {...props}
+        sx={{
+          '& .MuiOutlinedInput-root': { bgcolor: tokens.canvas, borderRadius: 1.5 },
+          '& .MuiOutlinedInput-input': { py: 1.75 },
+          '& .MuiOutlinedInput-input::placeholder': { color: tokens.muted, opacity: 1 },
+          ...props.sx,
+        }}
+      />
+    </Box>
+  );
+}
+
+function Watermark({ src, sx }: { src: string; sx: object }) {
+  return (
+    <Box
+      component="img"
+      src={src}
+      alt=""
+      aria-hidden
+      sx={{ position: 'absolute', pointerEvents: 'none', userSelect: 'none', ...sx }}
+    />
+  );
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -51,103 +91,85 @@ export function LoginPage() {
   return (
     <Box
       sx={{
+        position: 'relative',
+        overflow: 'hidden',
         minHeight: '100vh',
+        bgcolor: tokens.white,
         display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: '5fr 6fr' },
-        bgcolor: 'background.default',
+        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
       }}
     >
-      {/* Brand panel: same dark chrome as the admin bar. */}
-      <Box
-        sx={{
-          display: { xs: 'none', md: 'flex' },
-          position: 'relative',
-          overflow: 'hidden',
-          bgcolor: tokens.adminBar,
-          color: 'common.white',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          p: 6,
-        }}
-      >
-        <Box
-          component="img"
-          src={logoStackedWhite}
-          alt="Nimzo"
-          sx={{ width: 168, height: 'auto' }}
-        />
-        <Box
-          component="img"
-          src={iconWhite}
-          alt=""
-          aria-hidden
-          sx={{
-            position: 'absolute',
-            right: '-18%',
-            bottom: '-14%',
-            width: '78%',
-            opacity: 0.07,
-            pointerEvents: 'none',
-          }}
-        />
-        <Box sx={{ position: 'relative', maxWidth: 420 }}>
-          <Typography variant="h4" component="p" sx={{ mb: 2 }}>
-            Inspección, prueba y mantenimiento de sistemas contra incendio.
-          </Typography>
-          <Typography sx={{ color: alpha(tokens.white, 0.75) }}>
-            Administra clientes, sucursales, usuarios y reportes desde un solo lugar.
-          </Typography>
-        </Box>
-      </Box>
+      <Watermark src={iconColor} sx={{ left: -70, bottom: -90, width: 300, opacity: 0.07 }} />
 
       <Box
         sx={{
+          position: 'relative',
+          zIndex: 1,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          p: { xs: 3, sm: 6 },
+          justifyContent: { xs: 'center', md: 'flex-end' },
+          px: { xs: 2, sm: 4 },
+          py: 4,
+          mr: { md: `-${OVERLAP}px` },
         }}
       >
-        <Box
+        <Paper
           component="form"
           noValidate
           onSubmit={handleSubmit}
-          sx={{ width: '100%', maxWidth: 400 }}
+          sx={{
+            position: 'relative',
+            overflow: 'hidden',
+            width: '100%',
+            maxWidth: 520,
+            borderRadius: 4,
+            px: { xs: 3, sm: 7 },
+            py: { xs: 5, sm: 7 },
+            boxShadow: '0 24px 60px rgba(52, 48, 53, 0.14), 0 2px 8px rgba(52, 48, 53, 0.06)',
+          }}
         >
+          <Watermark src={iconColor} sx={{ right: -48, top: -56, width: 170, opacity: 0.08 }} />
+
           <Box
             component="img"
             src={logoColor}
             alt="Nimzo"
-            sx={{ display: { xs: 'block', md: 'none' }, height: 48, mb: 5 }}
+            sx={{ position: 'relative', height: 52, mb: 6 }}
           />
-          <Typography variant="h1" sx={{ fontSize: 28, fontWeight: 500 }} gutterBottom>
-            Inicia sesión
+
+          <Typography
+            variant="h1"
+            sx={{ position: 'relative', fontSize: 28, fontWeight: 600, mb: 1 }}
+          >
+            Qué bueno verte de nuevo
           </Typography>
-          <Typography color="text.secondary" sx={{ mb: 4 }}>
-            Panel de administración de Nimzo
+          <Typography color="text.secondary" sx={{ position: 'relative', mb: 4 }}>
+            Inicia sesión en el panel de administración.
           </Typography>
 
-          <Stack spacing={2.5}>
+          <Stack spacing={2.5} sx={{ position: 'relative' }}>
             {error && (
               <Alert severity="error" role="alert">
                 {error}
               </Alert>
             )}
-            <TextField
-              size="medium"
+            <LabeledField
+              id="login-email"
               label="Correo electrónico"
               type="email"
               autoComplete="email"
               autoFocus
+              placeholder="nombre@empresa.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               disabled={submitting}
             />
-            <TextField
-              size="medium"
+            <LabeledField
+              id="login-password"
               label="Contraseña"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
+              placeholder="Escribe tu contraseña"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               disabled={submitting}
@@ -167,13 +189,70 @@ export function LoginPage() {
                 },
               }}
             />
-            <Button type="submit" variant="contained" size="large" loading={submitting} fullWidth>
-              Iniciar sesión
-            </Button>
+            <Box sx={{ pt: 1.5 }}>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                loading={submitting}
+                fullWidth
+                sx={{ minHeight: 52, fontSize: 16, borderRadius: 1.5 }}
+              >
+                Iniciar sesión
+              </Button>
+            </Box>
           </Stack>
 
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
+          <Typography
+            color="text.secondary"
+            sx={{ position: 'relative', mt: 4, textAlign: 'center' }}
+          >
             ¿No tienes acceso? Pide a un administrador que cree tu cuenta.
+          </Typography>
+        </Paper>
+      </Box>
+
+      <Box
+        sx={{
+          display: { xs: 'none', md: 'flex' },
+          position: 'relative',
+          overflow: 'hidden',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          m: 3,
+          ml: 0,
+          borderRadius: '48px',
+          bgcolor: tokens.tealStrong,
+          color: tokens.white,
+          pl: `${OVERLAP + 64}px`,
+          pr: { md: 6, lg: 10 },
+        }}
+      >
+        <Watermark
+          src={iconWhite}
+          sx={{ right: '-12%', bottom: '-18%', height: '85%', opacity: 0.09 }}
+        />
+        <Box
+          component="img"
+          src={logoWhite}
+          alt=""
+          aria-hidden
+          sx={{ position: 'absolute', top: 48, right: 56, height: 48, opacity: 0.35 }}
+        />
+        <Box sx={{ position: 'relative', maxWidth: 520 }}>
+          <Typography
+            component="p"
+            sx={{
+              fontFamily: displayFont,
+              fontWeight: 600,
+              fontSize: { md: 38, lg: 52 },
+              lineHeight: 1.05,
+            }}
+          >
+            Inspección, prueba y mantenimiento de sistemas contra incendio.
+          </Typography>
+          <Typography sx={{ mt: 2.5, fontSize: 17, color: 'rgba(255,255,255,0.88)' }}>
+            Administra clientes, sucursales, usuarios y reportes desde un solo lugar.
           </Typography>
         </Box>
       </Box>
