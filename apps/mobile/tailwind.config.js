@@ -1,4 +1,5 @@
 const { colors } = require('./src/theme/colors');
+const { fonts } = require('./src/theme/fonts');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -7,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors,
+      fontFamily: fonts,
     },
   },
   plugins: [],
