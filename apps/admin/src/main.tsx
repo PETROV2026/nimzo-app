@@ -1,3 +1,7 @@
+import '@fontsource-variable/inter';
+import '@fontsource/barlow-semi-condensed/500.css';
+import '@fontsource/barlow-semi-condensed/600.css';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 

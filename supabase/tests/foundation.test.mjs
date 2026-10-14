@@ -1,5 +1,3 @@
-// RLS and trigger checks for the database foundation migration
-// (profiles, clients, branches, systems).
 import assert from 'node:assert/strict';
 import { before, describe, test } from 'node:test';
 
@@ -18,7 +16,6 @@ before(async () => {
   await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'administrador' });
   await db.query('update public.profiles set is_active = false where id = $1', [INACTIVE_ADMIN]);
 
-  // Baseline catalog rows, created by the administrator.
   const asAdmin = (sql) => runAs(db, 'authenticated', ADMIN, sql);
   assert.ok((await asAdmin(`insert into public.clients (name) values ('Cliente Demo')`)).ok);
   assert.ok((await asAdmin(`insert into public.branches (client_id, name) values (1, 'Norte')`)).ok);

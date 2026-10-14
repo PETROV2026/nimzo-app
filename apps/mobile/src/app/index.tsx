@@ -3,7 +3,6 @@ import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Placeholder screen. Confirms the app runs, the brand theme applies and the shared packages resolve.
 export default function HomeScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
