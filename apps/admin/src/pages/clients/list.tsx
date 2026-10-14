@@ -40,7 +40,6 @@ function useStatusCount(status: StatusFilter) {
   return result.total;
 }
 
-/** WordPress-style "Todos (4) | Activos (4) | Inactivos (0)" filter links. */
 function StatusLinks({
   value,
   onChange,
@@ -113,7 +112,6 @@ function EmptyState({ filtering }: { filtering: boolean }) {
   );
 }
 
-/** Name with WordPress-style row actions underneath, shown on row hover or keyboard focus. */
 function NameCell({ client }: { client: Client }) {
   const { mutate: update, mutation } = useUpdate<Client>();
 
@@ -160,7 +158,6 @@ function NameCell({ client }: { client: Client }) {
 }
 
 export function ClientList() {
-  // On tablets keep the essentials visible instead of scrolling the table sideways.
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -171,7 +168,6 @@ export function ClientList() {
     pagination: { pageSize: 20 },
   });
 
-  // Filters run in Supabase; debounce the search so we don't query on every keystroke.
   useEffect(() => {
     const timeout = setTimeout(() => {
       const filters: CrudFilter[] = [...statusCrudFilter(status)];
@@ -303,7 +299,6 @@ export function ClientList() {
           sx={{
             '& .row-alt': { bgcolor: tokens.rowAlt },
             '& .row-inactive .MuiDataGrid-cell': { color: 'text.secondary' },
-            // Row actions appear on hover or when any link in the row has keyboard focus.
             '& .row-actions': { visibility: 'hidden' },
             '& .MuiDataGrid-row:hover .row-actions, & .MuiDataGrid-row:focus-within .row-actions': {
               visibility: 'visible',

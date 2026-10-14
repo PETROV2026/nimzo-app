@@ -22,7 +22,6 @@ type NoticeProps = {
   onDismiss?: () => void;
 };
 
-/** WordPress-style admin notice: white box with a colored left edge. */
 export function Notice({ severity = 'info', title, children, actions, onDismiss }: NoticeProps) {
   return (
     <Paper

@@ -1,7 +1,5 @@
 import type { I18nProvider } from '@refinedev/core';
 
-// Spanish texts for Refine's built-in buttons, breadcrumbs and notifications.
-// Keys come from @refinedev/core and @refinedev/mui; anything missing falls back to Refine's default.
 const es: Record<string, string> = {
   'buttons.create': 'Agregar',
   'buttons.save': 'Guardar',
@@ -44,7 +42,6 @@ export const i18nProvider: I18nProvider = {
   translate: (key: string, options?: unknown, defaultMessage?: string) => {
     const text = es[key];
     if (text) return interpolate(text, options as Record<string, unknown>);
-    // Refine sometimes passes the default message as the second argument.
     if (typeof options === 'string') return options;
     return defaultMessage ?? key;
   },

@@ -36,10 +36,6 @@ function useCount(resource: string) {
   return { total: result.total ?? 0, loading: query.isLoading, error: query.isError };
 }
 
-// ---------------------------------------------------------------------------
-// Welcome panel: the one bold, branded element of the panel.
-// ---------------------------------------------------------------------------
-
 type Step = { icon: ReactNode; title: string; description: string; action: ReactNode };
 
 const comingSoon = (
@@ -172,10 +168,6 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
     </Paper>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Boxes
-// ---------------------------------------------------------------------------
 
 type SummaryRowProps = {
   icon: ReactNode;
@@ -325,10 +317,6 @@ function RecentClientsBox() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export function DashboardPage() {
   const [welcomeDismissed, setWelcomeDismissed] = useState(readDismissed);
   const clients = useCount('clients');
@@ -337,9 +325,7 @@ export function DashboardPage() {
     setWelcomeDismissed(true);
     try {
       localStorage.setItem(WELCOME_DISMISSED_KEY, '1');
-    } catch {
-      // Storage unavailable: the panel just comes back on reload.
-    }
+    } catch {}
   }
 
   return (

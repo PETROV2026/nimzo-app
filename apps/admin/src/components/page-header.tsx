@@ -4,12 +4,10 @@ import type { ReactNode } from 'react';
 
 type PageHeaderProps = {
   title: string;
-  /** Secondary action shown right next to the title, like WordPress' "Añadir nuevo". */
   action?: ReactNode;
   description?: string;
 };
 
-/** Page title row: title top-left with its action next to it (F-pattern hot zone). */
 export function PageHeader({ title, action, description }: PageHeaderProps) {
   return (
     <Box sx={{ mb: 2.5 }}>

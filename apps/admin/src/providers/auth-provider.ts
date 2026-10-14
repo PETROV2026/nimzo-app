@@ -12,7 +12,6 @@ export type Identity = {
 
 const NO_ACCESS_MESSAGE = 'Tu cuenta no tiene acceso al panel de administración.';
 
-/** Only active administrators may use the panel. RLS enforces the same rule on the data. */
 async function getAdminProfile(userId: string) {
   const { data } = await supabase
     .from('profiles')

@@ -34,7 +34,6 @@ type FieldProps = Omit<TextFieldProps, 'name'> & {
   name: Exclude<FieldPath<ClientFormInput>, 'is_active'>;
 };
 
-/** MUI TextField wired to react-hook-form. Database nulls are shown as empty inputs. */
 function FormTextField({ control, name, ...props }: FieldProps) {
   return (
     <Controller
@@ -55,10 +54,6 @@ function FormTextField({ control, name, ...props }: FieldProps) {
 
 type ClientFormProps = { action: 'create' | 'edit'; id?: string };
 
-/**
- * WordPress edit-screen layout: fields in the main column, a side box with the status and the
- * single primary action (Hick's law).
- */
 export function ClientForm({ action, id }: ClientFormProps) {
   const isEdit = action === 'edit';
   const {

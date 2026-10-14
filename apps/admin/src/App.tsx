@@ -22,7 +22,6 @@ import { authProvider } from '@/providers/auth-provider';
 import { i18nProvider } from '@/providers/i18n-provider';
 import { theme } from '@/theme';
 
-// Sidebar entries come from this list (useMenu). Add a resource here when its pages exist.
 const resources = [
   {
     name: 'dashboard',

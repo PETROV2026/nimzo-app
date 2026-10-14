@@ -10,14 +10,11 @@ import { useId, useState, type ReactNode } from 'react';
 type PostboxProps = {
   title: string;
   children: ReactNode;
-  /** Optional element at the right of the title (a link or a small button). */
   action?: ReactNode;
   collapsible?: boolean;
-  /** Remove the body padding, e.g. for tables or lists that touch the edges. */
   flush?: boolean;
 };
 
-/** White box with a title bar, like the WordPress dashboard and edit-screen boxes. */
 export function Postbox({
   title,
   children,

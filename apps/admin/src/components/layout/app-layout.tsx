@@ -47,10 +47,6 @@ function initials(name: string) {
     .join('');
 }
 
-// ---------------------------------------------------------------------------
-// Admin bar (top)
-// ---------------------------------------------------------------------------
-
 function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
   const { data: identity } = useGetIdentity<Identity>();
   const { mutate: logout } = useLogout();
@@ -154,10 +150,6 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Sidebar (left)
-// ---------------------------------------------------------------------------
-
 function SidebarLink({
   to,
   icon,
@@ -195,7 +187,6 @@ function SidebarLink({
         '& svg': { fontSize: 20, opacity: active ? 1 : 0.75 },
         '&:hover': active ? {} : { bgcolor: tokens.sidebarSub, color: tokens.sidebarHover },
         '&:focus-visible': { outline: `2px solid ${tokens.sidebarHover}`, outlineOffset: -2 },
-        // WordPress' signature notch: points from the active item into the workspace.
         '&::after': active
           ? {
               content: '""',
@@ -336,11 +327,6 @@ function Sidebar({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Shell
-// ---------------------------------------------------------------------------
-
-/** Authenticated shell: admin bar on top, dark sidebar on the left, light workspace. */
 export function AppLayout() {
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [collapsed, setCollapsed] = useState(readCollapsed);
@@ -350,9 +336,7 @@ export function AppLayout() {
     setCollapsed((value) => {
       try {
         localStorage.setItem(COLLAPSED_KEY, value ? '0' : '1');
-      } catch {
-        // Storage unavailable: the preference just isn't remembered.
-      }
+      } catch {}
       return !value;
     });
   }
