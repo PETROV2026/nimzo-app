@@ -7,10 +7,11 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import { alpha } from '@mui/material/styles';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import panelPhoto from '@nimzo/brand/images/login-panel.webp';
 import iconColor from '@nimzo/brand/logos/icon-color.webp';
-import iconWhite from '@nimzo/brand/logos/icon-white.webp';
 import logoColor from '@nimzo/brand/logos/logo-horizontal-color.webp';
 import logoWhite from '@nimzo/brand/logos/logo-horizontal-white.webp';
 import { useInvalidateAuthStore } from '@refinedev/core';
@@ -18,7 +19,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 
 import { authProvider } from '@/providers/auth-provider';
-import { displayFont, tokens } from '@/theme';
+import { tokens } from '@/theme';
 
 const OVERLAP = 96;
 
@@ -223,15 +224,14 @@ export function LoginPage() {
           ml: 0,
           borderRadius: '48px',
           bgcolor: tokens.tealStrong,
+          backgroundImage: `linear-gradient(150deg, ${alpha(tokens.tealDark, 0.9)} 0%, ${alpha(tokens.tealDark, 0.9)} 60%, ${alpha(tokens.tealStrong, 0.9)} 100%), url(${panelPhoto})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           color: tokens.white,
           pl: `${OVERLAP + 64}px`,
           pr: { md: 6, lg: 10 },
         }}
       >
-        <Watermark
-          src={iconWhite}
-          sx={{ right: '-12%', bottom: '-18%', height: '85%', opacity: 0.09 }}
-        />
         <Box
           component="img"
           src={logoWhite}
@@ -243,15 +243,15 @@ export function LoginPage() {
           <Typography
             component="p"
             sx={{
-              fontFamily: displayFont,
-              fontWeight: 600,
-              fontSize: { md: 38, lg: 52 },
-              lineHeight: 1.05,
+              fontWeight: 700,
+              fontSize: { md: 32, lg: 44 },
+              lineHeight: 1.1,
+              letterSpacing: '-0.025em',
             }}
           >
             Inspección, prueba y mantenimiento de sistemas contra incendio.
           </Typography>
-          <Typography sx={{ mt: 2.5, fontSize: 17, color: 'rgba(255,255,255,0.88)' }}>
+          <Typography sx={{ mt: 2.5, fontSize: 17 }}>
             Administra clientes, sucursales, usuarios y reportes desde un solo lugar.
           </Typography>
         </Box>

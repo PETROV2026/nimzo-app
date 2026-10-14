@@ -1,9 +1,10 @@
 # @nimzo/brand
 
-Nimzo logos, shared by `apps/mobile` and `apps/admin`.
+Nimzo logos and brand images, shared by `apps/mobile` and `apps/admin`.
 
 ```
 packages/brand/
+├── images/       background photos, optimized WebP (see "Images")
 ├── source/       original logos (2000×2000, transparent). Edit or replace these only.
 ├── logos/        optimized versions for use inside the apps: trimmed, ≤960 px, WebP (generated)
 └── scripts/
@@ -43,6 +44,16 @@ import { Image } from 'expo-image';
 Always give the logo an accessible name (`alt` / `accessibilityLabel`) and don't stretch it: keep its aspect ratio (`contentFit="contain"` or set only one dimension on the web).
 
 Logos are WebP (much lighter than PNG; supported by Expo and every modern browser). App icons and the splash stay PNG because Expo requires it.
+
+## Images
+
+`images/` holds photos used as decorative backgrounds. They are WebP, ≤1800 px wide and stripped of metadata (`cwebp -q 70 -m 6 -resize 1800 0 -metadata none`), so each one stays around 100 KB.
+
+| File (`images/`) | Use | Source |
+|---|---|---|
+| `login-panel.webp` | Admin login brand panel, under a teal overlay | Photo by [Valentin Lacoste](https://unsplash.com/@valentinlacoste) on [Unsplash](https://unsplash.com/photos/YkPY2Awkra8) ([Unsplash License](https://unsplash.com/license)) |
+
+Always show these photos under a brand-color overlay when text sits on top, and check that the text still meets WCAG contrast.
 
 ## Changing the logo
 
