@@ -96,6 +96,31 @@ apps/mobile/
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
 - **Install packages with `npx expo install <pkg>`** from `apps/mobile`, so versions match the Expo SDK.
 
+#### Navigation
+
+Without a session the app only shows the login. With a session it shows a bottom tab bar with four tabs, in this order:
+
+| Tab (label) | File | Icon (`MaterialIcons`) | Purpose |
+|---|---|---|---|
+| **Inicio** | `src/app/(tabs)/index.tsx` | `home` | Initial tab. Summary of the technician's work: reports in progress and pending to send |
+| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms (`F-SER-XXX`): start, fill in and submit reports |
+| **Clientes** | `src/app/(tabs)/clients.tsx` | `business` | Clients, branches and systems downloaded to the device |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | Account details, role and sign out |
+
+```
+src/app/
+├── _layout.tsx        Session provider + protected routes (login without a session, tabs with one)
+├── login.tsx
+└── (tabs)/
+    ├── _layout.tsx    Tab bar
+    ├── index.tsx      Inicio
+    ├── services.tsx   Servicios
+    ├── clients.tsx    Clientes
+    └── profile.tsx    Perfil
+```
+
+Labels are in Spanish, file names in English. The active tab uses `primary-strong`, inactive tabs `muted`, and every tab keeps a touch target of at least 48 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
+
 ### `apps/admin` — admin panel
 
 React web app built with Vite. Administrators manage users, clients, branches, systems and service packages, and browse report history.
