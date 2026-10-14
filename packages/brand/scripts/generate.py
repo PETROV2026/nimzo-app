@@ -1,20 +1,3 @@
-"""Generates every derived brand asset from the original logos in packages/brand/source/.
-
-    python3 packages/brand/scripts/generate.py      (requires Pillow: pip install pillow)
-
-Outputs:
-  packages/brand/logos/*.webp          trimmed logos for use inside the apps
-  apps/mobile/assets/images/*.png      app icon, Android adaptive icon layers, splash, web favicon
-  apps/admin/public/favicon.png        browser tab icon
-
-Size optimizations (the logos are flat colors, so none of this is visible):
-  - in-app logos are capped at 960 px on their longest side (enough for 3x screens at ~320 pt)
-  - every output is reduced to a 128-color palette
-  - in-app logos are lossless WebP; app icons and the splash stay PNG because Expo requires it
-
-Run it again whenever a file in source/ changes, and commit the results.
-"""
-
 from pathlib import Path
 
 from PIL import Image
@@ -36,7 +19,6 @@ def load(name: str) -> Image.Image:
 
 
 def trim(image: Image.Image, padding_ratio: float = 0.02) -> Image.Image:
-    """Crops the transparent margin, keeping a small even padding."""
     box = image.getchannel("A").getbbox()
     content = image.crop(box)
     pad = round(max(content.size) * padding_ratio)
@@ -52,7 +34,6 @@ def fit(image: Image.Image, max_size: int) -> Image.Image:
 
 
 def place(content: Image.Image, size: int, max_ratio: float, background=(0, 0, 0, 0)) -> Image.Image:
-    """Centers `content` on a square canvas, scaled so its longest side is `max_ratio` of the canvas."""
     content = trim(content, padding_ratio=0)
     scale = size * max_ratio / max(content.size)
     resized = content.resize(
@@ -85,15 +66,10 @@ def main() -> None:
     icon_color = load("icon-color")
     icon_black = load("icon-black")
 
-    # App icon (iOS and legacy Android): opaque, the system applies the rounded mask.
     save_png(place(icon_color, 1024, 0.62, WHITE).convert("RGB"), MOBILE_IMAGES / "icon.png")
-    # Android adaptive icon: the foreground must fit the 66% safe zone; the background is a flat color
-    # (android.adaptiveIcon.backgroundColor in app.json). The monochrome layer is used for themed icons.
     save_png(place(icon_color, 1024, 0.56), MOBILE_IMAGES / "android-icon-foreground.png")
     save_png(place(icon_black, 1024, 0.56), MOBILE_IMAGES / "android-icon-monochrome.png")
-    # Splash screen image: transparent, shown over the splash background color.
     save_png(fit(trim(icon_color, padding_ratio=0), SPLASH_MAX_SIZE), MOBILE_IMAGES / "splash-icon.png")
-    # Favicons (Expo web and the admin panel).
     save_png(place(icon_color, 48, 0.9), MOBILE_IMAGES / "favicon.png")
     save_png(place(icon_color, 64, 0.9), ADMIN_PUBLIC / "favicon.png")
 
