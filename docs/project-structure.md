@@ -160,16 +160,30 @@ Values stored in the database are English codes (`draft`, `awaiting_approval`, `
 ```
 supabase/
 ├── migrations/
-│   └── 20261012210319_database_foundation.sql   profiles, roles, clients, branches, systems
+│   ├── 20261012210319_database_foundation.sql            profiles, roles, clients, branches, systems
+│   ├── 20261015155554_english_role_values.sql            roles stored in English
+│   └── 20261015210044_system_types_and_branch_states.sql system types and state codes
+├── seeds/
+│   ├── demo-catalogs.sql          25 fake clients with branches and systems
+│   ├── remove-demo-catalogs.sql   deletes that demo data
+│   └── generate_demo_catalogs.py  regenerates demo-catalogs.sql
 ├── tests/
 │   ├── harness.mjs           Runs all migrations on an in-memory Postgres
-│   └── foundation.test.mjs   Who can read and write each table
+│   └── *.test.mjs            Who can read and write each table, codes, demo seeds
 └── config.toml
 ```
 
 - **The database only changes through migrations.** Create one with `pnpm supabase migration new <name>`, write the SQL, add tests in `supabase/tests/`, and open a PR.
 - `pnpm test:db` checks every migration and permission rule locally, without touching the cloud database. CI runs it on every PR.
 - Only the software lead applies migrations to the cloud project, after review.
+- **Demo data.** To see the admin panel with data, load 25 fake clients (names end in "(demo)", emails at `ejemplo.com`):
+
+  ```bash
+  pnpm supabase db query --linked -f supabase/seeds/demo-catalogs.sql          # load (does nothing if already loaded)
+  pnpm supabase db query --linked -f supabase/seeds/remove-demo-catalogs.sql   # remove
+  ```
+
+  Both scripts only touch clients whose notes are `Datos de ejemplo`. After changing the catalog tables, update `generate_demo_catalogs.py` and regenerate the file with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql`; `pnpm test:db` checks that both scripts still work.
 
 ## How the pieces run
 
