@@ -136,7 +136,7 @@ export type Database = {
           location: string | null;
           name: string;
           notes: string | null;
-          system_type: string;
+          system_type: Database['public']['Enums']['system_type'];
           updated_at: string;
         };
         Insert: {
@@ -147,7 +147,7 @@ export type Database = {
           location?: string | null;
           name: string;
           notes?: string | null;
-          system_type: string;
+          system_type: Database['public']['Enums']['system_type'];
           updated_at?: string;
         };
         Update: {
@@ -158,7 +158,7 @@ export type Database = {
           location?: string | null;
           name?: string;
           notes?: string | null;
-          system_type?: string;
+          system_type?: Database['public']['Enums']['system_type'];
           updated_at?: string;
         };
         Relationships: [
@@ -179,6 +179,15 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
+      system_type:
+        | 'sprinkler'
+        | 'hydrant'
+        | 'fire_pump'
+        | 'fire_extinguisher'
+        | 'fire_alarm'
+        | 'kitchen_suppression'
+        | 'clean_agent'
+        | 'other';
       user_role: 'technician' | 'supervisor' | 'admin';
     };
     CompositeTypes: {
@@ -301,6 +310,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      system_type: [
+        'sprinkler',
+        'hydrant',
+        'fire_pump',
+        'fire_extinguisher',
+        'fire_alarm',
+        'kitchen_suppression',
+        'clean_agent',
+        'other',
+      ],
       user_role: ['technician', 'supervisor', 'admin'],
     },
   },

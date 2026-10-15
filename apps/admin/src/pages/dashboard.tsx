@@ -61,7 +61,11 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
       title: 'Agrega sucursales y sistemas',
       description:
         'Cada sucursal tiene los sistemas contra incendio que los técnicos inspeccionan.',
-      action: comingSoon,
+      action: (
+        <Link component={RouterLink} to="/clients">
+          Elegir un cliente
+        </Link>
+      ),
     },
     {
       icon: <GroupOutlined />,

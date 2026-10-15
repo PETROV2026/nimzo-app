@@ -1,14 +1,9 @@
 import { z } from 'zod';
 
 import type { Tables } from './database.types';
+import { optionalText } from './form-fields';
 
 export type Client = Tables<'clients'>;
-
-const optionalText = z
-  .string()
-  .trim()
-  .transform((value) => (value === '' ? null : value))
-  .nullable();
 
 export const clientFormSchema = z.object({
   name: z.string().trim().min(1, 'Ingresa el nombre del cliente'),

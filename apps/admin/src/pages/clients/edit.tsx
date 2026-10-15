@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 
 import { PageHeader } from '@/components/page-header';
 
+import { BranchesBox } from './branches-box';
 import { ClientForm } from './client-form';
 
 export function ClientEdit() {
@@ -18,7 +19,9 @@ export function ClientEdit() {
           </Button>
         }
       />
-      <ClientForm action="edit" id={id} />
+      <ClientForm action="edit" id={id}>
+        {id && <BranchesBox clientId={id} />}
+      </ClientForm>
     </>
   );
 }

@@ -32,9 +32,19 @@ const ClientList = lazy(() => loadClients().then((module) => ({ default: module.
 const ClientCreate = lazy(() => loadClients().then((module) => ({ default: module.ClientCreate })));
 const ClientEdit = lazy(() => loadClients().then((module) => ({ default: module.ClientEdit })));
 
+const loadBranches = () => import('@/pages/branches');
+
+const BranchCreate = lazy(() =>
+  loadBranches().then((module) => ({ default: module.BranchCreate })),
+);
+const BranchEdit = lazy(() => loadBranches().then((module) => ({ default: module.BranchEdit })));
+
 function ProtectedLayout() {
   useEffect(() => {
-    const id = setTimeout(() => void loadClients(), 1500);
+    const id = setTimeout(() => {
+      void loadClients();
+      void loadBranches();
+    }, 1500);
     return () => clearTimeout(id);
   }, []);
   return <AppLayout />;
@@ -69,11 +79,22 @@ const resources = [
       ],
     },
   },
+  {
+    name: 'branches',
+    create: '/clients/:clientId/branches/create',
+    edit: '/clients/:clientId/branches/:id/edit',
+    meta: { label: 'Sucursales', hide: true, canDelete: false },
+  },
+  {
+    name: 'systems',
+    meta: { label: 'Sistemas', hide: true, canDelete: false },
+  },
 ];
 
 const titles: Record<string, string> = {
   dashboard: 'Escritorio',
   clients: 'Clientes',
+  branches: 'Sucursales',
 };
 
 export default function App() {
@@ -117,6 +138,8 @@ export default function App() {
                     <Route index element={<ClientList />} />
                     <Route path="create" element={<ClientCreate />} />
                     <Route path=":id/edit" element={<ClientEdit />} />
+                    <Route path=":clientId/branches/create" element={<BranchCreate />} />
+                    <Route path=":clientId/branches/:id/edit" element={<BranchEdit />} />
                   </Route>
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>

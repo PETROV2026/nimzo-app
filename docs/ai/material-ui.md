@@ -31,6 +31,9 @@ The panel follows the **WordPress admin** conventions, so administrators recogni
 **Reference implementation: `apps/admin/src/pages/clients/`.** Copy its structure for every new resource.
 
 - Page title and its secondary action: `<PageHeader>` (`src/components/page-header.tsx`). Boxes: `<Postbox>`. Notices: `<Notice>`.
+- Active/inactive state: `<StatusChip>`. "Editar | Desactivar" under a row's name: `<RowActions>`.
+- Records that belong to another one (a client's branches, a branch's systems) are listed in a `<Postbox>` on the parent's edit page with `<CatalogTable>`, not in their own sidebar entry. Their pages show `<Breadcrumbs>` (`Clientes / Cliente / Sucursal`). Small records with few fields (systems) are created and edited in a `Dialog`. See `pages/clients/branches-box.tsx` and `pages/branches/`.
+- After creating a record that has children, redirect to its edit page so the admin can add them right away.
 - Tables: `useDataGrid()` + MUI `<DataGrid>` inside an outlined `<Paper>`, with status links and search above it (see `clients/list.tsx`).
 - Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, laid out like `client-form.tsx` (main column + side save box).
 - Shell and navigation: `src/components/layout/app-layout.tsx`. Sidebar entries come from the `resources` array in `App.tsx`.

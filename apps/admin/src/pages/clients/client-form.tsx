@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import { clientFormSchema, type Client, type ClientFormInput } from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
+import type { ReactNode } from 'react';
 import { Controller, type Control, type FieldPath } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router';
 
@@ -52,16 +53,26 @@ function FormTextField({ control, name, ...props }: FieldProps) {
   );
 }
 
-type ClientFormProps = { action: 'create' | 'edit'; id?: string };
+type ClientFormProps = { action: 'create' | 'edit'; id?: string; children?: ReactNode };
 
-export function ClientForm({ action, id }: ClientFormProps) {
+export function ClientForm({ action, id, children }: ClientFormProps) {
   const isEdit = action === 'edit';
   const {
     control,
     handleSubmit,
     refineCore: { onFinish, formLoading, query },
   } = useForm<Client, HttpError, ClientFormInput>({
-    refineCoreProps: { resource: 'clients', action, id, redirect: 'list' },
+    refineCoreProps: {
+      resource: 'clients',
+      action,
+      id,
+      redirect: isEdit ? 'list' : 'edit',
+      successNotification: (response) => ({
+        type: 'success',
+        message: isEdit ? 'Cliente guardado' : 'Cliente agregado',
+        description: response?.data.name,
+      }),
+    },
     resolver: zodResolver(clientFormSchema),
     defaultValues: emptyClient,
   });
@@ -168,6 +179,8 @@ export function ClientForm({ action, id }: ClientFormProps) {
                 />
               )}
             </Postbox>
+
+            {children}
           </Stack>
         </Grid>
 
@@ -198,7 +211,7 @@ export function ClientForm({ action, id }: ClientFormProps) {
                 />
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  El cliente se agregará como activo. Después podrás registrar sus sucursales.
+                  El cliente se agregará como activo. Al guardarlo podrás registrar sus sucursales.
                 </Typography>
               )}
             </Box>

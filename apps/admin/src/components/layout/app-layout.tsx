@@ -240,12 +240,14 @@ function Sidebar({
     >
       <Box sx={{ flex: 1 }}>
         {menuItems.map((item: TreeMenuItem) => {
-          const active = item.key === selectedKey;
+          const route = item.route ?? '/';
+          const active =
+            item.key === selectedKey || (route !== '/' && pathname.startsWith(`${route}/`));
           const submenu = (item.meta?.submenu as SubmenuItem[] | undefined) ?? [];
           return (
             <Box key={item.key}>
               <SidebarLink
-                to={item.route ?? '/'}
+                to={route}
                 icon={item.icon}
                 label={item.label ?? item.name}
                 active={active}

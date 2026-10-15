@@ -1,7 +1,6 @@
 import SearchIcon from '@mui/icons-material/Search';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import InputAdornment from '@mui/material/InputAdornment';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
@@ -16,6 +15,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { PageHeader } from '@/components/page-header';
+import { RowActions } from '@/components/row-actions';
+import { rowActionsHoverSx } from '@/components/row-actions-sx';
+import { StatusChip } from '@/components/status-chip';
 import { theme, tokens } from '@/theme';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
@@ -112,8 +114,11 @@ function EmptyState({ filtering }: { filtering: boolean }) {
   );
 }
 
+type ClientRow = Client & { branches: { count: number }[] };
+
 function NameCell({ client }: { client: Client }) {
   const { mutate: update, mutation } = useUpdate<Client>();
+  const editTo = `/clients/${client.id}/edit`;
 
   function toggleActive() {
     update({
@@ -130,29 +135,16 @@ function NameCell({ client }: { client: Client }) {
 
   return (
     <Box sx={{ py: 1, minWidth: 0 }}>
-      <Link component={RouterLink} to={`/clients/${client.id}/edit`} sx={{ fontWeight: 600 }}>
+      <Link component={RouterLink} to={editTo} sx={{ fontWeight: 600 }}>
         {client.name}
       </Link>
-      <Box
-        className="row-actions"
-        sx={{ display: 'flex', alignItems: 'center', gap: 0.75, fontSize: 13, mt: 0.25 }}
-      >
-        <Link component={RouterLink} to={`/clients/${client.id}/edit`} sx={{ fontSize: 13 }}>
-          Editar
-        </Link>
-        <Box component="span" aria-hidden sx={{ color: 'text.disabled' }}>
-          |
-        </Box>
-        <Link
-          component="button"
-          type="button"
-          onClick={toggleActive}
-          disabled={mutation.isPending}
-          sx={{ fontSize: 13, color: client.is_active ? 'error.main' : 'primary.main' }}
-        >
-          {client.is_active ? 'Desactivar' : 'Activar'}
-        </Link>
-      </Box>
+      <RowActions
+        label={`cliente ${client.name}`}
+        editTo={editTo}
+        active={client.is_active}
+        onToggleActive={toggleActive}
+        pending={mutation.isPending}
+      />
     </Box>
   );
 }
@@ -162,8 +154,9 @@ export function ClientList() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
 
-  const { dataGridProps, setFilters } = useDataGrid<Client>({
+  const { dataGridProps, setFilters } = useDataGrid<ClientRow>({
     resource: 'clients',
+    meta: { select: '*, branches(count)' },
     sorters: { initial: [{ field: 'name', order: 'asc' }] },
     pagination: { pageSize: 20 },
   });
@@ -178,7 +171,7 @@ export function ClientList() {
     return () => clearTimeout(timeout);
   }, [search, status, setFilters]);
 
-  const columns = useMemo<GridColDef<Client>[]>(
+  const columns = useMemo<GridColDef<ClientRow>[]>(
     () => [
       {
         field: 'name',
@@ -221,15 +214,17 @@ export function ClientList() {
         valueFormatter: (value) => value ?? '—',
       },
       {
+        field: 'branches',
+        headerName: 'Sucursales',
+        minWidth: 110,
+        sortable: false,
+        valueGetter: (_, row) => row.branches[0]?.count ?? 0,
+      },
+      {
         field: 'is_active',
         headerName: 'Estado',
         minWidth: 120,
-        renderCell: ({ row }) =>
-          row.is_active ? (
-            <Chip size="small" label="Activo" color="primary" />
-          ) : (
-            <Chip size="small" label="Inactivo" variant="outlined" />
-          ),
+        renderCell: ({ row }) => <StatusChip active={row.is_active} />,
       },
     ],
     [],
@@ -299,11 +294,7 @@ export function ClientList() {
           sx={{
             '& .row-alt': { bgcolor: tokens.rowAlt },
             '& .row-inactive .MuiDataGrid-cell': { color: 'text.secondary' },
-            '& .row-actions': { visibility: 'hidden' },
-            '& .MuiDataGrid-row:hover .row-actions, & .MuiDataGrid-row:focus-within .row-actions': {
-              visibility: 'visible',
-            },
-            '@media (hover: none)': { '& .row-actions': { visibility: 'visible' } },
+            ...rowActionsHoverSx,
             '& .MuiDataGrid-overlayWrapper': { minHeight: 200 },
           }}
         />
