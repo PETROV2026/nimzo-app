@@ -1,4 +1,6 @@
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
+import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
 import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -38,12 +40,18 @@ const BranchCreate = lazy(() =>
   loadBranches().then((module) => ({ default: module.BranchCreate })),
 );
 const BranchEdit = lazy(() => loadBranches().then((module) => ({ default: module.BranchEdit })));
+const BranchList = lazy(() => loadBranches().then((module) => ({ default: module.BranchList })));
+
+const loadSystems = () => import('@/pages/systems');
+
+const SystemList = lazy(() => loadSystems().then((module) => ({ default: module.SystemList })));
 
 function ProtectedLayout() {
   useEffect(() => {
     const id = setTimeout(() => {
       void loadClients();
       void loadBranches();
+      void loadSystems();
     }, 1500);
     return () => clearTimeout(id);
   }, []);
@@ -81,13 +89,23 @@ const resources = [
   },
   {
     name: 'branches',
-    create: '/clients/:clientId/branches/create',
-    edit: '/clients/:clientId/branches/:id/edit',
-    meta: { label: 'Sucursales', hide: true, canDelete: false },
+    list: '/branches',
+    create: '/branches/create',
+    edit: '/branches/:id/edit',
+    meta: {
+      label: 'Sucursales',
+      icon: <PlaceOutlined />,
+      canDelete: false,
+      submenu: [
+        { label: 'Todas las sucursales', to: '/branches' },
+        { label: 'Agregar sucursal', to: '/branches/create' },
+      ],
+    },
   },
   {
     name: 'systems',
-    meta: { label: 'Sistemas', hide: true, canDelete: false },
+    list: '/systems',
+    meta: { label: 'Sistemas', icon: <LocalFireDepartmentOutlined />, canDelete: false },
   },
 ];
 
@@ -95,6 +113,7 @@ const titles: Record<string, string> = {
   dashboard: 'Escritorio',
   clients: 'Clientes',
   branches: 'Sucursales',
+  systems: 'Sistemas',
 };
 
 export default function App() {
@@ -138,9 +157,27 @@ export default function App() {
                     <Route index element={<ClientList />} />
                     <Route path="create" element={<ClientCreate />} />
                     <Route path=":id/edit" element={<ClientEdit />} />
-                    <Route path=":clientId/branches/create" element={<BranchCreate />} />
-                    <Route path=":clientId/branches/:id/edit" element={<BranchEdit />} />
                   </Route>
+                  <Route
+                    path="/branches"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<BranchList />} />
+                    <Route path="create" element={<BranchCreate />} />
+                    <Route path=":id/edit" element={<BranchEdit />} />
+                  </Route>
+                  <Route
+                    path="/systems"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <SystemList />
+                      </Suspense>
+                    }
+                  />
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Route>

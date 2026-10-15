@@ -18,7 +18,7 @@ import { Postbox } from '@/components/postbox';
 import { RowActions } from '@/components/row-actions';
 import { StatusChip } from '@/components/status-chip';
 
-import { SystemDialog } from './system-dialog';
+import { SystemDialog } from '@/pages/systems/system-dialog';
 
 type DialogState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; systemId: number };
 

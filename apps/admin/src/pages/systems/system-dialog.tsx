@@ -12,16 +12,20 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import {
+  systemCreateSchema,
   systemFormSchema,
   systemTypeLabels,
   systemTypeSchema,
+  type Branch,
   type System,
   type SystemFormInput,
 } from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
 import { useId } from 'react';
-import { Controller } from 'react-hook-form';
+import { Controller, type Resolver } from 'react-hook-form';
+
+import { RecordAutocomplete } from '@/components/record-autocomplete';
 
 type SystemVariables = SystemFormInput & { branch_id?: number };
 
@@ -33,8 +37,10 @@ const emptySystem: SystemVariables = {
   is_active: true,
 };
 
+type BranchOption = Branch & { clients: { name: string } | null };
+
 type SystemDialogProps = {
-  branchId: number;
+  branchId?: number;
   systemId?: number;
   onClose: () => void;
 };
@@ -59,8 +65,10 @@ export function SystemDialog({ branchId, systemId, onClose }: SystemDialogProps)
       }),
       onMutationSuccess: onClose,
     },
-    resolver: zodResolver(systemFormSchema),
-    defaultValues: emptySystem,
+    resolver: (isEdit
+      ? zodResolver(systemFormSchema)
+      : zodResolver(systemCreateSchema)) as Resolver<SystemVariables>,
+    defaultValues: { ...emptySystem, branch_id: branchId },
   });
 
   const loadingRecord = isEdit && query?.isLoading;
@@ -71,9 +79,7 @@ export function SystemDialog({ branchId, systemId, onClose }: SystemDialogProps)
         noValidate
         onSubmit={(event) => {
           event.stopPropagation();
-          void handleSubmit((values) =>
-            onFinish(isEdit ? values : { ...values, branch_id: branchId }),
-          )(event);
+          void handleSubmit((values) => onFinish(values))(event);
         }}
       >
         <DialogTitle id={titleId}>{isEdit ? 'Editar sistema' : 'Agregar sistema'}</DialogTitle>
@@ -88,6 +94,29 @@ export function SystemDialog({ branchId, systemId, onClose }: SystemDialogProps)
             </Stack>
           ) : (
             <Stack spacing={2} sx={{ pt: 1 }}>
+              {!isEdit && branchId === undefined && (
+                <Controller
+                  control={control}
+                  name="branch_id"
+                  render={({ field, fieldState }) => (
+                    <RecordAutocomplete<BranchOption>
+                      resource="branches"
+                      label="Sucursal"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      inputRef={field.ref}
+                      select="id, name, is_active, clients(name)"
+                      getOptionLabel={(branch) =>
+                        branch.clients ? `${branch.name} · ${branch.clients.name}` : branch.name
+                      }
+                      error={fieldState.error?.message}
+                      autoFocus
+                      noOptionsText="No hay sucursales activas con ese nombre"
+                    />
+                  )}
+                />
+              )}
               <Controller
                 control={control}
                 name="system_type"
@@ -97,7 +126,7 @@ export function SystemDialog({ branchId, systemId, onClose }: SystemDialogProps)
                     select
                     label="Tipo de sistema"
                     required
-                    autoFocus={!isEdit}
+                    autoFocus={!isEdit && branchId !== undefined}
                     error={!!fieldState.error}
                     helperText={fieldState.error?.message}
                   >

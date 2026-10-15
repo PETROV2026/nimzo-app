@@ -18,3 +18,9 @@ export const branchFormSchema = z.object({
 
 export type BranchFormInput = z.input<typeof branchFormSchema>;
 export type BranchFormValues = z.output<typeof branchFormSchema>;
+
+export const branchCreateSchema = branchFormSchema.extend({
+  client_id: z.number({ error: 'Elige el cliente' }),
+});
+
+export type BranchCreateInput = z.input<typeof branchCreateSchema>;

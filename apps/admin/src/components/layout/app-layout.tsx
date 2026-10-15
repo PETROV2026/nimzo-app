@@ -95,6 +95,9 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
           <MenuItem component={Link} to="/clients/create" onClick={() => setAddAnchor(null)}>
             Cliente
           </MenuItem>
+          <MenuItem component={Link} to="/branches/create" onClick={() => setAddAnchor(null)}>
+            Sucursal
+          </MenuItem>
         </Menu>
 
         <Box sx={{ flex: 1 }} />

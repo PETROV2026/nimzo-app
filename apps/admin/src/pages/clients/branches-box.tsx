@@ -18,17 +18,17 @@ import { Postbox } from '@/components/postbox';
 import { RowActions } from '@/components/row-actions';
 import { StatusChip } from '@/components/status-chip';
 
-type BranchRow = Branch & { systems: { count: number }[] };
+type BranchRow = Branch & { systems?: { count: number }[] };
 
 function locationLabel(branch: Branch) {
   const state = branch.state ? mexicanStateLabels[branch.state as MexicanState] : null;
   return [branch.city, state].filter(Boolean).join(', ') || '—';
 }
 
-function BranchRowItem({ branch, clientId }: { branch: BranchRow; clientId: string }) {
+function BranchRowItem({ branch }: { branch: BranchRow }) {
   const { mutate: update, mutation } = useUpdate<Branch>();
-  const editTo = `/clients/${clientId}/branches/${branch.id}/edit`;
-  const systemCount = branch.systems[0]?.count ?? 0;
+  const editTo = `/branches/${branch.id}/edit`;
+  const systemCount = branch.systems?.[0]?.count ?? 0;
 
   function toggleActive() {
     update({
@@ -76,7 +76,7 @@ export function BranchesBox({ clientId }: { clientId: string }) {
   });
 
   const branches = result.data;
-  const createTo = `/clients/${clientId}/branches/create`;
+  const createTo = `/branches/create?client=${clientId}`;
 
   return (
     <Postbox
@@ -121,7 +121,7 @@ export function BranchesBox({ clientId }: { clientId: string }) {
             </TableHead>
             <TableBody>
               {branches.map((branch) => (
-                <BranchRowItem key={branch.id} branch={branch} clientId={clientId} />
+                <BranchRowItem key={branch.id} branch={branch} />
               ))}
             </TableBody>
           </CatalogTable>

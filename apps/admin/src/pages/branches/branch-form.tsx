@@ -13,19 +13,22 @@ import Switch from '@mui/material/Switch';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {
+  branchCreateSchema,
   branchFormSchema,
   mexicanStateLabels,
   mexicanStates,
   type Branch,
   type BranchFormInput,
+  type Client,
 } from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
 import type { ReactNode } from 'react';
-import { Controller, type Control, type FieldPath } from 'react-hook-form';
+import { Controller, type Control, type FieldPath, type Resolver } from 'react-hook-form';
 import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
+import { RecordAutocomplete } from '@/components/record-autocomplete';
 
 const emptyBranch: BranchVariables = {
   name: '',
@@ -66,15 +69,14 @@ function FormTextField({ control, name, ...props }: FieldProps) {
 
 type BranchFormProps = {
   action: 'create' | 'edit';
-  clientId: string;
   id?: string;
+  clientId?: number;
   children?: ReactNode;
 };
 
 export function BranchForm({ action, clientId, id, children }: BranchFormProps) {
   const isEdit = action === 'edit';
   const navigate = useNavigate();
-  const clientTo = `/clients/${clientId}/edit`;
 
   const {
     control,
@@ -92,12 +94,17 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
         description: response?.data.name,
       }),
       onMutationSuccess: ({ data }) => {
-        navigate(isEdit ? clientTo : `/clients/${clientId}/branches/${data.id}/edit`);
+        if (!isEdit) navigate(`/branches/${data.id}/edit`);
       },
     },
-    resolver: zodResolver(branchFormSchema),
-    defaultValues: emptyBranch,
+    resolver: (isEdit
+      ? zodResolver(branchFormSchema)
+      : zodResolver(branchCreateSchema)) as Resolver<BranchVariables>,
+    defaultValues: { ...emptyBranch, client_id: clientId },
   });
+
+  const recordClientId = query?.data?.data.client_id ?? clientId;
+  const cancelTo = recordClientId ? `/clients/${recordClientId}/edit` : '/branches';
 
   const loadingRecord = isEdit && query?.isLoading;
 
@@ -117,13 +124,7 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
   );
 
   return (
-    <Box
-      component="form"
-      noValidate
-      onSubmit={handleSubmit((values) =>
-        onFinish(isEdit ? values : { ...values, client_id: Number(clientId) }),
-      )}
-    >
+    <Box component="form" noValidate onSubmit={handleSubmit((values) => onFinish(values))}>
       <Grid container spacing={2.5} sx={{ alignItems: 'flex-start' }}>
         <Grid size={{ xs: 12, lg: 8, xl: 9 }}>
           <Stack spacing={2.5}>
@@ -132,13 +133,36 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                 fieldsSkeleton
               ) : (
                 <Grid container spacing={2}>
+                  {!isEdit && (
+                    <Grid size={12}>
+                      <Controller
+                        control={control}
+                        name="client_id"
+                        render={({ field, fieldState }) => (
+                          <RecordAutocomplete<Client>
+                            resource="clients"
+                            label="Cliente"
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            inputRef={field.ref}
+                            getOptionLabel={(client) => client.name}
+                            error={fieldState.error?.message}
+                            helperText="Empresa a la que pertenece la sucursal."
+                            autoFocus={clientId === undefined}
+                            noOptionsText="No hay clientes activos con ese nombre"
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
                   <Grid size={12}>
                     <FormTextField
                       control={control}
                       name="name"
                       label="Nombre de la sucursal"
                       required
-                      autoFocus={!isEdit}
+                      autoFocus={!isEdit && clientId !== undefined}
                       helperText="Así aparecerá en los reportes. Ej. Planta Apodaca"
                     />
                   </Grid>
@@ -254,7 +278,7 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                 bgcolor: 'background.default',
               }}
             >
-              <Link component={RouterLink} to={clientTo} sx={{ fontSize: 13 }}>
+              <Link component={RouterLink} to={cancelTo} sx={{ fontSize: 13 }}>
                 Cancelar
               </Link>
               <Button

@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader } from '@/components/page-header';
@@ -7,14 +7,16 @@ import { BranchForm } from './branch-form';
 import { useBranchCrumbs } from './use-branch-crumbs';
 
 export function BranchCreate() {
-  const { clientId = '' } = useParams();
-  const crumbs = useBranchCrumbs(clientId);
+  const [searchParams] = useSearchParams();
+  const clientParam = Number(searchParams.get('client'));
+  const clientId = Number.isInteger(clientParam) && clientParam > 0 ? clientParam : undefined;
+  const { crumbs } = useBranchCrumbs({ clientId });
 
   return (
     <>
       <Breadcrumbs items={crumbs} />
       <PageHeader title="Agregar sucursal" />
-      <BranchForm action="create" clientId={clientId} />
+      <BranchForm key={clientId ?? 'none'} action="create" clientId={clientId} />
     </>
   );
 }
