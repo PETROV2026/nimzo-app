@@ -11,16 +11,16 @@ let db;
 
 before(async () => {
   db = await createTestDb();
-  await createUser(db, ADMIN, { fullName: 'Admin Uno', role: 'administrador' });
+  await createUser(db, ADMIN, { fullName: 'Admin Uno', role: 'admin' });
   await createUser(db, TECH, { fullName: 'Tecnico Uno' });
-  await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'administrador' });
+  await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'admin' });
   await db.query('update public.profiles set is_active = false where id = $1', [INACTIVE_ADMIN]);
 
   const asAdmin = (sql) => runAs(db, 'authenticated', ADMIN, sql);
   assert.ok((await asAdmin(`insert into public.clients (name) values ('Cliente Demo')`)).ok);
   assert.ok((await asAdmin(`insert into public.branches (client_id, name) values (1, 'Norte')`)).ok);
   assert.ok(
-    (await asAdmin(`insert into public.systems (branch_id, system_type, name) values (1, 'rociadores', 'Red')`)).ok,
+    (await asAdmin(`insert into public.systems (branch_id, system_type, name) values (1, 'sprinkler', 'Red')`)).ok,
   );
 });
 
@@ -47,17 +47,17 @@ describe('schema', () => {
 describe('profiles created by the auth trigger', () => {
   test('role comes from app metadata', async () => {
     const { rows } = await db.query('select role from public.profiles where id = $1', [ADMIN]);
-    assert.equal(rows[0].role, 'administrador');
+    assert.equal(rows[0].role, 'admin');
   });
 
   test('user metadata cannot grant a role', async () => {
     const userId = '00000000-0000-0000-0000-00000000000d';
     await db.query(
-      `insert into auth.users (id, raw_user_meta_data) values ($1, '{"role":"administrador"}')`,
+      `insert into auth.users (id, raw_user_meta_data) values ($1, '{"role":"admin"}')`,
       [userId],
     );
     const { rows } = await db.query('select role from public.profiles where id = $1', [userId]);
-    assert.equal(rows[0].role, 'tecnico');
+    assert.equal(rows[0].role, 'technician');
   });
 });
 
@@ -70,7 +70,7 @@ describe('anon', () => {
   }
 });
 
-describe('administrador', () => {
+describe('admin', () => {
   test('can manage catalogs', async () => {
     const result = await runAs(db, 'authenticated', ADMIN, `update public.systems set notes = 'ok' where id = 1`);
     assert.equal(result.affected, 1);
@@ -85,7 +85,7 @@ describe('administrador', () => {
       [TECH],
     );
     assert.equal(promote.affected, 1);
-    await db.query(`update public.profiles set role = 'tecnico' where id = $1`, [TECH]);
+    await db.query(`update public.profiles set role = 'technician' where id = $1`, [TECH]);
   });
 
   test('loses access when deactivated', async () => {
@@ -99,7 +99,7 @@ describe('administrador', () => {
   });
 });
 
-describe('tecnico', () => {
+describe('technician', () => {
   const asTech = (sql, params) => runAs(db, 'authenticated', TECH, sql, params);
 
   for (const table of ['profiles', 'clients', 'branches', 'systems']) {
@@ -125,7 +125,7 @@ describe('tecnico', () => {
   });
 
   test('cannot change own role or active flag', async () => {
-    const role = await asTech(`update public.profiles set role = 'administrador' where id = $1`, [TECH]);
+    const role = await asTech(`update public.profiles set role = 'admin' where id = $1`, [TECH]);
     const active = await asTech('update public.profiles set is_active = false where id = $1', [TECH]);
     assert.equal(role.ok, false);
     assert.equal(active.ok, false);

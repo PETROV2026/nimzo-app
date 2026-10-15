@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-export const userRoleSchema = z.enum(['tecnico', 'supervisor', 'administrador']);
+export const userRoleSchema = z.enum(['technician', 'supervisor', 'admin']);
 
 export type UserRole = z.infer<typeof userRoleSchema>;
 
 export const userRoleLabels: Record<UserRole, string> = {
-  tecnico: 'Técnico',
+  technician: 'Técnico',
   supervisor: 'Supervisor',
-  administrador: 'Administrador',
+  admin: 'Administrador',
 };
