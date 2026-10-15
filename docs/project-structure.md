@@ -153,7 +153,7 @@ packages/shared/
 
 Import it from either app with `import { reportStatusSchema } from '@nimzo/shared'`. There is no build step: each app compiles it directly.
 
-Values stored in the database are short codes (`activo`, `autorizacion`); the labels next to them (`Activo`, `Autorización`) are what users see.
+Values stored in the database are English codes (`draft`, `awaiting_approval`, `technician`); the Spanish labels next to them (`Activo`, `Autorización`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
 
 ### `supabase/` — database
 

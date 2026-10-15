@@ -28,12 +28,13 @@ const supabaseStub = `
   grant execute on function auth.uid(), auth.jwt() to anon, authenticated, service_role;
 `;
 
-export async function createTestDb() {
-  const db = new PGlite();
-  await db.exec(supabaseStub);
-  const files = readdirSync(migrationsDir)
+function migrationFiles() {
+  return readdirSync(migrationsDir)
     .filter((file) => file.endsWith('.sql'))
     .sort();
+}
+
+async function applyMigrations(db, files) {
   for (const file of files) {
     try {
       await db.exec(readFileSync(join(migrationsDir, file), 'utf8'));
@@ -41,7 +42,23 @@ export async function createTestDb() {
       throw new Error(`Migration ${file} failed: ${error.message}`, { cause: error });
     }
   }
+}
+
+export async function createTestDb({ before } = {}) {
+  const db = new PGlite();
+  await db.exec(supabaseStub);
+  await applyMigrations(
+    db,
+    migrationFiles().filter((file) => !before || file < before),
+  );
   return db;
+}
+
+export async function applyMigrationsFrom(db, first) {
+  await applyMigrations(
+    db,
+    migrationFiles().filter((file) => file >= first),
+  );
 }
 
 export async function createUser(db, id, { fullName = '', role } = {}) {

@@ -29,7 +29,7 @@ async function fetchAdminProfile(userId: string) {
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
-  return data?.is_active && data.role === 'administrador' ? data : null;
+  return data?.is_active && data.role === 'admin' ? data : null;
 }
 
 function getAdminProfile(userId: string) {
