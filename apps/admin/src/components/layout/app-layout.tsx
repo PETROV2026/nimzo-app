@@ -113,22 +113,21 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
               aria-haspopup="menu"
               aria-expanded={Boolean(userAnchor)}
               onClick={(event) => setUserAnchor(event.currentTarget)}
-              endIcon={
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    bgcolor: tokens.tealText,
-                    color: tokens.white,
-                  }}
-                >
-                  {initials(identity.fullName)}
-                </Avatar>
-              }
             >
               Hola, {identity.fullName}
+              <Avatar
+                sx={{
+                  ml: 1,
+                  width: 28,
+                  height: 28,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  bgcolor: tokens.tealText,
+                  color: tokens.white,
+                }}
+              >
+                {initials(identity.fullName)}
+              </Avatar>
             </Button>
             <Menu
               anchorEl={userAnchor}
