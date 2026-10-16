@@ -64,7 +64,7 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
     {
       icon: <GroupOutlined />,
       title: 'Crea las cuentas del equipo',
-      description: 'Técnicos y supervisores entran a la app móvil con la cuenta que les crees.',
+      description: 'Los técnicos entran a la app móvil con la cuenta que les crees.',
       action: (
         <Link component={RouterLink} to="/users/create" className="touch-target">
           Agregar un usuario

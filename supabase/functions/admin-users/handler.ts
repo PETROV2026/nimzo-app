@@ -1,4 +1,4 @@
-export type Role = 'technician' | 'supervisor' | 'admin';
+export type Role = 'technician' | 'admin';
 
 export type ProfileSummary = { role: Role; is_active: boolean };
 
@@ -21,7 +21,7 @@ export class UserError extends Error {
   }
 }
 
-const roles: Role[] = ['technician', 'supervisor', 'admin'];
+const roles: Role[] = ['technician', 'admin'];
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',

@@ -38,7 +38,7 @@ A server-side **PDF service** (`services/pdf`) is part of the plan, but it comes
 ```
 nimzo-app/
 ├── apps/
-│   ├── mobile/               Field app for technicians and supervisors
+│   ├── mobile/               Field app for technicians
 │   └── admin/                Web panel for administrators
 ├── packages/
 │   ├── shared/               Code shared by every app
@@ -153,7 +153,7 @@ packages/shared/
 
 Import it from either app with `import { reportStatusSchema } from '@nimzo/shared'`. There is no build step: each app compiles it directly.
 
-Values stored in the database are English codes (`draft`, `awaiting_approval`, `technician`); the Spanish labels next to them (`Activo`, `Autorización`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
+Values stored in the database are English codes (`draft`, `sent`, `technician`); the Spanish labels next to them (`Activo`, `Enviado`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
 
 #### Usuarios
 

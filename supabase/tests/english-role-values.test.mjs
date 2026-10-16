@@ -7,7 +7,6 @@ const MIGRATION = '20261015155554_english_role_values.sql';
 
 const ADMIN = '00000000-0000-0000-0000-0000000000a1';
 const TECH = '00000000-0000-0000-0000-0000000000b1';
-const SUPERVISOR = '00000000-0000-0000-0000-0000000000c1';
 
 let db;
 
@@ -15,7 +14,6 @@ before(async () => {
   db = await createTestDb({ before: MIGRATION });
   await createUser(db, ADMIN, { fullName: 'Admin Previo', role: 'administrador' });
   await createUser(db, TECH, { fullName: 'Tecnico Previo', role: 'tecnico' });
-  await createUser(db, SUPERVISOR, { fullName: 'Supervisor Previo', role: 'supervisor' });
   await applyMigrationsFrom(db, MIGRATION);
 });
 
@@ -27,7 +25,6 @@ describe('english role values migration', () => {
       [
         [ADMIN, 'admin'],
         [TECH, 'technician'],
-        [SUPERVISOR, 'supervisor'],
       ],
     );
   });
@@ -41,7 +38,6 @@ describe('english role values migration', () => {
       [
         [ADMIN, 'admin'],
         [TECH, 'technician'],
-        [SUPERVISOR, 'supervisor'],
       ],
     );
   });
@@ -52,7 +48,7 @@ describe('english role values migration', () => {
     );
     assert.deepEqual(
       rows.map((row) => row.value),
-      ['technician', 'supervisor', 'admin'],
+      ['technician', 'admin'],
     );
   });
 

@@ -54,7 +54,6 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 | Rol | Plataforma | Responsabilidades |
 |---|---|---|
 | **Técnico** | App móvil | Llena, firma y envía formatos de servicio en campo. |
-| **Supervisor** | App móvil | Firma reportes y autoriza los formatos que lo requieren. |
 | **Administrador** | Panel web | Gestiona usuarios, clientes, sucursales, sistemas y paquetes de servicio. |
 
 ---
@@ -67,7 +66,7 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 - **Paquetes de servicio** por sucursal y frecuencia (semanal, mensual, trimestral, anual) que generan todos los formatos de una visita en un solo paso.
 - **Motor de formatos dinámico**: checklists `N/A / X / OK`, preguntas `SI / NO`, campos de texto, fecha y hora, listas desplegables y grupos repetibles.
 - **Evidencia fotográfica** con descripción, comprimida automáticamente antes de subirse.
-- **Firmas digitales** de técnico y supervisor, con firma guardada en el perfil del técnico.
+- **Firma digital** del técnico, guardada en su perfil.
 - **Funcionamiento sin conexión**: los borradores y reportes terminados se guardan en el dispositivo hasta que el técnico decide enviarlos.
 - **Diseño optimizado para tablets Android**, en orientación horizontal y vertical.
 
@@ -127,9 +126,7 @@ flowchart LR
 stateDiagram-v2
     [*] --> Activo: El técnico abre un formato
     Activo --> Pendiente: Termina el llenado
-    Pendiente --> Autorización: Formato requiere aprobación
-    Pendiente --> Enviado: Envío directo
-    Autorización --> Enviado: Supervisor autoriza
+    Pendiente --> Enviado: El técnico lo envía
     Enviado --> [*]: Se genera el PDF
 ```
 
@@ -137,7 +134,6 @@ stateDiagram-v2
 |---|---|---|
 | **Activo** | Dispositivo | Borrador en proceso de llenado. |
 | **Pendiente** | Dispositivo | Reporte terminado, listo para enviarse. |
-| **Autorización** | Nube | En espera de aprobación del supervisor. |
 | **Enviado** | Nube | Reporte registrado y PDF generado. |
 
 ---
@@ -281,7 +277,7 @@ Ejecutar desde la raíz del repositorio:
 Se sigue el estándar [Conventional Commits](https://www.conventionalcommits.org/es/):
 
 ```
-feat: agrega captura de firma del supervisor
+feat: agrega captura de firma del técnico
 fix: corrige autollenado de dirección de sucursal
 docs: documenta formato F-SER-014
 refactor: simplifica el motor de formatos
@@ -322,7 +318,7 @@ chore: actualiza dependencias
 - [ ] Autenticación y perfiles de usuario
 - [ ] Panel web: usuarios, clientes, sucursales, sistemas y paquetes
 - [ ] Motor de formatos dinámico
-- [ ] Flujo de reportes: Activo → Pendiente → Autorización → Enviado
+- [ ] Flujo de reportes: Activo → Pendiente → Enviado
 - [ ] Fotografías y firmas digitales
 - [ ] Generación de PDF
 - [ ] MVP con los primeros 5 formatos

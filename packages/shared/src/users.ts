@@ -42,6 +42,5 @@ export type PasswordResetInput = z.input<typeof passwordResetSchema>;
 
 export const userRoleDescriptions: Record<z.infer<typeof userRoleSchema>, string> = {
   technician: 'Llena, firma y envía los formatos desde la app móvil.',
-  supervisor: 'Firma y autoriza los formatos desde la app móvil.',
   admin: 'Administra el panel web: clientes, sucursales, sistemas y usuarios.',
 };

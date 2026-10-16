@@ -72,7 +72,7 @@ Rules:
 Follow [Conventional Commits](https://www.conventionalcommits.org/), with an optional scope for the area:
 
 ```
-feat(mobile): add supervisor signature capture
+feat(mobile): add technician signature capture
 fix(admin): correct branch address autofill
 docs(forms): document F-SER-014
 refactor(shared): simplify the form engine
