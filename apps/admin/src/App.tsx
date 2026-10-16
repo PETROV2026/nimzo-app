@@ -1,4 +1,6 @@
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
+import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
 import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -32,9 +34,25 @@ const ClientList = lazy(() => loadClients().then((module) => ({ default: module.
 const ClientCreate = lazy(() => loadClients().then((module) => ({ default: module.ClientCreate })));
 const ClientEdit = lazy(() => loadClients().then((module) => ({ default: module.ClientEdit })));
 
+const loadBranches = () => import('@/pages/branches');
+
+const BranchCreate = lazy(() =>
+  loadBranches().then((module) => ({ default: module.BranchCreate })),
+);
+const BranchEdit = lazy(() => loadBranches().then((module) => ({ default: module.BranchEdit })));
+const BranchList = lazy(() => loadBranches().then((module) => ({ default: module.BranchList })));
+
+const loadSystems = () => import('@/pages/systems');
+
+const SystemList = lazy(() => loadSystems().then((module) => ({ default: module.SystemList })));
+
 function ProtectedLayout() {
   useEffect(() => {
-    const id = setTimeout(() => void loadClients(), 1500);
+    const id = setTimeout(() => {
+      void loadClients();
+      void loadBranches();
+      void loadSystems();
+    }, 1500);
     return () => clearTimeout(id);
   }, []);
   return <AppLayout />;
@@ -69,11 +87,33 @@ const resources = [
       ],
     },
   },
+  {
+    name: 'branches',
+    list: '/branches',
+    create: '/branches/create',
+    edit: '/branches/:id/edit',
+    meta: {
+      label: 'Sucursales',
+      icon: <PlaceOutlined />,
+      canDelete: false,
+      submenu: [
+        { label: 'Todas las sucursales', to: '/branches' },
+        { label: 'Agregar sucursal', to: '/branches/create' },
+      ],
+    },
+  },
+  {
+    name: 'systems',
+    list: '/systems',
+    meta: { label: 'Sistemas', icon: <LocalFireDepartmentOutlined />, canDelete: false },
+  },
 ];
 
 const titles: Record<string, string> = {
   dashboard: 'Escritorio',
   clients: 'Clientes',
+  branches: 'Sucursales',
+  systems: 'Sistemas',
 };
 
 export default function App() {
@@ -118,6 +158,26 @@ export default function App() {
                     <Route path="create" element={<ClientCreate />} />
                     <Route path=":id/edit" element={<ClientEdit />} />
                   </Route>
+                  <Route
+                    path="/branches"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<BranchList />} />
+                    <Route path="create" element={<BranchCreate />} />
+                    <Route path=":id/edit" element={<BranchEdit />} />
+                  </Route>
+                  <Route
+                    path="/systems"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <SystemList />
+                      </Suspense>
+                    }
+                  />
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Route>

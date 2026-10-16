@@ -31,6 +31,10 @@ The panel follows the **WordPress admin** conventions, so administrators recogni
 **Reference implementation: `apps/admin/src/pages/clients/`.** Copy its structure for every new resource.
 
 - Page title and its secondary action: `<PageHeader>` (`src/components/page-header.tsx`). Boxes: `<Postbox>`. Notices: `<Notice>`.
+- Active/inactive state: `<StatusChip>`. "Editar | Desactivar" under a row's name: `<RowActions>`.
+- Records that belong to another one (a client's branches, a branch's systems) are reachable two ways: listed in a `<Postbox>` on the parent's edit page with `<CatalogTable>`, and in their own sidebar entry with a list of all records (with a column linking to the parent). Their pages use flat routes (`/branches/:id/edit`) and show `<Breadcrumbs>` with the hierarchy (`Clientes / Cliente / Sucursal`). Creating one outside the parent asks for the parent with `<RecordAutocomplete>`. Small records with few fields (systems) are created and edited in a `Dialog`. See `pages/clients/branches-box.tsx`, `pages/branches/` and `pages/systems/`.
+- Lists share `<StatusLinks>`, `<SearchField>`, `<ListToolbar>`, `<GridEmptyState>` and `catalogGridProps`; filters go through `useDebouncedFilters`.
+- After creating a record that has children, redirect to its edit page so the admin can add them right away.
 - Tables: `useDataGrid()` + MUI `<DataGrid>` inside an outlined `<Paper>`, with status links and search above it (see `clients/list.tsx`).
 - Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, laid out like `client-form.tsx` (main column + side save box).
 - Shell and navigation: `src/components/layout/app-layout.tsx`. Sidebar entries come from the `resources` array in `App.tsx`.
