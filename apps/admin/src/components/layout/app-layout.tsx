@@ -3,6 +3,7 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -36,15 +37,6 @@ function readCollapsed() {
   } catch {
     return false;
   }
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
 }
 
 function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
@@ -113,22 +105,19 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
               aria-haspopup="menu"
               aria-expanded={Boolean(userAnchor)}
               onClick={(event) => setUserAnchor(event.currentTarget)}
-              endIcon={
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    bgcolor: tokens.tealText,
-                    color: tokens.white,
-                  }}
-                >
-                  {initials(identity.fullName)}
-                </Avatar>
-              }
             >
               Hola, {identity.fullName}
+              <Avatar
+                sx={{
+                  ml: 1,
+                  width: 28,
+                  height: 28,
+                  bgcolor: tokens.tealText,
+                  color: tokens.white,
+                }}
+              >
+                <PersonIcon sx={{ fontSize: 20 }} />
+              </Avatar>
             </Button>
             <Menu
               anchorEl={userAnchor}
