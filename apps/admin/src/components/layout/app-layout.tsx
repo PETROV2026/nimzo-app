@@ -12,14 +12,14 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import ListSubheader from '@mui/material/ListSubheader';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import iconWhite from '@nimzo/brand/logos/icon-white.webp';
 import { useGetIdentity, useLogout, useMenu, type TreeMenuItem } from '@refinedev/core';
-import { useState, type ReactNode } from 'react';
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 
 import type { Identity } from '@/providers/auth-provider';
@@ -38,6 +38,44 @@ function readCollapsed() {
     return false;
   }
 }
+
+const adminBarMenuProps = {
+  slotProps: {
+    paper: {
+      square: true,
+      sx: {
+        mt: 0,
+        minWidth: 200,
+        bgcolor: tokens.adminBar,
+        color: tokens.white,
+        boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+      },
+    },
+    list: {
+      sx: {
+        py: 0.75,
+        '& .MuiMenuItem-root': {
+          minHeight: 36,
+          px: 1.75,
+          fontSize: 14,
+          color: 'rgba(255,255,255,0.9)',
+        },
+        '& .MuiMenuItem-root:hover, & .MuiMenuItem-root.Mui-focusVisible': {
+          bgcolor: tokens.sidebarSub,
+          color: tokens.sidebarHover,
+        },
+        '& .MuiMenuItem-root.Mui-focusVisible': {
+          outline: `2px solid ${tokens.sidebarHover}`,
+          outlineOffset: -2,
+        },
+        '& .MuiListItemIcon-root': { color: 'inherit', minWidth: 30 },
+        '& .MuiDivider-root': { borderColor: 'rgba(255,255,255,0.14)', my: 0.75 },
+      },
+    },
+  },
+  anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+  transformOrigin: { vertical: 'top', horizontal: 'left' },
+} as const;
 
 function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
   const { data: identity } = useGetIdentity<Identity>();
@@ -84,7 +122,12 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
         >
           Agregar
         </Button>
-        <Menu anchorEl={addAnchor} open={Boolean(addAnchor)} onClose={() => setAddAnchor(null)}>
+        <Menu
+          {...adminBarMenuProps}
+          anchorEl={addAnchor}
+          open={Boolean(addAnchor)}
+          onClose={() => setAddAnchor(null)}
+        >
           <MenuItem component={Link} to="/clients/create" onClick={() => setAddAnchor(null)}>
             Cliente
           </MenuItem>
@@ -120,19 +163,31 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
               </Avatar>
             </Button>
             <Menu
+              {...adminBarMenuProps}
               anchorEl={userAnchor}
               open={Boolean(userAnchor)}
               onClose={() => setUserAnchor(null)}
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <Box sx={{ px: 2, py: 1, minWidth: 220 }}>
+              <ListSubheader
+                role="presentation"
+                sx={{
+                  px: 1.75,
+                  py: 1,
+                  minWidth: 220,
+                  position: 'static',
+                  lineHeight: 1.45,
+                  bgcolor: 'transparent',
+                  color: 'inherit',
+                }}
+              >
                 <Typography sx={{ fontWeight: 600 }}>{identity.fullName}</Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.72)' }}>
                   {identity.email}
                 </Typography>
-              </Box>
-              <Divider />
+              </ListSubheader>
+              <Divider component="li" role="separator" />
               <MenuItem onClick={() => logout()}>
                 <ListItemIcon>
                   <LogoutIcon fontSize="small" />
@@ -162,12 +217,14 @@ function SidebarLink({
   collapsed: boolean;
   onNavigate?: () => void;
 }) {
-  const link = (
+  return (
     <Box
       component={Link}
       to={to}
       onClick={onNavigate}
       aria-current={active ? 'page' : undefined}
+      aria-label={collapsed ? label : undefined}
+      className="sidebar-link"
       sx={{
         position: 'relative',
         display: 'flex',
@@ -182,7 +239,6 @@ function SidebarLink({
         fontSize: 14,
         fontWeight: active ? 600 : 500,
         '& svg': { fontSize: 20, opacity: active ? 1 : 0.75 },
-        '&:hover': active ? {} : { bgcolor: tokens.sidebarSub, color: tokens.sidebarHover },
         '&:focus-visible': { outline: `2px solid ${tokens.sidebarHover}`, outlineOffset: -2 },
         '&::after': active
           ? {
@@ -201,22 +257,213 @@ function SidebarLink({
       {!collapsed && label}
     </Box>
   );
+}
 
-  return collapsed ? (
-    <Tooltip title={label} placement="right">
-      {link}
-    </Tooltip>
-  ) : (
-    link
+function SubmenuLinks({
+  items,
+  pathname,
+  onNavigate,
+  variant,
+}: {
+  items: SubmenuItem[];
+  pathname: string;
+  onNavigate?: () => void;
+  variant: 'inline' | 'flyout';
+}) {
+  return (
+    <>
+      {items.map((sub) => {
+        const current = pathname === sub.to;
+        return (
+          <li key={sub.to}>
+            <Box
+              component={Link}
+              to={sub.to}
+              onClick={onNavigate}
+              aria-current={current ? 'page' : undefined}
+              sx={{
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                minHeight: 36,
+                pl: variant === 'inline' ? 5.75 : 2,
+                pr: 2,
+                fontSize: 13,
+                whiteSpace: 'nowrap',
+                textDecoration: 'none',
+                color: current ? tokens.white : 'rgba(255,255,255,0.8)',
+                fontWeight: current ? 600 : 400,
+                '&:hover': { color: tokens.sidebarHover },
+                '&:focus-visible': {
+                  outline: `2px solid ${tokens.sidebarHover}`,
+                  outlineOffset: -2,
+                },
+                '&::before':
+                  current && variant === 'flyout'
+                    ? {
+                        content: '""',
+                        position: 'absolute',
+                        left: 0,
+                        top: 6,
+                        bottom: 6,
+                        width: 4,
+                        bgcolor: tokens.teal,
+                      }
+                    : undefined,
+              }}
+            >
+              {sub.label}
+            </Box>
+          </li>
+        );
+      })}
+    </>
+  );
+}
+
+function SidebarItem({
+  item,
+  active,
+  collapsed,
+  flyouts,
+  pathname,
+  onNavigate,
+}: {
+  item: TreeMenuItem;
+  active: boolean;
+  collapsed: boolean;
+  flyouts: boolean;
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const [dismissed, setDismissed] = useState(false);
+  const route = item.route ?? '/';
+  const label = item.label ?? item.name;
+  const submenu = (item.meta?.submenu as SubmenuItem[] | undefined) ?? [];
+  const showInline = active && !collapsed && submenu.length > 0;
+  const showFlyout = flyouts && !showInline && (collapsed || submenu.length > 0);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLLIElement>) {
+    if (event.key !== 'Escape' || !showFlyout) return;
+    setDismissed(true);
+    event.currentTarget.querySelector<HTMLElement>('.sidebar-link')?.focus();
+  }
+
+  return (
+    <Box
+      component="li"
+      onKeyDown={handleKeyDown}
+      onMouseLeave={() => setDismissed(false)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setDismissed(false);
+      }}
+      data-dismissed={dismissed ? '' : undefined}
+      sx={{
+        position: 'relative',
+        '&:hover > .sidebar-link': active
+          ? {}
+          : { bgcolor: tokens.sidebarSub, color: tokens.sidebarHover },
+        ...(showFlyout && active
+          ? {
+              '&:not([data-dismissed]):hover > .sidebar-link::after, &:not([data-dismissed]):focus-within > .sidebar-link::after':
+                { borderRightColor: tokens.tealStrong },
+            }
+          : {}),
+        '&:not([data-dismissed]):hover > .sidebar-flyout, &:not([data-dismissed]):focus-within > .sidebar-flyout':
+          { visibility: 'visible', opacity: 1, transitionDelay: '0s' },
+      }}
+    >
+      <SidebarLink
+        to={route}
+        icon={item.icon}
+        label={label}
+        active={active}
+        collapsed={collapsed}
+        onNavigate={onNavigate}
+      />
+
+      {showInline && (
+        <Box
+          component="ul"
+          aria-label={label}
+          sx={{ listStyle: 'none', m: 0, py: 0.75, pl: 0, bgcolor: tokens.sidebarSub }}
+        >
+          <SubmenuLinks
+            items={submenu}
+            pathname={pathname}
+            onNavigate={onNavigate}
+            variant="inline"
+          />
+        </Box>
+      )}
+
+      {showFlyout && (
+        <Box
+          className="sidebar-flyout"
+          sx={{
+            position: 'absolute',
+            left: '100%',
+            top: 0,
+            zIndex: 1,
+            minWidth: 180,
+            bgcolor: tokens.adminBar,
+            boxShadow: '0 3px 5px rgba(0, 0, 0, 0.2)',
+            visibility: 'hidden',
+            opacity: 0,
+            transition: 'opacity 120ms ease-out, visibility 0s linear 150ms',
+          }}
+        >
+          {collapsed && (
+            <Box
+              component={Link}
+              to={route}
+              onClick={onNavigate}
+              tabIndex={-1}
+              aria-hidden
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                minHeight: 44,
+                px: 2,
+                fontSize: 14,
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                textDecoration: 'none',
+                color: active ? tokens.white : tokens.sidebarHover,
+                bgcolor: active ? tokens.tealStrong : 'transparent',
+              }}
+            >
+              {label}
+            </Box>
+          )}
+          {submenu.length > 0 && (
+            <Box
+              component="ul"
+              aria-label={label}
+              sx={{ listStyle: 'none', m: 0, py: 0.75, pl: 0 }}
+            >
+              <SubmenuLinks
+                items={submenu}
+                pathname={pathname}
+                onNavigate={onNavigate}
+                variant="flyout"
+              />
+            </Box>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }
 
 function Sidebar({
   collapsed,
+  flyouts = false,
   onToggleCollapsed,
   onNavigate,
 }: {
   collapsed: boolean;
+  flyouts?: boolean;
   onToggleCollapsed?: () => void;
   onNavigate?: () => void;
 }) {
@@ -235,61 +482,21 @@ function Sidebar({
         pt: 1.5,
       }}
     >
-      <Box sx={{ flex: 1 }}>
+      <Box component="ul" sx={{ flex: 1, listStyle: 'none', m: 0, p: 0 }}>
         {menuItems.map((item: TreeMenuItem) => {
           const route = item.route ?? '/';
           const active =
             item.key === selectedKey || (route !== '/' && pathname.startsWith(`${route}/`));
-          const submenu = (item.meta?.submenu as SubmenuItem[] | undefined) ?? [];
           return (
-            <Box key={item.key}>
-              <SidebarLink
-                to={route}
-                icon={item.icon}
-                label={item.label ?? item.name}
-                active={active}
-                collapsed={collapsed}
-                onNavigate={onNavigate}
-              />
-              {active && !collapsed && submenu.length > 0 && (
-                <Box
-                  component="ul"
-                  sx={{ listStyle: 'none', m: 0, py: 0.75, pl: 0, bgcolor: tokens.sidebarSub }}
-                >
-                  {submenu.map((sub) => {
-                    const current = pathname === sub.to;
-                    return (
-                      <li key={sub.to}>
-                        <Box
-                          component={Link}
-                          to={sub.to}
-                          onClick={onNavigate}
-                          aria-current={current ? 'page' : undefined}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            minHeight: 36,
-                            pl: 5.75,
-                            pr: 1.5,
-                            fontSize: 13,
-                            textDecoration: 'none',
-                            color: current ? tokens.white : 'rgba(255,255,255,0.8)',
-                            fontWeight: current ? 600 : 400,
-                            '&:hover': { color: tokens.sidebarHover },
-                            '&:focus-visible': {
-                              outline: `2px solid ${tokens.sidebarHover}`,
-                              outlineOffset: -2,
-                            },
-                          }}
-                        >
-                          {sub.label}
-                        </Box>
-                      </li>
-                    );
-                  })}
-                </Box>
-              )}
-            </Box>
+            <SidebarItem
+              key={item.key}
+              item={item}
+              active={active}
+              collapsed={collapsed}
+              flyouts={flyouts}
+              pathname={pathname}
+              onNavigate={onNavigate}
+            />
           );
         })}
       </Box>
@@ -380,7 +587,7 @@ export function AppLayout() {
             transition: 'width 200ms ease-out',
           }}
         >
-          <Sidebar collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
+          <Sidebar collapsed={collapsed} flyouts onToggleCollapsed={toggleCollapsed} />
         </Box>
       ) : (
         <Drawer
