@@ -3,6 +3,7 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
+import PersonIcon from '@mui/icons-material/Person';
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -36,15 +37,6 @@ function readCollapsed() {
   } catch {
     return false;
   }
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
 }
 
 function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
@@ -120,13 +112,11 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
                   ml: 1,
                   width: 28,
                   height: 28,
-                  fontSize: 12,
-                  fontWeight: 600,
                   bgcolor: tokens.tealText,
                   color: tokens.white,
                 }}
               >
-                {initials(identity.fullName)}
+                <PersonIcon sx={{ fontSize: 20 }} />
               </Avatar>
             </Button>
             <Menu
