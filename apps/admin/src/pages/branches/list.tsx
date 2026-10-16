@@ -4,7 +4,7 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { mexicanStateLabels, type Branch, type MexicanState } from '@nimzo/shared';
+import { mexicanStateLabels, type Branch, type MexicanState, toSearchText } from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
@@ -76,7 +76,9 @@ export function BranchList() {
   });
 
   const filters: CrudFilter[] = [...statusCrudFilter(status)];
-  if (search.trim()) filters.push({ field: 'name', operator: 'contains', value: search.trim() });
+  if (search.trim()) {
+    filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
+  }
   useDebouncedFilters(setFilters, filters);
 
   const columns = useMemo<GridColDef<BranchRow>[]>(
@@ -163,7 +165,7 @@ export function BranchList() {
           value={search}
           onChange={setSearch}
           placeholder="Buscar sucursales"
-          label="Buscar sucursales por nombre"
+          label="Buscar sucursales por nombre o ciudad"
         />
       </ListToolbar>
 

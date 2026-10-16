@@ -7,7 +7,13 @@ import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { userRoleLabels, userRoleSchema, type Profile, type UserRole } from '@nimzo/shared';
+import {
+  userRoleLabels,
+  userRoleSchema,
+  type Profile,
+  type UserRole,
+  toSearchText,
+} from '@nimzo/shared';
 import { useGetIdentity, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
@@ -92,13 +98,7 @@ export function UserList() {
   const filters: CrudFilter[] = [...statusCrudFilter(status)];
   if (role) filters.push({ field: 'role', operator: 'eq', value: role });
   if (search.trim()) {
-    filters.push({
-      operator: 'or',
-      value: [
-        { field: 'full_name', operator: 'contains', value: search.trim() },
-        { field: 'email', operator: 'contains', value: search.trim() },
-      ],
-    });
+    filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
   }
   useDebouncedFilters(setFilters, filters);
 

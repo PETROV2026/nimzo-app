@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import type { Client } from '@nimzo/shared';
+import { toSearchText, type Client } from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
@@ -74,7 +74,9 @@ export function ClientList() {
   });
 
   const filters: CrudFilter[] = [...statusCrudFilter(status)];
-  if (search.trim()) filters.push({ field: 'name', operator: 'contains', value: search.trim() });
+  if (search.trim()) {
+    filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
+  }
   useDebouncedFilters(setFilters, filters);
 
   const columns = useMemo<GridColDef<ClientRow>[]>(
@@ -171,7 +173,7 @@ export function ClientList() {
           value={search}
           onChange={setSearch}
           placeholder="Buscar clientes"
-          label="Buscar clientes por nombre"
+          label="Buscar clientes por nombre o RFC"
         />
       </ListToolbar>
 

@@ -19,6 +19,7 @@ export type Database = {
           id: number;
           is_active: boolean;
           name: string;
+          search_text: string | null;
           state: string | null;
           updated_at: string;
         };
@@ -32,6 +33,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name: string;
+          search_text?: never;
           state?: string | null;
           updated_at?: string;
         };
@@ -45,6 +47,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name?: string;
+          search_text?: never;
           state?: string | null;
           updated_at?: string;
         };
@@ -68,6 +71,7 @@ export type Database = {
           is_active: boolean;
           name: string;
           notes: string | null;
+          search_text: string | null;
           tax_id: string | null;
           updated_at: string;
         };
@@ -80,6 +84,7 @@ export type Database = {
           is_active?: boolean;
           name: string;
           notes?: string | null;
+          search_text?: never;
           tax_id?: string | null;
           updated_at?: string;
         };
@@ -92,6 +97,7 @@ export type Database = {
           is_active?: boolean;
           name?: string;
           notes?: string | null;
+          search_text?: never;
           tax_id?: string | null;
           updated_at?: string;
         };
@@ -106,6 +112,7 @@ export type Database = {
           is_active: boolean;
           last_sign_in_at: string | null;
           role: Database['public']['Enums']['user_role'];
+          search_text: string | null;
           signature_path: string | null;
           updated_at: string;
         };
@@ -117,6 +124,7 @@ export type Database = {
           is_active?: boolean;
           last_sign_in_at?: string | null;
           role?: Database['public']['Enums']['user_role'];
+          search_text?: never;
           signature_path?: string | null;
           updated_at?: string;
         };
@@ -128,6 +136,7 @@ export type Database = {
           is_active?: boolean;
           last_sign_in_at?: string | null;
           role?: Database['public']['Enums']['user_role'];
+          search_text?: never;
           signature_path?: string | null;
           updated_at?: string;
         };
@@ -142,6 +151,7 @@ export type Database = {
           location: string | null;
           name: string;
           notes: string | null;
+          search_text: string | null;
           system_type: Database['public']['Enums']['system_type'];
           updated_at: string;
         };
@@ -153,6 +163,7 @@ export type Database = {
           location?: string | null;
           name: string;
           notes?: string | null;
+          search_text?: never;
           system_type: Database['public']['Enums']['system_type'];
           updated_at?: string;
         };
@@ -164,6 +175,7 @@ export type Database = {
           location?: string | null;
           name?: string;
           notes?: string | null;
+          search_text?: never;
           system_type?: Database['public']['Enums']['system_type'];
           updated_at?: string;
         };

@@ -178,7 +178,8 @@ supabase/
 │   ├── 20261015155554_english_role_values.sql            roles stored in English
 │   ├── 20261015210044_system_types_and_branch_states.sql system types and state codes
 │   ├── 20261016164430_admin_diagnostics.sql              read-only diagnostics for Herramientas
-│   └── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
+│   ├── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
+│   └── 20261016214053_accent_insensitive_search.sql      search_text columns for accent-insensitive search
 ├── functions/
 │   └── admin-users/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)

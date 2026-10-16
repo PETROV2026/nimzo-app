@@ -2,6 +2,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { PGlite } from '@electric-sql/pglite';
+import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm';
+import { unaccent } from '@electric-sql/pglite/contrib/unaccent';
 
 const migrationsDir = join(import.meta.dirname, '..', 'migrations');
 
@@ -13,6 +15,9 @@ const supabaseStub = `
   alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
   alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
   alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+
+  create schema extensions;
+  grant usage on schema extensions to anon, authenticated, service_role;
 
   create schema auth;
   grant usage on schema auth to anon, authenticated, service_role;
@@ -48,7 +53,7 @@ async function applyMigrations(db, files) {
 }
 
 export async function createTestDb({ before } = {}) {
-  const db = new PGlite();
+  const db = new PGlite({ extensions: { pg_trgm, unaccent } });
   await db.exec(supabaseStub);
   await applyMigrations(
     db,
