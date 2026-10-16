@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@12.11.2",
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.18"
   },
   "scripts": {
     "prepare": "git config core.hooksPath .githooks || true",

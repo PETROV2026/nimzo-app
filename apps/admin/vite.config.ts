@@ -1,9 +1,31 @@
+import { execSync } from 'node:child_process';
+import { readdirSync } from 'node:fs';
 import path from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+function gitCommit() {
+  try {
+    return execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
+const migrations = readdirSync(path.resolve(import.meta.dirname, '../../supabase/migrations'))
+  .filter((file) => file.endsWith('.sql'))
+  .map((file) => file.replace(/\.sql$/, ''))
+  .sort();
+
 export default defineConfig({
   plugins: [react()],
+  define: {
+    __APP_COMMIT__: JSON.stringify(gitCommit()),
+    __APP_BUILT_AT__: JSON.stringify(new Date().toISOString()),
+    __APP_MIGRATIONS__: JSON.stringify(migrations),
+  },
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
