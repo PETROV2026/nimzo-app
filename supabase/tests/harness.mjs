@@ -19,7 +19,10 @@ const supabaseStub = `
   create table auth.users (
     id uuid primary key,
     raw_user_meta_data jsonb not null default '{}',
-    raw_app_meta_data jsonb not null default '{}'
+    raw_app_meta_data jsonb not null default '{}',
+    email text,
+    created_at timestamptz not null default now(),
+    last_sign_in_at timestamptz
   );
   create function auth.uid() returns uuid language sql stable as $$
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid

@@ -155,6 +155,14 @@ Import it from either app with `import { reportStatusSchema } from '@nimzo/share
 
 Values stored in the database are English codes (`draft`, `awaiting_approval`, `technician`); the Spanish labels next to them (`Activo`, `Autorización`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
 
+#### Herramientas (developer tools)
+
+The admin panel has a **Herramientas** section, visible to every `admin`:
+
+- **Diagnóstico** (`/tools`): calls the read-only database function `public.admin_diagnostics()` and shows each table's row count, RLS and policies, users per role, the applied migrations, and the commit and build date of the panel. It warns when a migration in the code is not applied in the cloud yet.
+- **Consultas SQL** (`/tools/queries`): a library of read-only SQL queries to copy into the Supabase SQL Editor or run with `pnpm supabase db query --linked "…"`. Nothing runs from the browser. To add one, append it to `apps/admin/src/pages/tools/queries.ts`; `pnpm test:db` runs every query on the demo data inside a read-only transaction, so a query that breaks or writes fails CI.
+- **Accesos rápidos** (`/tools/links`): links to the Supabase dashboard, GitHub and the docs.
+
 ### `supabase/` — database
 
 ```

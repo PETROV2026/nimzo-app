@@ -1,3 +1,4 @@
+import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
@@ -14,12 +15,13 @@ import routerProvider, {
   NavigateToResource,
   UnsavedChangesNotifier,
 } from '@refinedev/react-router';
-import { dataProvider, liveProvider } from '@refinedev/supabase';
+import { liveProvider } from '@refinedev/supabase';
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 
 import { AppLayout } from '@/components/layout/app-layout';
 import { SnackbarProvider } from '@/components/snackbar-provider';
+import { dataProvider } from '@/lib/data-provider';
 import { supabase } from '@/lib/supabase';
 import { DashboardPage } from '@/pages/dashboard';
 import { LoginPage } from '@/pages/login';
@@ -46,6 +48,14 @@ const BranchList = lazy(() => loadBranches().then((module) => ({ default: module
 const loadSystems = () => import('@/pages/systems');
 
 const SystemList = lazy(() => loadSystems().then((module) => ({ default: module.SystemList })));
+
+const loadTools = () => import('@/pages/tools');
+
+const ToolsDiagnostics = lazy(() =>
+  loadTools().then((module) => ({ default: module.ToolsDiagnostics })),
+);
+const ToolsQueries = lazy(() => loadTools().then((module) => ({ default: module.ToolsQueries })));
+const ToolsLinks = lazy(() => loadTools().then((module) => ({ default: module.ToolsLinks })));
 
 function ProtectedLayout() {
   useEffect(() => {
@@ -112,6 +122,19 @@ const resources = [
     list: '/systems',
     meta: { label: 'Sistemas', icon: <LocalFireDepartmentOutlined />, canDelete: false },
   },
+  {
+    name: 'tools',
+    list: '/tools',
+    meta: {
+      label: 'Herramientas',
+      icon: <BuildOutlined />,
+      submenu: [
+        { label: 'Diagnóstico', to: '/tools' },
+        { label: 'Consultas SQL', to: '/tools/queries' },
+        { label: 'Accesos rápidos', to: '/tools/links' },
+      ],
+    },
+  },
 ];
 
 const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>> = {
@@ -119,6 +142,13 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   clients: { list: 'Clientes', create: 'Agregar cliente', edit: 'Editar cliente' },
   branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
   systems: { list: 'Sistemas' },
+  tools: { list: 'Herramientas' },
+};
+
+const toolTitles: Record<string, string> = {
+  '/tools': 'Diagnóstico',
+  '/tools/queries': 'Consultas SQL',
+  '/tools/links': 'Accesos rápidos',
 };
 
 export default function App() {
@@ -128,7 +158,7 @@ export default function App() {
         <CssBaseline />
         <SnackbarProvider>
           <Refine
-            dataProvider={dataProvider(supabase)}
+            dataProvider={dataProvider}
             liveProvider={liveProvider(supabase)}
             authProvider={authProvider}
             i18nProvider={i18nProvider}
@@ -183,6 +213,18 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  <Route
+                    path="/tools"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando herramientas…" />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<ToolsDiagnostics />} />
+                    <Route path="queries" element={<ToolsQueries />} />
+                    <Route path="links" element={<ToolsLinks />} />
+                  </Route>
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
               </Route>
@@ -199,7 +241,9 @@ export default function App() {
             </Routes>
             <UnsavedChangesNotifier />
             <DocumentTitleHandler
-              handler={({ resource, action }) => {
+              handler={({ resource, action, pathname }) => {
+                const toolTitle = pathname ? toolTitles[pathname] : undefined;
+                if (toolTitle) return `${toolTitle} | Nimzo`;
                 const pages = resource?.name ? titles[resource.name] : undefined;
                 const title = pages?.[action as 'list' | 'create' | 'edit'] ?? pages?.list;
                 return title ? `${title} | Nimzo` : 'Nimzo';
