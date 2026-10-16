@@ -1,5 +1,6 @@
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import GroupOutlined from '@mui/icons-material/GroupOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
 import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
@@ -48,6 +49,12 @@ const BranchList = lazy(() => loadBranches().then((module) => ({ default: module
 const loadSystems = () => import('@/pages/systems');
 
 const SystemList = lazy(() => loadSystems().then((module) => ({ default: module.SystemList })));
+
+const loadUsers = () => import('@/pages/users');
+
+const UserList = lazy(() => loadUsers().then((module) => ({ default: module.UserList })));
+const UserCreate = lazy(() => loadUsers().then((module) => ({ default: module.UserCreate })));
+const UserEdit = lazy(() => loadUsers().then((module) => ({ default: module.UserEdit })));
 
 const loadTools = () => import('@/pages/tools');
 
@@ -123,6 +130,21 @@ const resources = [
     meta: { label: 'Sistemas', icon: <LocalFireDepartmentOutlined />, canDelete: false },
   },
   {
+    name: 'profiles',
+    list: '/users',
+    create: '/users/create',
+    edit: '/users/:id/edit',
+    meta: {
+      label: 'Usuarios',
+      icon: <GroupOutlined />,
+      canDelete: false,
+      submenu: [
+        { label: 'Todos los usuarios', to: '/users' },
+        { label: 'Agregar usuario', to: '/users/create' },
+      ],
+    },
+  },
+  {
     name: 'tools',
     list: '/tools',
     meta: {
@@ -142,6 +164,7 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   clients: { list: 'Clientes', create: 'Agregar cliente', edit: 'Editar cliente' },
   branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
   systems: { list: 'Sistemas' },
+  profiles: { list: 'Usuarios', create: 'Agregar usuario', edit: 'Editar usuario' },
   tools: { list: 'Herramientas' },
 };
 
@@ -213,6 +236,18 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  <Route
+                    path="/users"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando usuarios…" />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<UserList />} />
+                    <Route path="create" element={<UserCreate />} />
+                    <Route path=":id/edit" element={<UserEdit />} />
+                  </Route>
                   <Route
                     path="/tools"
                     element={

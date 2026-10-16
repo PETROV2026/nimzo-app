@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router';
 
 type RowActionsProps = {
   active: boolean;
-  onToggleActive: () => void;
+  onToggleActive?: () => void;
   pending?: boolean;
   editTo?: string;
   onEdit?: () => void;
@@ -46,20 +46,24 @@ export function RowActions({
           Editar
         </Link>
       )}
-      <Box component="span" aria-hidden sx={{ color: 'text.disabled' }}>
-        |
-      </Box>
-      <Link
-        component="button"
-        type="button"
-        onClick={onToggleActive}
-        disabled={pending}
-        className="touch-target"
-        aria-label={`${active ? 'Desactivar' : 'Activar'} ${label}`}
-        sx={{ fontSize: 13, color: active ? 'error.main' : 'primary.main' }}
-      >
-        {active ? 'Desactivar' : 'Activar'}
-      </Link>
+      {onToggleActive && (
+        <>
+          <Box component="span" aria-hidden sx={{ color: 'text.disabled' }}>
+            |
+          </Box>
+          <Link
+            component="button"
+            type="button"
+            onClick={onToggleActive}
+            disabled={pending}
+            className="touch-target"
+            aria-label={`${active ? 'Desactivar' : 'Activar'} ${label}`}
+            sx={{ fontSize: 13, color: active ? 'error.main' : 'primary.main' }}
+          >
+            {active ? 'Desactivar' : 'Activar'}
+          </Link>
+        </>
+      )}
     </Box>
   );
 }
