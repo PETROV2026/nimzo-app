@@ -10,7 +10,7 @@ import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 
-import { catalogGridProps } from '@/components/catalog-grid';
+import { useCatalogGridProps } from '@/components/catalog-grid';
 import { GridEmptyState } from '@/components/grid-empty-state';
 import { ListToolbar } from '@/components/list-toolbar';
 import { PageHeader } from '@/components/page-header';
@@ -36,6 +36,8 @@ function NameCell({ branch }: { branch: Branch }) {
       resource: 'branches',
       id: branch.id,
       values: { is_active: !branch.is_active },
+      mutationMode: 'undoable',
+      undoableTimeout: 5000,
       successNotification: {
         type: 'success',
         message: branch.is_active ? 'Sucursal desactivada' : 'Sucursal activada',
@@ -61,6 +63,7 @@ function NameCell({ branch }: { branch: Branch }) {
 }
 
 export function BranchList() {
+  const gridProps = useCatalogGridProps();
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -167,7 +170,7 @@ export function BranchList() {
       <Paper variant="outlined">
         <DataGrid
           {...dataGridProps}
-          {...catalogGridProps}
+          {...gridProps}
           columns={columns}
           columnVisibilityModel={{ systems: isWide }}
           slots={{ noRowsOverlay: () => emptyState, noResultsOverlay: () => emptyState }}

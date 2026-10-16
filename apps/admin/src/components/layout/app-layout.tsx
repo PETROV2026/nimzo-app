@@ -60,6 +60,7 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
     px: 1.25,
     fontWeight: 500,
     '&:hover, &[aria-expanded="true"]': { bgcolor: tokens.sidebarSub, color: tokens.sidebarHover },
+    '&.Mui-focusVisible': { outline: `2px solid ${tokens.sidebarHover}`, outlineOffset: -2 },
   } as const;
 
   return (
@@ -116,7 +117,8 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
                     height: 24,
                     fontSize: 11,
                     fontWeight: 600,
-                    bgcolor: tokens.tealStrong,
+                    bgcolor: tokens.tealText,
+                    color: tokens.white,
                   }}
                 >
                   {initials(identity.fullName)}
@@ -350,6 +352,28 @@ export function AppLayout() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Box
+        component="a"
+        href="#main-content"
+        sx={{
+          position: 'fixed',
+          top: 8,
+          left: 8,
+          zIndex: (t) => t.zIndex.tooltip,
+          px: 2,
+          py: 1.25,
+          borderRadius: 1,
+          bgcolor: tokens.white,
+          color: tokens.tealDark,
+          fontWeight: 600,
+          textDecoration: 'none',
+          outline: `2px solid ${tokens.tealDark}`,
+          transform: 'translateY(-200%)',
+          '&:focus': { transform: 'none' },
+        }}
+      >
+        Saltar al contenido
+      </Box>
       <AdminBar onOpenMenu={isDesktop ? undefined : () => setMobileOpen(true)} />
 
       {isDesktop ? (
@@ -380,7 +404,10 @@ export function AppLayout() {
 
       <Box
         component="main"
+        id="main-content"
+        tabIndex={-1}
         sx={{
+          '&:focus': { outline: 'none' },
           ml: isDesktop ? `${width}px` : 0,
           pt: `${ADMIN_BAR_HEIGHT + 20}px`,
           px: { xs: 2, sm: 2.5 },

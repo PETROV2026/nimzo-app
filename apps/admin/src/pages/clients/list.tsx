@@ -11,7 +11,7 @@ import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 
-import { catalogGridProps } from '@/components/catalog-grid';
+import { useCatalogGridProps } from '@/components/catalog-grid';
 import { GridEmptyState } from '@/components/grid-empty-state';
 import { ListToolbar } from '@/components/list-toolbar';
 import { PageHeader } from '@/components/page-header';
@@ -34,6 +34,8 @@ function NameCell({ client }: { client: Client }) {
       resource: 'clients',
       id: client.id,
       values: { is_active: !client.is_active },
+      mutationMode: 'undoable',
+      undoableTimeout: 5000,
       successNotification: {
         type: 'success',
         message: client.is_active ? 'Cliente desactivado' : 'Cliente activado',
@@ -59,6 +61,7 @@ function NameCell({ client }: { client: Client }) {
 }
 
 export function ClientList() {
+  const gridProps = useCatalogGridProps();
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -175,7 +178,7 @@ export function ClientList() {
       <Paper variant="outlined">
         <DataGrid
           {...dataGridProps}
-          {...catalogGridProps}
+          {...gridProps}
           columns={columns}
           columnVisibilityModel={{ tax_id: isWide, contact_phone: isWide }}
           slots={{ noRowsOverlay: () => emptyState, noResultsOverlay: () => emptyState }}

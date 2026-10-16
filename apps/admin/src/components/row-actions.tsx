@@ -28,6 +28,7 @@ export function RowActions({
         <Link
           component={RouterLink}
           to={editTo}
+          className="touch-target"
           aria-label={`Editar ${label}`}
           sx={{ fontSize: 13 }}
         >
@@ -38,6 +39,7 @@ export function RowActions({
           component="button"
           type="button"
           onClick={onEdit}
+          className="touch-target"
           aria-label={`Editar ${label}`}
           sx={{ fontSize: 13 }}
         >
@@ -52,6 +54,7 @@ export function RowActions({
         type="button"
         onClick={onToggleActive}
         disabled={pending}
+        className="touch-target"
         aria-label={`${active ? 'Desactivar' : 'Activar'} ${label}`}
         sx={{ fontSize: 13, color: active ? 'error.main' : 'primary.main' }}
       >

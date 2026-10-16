@@ -30,6 +30,8 @@ function SystemRowItem({ system, onEdit }: { system: System; onEdit: () => void 
       resource: 'systems',
       id: system.id,
       values: { is_active: !system.is_active },
+      mutationMode: 'undoable',
+      undoableTimeout: 5000,
       successNotification: {
         type: 'success',
         message: system.is_active ? 'Sistema desactivado' : 'Sistema activado',

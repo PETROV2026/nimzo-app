@@ -45,6 +45,7 @@ export function Postbox({
         {collapsible && (
           <IconButton
             size="small"
+            className="touch-target"
             aria-expanded={open}
             aria-controls={bodyId}
             aria-label={open ? `Contraer ${title}` : `Expandir ${title}`}

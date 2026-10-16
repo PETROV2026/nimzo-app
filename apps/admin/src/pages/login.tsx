@@ -91,6 +91,7 @@ export function LoginPage() {
 
   return (
     <Box
+      component="main"
       sx={{
         position: 'relative',
         overflow: 'hidden',
@@ -179,6 +180,7 @@ export function LoginPage() {
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton
+                        className="touch-target"
                         aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                         onClick={() => setShowPassword((value) => !value)}
                         edge="end"

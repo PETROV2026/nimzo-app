@@ -24,7 +24,7 @@ const es: Record<string, string> = {
   'notifications.editError': 'No se pudieron guardar los cambios (código {{statusCode}}).',
   'notifications.deleteSuccess': 'Se eliminó el registro.',
   'notifications.deleteError': 'No se pudo eliminar el registro (código {{statusCode}}).',
-  'notifications.undoable': 'Tienes {{seconds}} segundos para deshacer',
+  'notifications.undoable': 'Cambio aplicado. Si fue un error, puedes deshacerlo ahora.',
 
   warnWhenUnsavedChanges: 'Hay cambios sin guardar. ¿Quieres salir de todos modos?',
   'pages.error.info': 'Esta página no existe.',

@@ -29,6 +29,7 @@ import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
 import { RecordAutocomplete } from '@/components/record-autocomplete';
+import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 const emptyBranch: BranchVariables = {
   name: '',
@@ -235,7 +236,10 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 4, xl: 3 }} sx={{ position: { lg: 'sticky' }, top: { lg: 60 } }}>
+        <Grid
+          size={{ xs: 12, lg: 4, xl: 3 }}
+          sx={{ position: { lg: 'sticky' }, top: { lg: ADMIN_BAR_HEIGHT + 20 } }}
+        >
           <Postbox title={isEdit ? 'Guardar' : 'Agregar'} flush>
             <Box sx={{ p: 2 }}>
               {isEdit ? (
@@ -278,7 +282,12 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                 bgcolor: 'background.default',
               }}
             >
-              <Link component={RouterLink} to={cancelTo} sx={{ fontSize: 13 }}>
+              <Link
+                component={RouterLink}
+                to={cancelTo}
+                className="touch-target"
+                sx={{ fontSize: 13 }}
+              >
                 Cancelar
               </Link>
               <Button

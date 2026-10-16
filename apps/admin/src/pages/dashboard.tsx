@@ -51,7 +51,7 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
       title: 'Registra a tus clientes',
       description: 'Las empresas a las que les das servicio, con su RFC y su persona de contacto.',
       action: (
-        <Link component={RouterLink} to="/clients/create">
+        <Link component={RouterLink} to="/clients/create" className="touch-target">
           Agregar un cliente
         </Link>
       ),
@@ -62,7 +62,7 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
       description:
         'Cada sucursal tiene los sistemas contra incendio que los técnicos inspeccionan.',
       action: (
-        <Link component={RouterLink} to="/clients">
+        <Link component={RouterLink} to="/clients" className="touch-target">
           Elegir un cliente
         </Link>
       ),
