@@ -4,6 +4,7 @@ import ChevronRight from '@mui/icons-material/ChevronRight';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PersonIcon from '@mui/icons-material/Person';
+import SearchIcon from '@mui/icons-material/Search';
 import AppBar from '@mui/material/AppBar';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -19,11 +20,17 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import iconWhite from '@nimzo/brand/logos/icon-white.webp';
 import { useGetIdentity, useLogout, useMenu, type TreeMenuItem } from '@refinedev/core';
-import { useState, type KeyboardEvent, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
 
 import type { Identity } from '@/providers/auth-provider';
 import { ADMIN_BAR_HEIGHT, theme, tokens } from '@/theme';
+
+const loadGlobalSearch = () => import('@/components/global-search/global-search');
+
+const GlobalSearch = lazy(() =>
+  loadGlobalSearch().then((module) => ({ default: module.GlobalSearch })),
+);
 
 const SIDEBAR_WIDTH = 200;
 const SIDEBAR_COLLAPSED_WIDTH = 56;
@@ -82,6 +89,19 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
   const { mutate: logout } = useLogout();
   const [addAnchor, setAddAnchor] = useState<HTMLElement | null>(null);
   const [userAnchor, setUserAnchor] = useState<HTMLElement | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const shortcut = /Mac|iPhone|iPad/.test(navigator.userAgent) ? '⌘K' : 'Ctrl K';
+
+  useEffect(() => {
+    function handleShortcut(event: globalThis.KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setSearchOpen(true);
+      }
+    }
+    window.addEventListener('keydown', handleShortcut);
+    return () => window.removeEventListener('keydown', handleShortcut);
+  }, []);
 
   const barButton = {
     color: tokens.white,
@@ -138,6 +158,40 @@ function AdminBar({ onOpenMenu }: { onOpenMenu?: () => void }) {
             Usuario
           </MenuItem>
         </Menu>
+
+        <Button
+          sx={barButton}
+          startIcon={<SearchIcon fontSize="small" />}
+          aria-haspopup="dialog"
+          aria-keyshortcuts="Meta+K Control+K"
+          onClick={() => setSearchOpen(true)}
+          onMouseEnter={() => void loadGlobalSearch()}
+          onFocus={() => void loadGlobalSearch()}
+        >
+          Buscar
+          <Box
+            component="kbd"
+            aria-hidden
+            sx={{
+              display: { xs: 'none', sm: 'inline' },
+              '@media (pointer: coarse)': { display: 'none' },
+              ml: 1,
+              px: 0.75,
+              border: '1px solid rgba(255,255,255,0.28)',
+              borderRadius: 0.75,
+              fontFamily: 'inherit',
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.8)',
+            }}
+          >
+            {shortcut}
+          </Box>
+        </Button>
+        {searchOpen && (
+          <Suspense fallback={null}>
+            <GlobalSearch open onClose={() => setSearchOpen(false)} />
+          </Suspense>
+        )}
 
         <Box sx={{ flex: 1 }} />
 
