@@ -17,7 +17,7 @@ type SessionContextValue = AuthStatus & {
   signOut: () => Promise<void>;
 };
 
-const mobileRoles: readonly UserRole[] = ['technician', 'supervisor'];
+const mobileRoles: readonly UserRole[] = ['technician'];
 
 const noAccessMessage =
   'Tu cuenta no tiene acceso a la app. Si eres administrador, entra desde el panel web.';

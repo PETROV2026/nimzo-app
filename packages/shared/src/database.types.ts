@@ -194,7 +194,7 @@ export type Database = {
         | 'kitchen_suppression'
         | 'clean_agent'
         | 'other';
-      user_role: 'technician' | 'supervisor' | 'admin';
+      user_role: 'technician' | 'admin';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -326,7 +326,7 @@ export const Constants = {
         'clean_agent',
         'other',
       ],
-      user_role: ['technician', 'supervisor', 'admin'],
+      user_role: ['technician', 'admin'],
     },
   },
 } as const;

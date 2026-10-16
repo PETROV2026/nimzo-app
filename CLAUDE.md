@@ -47,7 +47,7 @@ Two apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one sha
 
 | Path | What | Stack |
 |---|---|---|
-| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians and supervisors (Android tablets only, landscape + portrait) | Expo SDK 57, Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
+| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians (Android tablets only, landscape + portrait) | Expo SDK 57, Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
 | `apps/admin` (`@nimzo/admin`) | Web panel for administrators (users, clients, branches, systems, service packages, report history) | Vite 8, React 19, Refine 5 with the Supabase data provider, **Material UI v6** via `@refinedev/mui` (pinned: Refine requires MUI v6), oxlint. No Tailwind, no other UI library |
 | `packages/shared` (`@nimzo/shared`) | Types, Zod schemas and **form definitions** consumed by the apps | TypeScript, Zod 4 |
 | `packages/brand` (`@nimzo/brand`) | Logos used by both apps. `source/` holds the originals; `logos/`, the mobile app icons/splash and the favicons are generated with `pnpm brand:assets` (Python + Pillow). See its README for which logo to use where | PNG assets |
@@ -63,9 +63,9 @@ Key design principles that cut across packages:
 
 ### Report lifecycle
 
-`Activo` (draft, on device) → `Pendiente` (finished, on device) → optionally `Autorización` (cloud, waiting for supervisor approval, only for forms that require it) → `Enviado` (cloud; the PDF is generated and stored in Supabase). The stored values are the English codes in `packages/shared/src/report.ts` (`draft`, `pending`, `awaiting_approval`, `sent`), with the Spanish display labels next to them. Use the codes as-is in SQLite, Postgres and the admin panel. Roles follow the same pattern in `roles.ts`.
+`Activo` (draft, on device) → `Pendiente` (finished, on device) → `Enviado` (cloud; the PDF is generated and stored in Supabase). There is no approval step. The stored values are the English codes in `packages/shared/src/report.ts` (`draft`, `pending`, `sent`), with the Spanish display labels next to them. Use the codes as-is in SQLite, Postgres and the admin panel. Roles follow the same pattern in `roles.ts`.
 
-Roles: `technician` (Técnico: fills, signs and submits), `supervisor` (Supervisor: signs and authorizes), `admin` (Administrador: web panel only). Set `app_metadata.role` to one of these codes when creating an account.
+Roles: `technician` (Técnico: fills, signs and submits; mobile app only) and `admin` (Administrador: web panel only). Set `app_metadata.role` to one of these codes when creating an account.
 
 **Everything stored in the database is in English**: enum values, codes, table and column names, and any fixed value a column accepts. Spanish appears only in the labels the apps show to users.
 

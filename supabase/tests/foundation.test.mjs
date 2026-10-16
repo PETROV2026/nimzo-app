@@ -81,7 +81,7 @@ describe('admin', () => {
       db,
       'authenticated',
       ADMIN,
-      `update public.profiles set role = 'supervisor' where id = $1`,
+      `update public.profiles set role = 'admin' where id = $1`,
       [TECH],
     );
     assert.equal(promote.affected, 1);

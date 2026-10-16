@@ -163,7 +163,7 @@ export function UserList() {
   ) : (
     <GridEmptyState
       title="Aún no hay usuarios"
-      description="Agrega a los técnicos y supervisores con el botón de arriba."
+      description="Agrega a los técnicos con el botón de arriba."
     />
   );
 

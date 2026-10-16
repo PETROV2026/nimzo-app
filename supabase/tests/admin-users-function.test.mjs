@@ -105,6 +105,7 @@ describe('admin-users function: create', () => {
     ['name', { full_name: '', email: 'a@ejemplo.com', role: 'technician', password: 'Temporal123' }],
     ['email', { full_name: 'Ana', email: 'no-es-correo', role: 'technician', password: 'Temporal123' }],
     ['role', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'tecnico', password: 'Temporal123' }],
+    ['supervisor role', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'supervisor', password: 'Temporal123' }],
     ['password', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'technician', password: 'corta' }],
   ]) {
     test(`rejects an invalid ${field}`, async () => {
@@ -130,9 +131,9 @@ describe('admin-users function: create', () => {
 
 describe('admin-users function: update, deactivate and reset', () => {
   test('changes a name and role', async () => {
-    const result = await call({ action: 'update', user_id: TECH, full_name: 'Ana Supervisora', role: 'supervisor' });
+    const result = await call({ action: 'update', user_id: TECH, full_name: 'Ana Admin', role: 'admin' });
     assert.equal(result.status, 200);
-    assert.deepEqual(calls, [['updateProfile', TECH, { fullName: 'Ana Supervisora', role: 'supervisor' }]]);
+    assert.deepEqual(calls, [['updateProfile', TECH, { fullName: 'Ana Admin', role: 'admin' }]]);
   });
 
   test('an admin cannot remove their own admin role', async () => {
@@ -144,14 +145,14 @@ describe('admin-users function: update, deactivate and reset', () => {
 
   test('can demote another admin while at least one active admin remains', async () => {
     profiles[OTHER_ADMIN] = { role: 'admin', is_active: true };
-    const result = await call({ action: 'update', user_id: OTHER_ADMIN, full_name: 'Otro', role: 'supervisor' });
+    const result = await call({ action: 'update', user_id: OTHER_ADMIN, full_name: 'Otro', role: 'technician' });
     assert.equal(result.status, 200);
   });
 
   test('never leaves the system without an active admin', async () => {
     profiles[OTHER_ADMIN] = { role: 'admin', is_active: true };
     activeAdminsOverride = 1;
-    const demote = await call({ action: 'update', user_id: OTHER_ADMIN, full_name: 'Otro', role: 'supervisor' });
+    const demote = await call({ action: 'update', user_id: OTHER_ADMIN, full_name: 'Otro', role: 'technician' });
     const deactivate = await call({ action: 'set_active', user_id: OTHER_ADMIN, active: false });
     assert.equal(demote.status, 400);
     assert.equal(deactivate.status, 400);
