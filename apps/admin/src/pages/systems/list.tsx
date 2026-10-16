@@ -13,7 +13,7 @@ import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 
-import { catalogGridProps } from '@/components/catalog-grid';
+import { useCatalogGridProps } from '@/components/catalog-grid';
 import { GridEmptyState } from '@/components/grid-empty-state';
 import { ListToolbar } from '@/components/list-toolbar';
 import { PageHeader } from '@/components/page-header';
@@ -41,6 +41,8 @@ function NameCell({ system, onEdit }: { system: System; onEdit: () => void }) {
       resource: 'systems',
       id: system.id,
       values: { is_active: !system.is_active },
+      mutationMode: 'undoable',
+      undoableTimeout: 5000,
       successNotification: {
         type: 'success',
         message: system.is_active ? 'Sistema desactivado' : 'Sistema activado',
@@ -66,6 +68,7 @@ function NameCell({ system, onEdit }: { system: System; onEdit: () => void }) {
 }
 
 export function SystemList() {
+  const gridProps = useCatalogGridProps();
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
@@ -199,7 +202,7 @@ export function SystemList() {
       <Paper variant="outlined">
         <DataGrid
           {...dataGridProps}
-          {...catalogGridProps}
+          {...gridProps}
           columns={columns}
           columnVisibilityModel={{ location: isWide }}
           slots={{ noRowsOverlay: () => emptyState, noResultsOverlay: () => emptyState }}

@@ -19,6 +19,7 @@ import { Controller, type Control, type FieldPath } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
+import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 const emptyClient: ClientFormInput = {
   name: '',
@@ -184,7 +185,10 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
           </Stack>
         </Grid>
 
-        <Grid size={{ xs: 12, lg: 4, xl: 3 }} sx={{ position: { lg: 'sticky' }, top: { lg: 60 } }}>
+        <Grid
+          size={{ xs: 12, lg: 4, xl: 3 }}
+          sx={{ position: { lg: 'sticky' }, top: { lg: ADMIN_BAR_HEIGHT + 20 } }}
+        >
           <Postbox title={isEdit ? 'Guardar' : 'Agregar'} flush>
             <Box sx={{ p: 2 }}>
               {isEdit ? (
@@ -227,7 +231,12 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
                 bgcolor: 'background.default',
               }}
             >
-              <Link component={RouterLink} to="/clients" sx={{ fontSize: 13 }}>
+              <Link
+                component={RouterLink}
+                to="/clients"
+                className="touch-target"
+                sx={{ fontSize: 13 }}
+              >
                 Cancelar
               </Link>
               <Button

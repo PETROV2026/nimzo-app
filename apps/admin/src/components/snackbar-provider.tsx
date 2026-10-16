@@ -25,6 +25,7 @@ export function SnackbarProvider(props: ComponentProps<typeof NotistackProvider>
   return (
     <StyledProvider
       anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      classes={{ containerAnchorOriginTopRight: 'snackbar-below-bar' }}
       disableWindowBlurListener
       {...props}
     />

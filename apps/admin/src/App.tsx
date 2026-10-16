@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
+import Typography from '@mui/material/Typography';
 import { Authenticated, Refine } from '@refinedev/core';
 import routerProvider, {
   CatchAllNavigate,
@@ -58,10 +59,14 @@ function ProtectedLayout() {
   return <AppLayout />;
 }
 
-function PageLoader() {
+function PageLoader({ label }: { label: string }) {
   return (
-    <Box sx={{ display: 'grid', placeItems: 'center', py: 12 }}>
-      <CircularProgress aria-label="Cargando" />
+    <Box
+      role="status"
+      sx={{ display: 'grid', placeItems: 'center', gap: 1.5, py: 12, color: 'text.secondary' }}
+    >
+      <CircularProgress aria-hidden />
+      <Typography>{label}</Typography>
     </Box>
   );
 }
@@ -109,11 +114,11 @@ const resources = [
   },
 ];
 
-const titles: Record<string, string> = {
-  dashboard: 'Escritorio',
-  clients: 'Clientes',
-  branches: 'Sucursales',
-  systems: 'Sistemas',
+const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>> = {
+  dashboard: { list: 'Escritorio' },
+  clients: { list: 'Clientes', create: 'Agregar cliente', edit: 'Editar cliente' },
+  branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
+  systems: { list: 'Sistemas' },
 };
 
 export default function App() {
@@ -149,7 +154,7 @@ export default function App() {
                   <Route
                     path="/clients"
                     element={
-                      <Suspense fallback={<PageLoader />}>
+                      <Suspense fallback={<PageLoader label="Cargando clientes…" />}>
                         <Outlet />
                       </Suspense>
                     }
@@ -161,7 +166,7 @@ export default function App() {
                   <Route
                     path="/branches"
                     element={
-                      <Suspense fallback={<PageLoader />}>
+                      <Suspense fallback={<PageLoader label="Cargando sucursales…" />}>
                         <Outlet />
                       </Suspense>
                     }
@@ -173,7 +178,7 @@ export default function App() {
                   <Route
                     path="/systems"
                     element={
-                      <Suspense fallback={<PageLoader />}>
+                      <Suspense fallback={<PageLoader label="Cargando sistemas…" />}>
                         <SystemList />
                       </Suspense>
                     }
@@ -194,8 +199,9 @@ export default function App() {
             </Routes>
             <UnsavedChangesNotifier />
             <DocumentTitleHandler
-              handler={({ resource }) => {
-                const title = resource?.name ? titles[resource.name] : undefined;
+              handler={({ resource, action }) => {
+                const pages = resource?.name ? titles[resource.name] : undefined;
+                const title = pages?.[action as 'list' | 'create' | 'edit'] ?? pages?.list;
                 return title ? `${title} | Nimzo` : 'Nimzo';
               }}
             />

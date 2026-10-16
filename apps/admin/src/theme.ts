@@ -18,6 +18,7 @@ export const tokens = {
   muted: '#6D696D',
   teal: '#20A39E',
   tealStrong: '#19827E',
+  tealText: '#167572',
   tealDark: '#146B67',
   orange: '#E4572E',
   orangeStrong: '#B64524',
@@ -25,7 +26,7 @@ export const tokens = {
   white: '#FFFFFF',
 } as const;
 
-export const ADMIN_BAR_HEIGHT = 40;
+export const ADMIN_BAR_HEIGHT = 44;
 
 const bodyFont = '"Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
 export const displayFont = '"Barlow Semi Condensed", "Inter Variable", system-ui, sans-serif';
@@ -36,14 +37,14 @@ export const theme = createTheme(
       mode: 'light',
       primary: {
         light: tokens.teal,
-        main: tokens.tealStrong,
+        main: tokens.tealText,
         dark: tokens.tealDark,
         contrastText: tokens.white,
       },
       secondary: { main: tokens.gray, contrastText: tokens.white },
       error: { light: tokens.orange, main: tokens.orangeStrong, contrastText: tokens.white },
       warning: { main: tokens.yellow, contrastText: tokens.black },
-      success: { main: tokens.tealStrong, contrastText: tokens.white },
+      success: { main: tokens.tealText, contrastText: tokens.white },
       info: { main: tokens.gray, contrastText: tokens.white },
       text: { primary: tokens.black, secondary: tokens.gray, disabled: tokens.muted },
       background: { default: tokens.canvas, paper: tokens.panel },
@@ -73,6 +74,14 @@ export const theme = createTheme(
       MuiCssBaseline: {
         styleOverrides: {
           body: { WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' },
+          '.SnackbarContainer-root.SnackbarContainer-top.snackbar-below-bar': {
+            top: ADMIN_BAR_HEIGHT + 8,
+          },
+          '@media (pointer: coarse)': {
+            '.touch-target': { position: 'relative' },
+            '.touch-target::after': { content: '""', position: 'absolute', inset: '-12px -6px' },
+            '.row-actions .touch-target::after': { inset: '-4px -4px -21px' },
+          },
           '@media (prefers-reduced-motion: reduce)': {
             '*, *::before, *::after': {
               transitionDuration: '0.01ms !important',
@@ -81,12 +90,19 @@ export const theme = createTheme(
           },
         },
       },
+      MuiButtonBase: {
+        styleOverrides: {
+          root: {
+            '&.Mui-focusVisible': { outline: `2px solid ${tokens.tealDark}`, outlineOffset: 2 },
+          },
+        },
+      },
       MuiButton: {
         defaultProps: { disableElevation: true },
         styleOverrides: {
           root: { minHeight: 36, paddingInline: 14 },
           sizeLarge: { minHeight: 44, fontSize: 15 },
-          outlinedPrimary: { backgroundColor: tokens.white, borderColor: tokens.tealStrong },
+          outlinedPrimary: { backgroundColor: tokens.white, borderColor: tokens.tealText },
         },
       },
       MuiPaper: {

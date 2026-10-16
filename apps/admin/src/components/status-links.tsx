@@ -48,6 +48,7 @@ export function StatusLinks({ resource, value, onChange, labels }: StatusLinksPr
               component="button"
               type="button"
               onClick={() => onChange(filter)}
+              className="touch-target"
               aria-current={current ? 'true' : undefined}
               underline={current ? 'none' : 'hover'}
               sx={{

@@ -35,6 +35,8 @@ function BranchRowItem({ branch }: { branch: BranchRow }) {
       resource: 'branches',
       id: branch.id,
       values: { is_active: !branch.is_active },
+      mutationMode: 'undoable',
+      undoableTimeout: 5000,
       successNotification: {
         type: 'success',
         message: branch.is_active ? 'Sucursal desactivada' : 'Sucursal activada',

@@ -14,7 +14,13 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
           return <Skeleton key={index} width={120} />;
         }
         return item.to ? (
-          <Link key={index} component={RouterLink} to={item.to} sx={{ fontSize: 13 }}>
+          <Link
+            key={index}
+            component={RouterLink}
+            to={item.to}
+            className="touch-target"
+            sx={{ fontSize: 13 }}
+          >
             {item.label}
           </Link>
         ) : (
