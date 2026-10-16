@@ -7,7 +7,13 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { systemTypeLabels, systemTypeSchema, type System, type SystemType } from '@nimzo/shared';
+import {
+  systemTypeLabels,
+  systemTypeSchema,
+  type System,
+  type SystemType,
+  toSearchText,
+} from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
@@ -84,7 +90,9 @@ export function SystemList() {
 
   const filters: CrudFilter[] = [...statusCrudFilter(status)];
   if (type) filters.push({ field: 'system_type', operator: 'eq', value: type });
-  if (search.trim()) filters.push({ field: 'name', operator: 'contains', value: search.trim() });
+  if (search.trim()) {
+    filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
+  }
   useDebouncedFilters(setFilters, filters);
 
   const columns = useMemo<GridColDef<SystemRow>[]>(
@@ -194,7 +202,7 @@ export function SystemList() {
             value={search}
             onChange={setSearch}
             placeholder="Buscar sistemas"
-            label="Buscar sistemas por nombre"
+            label="Buscar sistemas por nombre o ubicación"
           />
         </Box>
       </ListToolbar>

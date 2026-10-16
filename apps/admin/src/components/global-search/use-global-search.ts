@@ -5,6 +5,7 @@ import {
   type Client,
   type Profile,
   type System,
+  toSearchText,
 } from '@nimzo/shared';
 import { useList, type CrudFilter } from '@refinedev/core';
 
@@ -58,13 +59,8 @@ export function normalize(text: string) {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
 
-function anyOf(term: string, fields: string[]): CrudFilter[] {
-  return [
-    {
-      operator: 'or',
-      value: fields.map((field) => ({ field, operator: 'contains', value: term })),
-    },
-  ];
+function searchFilter(term: string): CrudFilter[] {
+  return [{ field: 'search_text', operator: 'contains', value: toSearchText(term) }];
 }
 
 function pageResults(term: string): SearchResult[] {
@@ -89,27 +85,27 @@ export function useGlobalSearch(term: string) {
 
   const clients = useList<Client>({
     resource: 'clients',
-    filters: anyOf(term, ['name', 'tax_id']),
+    filters: searchFilter(term),
     sorters: [{ field: 'name', order: 'asc' }],
     ...common,
   });
   const branches = useList<BranchRow>({
     resource: 'branches',
-    filters: anyOf(term, ['name', 'city']),
+    filters: searchFilter(term),
     sorters: [{ field: 'name', order: 'asc' }],
     meta: { select: '*, clients(name)' },
     ...common,
   });
   const systems = useList<SystemRow>({
     resource: 'systems',
-    filters: anyOf(term, ['name', 'location']),
+    filters: searchFilter(term),
     sorters: [{ field: 'name', order: 'asc' }],
     meta: { select: '*, branches(name)' },
     ...common,
   });
   const users = useList<Profile>({
     resource: 'profiles',
-    filters: anyOf(term, ['full_name', 'email']),
+    filters: searchFilter(term),
     sorters: [{ field: 'full_name', order: 'asc' }],
     ...common,
   });

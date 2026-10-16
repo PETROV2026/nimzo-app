@@ -1,6 +1,7 @@
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import type { BaseRecord } from '@refinedev/core';
+import { toSearchText } from '@nimzo/shared';
 import { useAutocomplete } from '@refinedev/mui';
 import { useState, type Ref } from 'react';
 
@@ -40,7 +41,9 @@ export function RecordAutocomplete<T extends BaseRecord>({
     filters: [{ field: 'is_active', operator: 'eq', value: true }],
     sorters: [{ field: 'name', order: 'asc' }],
     meta: select ? { select } : undefined,
-    onSearch: (search) => [{ field: 'name', operator: 'contains', value: search }],
+    onSearch: (search) => [
+      { field: 'search_text', operator: 'contains', value: toSearchText(search) },
+    ],
     pagination: { pageSize: 25 },
   });
 
