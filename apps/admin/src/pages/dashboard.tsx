@@ -38,12 +38,6 @@ function useCount(resource: string) {
 
 type Step = { icon: ReactNode; title: string; description: string; action: ReactNode };
 
-const comingSoon = (
-  <Typography variant="body2" color="text.secondary">
-    Disponible próximamente
-  </Typography>
-);
-
 function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
   const steps: Step[] = [
     {
@@ -71,7 +65,11 @@ function WelcomePanel({ onDismiss }: { onDismiss: () => void }) {
       icon: <GroupOutlined />,
       title: 'Crea las cuentas del equipo',
       description: 'Técnicos y supervisores entran a la app móvil con la cuenta que les crees.',
-      action: comingSoon,
+      action: (
+        <Link component={RouterLink} to="/users/create" className="touch-target">
+          Agregar un usuario
+        </Link>
+      ),
     },
   ];
 

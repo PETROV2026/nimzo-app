@@ -58,6 +58,9 @@ export const authProvider: AuthProvider = {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
+      if (error.code === 'user_banned') {
+        return loginError(NO_ACCESS_MESSAGE);
+      }
       if (error.message.toLowerCase().includes('invalid login credentials')) {
         return loginError('El correo o la contraseña no son correctos.');
       }

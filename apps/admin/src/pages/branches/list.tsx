@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+//import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -145,11 +145,11 @@ export function BranchList() {
     <>
       <PageHeader
         title="Sucursales"
-        action={
-          <Button component={RouterLink} to="/branches/create" variant="outlined" size="small">
-            Agregar sucursal
-          </Button>
-        }
+        // action={
+        //   <Button component={RouterLink} to="/branches/create" variant="outlined" size="small">
+        //     Agregar sucursal
+        //   </Button>
+        // }
       />
 
       <ListToolbar>

@@ -155,6 +155,12 @@ Import it from either app with `import { reportStatusSchema } from '@nimzo/share
 
 Values stored in the database are English codes (`draft`, `awaiting_approval`, `technician`); the Spanish labels next to them (`Activo`, `Autorización`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
 
+#### Usuarios
+
+**Usuarios** (`/users`) lists every account (`profiles`) with its email, role, last sign-in and status. Admins create accounts with a temporary password, change name and role, reset passwords and deactivate or reactivate accounts. Deactivating also bans the account in Supabase Auth, so it cannot sign in or refresh its session. Nobody can change their own role or deactivate themselves, and there is always at least one active admin.
+
+Those actions need the service role key, so they go through the Edge Function `supabase/functions/admin-users` (called with `useCustomMutation({ url: 'functions/admin-users' })`). Email and last sign-in are copied from `auth.users` into `profiles` by triggers, so the list can show and search them.
+
 #### Herramientas (developer tools)
 
 The admin panel has a **Herramientas** section, visible to every `admin`:
@@ -170,7 +176,13 @@ supabase/
 ├── migrations/
 │   ├── 20261012210319_database_foundation.sql            profiles, roles, clients, branches, systems
 │   ├── 20261015155554_english_role_values.sql            roles stored in English
-│   └── 20261015210044_system_types_and_branch_states.sql system types and state codes
+│   ├── 20261015210044_system_types_and_branch_states.sql system types and state codes
+│   ├── 20261016164430_admin_diagnostics.sql              read-only diagnostics for Herramientas
+│   └── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
+├── functions/
+│   └── admin-users/
+│       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)
+│       └── index.ts           Deno entry: wires the handler to supabase-js with the service role
 ├── seeds/
 │   ├── demo-catalogs.sql          25 fake clients with branches and systems
 │   ├── remove-demo-catalogs.sql   deletes that demo data

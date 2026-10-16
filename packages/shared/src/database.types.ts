@@ -100,27 +100,33 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string;
+          email: string | null;
           full_name: string;
           id: string;
           is_active: boolean;
+          last_sign_in_at: string | null;
           role: Database['public']['Enums']['user_role'];
           signature_path: string | null;
           updated_at: string;
         };
         Insert: {
           created_at?: string;
+          email?: string | null;
           full_name?: string;
           id: string;
           is_active?: boolean;
+          last_sign_in_at?: string | null;
           role?: Database['public']['Enums']['user_role'];
           signature_path?: string | null;
           updated_at?: string;
         };
         Update: {
           created_at?: string;
+          email?: string | null;
           full_name?: string;
           id?: string;
           is_active?: boolean;
+          last_sign_in_at?: string | null;
           role?: Database['public']['Enums']['user_role'];
           signature_path?: string | null;
           updated_at?: string;

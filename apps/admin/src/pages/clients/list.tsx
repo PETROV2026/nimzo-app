@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+//import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -153,11 +153,11 @@ export function ClientList() {
     <>
       <PageHeader
         title="Clientes"
-        action={
-          <Button component={RouterLink} to="/clients/create" variant="outlined" size="small">
-            Agregar cliente
-          </Button>
-        }
+        // action={
+        //   <Button component={RouterLink} to="/clients/create" variant="outlined" size="small">
+        //     Agregar cliente
+        //   </Button>
+        // }
       />
 
       <ListToolbar>
