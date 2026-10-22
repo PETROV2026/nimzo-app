@@ -1,0 +1,66 @@
+name: Deploy admin
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/admin/**
+      - scripts/package-admin.mjs
+      - packages/shared/**
+      - packages/brand/**
+      - supabase/migrations/**
+      - pnpm-lock.yaml
+      - .github/workflows/deploy-admin.yml
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-admin
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  deploy:
+    name: Build and upload to the GoDaddy Node.js app
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and package the admin panel
+        run: pnpm admin:package
+        env:
+          VITE_BASE_PATH: ${{ vars.ADMIN_BASE_PATH || '/admin' }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Check the package
+        run: |
+          test -f apps/admin/deploy/server.js
+          test -f apps/admin/deploy/config.json
+          test -f apps/admin/deploy/public/index.html
+          node --check apps/admin/deploy/server.js
+
+      - name: Upload to the Node.js app folder over FTPS
+        uses: SamKirkland/FTP-Deploy-Action@a51268f67f6605236975928ae28b0f7e9971d50a
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: apps/admin/deploy/
+          server-dir: ./

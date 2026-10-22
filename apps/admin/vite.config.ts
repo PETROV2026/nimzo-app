@@ -19,7 +19,13 @@ const migrations = readdirSync(path.resolve(import.meta.dirname, '../../supabase
   .map((file) => file.replace(/\.sql$/, ''))
   .sort();
 
+function basePath() {
+  const value = process.env.VITE_BASE_PATH?.trim() || '/';
+  return `/${value.replace(/^\/+|\/+$/g, '')}/`.replace(/^\/\/$/, '/');
+}
+
 export default defineConfig({
+  base: basePath(),
   plugins: [react()],
   define: {
     __APP_COMMIT__: JSON.stringify(gitCommit()),
