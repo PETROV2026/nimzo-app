@@ -1,12 +1,14 @@
 {
-  "name": "nimzo-admin-server",
+  "name": "nimzo-admin",
+  "version": "1.0.0",
   "private": true,
-  "description": "Serves the built Nimzo admin panel on cPanel (Setup Node.js App).",
+  "description": "Built Nimzo admin panel and the dependency-free server that serves it on GoDaddy Node.js Hosting.",
   "main": "server.js",
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "scripts": {
+    "build": "echo \"The admin panel is already built by GitHub Actions\"",
     "start": "node server.js"
   }
 }
