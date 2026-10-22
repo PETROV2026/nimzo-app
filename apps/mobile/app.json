@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Nimzo",
+    "slug": "nimzo",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/images/icon.png",
+    "scheme": "nimzo",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FFFFFF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 120
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

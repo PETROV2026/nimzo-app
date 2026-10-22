@@ -6,7 +6,6 @@
 
 - [ ] `apps/mobile`
 - [ ] `apps/admin`
-- [ ] `services/pdf`
 - [ ] `packages/shared` (types, schemas, form definitions)
 - [ ] `supabase/` (migrations, RLS, seed data)
 
@@ -23,5 +22,5 @@
 - [ ] `pnpm lint` and `pnpm typecheck` pass
 - [ ] Database changes are in a versioned migration with RLS policies
 - [ ] No secrets, `.env` files or real customer data included
-- [ ] Report states (`Activo`, `Pendiente`, `Autorización`, `Enviado`) remain consistent
+- [ ] Report states (`Activo`, `Pendiente`, `Enviado`) remain consistent
 - [ ] UI changes follow `docs/ux-principles.es.md`

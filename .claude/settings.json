@@ -10,7 +10,22 @@
       "Read(./**/.env)",
       "Read(./**/.env.local)",
       "Read(./**/.env.production)",
-      "Read(./supabase/.env)"
-    ]
+      "Read(./supabase/.env)",
+      "Bash(git push * main)",
+      "Bash(git push * main *)",
+      "Bash(git push * *:main)",
+      "Bash(git push * develop)",
+      "Bash(git push * develop *)",
+      "Bash(git push * *:develop)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f *)",
+      "Bash(gh pr merge*)",
+      "Bash(*supabase db reset*)",
+      "Bash(*supabase projects delete*)",
+      "Bash(*supabase migration repair*)"
+    ],
+    "ask": ["Bash(*supabase db push*)", "Bash(*supabase config push*)"]
   }
 }

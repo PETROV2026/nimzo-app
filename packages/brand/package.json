@@ -1,0 +1,11 @@
+{
+  "name": "@nimzo/brand",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Nimzo logos and brand images shared by the mobile app and the admin panel.",
+  "exports": {
+    "./images/*": "./images/*",
+    "./logos/*": "./logos/*",
+    "./package.json": "./package.json"
+  }
+}

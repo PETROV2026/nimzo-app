@@ -43,6 +43,9 @@ Digitaliza los formatos de servicio en campo, trabaja sin conexión y genera rep
 
 El personal técnico llena los **formatos de servicio** directamente en una tablet, incluso sin conexión a internet, capturando checklists, mediciones, fotografías y firmas. Al enviar un reporte, la plataforma lo almacena de forma segura y genera un documento PDF listo para entregarse al cliente.
 
+> [!IMPORTANT]
+> La app móvil está pensada **exclusivamente para tablets Android**. iOS (iPhone y iPad) no está soportado: la app no se compila, publica ni prueba para iOS, y las decisiones de diseño y de librerías se toman pensando solo en Android.
+
 > [!NOTE]
 > El sistema está compuesto por tres piezas que comparten un mismo backend: una **app móvil** para técnicos, un **panel web** para administradores y un **servicio de generación de PDF**.
 
@@ -51,7 +54,6 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 | Rol | Plataforma | Responsabilidades |
 |---|---|---|
 | **Técnico** | App móvil | Llena, firma y envía formatos de servicio en campo. |
-| **Supervisor** | App móvil | Firma reportes y autoriza los formatos que lo requieren. |
 | **Administrador** | Panel web | Gestiona usuarios, clientes, sucursales, sistemas y paquetes de servicio. |
 
 ---
@@ -64,9 +66,9 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 - **Paquetes de servicio** por sucursal y frecuencia (semanal, mensual, trimestral, anual) que generan todos los formatos de una visita en un solo paso.
 - **Motor de formatos dinámico**: checklists `N/A / X / OK`, preguntas `SI / NO`, campos de texto, fecha y hora, listas desplegables y grupos repetibles.
 - **Evidencia fotográfica** con descripción, comprimida automáticamente antes de subirse.
-- **Firmas digitales** de técnico y supervisor, con firma guardada en el perfil del técnico.
+- **Firma digital** del técnico, guardada en su perfil.
 - **Funcionamiento sin conexión**: los borradores y reportes terminados se guardan en el dispositivo hasta que el técnico decide enviarlos.
-- **Diseño optimizado para tablet**, en orientación horizontal y vertical.
+- **Diseño optimizado para tablets Android**, en orientación horizontal y vertical.
 
 ### Panel web (administradores)
 
@@ -124,9 +126,7 @@ flowchart LR
 stateDiagram-v2
     [*] --> Activo: El técnico abre un formato
     Activo --> Pendiente: Termina el llenado
-    Pendiente --> Autorización: Formato requiere aprobación
-    Pendiente --> Enviado: Envío directo
-    Autorización --> Enviado: Supervisor autoriza
+    Pendiente --> Enviado: El técnico lo envía
     Enviado --> [*]: Se genera el PDF
 ```
 
@@ -134,7 +134,6 @@ stateDiagram-v2
 |---|---|---|
 | **Activo** | Dispositivo | Borrador en proceso de llenado. |
 | **Pendiente** | Dispositivo | Reporte terminado, listo para enviarse. |
-| **Autorización** | Nube | En espera de aprobación del supervisor. |
 | **Enviado** | Nube | Reporte registrado y PDF generado. |
 
 ---
@@ -151,7 +150,7 @@ stateDiagram-v2
 | Estilos móviles | NativeWind |
 | Multimedia | expo-image-picker · expo-image-manipulator · react-native-signature-canvas |
 | Panel web | React · Vite · Refine |
-| Estilos web | Tailwind CSS · shadcn/ui |
+| Interfaz web | Material UI (vía Refine) |
 | Backend | Supabase (PostgreSQL · Auth · Storage · RLS) |
 | Generación de PDF | Node.js · Hono · @react-pdf/renderer |
 | Compilación móvil | EAS Build · EAS Update |
@@ -168,8 +167,7 @@ nimzo/
 │   └── admin/           # Panel web para administradores
 ├── packages/
 │   └── shared/          # Tipos, esquemas Zod y definiciones de formatos
-├── services/
-│   └── pdf/             # Servicio de generación de reportes PDF
+├── services/            # (Más adelante) Servicio de generación de reportes PDF
 ├── supabase/            # Migraciones, políticas RLS y datos de prueba
 ├── docs/                # Documentación técnica y de formatos
 ├── .github/             # Flujos de CI y plantillas de PR
@@ -183,12 +181,12 @@ nimzo/
 
 | Herramienta | Versión recomendada | Uso |
 |---|---|---|
-| [Node.js](https://nodejs.org/) | 20 LTS o superior | Entorno de ejecución |
-| [pnpm](https://pnpm.io/) | 9 o superior | Gestor de paquetes |
-| [Docker](https://www.docker.com/) | Última estable | Supabase local |
-| [Supabase CLI](https://supabase.com/docs/guides/cli) | Última estable | Migraciones y entorno local |
+| [Node.js](https://nodejs.org/) | 22 LTS (ver `.nvmrc`) | Entorno de ejecución |
+| [pnpm](https://pnpm.io/) | La fijada en `package.json` (`corepack enable pnpm`) | Gestor de paquetes |
+| [Supabase CLI](https://supabase.com/docs/guides/cli) | Incluida en el proyecto (`pnpm supabase`) | Migraciones |
+| Acceso al proyecto de Supabase | — | Invitación del líder de software a la organización en Supabase |
 | [EAS CLI](https://docs.expo.dev/build/setup/) | Última estable | Compilación de la app |
-| Android Studio o tablet Android | Android 10+ | Pruebas de la app |
+| Android Studio (emulador de tablet) o tablet Android | Android 10+ | Pruebas de la app |
 
 ---
 
@@ -197,8 +195,8 @@ nimzo/
 **1. Clonar el repositorio**
 
 ```bash
-git clone https://github.com/Petrov2026-dev/nimzo-app.git
-cd nimzo
+git clone https://github.com/PETROV2026/nimzo-app.git
+cd nimzo-app
 ```
 
 **2. Instalar dependencias**
@@ -207,22 +205,20 @@ cd nimzo
 pnpm install
 ```
 
-**3. Levantar Supabase en local**
+**3. Vincular el proyecto de Supabase**
 
 ```bash
-supabase start
-supabase db reset   # Aplica migraciones y datos de prueba
+pnpm supabase login
+pnpm supabase link --project-ref <project-ref>   # Pide la contraseña de la base de datos
 ```
 
 **4. Configurar variables de entorno**
 
 ```bash
-cp apps/mobile/.env.example apps/mobile/.env
-cp apps/admin/.env.example apps/admin/.env
-cp services/pdf/.env.example services/pdf/.env
+pnpm env:setup
 ```
 
-Completa cada archivo con los valores que muestra `supabase start`.
+Crea `apps/mobile/.env` y `apps/admin/.env` con la URL y la clave pública del proyecto vinculado.
 
 **5. Iniciar el entorno de desarrollo**
 
@@ -231,7 +227,7 @@ pnpm dev
 ```
 
 > [!IMPORTANT]
-> El desarrollo se realiza **siempre** contra Supabase local. El proyecto de Supabase en la nube está reservado para producción.
+> Por ahora hay **un solo proyecto de Supabase en la nube**, compartido por desarrollo y producción. Mientras no haya clientes reales es aceptable, pero antes del lanzamiento se debe crear un proyecto separado para desarrollo. Las migraciones las aplica únicamente el líder de software con `pnpm supabase db push`, después de revisar el PR.
 
 ---
 
@@ -243,11 +239,9 @@ pnpm dev
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `apps/mobile` | Clave pública de Supabase |
 | `VITE_SUPABASE_URL` | `apps/admin` | URL del proyecto de Supabase |
 | `VITE_SUPABASE_ANON_KEY` | `apps/admin` | Clave pública de Supabase |
-| `SUPABASE_URL` | `services/pdf` | URL del proyecto de Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | `services/pdf` | Clave de servicio (solo servidor) |
 
 > [!CAUTION]
-> La clave `SUPABASE_SERVICE_ROLE_KEY` omite todas las políticas de seguridad. **Nunca** debe incluirse en la app móvil, en el panel web ni en el repositorio.
+> La clave `service_role` de Supabase omite todas las políticas de seguridad. **Nunca** debe incluirse en la app móvil, en el panel web ni en el repositorio. Solo la usará el servicio de PDF, que se desarrollará más adelante.
 
 ---
 
@@ -283,7 +277,7 @@ Ejecutar desde la raíz del repositorio:
 Se sigue el estándar [Conventional Commits](https://www.conventionalcommits.org/es/):
 
 ```
-feat: agrega captura de firma del supervisor
+feat: agrega captura de firma del técnico
 fix: corrige autollenado de dirección de sucursal
 docs: documenta formato F-SER-014
 refactor: simplifica el motor de formatos
@@ -324,13 +318,12 @@ chore: actualiza dependencias
 - [ ] Autenticación y perfiles de usuario
 - [ ] Panel web: usuarios, clientes, sucursales, sistemas y paquetes
 - [ ] Motor de formatos dinámico
-- [ ] Flujo de reportes: Activo → Pendiente → Autorización → Enviado
+- [ ] Flujo de reportes: Activo → Pendiente → Enviado
 - [ ] Fotografías y firmas digitales
 - [ ] Generación de PDF
 - [ ] MVP con los primeros 5 formatos
 - [ ] Captura del catálogo completo de formatos
 - [ ] Pruebas en campo y publicación
-- [ ] Soporte para iOS
 
 ---
 

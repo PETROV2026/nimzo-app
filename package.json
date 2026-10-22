@@ -1,0 +1,36 @@
+{
+  "name": "nimzo",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
+    "dev": "turbo run dev",
+    "mobile": "pnpm --filter @nimzo/mobile dev",
+    "mobile:ios": "pnpm --filter @nimzo/mobile ios",
+    "mobile:android": "pnpm --filter @nimzo/mobile android",
+    "admin": "pnpm --filter @nimzo/admin dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:db": "node --test \"supabase/tests/**/*.test.mjs\"",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test:db",
+    "env:setup": "node scripts/setup-env.mjs",
+    "db:new": "supabase migration new",
+    "db:status": "supabase migration list --linked",
+    "db:dry": "supabase db push --dry-run",
+    "db:types": "supabase gen types typescript --linked --schema public > packages/shared/src/database.types.ts && prettier --write packages/shared/src/database.types.ts",
+    "supabase": "supabase",
+    "brand:assets": "python3 packages/brand/scripts/generate.py"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "prettier": "^3.9.10",
+    "supabase": "^2.120.0",
+    "turbo": "^2.11.7"
+  }
+}
