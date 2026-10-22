@@ -6,6 +6,7 @@ export * from './report';
 export * from './roles';
 export * from './search';
 export * from './service-forms';
+export * from './service-packages';
 export * from './systems';
 export * from './users';
 

@@ -59,7 +59,7 @@ Key design principles that cut across packages:
 
 1. **Forms are data.** Each service form (code `F-SER-XXX`) is a JSON definition validated with Zod, stored in `packages/shared/formatos/` and registered there. A single form engine renders it in the mobile app; the future PDF generator will use the same definition. Adding or changing a form must not require new screens. Supported field types: `N/A / X / OK` checklists, `SI / NO` questions, text, date/time, dropdowns and repeatable groups.
 2. **Offline first.** The mobile app works against local SQLite. Sync is just two flows: download catalogs (forms, clients, branches, packages) and upload submitted reports with photos and signatures. Don't add other sync paths.
-3. **Service packages** (per branch and frequency: weekly, monthly, quarterly, annual) generate all the forms for a visit in one step.
+3. **Service packages** (per branch and frequency: weekly, monthly, quarterly, semiannual, annual) generate all the forms for a visit in one step. Each form in a package can be tied to a system of the branch (one form per system).
 
 ### Report lifecycle
 

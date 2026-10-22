@@ -5,6 +5,8 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader } from '@/components/page-header';
 
 import { BranchForm } from './branch-form';
+import { PackagesBox } from '@/pages/packages/packages-box';
+
 import { SystemsBox } from './systems-box';
 import { useBranchCrumbs } from './use-branch-crumbs';
 
@@ -26,6 +28,7 @@ export function BranchEdit() {
       />
       <BranchForm key={id} action="edit" id={id}>
         <SystemsBox branchId={Number(id)} />
+        <PackagesBox branchId={Number(id)} />
       </BranchForm>
     </>
   );

@@ -161,6 +161,12 @@ Values stored in the database are English codes (`draft`, `sent`, `technician`);
 
 Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form (checklists, SI/NO…) are defined later, in `packages/shared/formatos/`.
 
+#### Paquetes de servicio
+
+A **service package** (`public.service_packages`) is the set of forms a technician fills in one visit to a branch, for one frequency: `weekly`, `monthly`, `quarterly`, `semiannual` or `annual` (labels in `packages/shared/src/service-packages.ts`). A branch has at most one package per frequency. Each form in a package (`public.service_package_forms`) can be tied to one system of the same branch, so the technician fills one form per system; without a system it is a general form, like the observations report.
+
+In the panel, packages are managed from the branch page (box **Paquetes de servicio**) and each one has its own page (`/packages/:id`). When adding a form, the forms whose subtitle matches the frequency are suggested first, and several systems can be picked at once. Packages are deactivated, not deleted; forms can be removed from a package.
+
 #### Usuarios
 
 **Usuarios** (`/users`) lists every account (`profiles`) with its email, role, last sign-in and status. Admins create accounts with a temporary password, change name and role, reset passwords and deactivate or reactivate accounts. Deactivating also bans the account in Supabase Auth, so it cannot sign in or refresh its session. Nobody can change their own role or deactivate themselves, and there is always at least one active admin.
@@ -186,7 +192,8 @@ supabase/
 │   ├── 20261016164430_admin_diagnostics.sql              read-only diagnostics for Herramientas
 │   ├── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
 │   ├── 20261016214053_accent_insensitive_search.sql      search_text columns for accent-insensitive search
-│   └── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
+│   ├── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
+│   └── 20261022183129_service_packages.sql               service packages per branch and frequency
 ├── functions/
 │   └── admin-users/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)
