@@ -142,6 +142,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      service_forms: {
+        Row: {
+          code: string;
+          created_at: string;
+          icon_path: string | null;
+          id: number;
+          is_active: boolean;
+          name: string;
+          search_text: string | null;
+          subtitle: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          icon_path?: string | null;
+          id?: never;
+          is_active?: boolean;
+          name: string;
+          search_text?: never;
+          subtitle?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          icon_path?: string | null;
+          id?: never;
+          is_active?: boolean;
+          name?: string;
+          search_text?: never;
+          subtitle?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       systems: {
         Row: {
           branch_id: number;

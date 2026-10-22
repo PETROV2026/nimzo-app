@@ -1,5 +1,6 @@
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import GroupOutlined from '@mui/icons-material/GroupOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
@@ -50,6 +51,18 @@ const loadSystems = () => import('@/pages/systems');
 
 const SystemList = lazy(() => loadSystems().then((module) => ({ default: module.SystemList })));
 
+const loadForms = () => import('@/pages/forms');
+
+const ServiceFormList = lazy(() =>
+  loadForms().then((module) => ({ default: module.ServiceFormList })),
+);
+const ServiceFormCreate = lazy(() =>
+  loadForms().then((module) => ({ default: module.ServiceFormCreate })),
+);
+const ServiceFormEdit = lazy(() =>
+  loadForms().then((module) => ({ default: module.ServiceFormEdit })),
+);
+
 const loadUsers = () => import('@/pages/users');
 
 const UserList = lazy(() => loadUsers().then((module) => ({ default: module.UserList })));
@@ -70,6 +83,7 @@ function ProtectedLayout() {
       void loadClients();
       void loadBranches();
       void loadSystems();
+      void loadForms();
     }, 1500);
     return () => clearTimeout(id);
   }, []);
@@ -130,6 +144,21 @@ const resources = [
     meta: { label: 'Sistemas', icon: <LocalFireDepartmentOutlined />, canDelete: false },
   },
   {
+    name: 'service_forms',
+    list: '/forms',
+    create: '/forms/create',
+    edit: '/forms/:id/edit',
+    meta: {
+      label: 'Formatos',
+      icon: <DescriptionOutlined />,
+      canDelete: false,
+      submenu: [
+        { label: 'Todos los formatos', to: '/forms' },
+        { label: 'Agregar formato', to: '/forms/create' },
+      ],
+    },
+  },
+  {
     name: 'profiles',
     list: '/users',
     create: '/users/create',
@@ -164,6 +193,7 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   clients: { list: 'Clientes', create: 'Agregar cliente', edit: 'Editar cliente' },
   branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
   systems: { list: 'Sistemas' },
+  service_forms: { list: 'Formatos', create: 'Agregar formato', edit: 'Editar formato' },
   profiles: { list: 'Usuarios', create: 'Agregar usuario', edit: 'Editar usuario' },
   tools: { list: 'Herramientas' },
 };
@@ -236,6 +266,18 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  <Route
+                    path="/forms"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando formatos…" />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<ServiceFormList />} />
+                    <Route path="create" element={<ServiceFormCreate />} />
+                    <Route path=":id/edit" element={<ServiceFormEdit />} />
+                  </Route>
                   <Route
                     path="/users"
                     element={
