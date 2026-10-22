@@ -70,6 +70,7 @@ export type Database = {
           id: number;
           is_active: boolean;
           name: string;
+          notes: string | null;
           search_text: string | null;
           tax_id: string | null;
           updated_at: string;
@@ -82,6 +83,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name: string;
+          notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
           updated_at?: string;
@@ -94,6 +96,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name?: string;
+          notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
           updated_at?: string;
@@ -197,7 +200,29 @@ export type Database = {
           service_form_id?: number;
           system_id?: number | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'service_package_forms_package_id_fkey';
+            columns: ['package_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_packages';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'service_package_forms_service_form_id_fkey';
+            columns: ['service_form_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_forms';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'service_package_forms_system_id_fkey';
+            columns: ['system_id'];
+            isOneToOne: false;
+            referencedRelation: 'systems';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       service_packages: {
         Row: {
@@ -206,7 +231,6 @@ export type Database = {
           frequency: Database['public']['Enums']['service_frequency'];
           id: number;
           is_active: boolean;
-          notes: string | null;
           updated_at: string;
         };
         Insert: {
@@ -215,7 +239,6 @@ export type Database = {
           frequency: Database['public']['Enums']['service_frequency'];
           id?: never;
           is_active?: boolean;
-          notes?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -224,10 +247,17 @@ export type Database = {
           frequency?: Database['public']['Enums']['service_frequency'];
           id?: never;
           is_active?: boolean;
-          notes?: string | null;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'service_packages_branch_id_fkey';
+            columns: ['branch_id'];
+            isOneToOne: false;
+            referencedRelation: 'branches';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       systems: {
         Row: {
