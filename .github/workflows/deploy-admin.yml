@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - apps/admin/**
+      - scripts/package-admin.mjs
       - packages/shared/**
       - packages/brand/**
       - supabase/migrations/**
@@ -24,7 +25,7 @@ env:
 
 jobs:
   deploy:
-    name: Build and upload to GoDaddy
+    name: Build and upload to the GoDaddy Node.js app
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -40,23 +41,26 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build the admin panel
-        run: pnpm --filter @nimzo/admin build
+      - name: Build and package the admin panel
+        run: pnpm admin:package
         env:
+          VITE_BASE_PATH: ${{ vars.ADMIN_BASE_PATH || '/admin' }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Check the build output
+      - name: Check the package
         run: |
-          test -f apps/admin/dist/index.html
-          test -f apps/admin/dist/.htaccess
+          test -f apps/admin/deploy/server.js
+          test -f apps/admin/deploy/config.json
+          test -f apps/admin/deploy/public/index.html
+          node --check apps/admin/deploy/server.js
 
-      - name: Upload to GoDaddy over FTPS
+      - name: Upload to the Node.js app folder over FTPS
         uses: SamKirkland/FTP-Deploy-Action@a51268f67f6605236975928ae28b0f7e9971d50a
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
-          local-dir: apps/admin/dist/
+          local-dir: apps/admin/deploy/
           server-dir: ./
