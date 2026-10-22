@@ -24,7 +24,7 @@ describe('admin_diagnostics()', () => {
     assert.ok(result.ok, result.error);
     const diagnostics = result.rows[0].d;
     const names = diagnostics.tables.map((table) => table.name);
-    assert.deepEqual(names, ['branches', 'clients', 'profiles', 'service_forms', 'systems']);
+    assert.deepEqual(names, ['branches', 'clients', 'profiles', 'service_forms', 'service_package_forms', 'service_packages', 'systems']);
     const clients = diagnostics.tables.find((table) => table.name === 'clients');
     assert.equal(clients.rows, 2);
     assert.equal(clients.rls_enabled, true);

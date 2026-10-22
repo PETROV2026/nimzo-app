@@ -63,6 +63,10 @@ const ServiceFormEdit = lazy(() =>
   loadForms().then((module) => ({ default: module.ServiceFormEdit })),
 );
 
+const loadPackages = () => import('@/pages/packages');
+
+const PackageEdit = lazy(() => loadPackages().then((module) => ({ default: module.PackageEdit })));
+
 const loadUsers = () => import('@/pages/users');
 
 const UserList = lazy(() => loadUsers().then((module) => ({ default: module.UserList })));
@@ -84,6 +88,7 @@ function ProtectedLayout() {
       void loadBranches();
       void loadSystems();
       void loadForms();
+      void loadPackages();
     }, 1500);
     return () => clearTimeout(id);
   }, []);
@@ -159,6 +164,15 @@ const resources = [
     },
   },
   {
+    name: 'service_packages',
+    edit: '/packages/:id',
+    meta: { label: 'Paquetes de servicio', hide: true, canDelete: false },
+  },
+  {
+    name: 'service_package_forms',
+    meta: { label: 'Formatos del paquete', hide: true },
+  },
+  {
     name: 'profiles',
     list: '/users',
     create: '/users/create',
@@ -194,6 +208,7 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
   systems: { list: 'Sistemas' },
   service_forms: { list: 'Formatos', create: 'Agregar formato', edit: 'Editar formato' },
+  service_packages: { edit: 'Paquete de servicio' },
   profiles: { list: 'Usuarios', create: 'Agregar usuario', edit: 'Editar usuario' },
   tools: { list: 'Herramientas' },
 };
@@ -278,6 +293,14 @@ export default function App() {
                     <Route path="create" element={<ServiceFormCreate />} />
                     <Route path=":id/edit" element={<ServiceFormEdit />} />
                   </Route>
+                  <Route
+                    path="/packages/:id"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando paquete…" />}>
+                        <PackageEdit />
+                      </Suspense>
+                    }
+                  />
                   <Route
                     path="/users"
                     element={

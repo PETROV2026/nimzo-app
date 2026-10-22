@@ -70,7 +70,6 @@ export type Database = {
           id: number;
           is_active: boolean;
           name: string;
-          notes: string | null;
           search_text: string | null;
           tax_id: string | null;
           updated_at: string;
@@ -83,7 +82,6 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name: string;
-          notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
           updated_at?: string;
@@ -96,7 +94,6 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name?: string;
-          notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
           updated_at?: string;
@@ -161,7 +158,7 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name: string;
-          search_text?: never;
+          search_text?: string | null;
           subtitle?: string | null;
           updated_at?: string;
         };
@@ -172,8 +169,62 @@ export type Database = {
           id?: never;
           is_active?: boolean;
           name?: string;
-          search_text?: never;
+          search_text?: string | null;
           subtitle?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      service_package_forms: {
+        Row: {
+          created_at: string;
+          id: number;
+          package_id: number;
+          service_form_id: number;
+          system_id: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: never;
+          package_id: number;
+          service_form_id: number;
+          system_id?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: never;
+          package_id?: number;
+          service_form_id?: number;
+          system_id?: number | null;
+        };
+        Relationships: [];
+      };
+      service_packages: {
+        Row: {
+          branch_id: number;
+          created_at: string;
+          frequency: Database['public']['Enums']['service_frequency'];
+          id: number;
+          is_active: boolean;
+          notes: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          branch_id: number;
+          created_at?: string;
+          frequency: Database['public']['Enums']['service_frequency'];
+          id?: never;
+          is_active?: boolean;
+          notes?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          branch_id?: number;
+          created_at?: string;
+          frequency?: Database['public']['Enums']['service_frequency'];
+          id?: never;
+          is_active?: boolean;
+          notes?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -233,6 +284,7 @@ export type Database = {
       admin_diagnostics: { Args: never; Returns: Json };
     };
     Enums: {
+      service_frequency: 'weekly' | 'monthly' | 'quarterly' | 'semiannual' | 'annual';
       system_type:
         | 'sprinkler'
         | 'hydrant'
@@ -364,6 +416,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      service_frequency: ['weekly', 'monthly', 'quarterly', 'semiannual', 'annual'],
       system_type: [
         'sprinkler',
         'hydrant',
