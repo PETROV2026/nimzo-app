@@ -1,97 +1,78 @@
-# Publicar el panel de administración en GoDaddy (app de Node.js)
+# Publicar el panel de administración en GoDaddy Node.js Hosting
 
-El panel se publica en una ruta de tu dominio actual, por ejemplo `https://tudominio.com/admin`, como una **app de Node.js de cPanel**. No usa un dominio ni un subdominio nuevo, así que no cuenta contra el límite de dominios del plan.
+El panel se publica en **GoDaddy Node.js Hosting** (app `nimzo-admin`, dirección `*.airoapp.ai`). Ese hosting toma una rama de GitHub y ejecuta `npm install`, `npm run build` y `npm start` ([requisitos de GoDaddy](https://developer.godaddy.com/en/docs/api-users/hosting/app-requirements)).
 
-```
-merge a main ──► GitHub Actions: compila el panel y arma el paquete (pnpm admin:package)
-                                 └─► lo sube por FTPS a la carpeta de la app ──► tudominio.com/admin
-```
-
-El hosting no compila nada ni instala dependencias: recibe un servidor `server.js` sin dependencias y el panel ya compilado.
+Esos comandos no pueden compilar este monorepo (usa pnpm y paquetes internos). Por eso GitHub Actions compila el panel y deja el resultado listo en una rama aparte, **`deploy-admin`**, que es la que lee GoDaddy:
 
 ```
-nimzo-admin/              carpeta de la app en el hosting
-├── server.js             servidor (archivo de inicio)
-├── package.json
-├── config.json           ruta base del panel (por ejemplo /admin)
-├── public/               el panel compilado
-└── tmp/restart.txt       cambia en cada publicación para reiniciar la app
+merge a main ──► GitHub Actions: compila el panel (pnpm admin:package)
+                                 └─► reemplaza la rama deploy-admin
+                                         └─► GoDaddy: npm install (nada), npm run build (nada), npm start
+```
+
+La rama `deploy-admin` se genera sola en cada publicación. **No la edites ni hagas PRs hacia ella.** Contiene:
+
+```
+server.js        servidor sin dependencias (npm start)
+package.json     sin dependencias; build vacío y start = node server.js
+config.json      ruta base del panel (/)
+public/          el panel compilado
 ```
 
 ## Configuración (una sola vez)
 
-### 1. Crear la app de Node.js
+### 1. Variables en GitHub
 
-cPanel → **Setup Node.js App** → **Create Application** (si ya creaste una antes, edítala con estos valores o bórrala y créala de nuevo):
-
-| Campo | Valor |
-|---|---|
-| **Node.js version** | La más alta que ofrezca (mínimo 18) |
-| **Application mode** | Production |
-| **Application root** | `nimzo-admin` (carpeta fuera de `public_html`) |
-| **Application URL** | tu dominio y, en el campo de la derecha, `admin` |
-| **Application startup file** | `server.js` |
-
-Presiona **Create**. No hace falta agregar variables de entorno ni presionar **Run NPM Install**: el servidor no tiene dependencias.
-
-Si eliges otra ruta en lugar de `admin` (por ejemplo `panel`), anótala para el paso 3.
-
-### 2. Crear una cuenta FTP solo para la app
-
-1. cPanel → **FTP Accounts** → **Add FTP Account**.
-2. Usuario: `deploy-admin` (queda como `deploy-admin@tudominio.com`).
-3. Contraseña: usa **Password Generator** y guárdala.
-4. **Directory**: `nimzo-admin` (la misma carpeta del paso 1). Así esta cuenta solo puede tocar la app.
-5. En **Configure FTP Client** anota el **servidor FTP** (normalmente `ftp.tudominio.com`).
-
-### 3. Guardar los datos en GitHub
-
-Repositorio → **Settings → Environments → New environment** → nombre `production`.
-
-**Environment secrets:**
-
-| Nombre | Valor |
-|---|---|
-| `FTP_SERVER` | el servidor FTP del paso 2, sin `ftp://` |
-| `FTP_USERNAME` | `deploy-admin@tudominio.com` |
-| `FTP_PASSWORD` | la contraseña del paso 2 |
-
-**Environment variables:**
+Repositorio → **Settings → Secrets and variables → Actions → Variables → New repository variable**:
 
 | Nombre | Valor |
 |---|---|
 | `VITE_SUPABASE_URL` | la de `apps/admin/.env` |
 | `VITE_SUPABASE_ANON_KEY` | la de `apps/admin/.env` |
-| `ADMIN_BASE_PATH` | solo si no usaste `admin` en el paso 1, por ejemplo `/panel` |
 
-Nunca pongas aquí la `service_role` de Supabase. Recomendado: en **Deployment branches** elige **Selected branches** y agrega `main`.
+Son públicas (van dentro del panel). Nunca pongas aquí la `service_role` de Supabase.
 
-### 4. Primera publicación
+### 2. Primera publicación a la rama `deploy-admin`
 
-GitHub → **Actions → Deploy admin → Run workflow** (rama `main`). Tarda unos 3 minutos. Después:
+Mezcla `develop` a `main` con un PR, o ve a GitHub → **Actions → Deploy admin → Run workflow** (rama `main`). Al terminar en verde (2–3 minutos) aparece la rama `deploy-admin` en el repositorio.
 
-1. cPanel → **Setup Node.js App** → presiona **Restart** en la app (solo esta primera vez).
-2. Abre `https://tudominio.com/admin`.
+### 3. Apuntar la app de GoDaddy a `deploy-admin`
 
-En las siguientes publicaciones la app se reinicia sola (`tmp/restart.txt`).
+1. En GoDaddy, abre la app **nimzo-admin** → ícono de engrane (**Configuración**).
+2. Cambia la **rama** de `main` a **`deploy-admin`** y guarda. Si la rama no se puede cambiar, crea una app nueva conectada al mismo repositorio eligiendo la rama `deploy-admin`, y elimina la anterior.
+3. **Ruta raíz** (prefijo de ruta): `/`.
+4. Tiempo de ejecución: Node.js 22.
+5. No hace falta agregar secretos en GoDaddy: el panel ya lleva sus variables públicas desde GitHub.
+
+### 4. Probar y publicar
+
+1. **Actualizar vista previa**. Espera a que "Estado de la compilación" quede en verde.
+2. Abre la URL de vista previa (con tu sesión de GoDaddy iniciada) e inicia sesión en el panel.
+3. Si todo está bien, **Publicar como activo**.
+
+Para usar tu propio dominio, en la app → **Conectar un dominio a medida**.
+
+## Publicaciones siguientes
+
+1. Mezcla a `main` (PR de `develop` a `main`). GitHub Actions actualiza `deploy-admin` solo.
+2. En GoDaddy: **Actualizar vista previa** y, si todo está bien, **Publicar como activo**.
 
 ## Qué hace `server.js`
 
-- Sirve el panel desde `public/`, también cuando Passenger le entrega la ruta con o sin el prefijo `/admin`.
-- Las direcciones del panel (`/admin/clients/1/edit`, `/admin/packages/3`…) funcionan al recargar.
+- Sirve el panel desde `public/` y escucha en el puerto que asigna GoDaddy (`PORT`).
+- Las direcciones del panel (`/clients/1/edit`, `/packages/3`…) funcionan al recargar.
 - Caché de un año para `assets/` (cambian de nombre en cada versión) y sin caché para `index.html`; compresión gzip.
 - Cabeceras de seguridad: no se puede mostrar el panel dentro de otro sitio, y el navegador solo carga scripts del propio panel y solo se conecta a Supabase.
-- Nunca entrega archivos fuera de `public/` (ni `server.js` ni `config.json`).
+- Nunca entrega archivos fuera de `public/`.
 
-Para probarlo en tu computadora: `VITE_BASE_PATH=/admin pnpm admin:package`, luego `cd apps/admin/deploy && PORT=3000 node server.js` y abre `http://localhost:3000/admin`.
+Para probarlo en tu computadora igual que GoDaddy: `pnpm admin:package`, luego en `apps/admin/deploy` ejecuta `npm install && npm run build && PORT=3000 npm start` y abre `http://localhost:3000`.
 
 ## Si algo falla
 
 | Síntoma | Causa probable |
 |---|---|
-| El workflow falla en **Upload** con error de conexión | Servidor FTP mal escrito, o tu plan no acepta FTPS. Si solo acepta FTP sin cifrar, cambia `protocol: ftps` por `ftp` en `.github/workflows/deploy-admin.yml` |
-| Error de login en **Upload** | Usuario o contraseña FTP. El usuario lleva `@tudominio.com` |
-| `tudominio.com/admin` muestra "Incomplete response" o error 503 | La app no arrancó: revisa en **Setup Node.js App** que el archivo de inicio sea `server.js` y presiona **Restart**. El registro de errores está en la carpeta `nimzo-admin` (archivo `stderr.log`) |
-| Página en blanco y en la consola del navegador aparecen errores 404 de `/assets/` | La ruta de la app no coincide con `ADMIN_BASE_PATH`. Deben ser iguales |
-| Página en blanco con un error de Supabase | Faltan `VITE_SUPABASE_URL` o `VITE_SUPABASE_ANON_KEY` en el environment `production` |
-| Sigue viéndose la versión anterior | Recarga sin caché (Ctrl + Shift + R); si persiste, **Restart** en la app |
+| GoDaddy muestra **502** o "Mal estado" | La app sigue leyendo `main` en lugar de `deploy-admin` (paso 3), o todavía no corres el paso 2. Revisa **Registros de la aplicación** |
+| El workflow **Deploy admin** falla en "Publish" | Revisa en Settings → Actions → General que **Workflow permissions** permita escritura (*Read and write permissions*) |
+| Página en blanco con un error de Supabase | Faltan `VITE_SUPABASE_URL` o `VITE_SUPABASE_ANON_KEY` en las variables de GitHub (paso 1); vuelve a correr el workflow |
+| La vista previa no se abre | GoDaddy exige tener la sesión iniciada en tu cuenta para ver la vista previa; la versión publicada no |
+| Sigue viéndose la versión anterior | En GoDaddy, **Actualizar vista previa** y **Publicar como activo**; luego recarga sin caché (Ctrl + Shift + R) |
