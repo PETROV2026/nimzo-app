@@ -1,0 +1,12 @@
+{
+  "name": "nimzo-admin-server",
+  "private": true,
+  "description": "Serves the built Nimzo admin panel on cPanel (Setup Node.js App).",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
