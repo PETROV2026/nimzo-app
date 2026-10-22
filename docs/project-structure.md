@@ -155,6 +155,12 @@ Import it from either app with `import { reportStatusSchema } from '@nimzo/share
 
 Values stored in the database are English codes (`draft`, `sent`, `technician`); the Spanish labels next to them (`Activo`, `Enviado`, `Técnico`) are what users see. Nothing stored in the database is in Spanish.
 
+#### Formatos
+
+**Formatos** (`/forms`) is the catalog of service forms (`public.service_forms`): code `F-SER-XXX` (unique and fixed once created, because reports use it), name, optional subtitle (frequency or test type), icon and active flag. Forms are deactivated, never deleted. The panel shows how the card will look in the mobile app.
+
+Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form (checklists, SI/NO…) are defined later, in `packages/shared/formatos/`.
+
 #### Usuarios
 
 **Usuarios** (`/users`) lists every account (`profiles`) with its email, role, last sign-in and status. Admins create accounts with a temporary password, change name and role, reset passwords and deactivate or reactivate accounts. Deactivating also bans the account in Supabase Auth, so it cannot sign in or refresh its session. Nobody can change their own role or deactivate themselves, and there is always at least one active admin.
@@ -179,7 +185,8 @@ supabase/
 │   ├── 20261015210044_system_types_and_branch_states.sql system types and state codes
 │   ├── 20261016164430_admin_diagnostics.sql              read-only diagnostics for Herramientas
 │   ├── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
-│   └── 20261016214053_accent_insensitive_search.sql      search_text columns for accent-insensitive search
+│   ├── 20261016214053_accent_insensitive_search.sql      search_text columns for accent-insensitive search
+│   └── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
 ├── functions/
 │   └── admin-users/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)

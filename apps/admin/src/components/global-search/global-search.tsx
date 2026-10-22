@@ -1,4 +1,5 @@
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import EastOutlined from '@mui/icons-material/EastOutlined';
 import GroupOutlined from '@mui/icons-material/GroupOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
@@ -28,6 +29,7 @@ const icons: Record<SearchKind, ReactNode> = {
   client: <BusinessOutlined fontSize="small" />,
   branch: <PlaceOutlined fontSize="small" />,
   system: <LocalFireDepartmentOutlined fontSize="small" />,
+  form: <DescriptionOutlined fontSize="small" />,
   user: <GroupOutlined fontSize="small" />,
 };
 
@@ -171,7 +173,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
             setActiveIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Buscar clientes, sucursales, sistemas, usuarios o páginas"
+          placeholder="Buscar clientes, sucursales, sistemas, formatos, usuarios o páginas"
           inputProps={{
             role: 'combobox',
             'aria-label': 'Buscar en Nimzo',

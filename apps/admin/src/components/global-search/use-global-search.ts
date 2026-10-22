@@ -4,12 +4,13 @@ import {
   type Branch,
   type Client,
   type Profile,
+  type ServiceForm,
   type System,
   toSearchText,
 } from '@nimzo/shared';
 import { useList, type CrudFilter } from '@refinedev/core';
 
-export type SearchKind = 'page' | 'client' | 'branch' | 'system' | 'user';
+export type SearchKind = 'page' | 'client' | 'branch' | 'system' | 'form' | 'user';
 
 export type SearchResult = {
   key: string;
@@ -31,6 +32,8 @@ const pages: PageEntry[] = [
   { label: 'Sucursales', to: '/branches', keywords: 'lugares sitios lista' },
   { label: 'Agregar sucursal', to: '/branches/create', keywords: 'nueva crear lugar', quick: true },
   { label: 'Sistemas', to: '/systems', keywords: 'rociadores hidrantes extintores lista' },
+  { label: 'Formatos', to: '/forms', keywords: 'f-ser reportes catalogo' },
+  { label: 'Agregar formato', to: '/forms/create', keywords: 'nuevo crear f-ser' },
   { label: 'Usuarios', to: '/users', keywords: 'cuentas tecnicos administradores equipo' },
   {
     label: 'Agregar usuario',
@@ -103,6 +106,12 @@ export function useGlobalSearch(term: string) {
     meta: { select: '*, branches(name)' },
     ...common,
   });
+  const forms = useList<ServiceForm>({
+    resource: 'service_forms',
+    filters: searchFilter(term),
+    sorters: [{ field: 'code', order: 'asc' }],
+    ...common,
+  });
   const users = useList<Profile>({
     resource: 'profiles',
     filters: searchFilter(term),
@@ -159,6 +168,18 @@ export function useGlobalSearch(term: string) {
         })),
       },
       {
+        kind: 'form',
+        title: 'Formatos',
+        results: forms.result.data.map((form) => ({
+          key: `form:${form.id}`,
+          kind: 'form',
+          label: `${form.code} · ${form.name}`,
+          detail: form.subtitle ?? undefined,
+          to: `/forms/${form.id}/edit`,
+          inactive: !form.is_active,
+        })),
+      },
+      {
         kind: 'user',
         title: 'Usuarios',
         results: users.result.data.map((user) => ({
@@ -173,7 +194,7 @@ export function useGlobalSearch(term: string) {
     );
   }
 
-  const queries = [clients.query, branches.query, systems.query, users.query];
+  const queries = [clients.query, branches.query, systems.query, forms.query, users.query];
 
   return {
     groups: groups.filter((group) => group.results.length > 0),
