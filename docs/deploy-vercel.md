@@ -12,6 +12,7 @@ Vercel compila el panel directamente desde GitHub: cada push genera una vista pr
    |---|---|
    | `VITE_SUPABASE_URL` | URL del proyecto de Supabase |
    | `VITE_SUPABASE_ANON_KEY` | clave pública (anon) |
+   | `VITE_TURNSTILE_SITE_KEY` | Site Key del widget de Cloudflare Turnstile (ver abajo) |
    | `ENABLE_EXPERIMENTAL_COREPACK` | `1` (usa la versión de pnpm fijada en `package.json`) |
 
    Son públicas (van dentro del panel). Nunca pongas aquí la `service_role` de Supabase.
@@ -23,6 +24,23 @@ Vercel compila el panel directamente desde GitHub: cada push genera una vista pr
 
 - Mezcla a `main` y Vercel publica solo.
 - Si cambias una variable, vuelve a publicar (**Deployments → ⋯ → Redeploy**): las variables `VITE_*` se incrustan al compilar.
+
+## Captcha del login (Cloudflare Turnstile)
+
+El login del panel pide un captcha. El panel manda correo, contraseña y captcha a la Edge Function `admin-login`, que verifica el captcha con Cloudflare, inicia sesión y solo regresa la sesión si la cuenta es un administrador activo. La app móvil no usa captcha.
+
+1. En el panel de Cloudflare, **Turnstile → Add widget**. Modo **Managed**. En **Hostnames** agrega el dominio del panel (`nimzo-app-web.vercel.app` y el dominio propio, si hay) y `localhost` para desarrollo.
+2. Copia la **Site Key** a `VITE_TURNSTILE_SITE_KEY` en Vercel y en `apps/admin/.env`.
+3. El líder de software guarda la **Secret Key** en Supabase y publica la función (una sola vez, y de nuevo cuando cambie la función):
+
+   ```bash
+   pnpm supabase secrets set TURNSTILE_SECRET_KEY=<secret key>
+   pnpm supabase functions deploy admin-login
+   ```
+
+4. Vuelve a publicar el panel en Vercel.
+
+La función debe estar publicada antes que el panel nuevo; si no, nadie puede entrar al panel.
 
 ## Dominio propio
 
@@ -36,3 +54,6 @@ Vercel compila el panel directamente desde GitHub: cada push genera una vista pr
 | Página en blanco con un error de Supabase | Faltan `VITE_SUPABASE_URL` o `VITE_SUPABASE_ANON_KEY`; agrégalas y vuelve a publicar |
 | 404 al recargar `/clients` u otra dirección | El **Root Directory** no es `apps/admin`, así que Vercel no lee `vercel.json` |
 | No puedes iniciar sesión | Solo entran usuarios `admin` activos; revisa el usuario en Supabase |
+| "Falta configurar la verificación de seguridad" | Falta `VITE_TURNSTILE_SITE_KEY`; agrégala y vuelve a publicar |
+| "La verificación de seguridad falló" en todos los intentos | La Secret Key en Supabase no corresponde a la Site Key, o el dominio no está en los Hostnames del widget |
+| "No se pudo iniciar sesión" siempre, con datos correctos | La función `admin-login` no está publicada o falta `TURNSTILE_SECRET_KEY` |

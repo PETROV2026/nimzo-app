@@ -195,6 +195,9 @@ supabase/
 │   ├── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
 │   └── 20261022183129_service_packages.sql               service packages per branch and frequency
 ├── functions/
+│   ├── admin-login/
+│   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only
+│   │   └── index.ts           Deno entry: Cloudflare siteverify and supabase-js
 │   └── admin-users/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)
 │       └── index.ts           Deno entry: wires the handler to supabase-js with the service role

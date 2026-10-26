@@ -1,5 +1,6 @@
 import type { UserRole } from '@nimzo/shared';
 import type { AuthProvider } from '@refinedev/core';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 
 import { supabase } from '@/lib/supabase';
 
@@ -52,23 +53,35 @@ function loginError(message: string) {
   return { success: false, error: { name: 'Error', message } };
 }
 
-export const authProvider: AuthProvider = {
-  login: async ({ email, password }: { email: string; password: string }) => {
-    clearProfileCache();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+async function functionErrorMessage(error: unknown) {
+  if (!(error instanceof FunctionsHttpError)) {
+    return 'No se pudo conectar con el servidor. Revisa tu conexión a internet.';
+  }
+  try {
+    const body = (await error.context.json()) as { error?: string };
+    return body.error ?? 'No se pudo iniciar sesión. Intenta de nuevo.';
+  } catch {
+    return 'No se pudo iniciar sesión. Intenta de nuevo.';
+  }
+}
 
-    if (error) {
-      if (error.code === 'user_banned') {
-        return loginError(NO_ACCESS_MESSAGE);
-      }
-      if (error.message.toLowerCase().includes('invalid login credentials')) {
-        return loginError('El correo o la contraseña no son correctos.');
-      }
-      if (error.message.toLowerCase().includes('fetch')) {
-        return loginError('No se pudo conectar con el servidor. Revisa tu conexión a internet.');
-      }
-      return loginError('No se pudo iniciar sesión. Intenta de nuevo.');
-    }
+type LoginParams = { email: string; password: string; captchaToken: string };
+
+type LoginSession = { access_token: string; refresh_token: string };
+
+export const authProvider: AuthProvider = {
+  login: async ({ email, password, captchaToken }: LoginParams) => {
+    clearProfileCache();
+    const { data: tokens, error: loginFailure } = await supabase.functions.invoke<LoginSession>(
+      'admin-login',
+      {
+        body: { email, password, captcha_token: captchaToken },
+      },
+    );
+    if (loginFailure || !tokens) return loginError(await functionErrorMessage(loginFailure));
+
+    const { data, error } = await supabase.auth.setSession(tokens);
+    if (error || !data.user) return loginError('No se pudo iniciar sesión. Intenta de nuevo.');
 
     if (!(await getAdminProfile(data.user.id))) {
       await supabase.auth.signOut();
