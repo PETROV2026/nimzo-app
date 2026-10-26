@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import { EmptyState } from '@/components/empty-state';
 
 export default function ClientsScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <Text className="font-sans-bold text-2xl text-foreground">Clientes</Text>
-    </View>
+    <EmptyState
+      title="Aún no tienes clientes descargados"
+      description="Cuando sincronices, aquí verás los clientes, sus sucursales y sus sistemas."
+    />
   );
 }

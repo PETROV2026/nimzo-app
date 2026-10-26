@@ -1,9 +1,10 @@
-import { Text, View } from 'react-native';
+import { EmptyState } from '@/components/empty-state';
 
 export default function ServicesScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <Text className="font-sans-bold text-2xl text-foreground">Servicios</Text>
-    </View>
+    <EmptyState
+      title="Aún no tienes servicios asignados"
+      description="Cuando el administrador te asigne una visita, aparecerá aquí con sus formatos."
+    />
   );
 }

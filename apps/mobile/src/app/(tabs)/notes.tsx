@@ -1,9 +1,5 @@
-import { Text, View } from 'react-native';
+import { EmptyState } from '@/components/empty-state';
 
 export default function NotesScreen() {
-  return (
-    <View className="flex-1 items-center justify-center bg-background">
-      <Text className="font-sans-bold text-2xl text-foreground">Notas</Text>
-    </View>
-  );
+  return <EmptyState description="Toca “Agregar nota” para crear la primera." />;
 }
