@@ -1,9 +1,11 @@
 /*
- * Demo catalogs: 25 clients with their branches and fire protection systems, owned by the demo
- * technician tecnico.demo@ejemplo.com. Create that account in the admin panel first.
+ * Demo catalogs: clients with their branches and fire protection systems for the demo technicians.
+ * tecnico.demo@ejemplo.com is required; tecnico.demo2@ejemplo.com and tecnico.demo3@ejemplo.com are optional and get their own clients
+ * when their accounts exist. Create the accounts in the admin panel first.
  *
  * Every row is clearly fake: names end in "(demo)", emails use ejemplo.com, phones use 0000,
- * and every client has notes = 'Datos de ejemplo'. Running it twice inserts nothing the second time.
+ * and every client has notes = 'Datos de ejemplo'. Running it again only loads technicians that have no demo
+ * clients yet.
  *
  *   pnpm supabase db query --linked -f supabase/seeds/demo-catalogs.sql
  *
@@ -23,7 +25,7 @@ end;
 $$;
 
 with owner as (
-  select id from public.profiles where email = 'tecnico.demo@ejemplo.com'
+  select id from public.profiles where email = 'tecnico.demo@ejemplo.com' and role = 'technician' and is_active
 ),
 client_data (name, tax_id, contact_name, contact_email, contact_phone, notes, is_active) as (
   values
@@ -55,9 +57,9 @@ client_data (name, tax_id, contact_name, contact_email, contact_phone, notes, is
 ),
 new_clients as (
   insert into public.clients (technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active)
-  select (select id from owner), name, tax_id, contact_name, contact_email, contact_phone, notes, is_active
-  from client_data
-  where not exists (select 1 from public.clients where notes = 'Datos de ejemplo')
+  select o.id, d.name, d.tax_id, d.contact_name, d.contact_email, d.contact_phone, d.notes, d.is_active
+  from client_data d cross join owner o
+  where not exists (select 1 from public.clients where technician_id = o.id and notes = 'Datos de ejemplo')
   returning id, name
 ),
 branch_data (client_name, name, address, city, state, contact_name, contact_email, contact_phone, is_active) as (
@@ -230,6 +232,196 @@ new_systems as (
   join new_branches nb on nb.client_id = c.id and nb.name = s.branch_name
   returning id
 )
-select (select count(*) from new_clients) as clients,
+select 'tecnico.demo@ejemplo.com' as technician,
+       (select count(*) from new_clients) as clients,
        (select count(*) from new_branches) as branches,
-       (select count(*) from new_systems) as systems
+       (select count(*) from new_systems) as systems;
+
+with owner as (
+  select id from public.profiles where email = 'tecnico.demo2@ejemplo.com' and role = 'technician' and is_active
+),
+client_data (name, tax_id, contact_name, contact_email, contact_phone, notes, is_active) as (
+  values
+    ('Aceros del Valle (demo)', 'DEM010131D31', 'Daniel Prueba', 'daniel31@ejemplo.com', '81 0000 0031', 'Datos de ejemplo', true),
+    ('Hospital San Rafael (demo)', null, 'Carlos Ficticio', 'carlos32@ejemplo.com', '81 0000 0032', 'Datos de ejemplo', true),
+    ('Papelera Monterrey (demo)', 'DEM010133D33', 'María Muestra', null, '81 0000 0033', 'Datos de ejemplo', true),
+    ('Cervecería Valle Alto (demo)', 'DEM010134D34', 'Elena Ejemplo', 'elena34@ejemplo.com', '81 0000 0034', 'Datos de ejemplo', true),
+    ('Clínica Santa Fe (demo)', 'DEM010135D35', 'Daniel Prueba', 'daniel35@ejemplo.com', null, 'Datos de ejemplo', true),
+    ('Almacenes del Norte (demo)', null, null, null, '81 0000 0036', 'Datos de ejemplo', true),
+    ('Hotel Bahía Azul (demo)', 'DEM010137D37', 'Ricardo Muestra', 'ricardo37@ejemplo.com', '81 0000 0037', 'Datos de ejemplo', true),
+    ('Planta Ensambladora Delta (demo)', 'DEM010138D38', 'Elena Muestra', 'elena38@ejemplo.com', '81 0000 0038', 'Datos de ejemplo', true)
+),
+new_clients as (
+  insert into public.clients (technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active)
+  select o.id, d.name, d.tax_id, d.contact_name, d.contact_email, d.contact_phone, d.notes, d.is_active
+  from client_data d cross join owner o
+  where not exists (select 1 from public.clients where technician_id = o.id and notes = 'Datos de ejemplo')
+  returning id, name
+),
+branch_data (client_name, name, address, city, state, contact_name, contact_email, contact_phone, is_active) as (
+  values
+    ('Aceros del Valle (demo)', 'Centro de distribución Poniente', 'Av. Ejemplo 230, Col. Demo', 'Ciudad de México', 'CMX', 'Ricardo Ejemplo', null, '81 0000 9236', true),
+    ('Aceros del Valle (demo)', 'Centro de distribución Centro', 'Av. Ejemplo 698, Col. Demo', 'Mérida', 'YUC', null, null, null, true),
+    ('Aceros del Valle (demo)', 'Bodega Poniente', 'Av. Ejemplo 538, Col. Demo', 'Querétaro', 'QUE', 'Ana Ejemplo', null, '81 0000 2628', true),
+    ('Hospital San Rafael (demo)', 'Centro de distribución Aeropuerto', null, 'Guadalupe', 'NLE', 'Ricardo Ficticio', null, '81 0000 2226', false),
+    ('Hospital San Rafael (demo)', 'Bodega Poniente', null, 'Apodaca', 'NLE', null, null, null, true),
+    ('Papelera Monterrey (demo)', 'Nave Oriente', null, 'Aguascalientes', 'AGU', null, null, null, true),
+    ('Papelera Monterrey (demo)', 'Nave Norte', 'Av. Ejemplo 805, Col. Demo', 'San Luis Potosí', 'SLP', null, null, null, true),
+    ('Cervecería Valle Alto (demo)', 'Bodega Sur', 'Av. Ejemplo 246, Col. Demo', 'Monterrey', 'NLE', 'Ana Ejemplo', null, '81 0000 9870', true),
+    ('Clínica Santa Fe (demo)', 'Bodega Norte', 'Av. Ejemplo 411, Col. Demo', 'Torreón', 'COA', null, null, null, true),
+    ('Clínica Santa Fe (demo)', 'Nave Poniente', null, 'Chihuahua', 'CHH', 'Jorge Muestra', null, '81 0000 5860', false),
+    ('Almacenes del Norte (demo)', 'Planta Oriente', 'Av. Ejemplo 879, Col. Demo', 'León', 'GUA', 'Jorge Muestra', 'jorge.360@ejemplo.com', '81 0000 5126', true),
+    ('Almacenes del Norte (demo)', 'Nave Norte', 'Av. Ejemplo 664, Col. Demo', 'Saltillo', 'COA', null, null, null, true),
+    ('Almacenes del Norte (demo)', 'Planta Centro', null, 'Torreón', 'COA', null, null, null, true),
+    ('Hotel Bahía Azul (demo)', 'Sucursal Sur', 'Av. Ejemplo 815, Col. Demo', 'Ciudad de México', 'CMX', 'Ana Ficticio', null, '81 0000 7511', true),
+    ('Hotel Bahía Azul (demo)', 'Nave Oriente', 'Av. Ejemplo 687, Col. Demo', 'León', 'GUA', 'Paola Ficticio', 'paola.371@ejemplo.com', '81 0000 1264', true),
+    ('Hotel Bahía Azul (demo)', 'Centro de distribución Oriente', null, 'Veracruz', 'VER', null, null, null, true),
+    ('Planta Ensambladora Delta (demo)', 'Bodega Centro', 'Av. Ejemplo 903, Col. Demo', 'Guadalupe', 'NLE', 'Luis Muestra', null, '81 0000 8937', true),
+    ('Planta Ensambladora Delta (demo)', 'Oficinas Centro', 'Av. Ejemplo 287, Col. Demo', 'Puebla', 'PUE', 'Jorge Ficticio', 'jorge.381@ejemplo.com', '81 0000 4487', true),
+    ('Planta Ensambladora Delta (demo)', 'Nave Industrial', 'Av. Ejemplo 934, Col. Demo', 'Apodaca', 'NLE', 'Elena Demo', 'elena.382@ejemplo.com', '81 0000 7998', true)
+),
+new_branches as (
+  insert into public.branches (client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active)
+  select c.id, b.name, b.address, b.city, b.state, b.contact_name, b.contact_email, b.contact_phone, b.is_active
+  from branch_data b join new_clients c on c.name = b.client_name
+  returning id, client_id, name
+),
+system_data (client_name, branch_name, system_type, name, location, is_active) as (
+  values
+    ('Aceros del Valle (demo)', 'Centro de distribución Poniente', 'clean_agent', 'Agente limpio cuarto de servidores', 'Nave 1', true),
+    ('Aceros del Valle (demo)', 'Centro de distribución Poniente', 'kitchen_suppression', 'Supresión campana de cocina', 'Planta baja', true),
+    ('Aceros del Valle (demo)', 'Centro de distribución Centro', 'hydrant', 'Red de hidrantes perimetral', null, true),
+    ('Aceros del Valle (demo)', 'Centro de distribución Centro', 'fire_alarm', 'Detectores de humo oficinas', 'Almacén', true),
+    ('Aceros del Valle (demo)', 'Centro de distribución Centro', 'sprinkler', 'Rociadores oficinas', 'Nave 1', true),
+    ('Aceros del Valle (demo)', 'Bodega Poniente', 'sprinkler', 'Rociadores área de almacén', 'Exterior norte', true),
+    ('Hospital San Rafael (demo)', 'Centro de distribución Aeropuerto', 'hydrant', 'Hidrantes patio de maniobras', 'Almacén', true),
+    ('Hospital San Rafael (demo)', 'Centro de distribución Aeropuerto', 'other', 'Puertas cortafuego', 'Almacén', true),
+    ('Hospital San Rafael (demo)', 'Bodega Poniente', 'sprinkler', 'Red de rociadores nave 3', 'Nave 1', true),
+    ('Hospital San Rafael (demo)', 'Bodega Poniente', 'fire_alarm', 'Panel de detección y alarma', 'Almacén', true),
+    ('Hospital San Rafael (demo)', 'Bodega Poniente', 'hydrant', 'Hidrantes patio de maniobras', 'Nave 2', false),
+    ('Hospital San Rafael (demo)', 'Bodega Poniente', 'clean_agent', 'Agente limpio cuarto de servidores', 'Almacén', true),
+    ('Papelera Monterrey (demo)', 'Nave Oriente', 'fire_alarm', 'Panel de detección y alarma', null, true),
+    ('Papelera Monterrey (demo)', 'Nave Oriente', 'hydrant', 'Hidrantes patio de maniobras', 'Exterior norte', true),
+    ('Papelera Monterrey (demo)', 'Nave Norte', 'kitchen_suppression', 'Supresión campana de cocina', 'Exterior norte', true),
+    ('Papelera Monterrey (demo)', 'Nave Norte', 'sprinkler', 'Red de rociadores nave 3', 'Sótano', true),
+    ('Cervecería Valle Alto (demo)', 'Bodega Sur', 'sprinkler', 'Rociadores área de almacén', null, true),
+    ('Clínica Santa Fe (demo)', 'Bodega Norte', 'other', 'Puertas cortafuego', 'Sótano', true),
+    ('Clínica Santa Fe (demo)', 'Bodega Norte', 'fire_pump', 'Bomba jockey y principal', 'Nave 1', true),
+    ('Clínica Santa Fe (demo)', 'Bodega Norte', 'clean_agent', 'Agente limpio cuarto de servidores', 'Cuarto de máquinas', true),
+    ('Clínica Santa Fe (demo)', 'Bodega Norte', 'kitchen_suppression', 'Supresión campana de cocina', 'Cuarto de máquinas', true),
+    ('Clínica Santa Fe (demo)', 'Nave Poniente', 'sprinkler', 'Red de rociadores nave 3', 'Nave 2', true),
+    ('Almacenes del Norte (demo)', 'Planta Oriente', 'other', 'Puertas cortafuego', 'Sótano', true),
+    ('Almacenes del Norte (demo)', 'Nave Norte', 'fire_pump', 'Cuarto de bombas', 'Sótano', true),
+    ('Almacenes del Norte (demo)', 'Nave Norte', 'clean_agent', 'Agente limpio cuarto de servidores', 'Azotea', true),
+    ('Almacenes del Norte (demo)', 'Nave Norte', 'fire_extinguisher', 'Extintores nivel 3', 'Sótano', true),
+    ('Almacenes del Norte (demo)', 'Planta Centro', 'sprinkler', 'Rociadores área de almacén', 'Azotea', true),
+    ('Almacenes del Norte (demo)', 'Planta Centro', 'other', 'Puertas cortafuego', 'Exterior norte', true),
+    ('Hotel Bahía Azul (demo)', 'Sucursal Sur', 'other', 'Puertas cortafuego', 'Planta baja', true),
+    ('Hotel Bahía Azul (demo)', 'Nave Oriente', 'sprinkler', 'Red de rociadores nave 3', 'Exterior norte', true),
+    ('Hotel Bahía Azul (demo)', 'Nave Oriente', 'kitchen_suppression', 'Supresión campana de cocina', 'Planta baja', true),
+    ('Hotel Bahía Azul (demo)', 'Nave Oriente', 'other', 'Puertas cortafuego', null, false),
+    ('Hotel Bahía Azul (demo)', 'Nave Oriente', 'fire_pump', 'Cuarto de bombas', 'Nave 1', true),
+    ('Hotel Bahía Azul (demo)', 'Centro de distribución Oriente', 'clean_agent', 'Agente limpio cuarto de servidores', 'Cuarto de máquinas', true),
+    ('Hotel Bahía Azul (demo)', 'Centro de distribución Oriente', 'fire_pump', 'Bomba jockey y principal', 'Azotea', false),
+    ('Hotel Bahía Azul (demo)', 'Centro de distribución Oriente', 'sprinkler', 'Rociadores área de almacén', 'Azotea', true),
+    ('Hotel Bahía Azul (demo)', 'Centro de distribución Oriente', 'other', 'Puertas cortafuego', 'Nave 1', true),
+    ('Planta Ensambladora Delta (demo)', 'Bodega Centro', 'clean_agent', 'Agente limpio cuarto de servidores', null, true),
+    ('Planta Ensambladora Delta (demo)', 'Bodega Centro', 'other', 'Puertas cortafuego', 'Sótano', true),
+    ('Planta Ensambladora Delta (demo)', 'Bodega Centro', 'fire_extinguisher', 'Extintores área de producción', 'Nave 1', true),
+    ('Planta Ensambladora Delta (demo)', 'Oficinas Centro', 'kitchen_suppression', 'Supresión campana de cocina', 'Sótano', true),
+    ('Planta Ensambladora Delta (demo)', 'Nave Industrial', 'clean_agent', 'Agente limpio cuarto de servidores', null, false)
+),
+new_systems as (
+  insert into public.systems (branch_id, system_type, name, location, is_active)
+  select nb.id, s.system_type::public.system_type, s.name, s.location, s.is_active
+  from system_data s
+  join new_clients c on c.name = s.client_name
+  join new_branches nb on nb.client_id = c.id and nb.name = s.branch_name
+  returning id
+)
+select 'tecnico.demo2@ejemplo.com' as technician,
+       (select count(*) from new_clients) as clients,
+       (select count(*) from new_branches) as branches,
+       (select count(*) from new_systems) as systems;
+
+with owner as (
+  select id from public.profiles where email = 'tecnico.demo3@ejemplo.com' and role = 'technician' and is_active
+),
+client_data (name, tax_id, contact_name, contact_email, contact_phone, notes, is_active) as (
+  values
+    ('Plásticos Regios (demo)', 'DEM010151D51', 'Paola Muestra', null, '81 0000 0051', 'Datos de ejemplo', true),
+    ('Bodegas El Puerto (demo)', null, 'Luis Demo', 'luis52@ejemplo.com', '81 0000 0052', 'Datos de ejemplo', true),
+    ('Centro Logístico Oriente (demo)', 'DEM010153D53', 'Miguel Ejemplo', 'miguel53@ejemplo.com', '81 0000 0053', 'Datos de ejemplo', true),
+    ('Panificadora Trigo Dorado (demo)', 'DEM010154D54', null, null, '81 0000 0054', 'Datos de ejemplo', true),
+    ('Escuela Primaria Ejemplo (demo)', 'DEM010155D55', 'Carlos Demo', 'carlos55@ejemplo.com', null, 'Datos de ejemplo', true),
+    ('Torre Médica Sur (demo)', null, 'Jorge Ejemplo', 'jorge56@ejemplo.com', '81 0000 0056', 'Datos de ejemplo', true)
+),
+new_clients as (
+  insert into public.clients (technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active)
+  select o.id, d.name, d.tax_id, d.contact_name, d.contact_email, d.contact_phone, d.notes, d.is_active
+  from client_data d cross join owner o
+  where not exists (select 1 from public.clients where technician_id = o.id and notes = 'Datos de ejemplo')
+  returning id, name
+),
+branch_data (client_name, name, address, city, state, contact_name, contact_email, contact_phone, is_active) as (
+  values
+    ('Plásticos Regios (demo)', 'Sucursal Sur', null, 'Querétaro', 'QUE', null, null, null, true),
+    ('Plásticos Regios (demo)', 'Planta Aeropuerto', 'Av. Ejemplo 758, Col. Demo', 'León', 'GUA', 'Ana Ficticio', 'ana.511@ejemplo.com', '81 0000 6535', true),
+    ('Plásticos Regios (demo)', 'Sucursal Poniente', 'Av. Ejemplo 277, Col. Demo', 'Saltillo', 'COA', 'Paola Ejemplo', 'paola.512@ejemplo.com', '81 0000 8406', true),
+    ('Bodegas El Puerto (demo)', 'Sucursal Industrial', null, 'Puebla', 'PUE', null, null, null, true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Poniente', 'Av. Ejemplo 801, Col. Demo', 'Ciudad de México', 'CMX', null, null, null, true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Sur', 'Av. Ejemplo 864, Col. Demo', 'Toluca', 'MEX', 'Sofía Ejemplo', 'sofia.531@ejemplo.com', '81 0000 6650', false),
+    ('Panificadora Trigo Dorado (demo)', 'Oficinas Centro', 'Av. Ejemplo 131, Col. Demo', 'Toluca', 'MEX', 'Ana Demo', 'ana.540@ejemplo.com', '81 0000 9764', true),
+    ('Escuela Primaria Ejemplo (demo)', 'Oficinas Industrial', 'Av. Ejemplo 120, Col. Demo', 'Torreón', 'COA', null, null, null, true),
+    ('Torre Médica Sur (demo)', 'Oficinas Aeropuerto', 'Av. Ejemplo 437, Col. Demo', 'Veracruz', 'VER', 'Jorge Muestra', null, '81 0000 4125', true),
+    ('Torre Médica Sur (demo)', 'Planta Aeropuerto', 'Av. Ejemplo 601, Col. Demo', 'Saltillo', 'COA', 'Ricardo Ejemplo', 'ricardo.561@ejemplo.com', '81 0000 3199', true),
+    ('Torre Médica Sur (demo)', 'Nave Sur', 'Av. Ejemplo 600, Col. Demo', 'Guadalajara', 'JAL', null, null, null, true)
+),
+new_branches as (
+  insert into public.branches (client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active)
+  select c.id, b.name, b.address, b.city, b.state, b.contact_name, b.contact_email, b.contact_phone, b.is_active
+  from branch_data b join new_clients c on c.name = b.client_name
+  returning id, client_id, name
+),
+system_data (client_name, branch_name, system_type, name, location, is_active) as (
+  values
+    ('Plásticos Regios (demo)', 'Sucursal Sur', 'kitchen_suppression', 'Supresión campana de cocina', 'Azotea', true),
+    ('Plásticos Regios (demo)', 'Sucursal Sur', 'clean_agent', 'Agente limpio cuarto de servidores', 'Nave 2', true),
+    ('Plásticos Regios (demo)', 'Sucursal Sur', 'fire_extinguisher', 'Extintores nivel 2', 'Nave 1', true),
+    ('Plásticos Regios (demo)', 'Planta Aeropuerto', 'hydrant', 'Hidrantes patio de maniobras', 'Nave 1', true),
+    ('Plásticos Regios (demo)', 'Planta Aeropuerto', 'fire_extinguisher', 'Extintores área de producción', 'Planta baja', true),
+    ('Plásticos Regios (demo)', 'Sucursal Poniente', 'hydrant', 'Hidrantes patio de maniobras', 'Exterior norte', true),
+    ('Plásticos Regios (demo)', 'Sucursal Poniente', 'fire_pump', 'Bomba jockey y principal', 'Sótano', true),
+    ('Plásticos Regios (demo)', 'Sucursal Poniente', 'fire_extinguisher', 'Extintores área de producción', null, true),
+    ('Plásticos Regios (demo)', 'Sucursal Poniente', 'kitchen_suppression', 'Supresión campana de cocina', 'Sótano', true),
+    ('Bodegas El Puerto (demo)', 'Sucursal Industrial', 'fire_alarm', 'Detectores de humo oficinas', 'Cuarto de máquinas', true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Poniente', 'fire_extinguisher', 'Extintores área de producción', 'Nave 1', true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Poniente', 'fire_pump', 'Bomba jockey y principal', 'Sótano', true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Poniente', 'kitchen_suppression', 'Supresión campana de cocina', 'Nave 1', true),
+    ('Centro Logístico Oriente (demo)', 'Centro de distribución Sur', 'hydrant', 'Hidrantes patio de maniobras', 'Planta baja', true),
+    ('Panificadora Trigo Dorado (demo)', 'Oficinas Centro', 'fire_alarm', 'Panel de detección y alarma', 'Exterior norte', true),
+    ('Panificadora Trigo Dorado (demo)', 'Oficinas Centro', 'kitchen_suppression', 'Supresión campana de cocina', 'Nave 2', true),
+    ('Panificadora Trigo Dorado (demo)', 'Oficinas Centro', 'hydrant', 'Red de hidrantes perimetral', 'Almacén', true),
+    ('Panificadora Trigo Dorado (demo)', 'Oficinas Centro', 'other', 'Puertas cortafuego', 'Nave 2', true),
+    ('Escuela Primaria Ejemplo (demo)', 'Oficinas Industrial', 'other', 'Puertas cortafuego', 'Cuarto de máquinas', true),
+    ('Torre Médica Sur (demo)', 'Oficinas Aeropuerto', 'kitchen_suppression', 'Supresión campana de cocina', 'Nave 2', true),
+    ('Torre Médica Sur (demo)', 'Oficinas Aeropuerto', 'fire_extinguisher', 'Extintores planta baja', 'Nave 1', true),
+    ('Torre Médica Sur (demo)', 'Planta Aeropuerto', 'kitchen_suppression', 'Supresión campana de cocina', 'Nave 2', true),
+    ('Torre Médica Sur (demo)', 'Planta Aeropuerto', 'other', 'Puertas cortafuego', 'Sótano', true),
+    ('Torre Médica Sur (demo)', 'Planta Aeropuerto', 'fire_alarm', 'Detectores de humo oficinas', 'Azotea', true),
+    ('Torre Médica Sur (demo)', 'Planta Aeropuerto', 'clean_agent', 'Agente limpio cuarto de servidores', 'Exterior norte', true),
+    ('Torre Médica Sur (demo)', 'Nave Sur', 'hydrant', 'Hidrantes patio de maniobras', 'Nave 1', true),
+    ('Torre Médica Sur (demo)', 'Nave Sur', 'fire_alarm', 'Detectores de humo oficinas', 'Cuarto de máquinas', true)
+),
+new_systems as (
+  insert into public.systems (branch_id, system_type, name, location, is_active)
+  select nb.id, s.system_type::public.system_type, s.name, s.location, s.is_active
+  from system_data s
+  join new_clients c on c.name = s.client_name
+  join new_branches nb on nb.client_id = c.id and nb.name = s.branch_name
+  returning id
+)
+select 'tecnico.demo3@ejemplo.com' as technician,
+       (select count(*) from new_clients) as clients,
+       (select count(*) from new_branches) as branches,
+       (select count(*) from new_systems) as systems;
