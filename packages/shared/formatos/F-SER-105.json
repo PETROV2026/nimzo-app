@@ -1,0 +1,127 @@
+{
+  "code": "F-SER-105",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "building",
+      "type": "text",
+      "label": "Edificio"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "items": {
+    "id": "sprinklers",
+    "addLabel": "Agregar rociador",
+    "title": "Número de rociador",
+    "keyLabel": "Número de rociador",
+    "sections": [
+      {
+        "id": "section_1",
+        "title": "Sección 1",
+        "children": [
+          {
+            "type": "group",
+            "id": "riser_inspection",
+            "label": "Inspecciones",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "operational",
+                "type": "check",
+                "label": "Verificar que el sistema se encuentre operativo."
+              },
+              {
+                "id": "riser_supply_pressure",
+                "type": "check",
+                "label": "Anotar la presión de suministro del riser (inferior).",
+                "measurement": {
+                  "unit": "PSI"
+                }
+              },
+              {
+                "id": "system_pressure",
+                "type": "check",
+                "label": "Anotar presión de agua o aire en el sistema, según aplique.",
+                "measurement": {
+                  "unit": "PSI"
+                }
+              },
+              {
+                "id": "inspection_1",
+                "type": "check",
+                "label": "Verificar fugas y daño físico en válvula de alarma."
+              },
+              {
+                "id": "inspection_2",
+                "type": "check",
+                "label": "Verificar fugas y daño físico en válvula de acción previa."
+              },
+              {
+                "id": "inspection_3",
+                "type": "check",
+                "label": "Válvulas y trim: verificar que se encuentren en buen estado. Las válvulas deberán ser accesibles y en estado correcto (abierta o cerrada)."
+              },
+              {
+                "id": "inspection_4",
+                "type": "check",
+                "label": "Inspeccionar que el riser cuente con una placa de identificación y datos hidráulicos."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_2",
+        "title": "Sección 2",
+        "children": [
+          {
+            "type": "group",
+            "id": "monthly_inspection",
+            "label": "Inspecciones",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "monthly_1",
+                "type": "check",
+                "label": "Verificar que la conexión con bomberos no esté obstruida y esté libre de daño físico."
+              },
+              {
+                "id": "monthly_2",
+                "type": "check",
+                "label": "Verificar que la válvula de seccionamiento (control) esté enclavada o supervisada."
+              },
+              {
+                "id": "monthly_3",
+                "type": "check",
+                "label": "Inspeccionar que los dispositivos de alarma y conexiones estén libres de daño físico."
+              },
+              {
+                "id": "monthly_4",
+                "type": "check",
+                "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}

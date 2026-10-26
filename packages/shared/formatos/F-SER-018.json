@@ -1,0 +1,128 @@
+{
+  "code": "F-SER-018",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "arrival_time",
+      "type": "time",
+      "label": "Hora de entrada"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "quarter",
+      "type": "select",
+      "label": "Corresponde al trimestre número",
+      "options": [
+        {
+          "value": "q1",
+          "label": "1"
+        },
+        {
+          "value": "q2",
+          "label": "2"
+        },
+        {
+          "value": "q3",
+          "label": "3"
+        },
+        {
+          "value": "q4",
+          "label": "4"
+        }
+      ]
+    },
+    {
+      "id": "service_areas",
+      "type": "text",
+      "label": "Áreas de ejecución del servicio"
+    }
+  ],
+  "items": {
+    "id": "risers",
+    "addLabel": "Agregar sistema o riser",
+    "title": "Número de sistema y/o riser",
+    "keyLabel": "Número de sistema y/o riser",
+    "sections": [
+      {
+        "id": "activity",
+        "title": "Descripción de la actividad",
+        "children": [
+          {
+            "type": "group",
+            "id": "preliminary_readings",
+            "label": "Lecturas preliminares de este sistema",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "upper_gauge_pressure",
+                "type": "text",
+                "label": "Anotar la lectura de presión de este sistema indicada en el manómetro superior del riser",
+                "inputMode": "decimal",
+                "unit": "PSI"
+              },
+              {
+                "id": "lower_gauge_pressure",
+                "type": "text",
+                "label": "Anotar la lectura de presión del suministro de agua indicada en el manómetro inferior del riser",
+                "inputMode": "decimal",
+                "unit": "PSI"
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "flow_alarm_test",
+            "label": "Prueba de alarma de flujo",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "flow_sensor_inspected",
+                "type": "check",
+                "label": "Retirar la tapa del sensor de flujo e inspeccionar, verificar y confirmar que no presenta daño físico visible."
+              },
+              {
+                "id": "flow_sensor_manual",
+                "type": "check",
+                "label": "Operar en forma manual el mecanismo del sensor de flujo y verificar que opera correctamente."
+              },
+              {
+                "id": "test_drain_flow",
+                "type": "check",
+                "label": "Generar flujo abriendo la válvula de TEST DRAIN y verificar que el panel detecta flujo con el retardo adecuado."
+              },
+              {
+                "id": "flow_alarm_delay",
+                "type": "text",
+                "label": "Anotar el valor del retardo de la alarma de flujo de este sistema",
+                "inputMode": "numeric",
+                "unit": "s"
+              },
+              {
+                "id": "flow_alarm_notification",
+                "type": "check",
+                "label": "Verificar que las sirenas de notificación y la campana de alarma de flujo correspondiente operan correctamente."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}
