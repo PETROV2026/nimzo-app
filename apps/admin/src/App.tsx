@@ -4,6 +4,7 @@ import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import GroupOutlined from '@mui/icons-material/GroupOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
 import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
+import ReceiptLongOutlined from '@mui/icons-material/ReceiptLongOutlined';
 import SpaceDashboardOutlined from '@mui/icons-material/SpaceDashboardOutlined';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -67,6 +68,10 @@ const loadPackages = () => import('@/pages/packages');
 
 const PackageEdit = lazy(() => loadPackages().then((module) => ({ default: module.PackageEdit })));
 
+const loadReports = () => import('@/pages/reports');
+
+const ReportList = lazy(() => loadReports().then((module) => ({ default: module.ReportList })));
+
 const loadUsers = () => import('@/pages/users');
 
 const UserList = lazy(() => loadUsers().then((module) => ({ default: module.UserList })));
@@ -89,6 +94,7 @@ function ProtectedLayout() {
       void loadSystems();
       void loadForms();
       void loadPackages();
+      void loadReports();
     }, 1500);
     return () => clearTimeout(id);
   }, []);
@@ -173,6 +179,11 @@ const resources = [
     meta: { label: 'Formatos del paquete', hide: true },
   },
   {
+    name: 'reports',
+    list: '/reports',
+    meta: { label: 'Reportes', icon: <ReceiptLongOutlined />, canDelete: false },
+  },
+  {
     name: 'profiles',
     list: '/users',
     create: '/users/create',
@@ -209,6 +220,7 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   systems: { list: 'Sistemas' },
   service_forms: { list: 'Formatos', create: 'Agregar formato', edit: 'Editar formato' },
   service_packages: { edit: 'Paquete de servicio' },
+  reports: { list: 'Reportes' },
   profiles: { list: 'Usuarios', create: 'Agregar usuario', edit: 'Editar usuario' },
   tools: { list: 'Herramientas' },
 };
@@ -298,6 +310,14 @@ export default function App() {
                     element={
                       <Suspense fallback={<PageLoader label="Cargando paquete…" />}>
                         <PackageEdit />
+                      </Suspense>
+                    }
+                  />
+                  <Route
+                    path="/reports"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando reportes…" />}>
+                        <ReportList />
                       </Suspense>
                     }
                   />
