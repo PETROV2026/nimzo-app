@@ -177,6 +177,47 @@ describe('reports', () => {
     );
   });
 
+  test('the app cannot backdate a report', async () => {
+    const row = reportRow(TECH_A, catalogA);
+    const values = [...COLUMNS.map((column) => row[column]), '2026-01-15T10:00:00Z'];
+    const result = await asTechA(
+      `insert into public.reports (${COLUMNS.join(', ')}, sent_at)
+       values (${COLUMNS.map((_, index) => `$${index + 1}`).join(', ')}, $${COLUMNS.length + 1})
+       returning sent_at`,
+      values,
+    );
+    assert.ok(result.ok, result.error);
+    assert.ok(new Date(result.rows[0].sent_at) > new Date('2026-02-01T00:00:00Z'));
+  });
+
+  test('server scripts can set the send date of demo reports', async () => {
+    const row = reportRow(TECH_A, catalogA, { snapshot: { demo: true } });
+    const { rows } = await db.query(
+      `insert into public.reports (${COLUMNS.join(', ')}, sent_at)
+       values (${COLUMNS.map((_, index) => `$${index + 1}`).join(', ')}, $${COLUMNS.length + 1})
+       returning id, sent_at`,
+      [...COLUMNS.map((column) => row[column]), '2026-03-15T10:00:00Z'],
+    );
+    assert.equal(new Date(rows[0].sent_at).toISOString(), '2026-03-15T10:00:00.000Z');
+  });
+
+  test('only demo reports can be removed, and only by the server', async () => {
+    const demo = reportRow(TECH_A, catalogA, { snapshot: { demo: true } });
+    await db.query(
+      `insert into public.reports (${COLUMNS.join(', ')}) values (${COLUMNS.map((_, index) => `$${index + 1}`).join(', ')})`,
+      COLUMNS.map((column) => demo[column]),
+    );
+    const byTechnician = await asTechA('delete from public.reports where id = $1', [demo.id]);
+    assert.equal(byTechnician.affected ?? 0, 0);
+
+    await assert.rejects(
+      db.query('delete from public.reports where id = $1', [firstReport.id]),
+      /Sent reports cannot be deleted/,
+    );
+    const removed = await db.query('delete from public.reports where id = $1', [demo.id]);
+    assert.equal(removed.affectedRows, 1);
+  });
+
   test('anon cannot read reports', async () => {
     assert.equal((await runAs(db, 'anon', null, 'select id from public.reports')).ok, false);
   });
