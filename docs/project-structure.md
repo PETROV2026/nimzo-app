@@ -123,7 +123,7 @@ Labels are in Spanish, file names in English. The active tab uses `primary-stron
 
 ### `apps/admin` — admin panel
 
-React web app built with Vite. Administrators manage users, clients, branches, systems and service packages, and browse report history.
+React web app built with Vite. Administrators manage users, and see and manage every technician's clients, branches, systems and service packages. A new client is always created for a chosen technician (field **Técnico**); its branches, systems and packages belong to the same technician. The lists show the technician and can be filtered by it.
 
 ```
 apps/admin/
@@ -202,7 +202,9 @@ supabase/
 │   ├── 20261016172102_profile_email_and_last_sign_in.sql email and last sign-in in profiles
 │   ├── 20261016214053_accent_insensitive_search.sql      search_text columns for accent-insensitive search
 │   ├── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
-│   └── 20261022183129_service_packages.sql               service packages per branch and frequency
+│   ├── 20261022183129_service_packages.sql               service packages per branch and frequency
+│   ├── 20261026182135_independent_technicians.sql        uuid ids, technician owner on every catalog row, private profiles
+│   └── 20261026183308_reports.sql                        sent reports with folio, and the report-files bucket
 ├── functions/
 │   ├── admin-login/
 │   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only
@@ -231,6 +233,14 @@ supabase/
   ```
 
   Both scripts only touch clients whose notes are `Datos de ejemplo` (the removal also deletes their service packages). After changing the catalog tables, update `generate_demo_catalogs.py` and regenerate the file with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql`; `pnpm test:db` checks that both scripts still work.
+
+#### Applying the independent-technicians migrations (software lead, once)
+
+The ownership migration rebuilds the catalog tables and stops if they have rows. In order:
+
+1. `pnpm supabase db query --linked -f supabase/seeds/remove-demo-catalogs.sql` (and remove any other test clients).
+2. `pnpm supabase db push`, then `pnpm db:types` (the committed `database.types.ts` was written by hand to match; regenerating should change little).
+3. Create the technician `tecnico.demo@ejemplo.com` in the panel, then load `supabase/seeds/demo-catalogs.sql`.
 
 ## How the pieces run
 
