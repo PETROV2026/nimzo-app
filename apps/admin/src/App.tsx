@@ -221,7 +221,7 @@ const toolTitles: Record<string, string> = {
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+    <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider>
