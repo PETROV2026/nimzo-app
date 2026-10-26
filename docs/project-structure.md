@@ -223,14 +223,14 @@ supabase/
 - **The database only changes through migrations.** Create one with `pnpm supabase migration new <name>`, write the SQL, add tests in `supabase/tests/`, and open a PR.
 - `pnpm test:db` checks every migration and permission rule locally, without touching the cloud database. CI runs it on every PR.
 - Only the software lead applies migrations to the cloud project, after review.
-- **Demo data.** To see the admin panel with data, load 25 fake clients (names end in "(demo)", emails at `ejemplo.com`):
+- **Demo data.** To see the admin panel with data, load 25 fake clients (names end in "(demo)", emails at `ejemplo.com`). They belong to the demo technician `tecnico.demo@ejemplo.com`: create that technician in the panel first, or the seed stops with an error.
 
   ```bash
   pnpm supabase db query --linked -f supabase/seeds/demo-catalogs.sql          # load (does nothing if already loaded)
   pnpm supabase db query --linked -f supabase/seeds/remove-demo-catalogs.sql   # remove
   ```
 
-  Both scripts only touch clients whose notes are `Datos de ejemplo`. After changing the catalog tables, update `generate_demo_catalogs.py` and regenerate the file with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql`; `pnpm test:db` checks that both scripts still work.
+  Both scripts only touch clients whose notes are `Datos de ejemplo` (the removal also deletes their service packages). After changing the catalog tables, update `generate_demo_catalogs.py` and regenerate the file with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql`; `pnpm test:db` checks that both scripts still work.
 
 ## How the pieces run
 
