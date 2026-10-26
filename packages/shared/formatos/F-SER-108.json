@@ -1,0 +1,125 @@
+{
+  "code": "F-SER-108",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "building",
+      "type": "text",
+      "label": "Edificio"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "service_areas",
+      "type": "text",
+      "label": "Áreas de ejecución del servicio"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "items": {
+    "id": "cabinets",
+    "addLabel": "Agregar gabinete",
+    "title": "Número de gabinete",
+    "keyLabel": "Número de gabinete",
+    "sections": [
+      {
+        "id": "section_1",
+        "title": "Sección 1",
+        "children": [
+          {
+            "type": "group",
+            "id": "cabinet_inspection",
+            "label": "Inspección",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "inspection_1",
+                "type": "check",
+                "label": "Estado de gabinete o rack y bolsa de manguera."
+              },
+              {
+                "id": "inspection_2",
+                "type": "check",
+                "label": "Revisión de etiqueta de mantenimiento."
+              },
+              {
+                "id": "inspection_3",
+                "type": "check",
+                "label": "Inspección del estado de la manguera."
+              },
+              {
+                "id": "inspection_4",
+                "type": "check",
+                "label": "Verificar buen estado del chiflón."
+              },
+              {
+                "id": "inspection_5",
+                "type": "check",
+                "label": "Revisión de válvula."
+              },
+              {
+                "id": "inspection_6",
+                "type": "check",
+                "label": "Soportería en buen estado."
+              },
+              {
+                "id": "inspection_7",
+                "type": "check",
+                "label": "Manguera colocada correctamente."
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "cabinet_maintenance",
+            "label": "Mantenimiento",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "cleaning",
+                "type": "check",
+                "label": "Servicio de limpieza a gabinete o rack y bolsa de manguera."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_2",
+        "title": "Sección 2",
+        "children": [
+          {
+            "type": "group",
+            "id": "annual_maintenance",
+            "label": "Mantenimiento",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "hose_folds",
+                "type": "check",
+                "label": "Recorrido de dobleces de manguera."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}

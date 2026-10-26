@@ -1,0 +1,749 @@
+{
+  "code": "F-SER-098",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "system",
+      "type": "text",
+      "label": "Sistema"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "serviceType": {
+    "label": "Tipo de servicio",
+    "help": "Marque el tipo de servicio y su cobertura. Si el servicio tiene periodicidad ajustada, indique la cobertura aplicable.",
+    "allowCustom": true,
+    "options": [
+      {
+        "value": "weekly",
+        "label": "Semanal, Sección 1",
+        "sections": ["section_1"]
+      },
+      {
+        "value": "monthly",
+        "label": "Mensual, Sección 1 y 2",
+        "sections": ["section_1", "section_2"]
+      },
+      {
+        "value": "semiannual",
+        "label": "Semestral, Sección 1, 2 y 3",
+        "sections": ["section_1", "section_2", "section_3"]
+      },
+      {
+        "value": "annual",
+        "label": "Anual, Sección 1, 2, 3 y 4",
+        "sections": ["section_1", "section_2", "section_3", "section_4"]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section_1",
+      "title": "Sección 1",
+      "children": [
+        {
+          "type": "group",
+          "id": "inspections",
+          "label": "Inspecciones",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "room_temperature",
+              "type": "check",
+              "label": "Medir la temperatura del cuarto de bombas. Debe ser mayor a 40 °F (5 °C).",
+              "measurement": {
+                "unit": "°C"
+              }
+            },
+            {
+              "id": "inspection_2",
+              "type": "check",
+              "label": "La ventilación del cuarto de bombas es adecuada."
+            },
+            {
+              "id": "inspection_3",
+              "type": "check",
+              "label": "Verificar que la válvula de succión y descarga de la bomba jockey se encuentren totalmente abiertas."
+            },
+            {
+              "id": "inspection_4",
+              "type": "check",
+              "label": "Verificar que la válvula de succión y descarga de la bomba principal se encuentren totalmente abiertas."
+            },
+            {
+              "id": "inspection_5",
+              "type": "check",
+              "label": "Verificar el estado correcto de las válvulas restantes en el cuarto de bombas."
+            },
+            {
+              "id": "inspection_6",
+              "type": "check",
+              "label": "Las válvulas del cuarto de bombas cuentan con candado de seguridad o están eléctricamente supervisadas (según aplique)."
+            },
+            {
+              "id": "inspection_7",
+              "type": "check",
+              "label": "Las válvulas del cuarto de bombas están identificadas y cuentan con un indicador del sistema o porción del sistema que controlan."
+            },
+            {
+              "id": "inspection_8",
+              "type": "check",
+              "label": "Las válvulas del cuarto de bombas se encuentran accesibles."
+            },
+            {
+              "id": "inspection_9",
+              "type": "check",
+              "label": "Verificar fugas en tuberías y mangueras del sistema de bombeo."
+            },
+            {
+              "id": "inspection_10",
+              "type": "check",
+              "label": "Verificar la ausencia de daño físico en el sistema de bombeo."
+            },
+            {
+              "id": "suction_pressure",
+              "type": "check",
+              "label": "Presión de succión de bomba principal.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "network_pressure",
+              "type": "check",
+              "label": "Presión de la red hidráulica contra incendio.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "suction_water_level",
+              "type": "check",
+              "label": "Nivel de agua en la succión (almacenamiento).",
+              "measurement": {}
+            },
+            {
+              "id": "inspection_14",
+              "type": "check",
+              "label": "El exterior del almacenamiento de agua está libre de daño físico."
+            },
+            {
+              "id": "inspection_15",
+              "type": "check",
+              "label": "Las anclas del tanque de almacenamiento de agua están en buen estado."
+            },
+            {
+              "id": "inspection_16",
+              "type": "check",
+              "label": "Los barandales y las escaleras del tanque de almacenamiento de agua están en buen estado."
+            },
+            {
+              "id": "inspection_17",
+              "type": "check",
+              "label": "El área circundante del almacenamiento de agua está libre de obstrucciones."
+            },
+            {
+              "id": "inspection_18",
+              "type": "check",
+              "label": "Ejercitar el medidor de nivel del tanque de almacenamiento de agua verificando que no esté atorado."
+            },
+            {
+              "id": "inspection_19",
+              "type": "check",
+              "label": "La luz piloto indicadora de controlador operativo está encendida."
+            },
+            {
+              "id": "inspection_20",
+              "type": "check",
+              "label": "Las luces indicadoras de alarma y falla del controlador eléctrico se encuentran apagadas."
+            },
+            {
+              "id": "inspection_21",
+              "type": "check",
+              "label": "Verificar que el historial del controlador o gráfica de lectura de presión no indiquen ninguna anomalía."
+            },
+            {
+              "id": "inspection_22",
+              "type": "check",
+              "label": "Verificar que la red hidráulica cuenta con un medio de alivio que permitirá la circulación de agua al operar el equipo de bombeo."
+            },
+            {
+              "id": "inspection_23",
+              "type": "check",
+              "label": "El nivel de aceite en cabezal de engranes es correcto."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "general_tests",
+          "label": "Pruebas generales",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "type": "group",
+              "id": "jockey_voltage_no_load",
+              "label": "El suministro de voltaje de AC sin carga del controlador jockey se encuentra dentro del rango adecuado",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "jockey_voltage_no_load_a",
+                  "type": "text",
+                  "label": "A",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_no_load_b",
+                  "type": "text",
+                  "label": "B",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_no_load_c",
+                  "type": "text",
+                  "label": "C",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_no_load_status",
+                  "type": "check",
+                  "label": "Estado"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "id": "jockey_pressures",
+              "label": "Provocar una caída de presión en la línea de sensado de la bomba jockey y verificar que el arranque y paro del equipo están en el rango adecuado",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "jockey_start_pressure",
+                  "type": "check",
+                  "label": "Valor de presión de arranque",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "jockey_stop_pressure",
+                  "type": "check",
+                  "label": "Valor de presión de paro",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "jockey_manual_run",
+              "type": "check",
+              "label": "Encender la bomba jockey en modo manual por 1 minuto y verificar la ausencia de ruidos extraños y calentamiento. Asegurar evitar incremento de presión en la red y mantener una descarga de agua abierta para evitar calentamiento de la bomba. Colocar los equipos de bombeo principales en modo apagado durante esta operación."
+            },
+            {
+              "type": "group",
+              "id": "jockey_voltage_load",
+              "label": "Verificar que el voltaje de AC con carga de la bomba jockey se mantenga dentro del +/- 10% del valor especificado en placa del controlador de bomba jockey",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "jockey_voltage_load_a",
+                  "type": "text",
+                  "label": "A",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_load_b",
+                  "type": "text",
+                  "label": "B",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_load_c",
+                  "type": "text",
+                  "label": "C",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "jockey_voltage_load_status",
+                  "type": "check",
+                  "label": "Estado"
+                }
+              ]
+            },
+            {
+              "id": "jockey_short_cycle",
+              "type": "check",
+              "label": "Provocar una caída de presión instantánea en la línea de sensado del controlador jockey y verificar que no apague y prenda varias veces en unos segundos."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "electric_pump_tests",
+          "label": "Pruebas a motobomba eléctrica",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "main_breaker",
+              "type": "check",
+              "label": "Ejercitar el interruptor principal (breaker, switch) cerrando y abriendo, verificando que opere correctamente."
+            },
+            {
+              "type": "group",
+              "id": "supply_voltage",
+              "label": "Con controlador eléctrico apagado, tomar lectura de los voltajes de alimentación y comparar con la lectura de voltaje en controlador. Ambos deben estar dentro del 10% de voltaje de placa del controlador",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "supply_voltage_a",
+                  "type": "text",
+                  "label": "A",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "supply_voltage_b",
+                  "type": "text",
+                  "label": "B",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "supply_voltage_c",
+                  "type": "text",
+                  "label": "C",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "supply_voltage_status",
+                  "type": "check",
+                  "label": "Estado"
+                }
+              ]
+            },
+            {
+              "id": "auto_start_pressure",
+              "type": "check",
+              "label": "Encender el equipo en modo automático generando una caída de presión en la línea de sensado durante 10 minutos a cero flujo y anotar la presión de arranque.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "running_led",
+              "type": "check",
+              "label": "Verificar que el controlador confirme marcha mediante el encendido del LED de BOMBA OPERANDO."
+            },
+            {
+              "id": "full_speed_time_check",
+              "type": "check",
+              "label": "Verificar y anotar el tiempo que toma para alcanzar velocidad plena."
+            },
+            {
+              "id": "first_step_time",
+              "type": "check",
+              "label": "Verificar el tiempo en que el controlador permanece en el primer paso del arranque. No debe ser más de 5 segundos (para arranque de tensión reducida). Realizar la prueba manteniendo la puerta del controlador cerrada.",
+              "measurement": {
+                "unit": "s"
+              }
+            },
+            {
+              "id": "run_time",
+              "type": "check",
+              "label": "Verificar el tiempo de operación (para controladores con paro automático)."
+            },
+            {
+              "id": "auto_stop_pressure",
+              "type": "check",
+              "label": "Registrar la presión de paro programada para paro automático.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "stop_pressure_differential",
+              "type": "check",
+              "label": "Verificar que la presión de paro automático sea menor que la presión máxima de operación de la bomba, registrar diferencial.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "motor_acceleration_time",
+              "type": "check",
+              "label": "Verificar el tiempo que toma el motor para acelerar a velocidad plena.",
+              "measurement": {
+                "unit": "s"
+              }
+            },
+            {
+              "type": "group",
+              "id": "running_readings",
+              "label": "Realizar las siguientes inspecciones durante la operación del equipo. Anotar el valor y su estado",
+              "style": "item",
+              "columns": 1,
+              "children": [
+                {
+                  "id": "run_suction_pressure",
+                  "type": "check",
+                  "label": "Presión de succión de bomba principal",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_discharge_pressure",
+                  "type": "check",
+                  "label": "Presión de descarga de bomba principal",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_network_pressure",
+                  "type": "check",
+                  "label": "Presión en la red hidráulica contra incendios",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_bearing_temp_coupling",
+                  "type": "check",
+                  "label": "Temperatura de balero al lado del acoplamiento",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_bearing_temp_opposite",
+                  "type": "check",
+                  "label": "Temperatura de balero al extremo contrario",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_rpm",
+                  "type": "check",
+                  "label": "RPM",
+                  "measurement": {
+                    "unit": "RPM"
+                  }
+                },
+                {
+                  "id": "run_motor_temperature",
+                  "type": "check",
+                  "label": "Temperatura del motor",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "id": "run_voltage",
+              "label": "Volts AC (con carga)",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "run_voltage_a",
+                  "type": "text",
+                  "label": "A",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "run_voltage_b",
+                  "type": "text",
+                  "label": "B",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "run_voltage_c",
+                  "type": "text",
+                  "label": "C",
+                  "inputMode": "decimal",
+                  "unit": "V"
+                },
+                {
+                  "id": "run_voltage_status",
+                  "type": "check",
+                  "label": "Estado"
+                }
+              ]
+            },
+            {
+              "type": "group",
+              "id": "run_current",
+              "label": "Amperes",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "run_current_a",
+                  "type": "text",
+                  "label": "A",
+                  "inputMode": "decimal",
+                  "unit": "A"
+                },
+                {
+                  "id": "run_current_b",
+                  "type": "text",
+                  "label": "B",
+                  "inputMode": "decimal",
+                  "unit": "A"
+                },
+                {
+                  "id": "run_current_c",
+                  "type": "text",
+                  "label": "C",
+                  "inputMode": "decimal",
+                  "unit": "A"
+                },
+                {
+                  "id": "run_current_status",
+                  "type": "check",
+                  "label": "Estado"
+                }
+              ]
+            },
+            {
+              "id": "electric_1",
+              "type": "check",
+              "label": "Verificar que el sistema no presente ruidos o vibraciones inusuales durante su operación."
+            },
+            {
+              "id": "electric_2",
+              "type": "check",
+              "label": "Verificar y ajustar lubricación en estoperos."
+            },
+            {
+              "id": "electric_3",
+              "type": "check",
+              "label": "De no tener habilitado el apagado automático el controlador, al transcurrir los 10 minutos de operación apagar el equipo eléctrico."
+            },
+            {
+              "id": "electric_4",
+              "type": "check",
+              "label": "Adjuntar una copia de la gráfica de presión y/o historial de eventos impreso."
+            },
+            {
+              "id": "electric_5",
+              "type": "check",
+              "label": "Encender el sistema eléctrico en modo manual, dejar operando por 15 segundos y apagar mediante el botón de STOP."
+            },
+            {
+              "id": "final_inspection_weekly",
+              "type": "check",
+              "label": "Realizar inspección general. Restablezca el sistema a su modo de operación automática.",
+              "highlight": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_2",
+      "title": "Sección 2",
+      "children": [
+        {
+          "type": "note",
+          "text": "Las siguientes actividades deben realizarse con el EPP adecuado; existe el riesgo de caída, eléctrico y cortes.",
+          "tone": "warning"
+        },
+        {
+          "type": "group",
+          "id": "monthly_tests",
+          "label": "Pruebas",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "monthly_1",
+              "type": "check",
+              "label": "Ejercitar cerrando y abriendo las válvulas normalmente abiertas del cuarto de bombas. Cerrar un cuarto de vuelta al final."
+            },
+            {
+              "id": "monthly_2",
+              "type": "check",
+              "label": "Operar manualmente la válvula de llenado automático del almacenamiento de agua y confirmar que funciona correctamente."
+            },
+            {
+              "id": "monthly_3",
+              "type": "check",
+              "label": "Probar el interruptor aislador del controlador jockey y verificar que funcione correctamente."
+            },
+            {
+              "id": "monthly_4",
+              "type": "check",
+              "label": "Activar la protección térmica del controlador jockey utilizando el medio de prueba y verificar que funcione correctamente."
+            },
+            {
+              "id": "monthly_5",
+              "type": "check",
+              "label": "Realizar limpieza general del cuarto de bombas."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_3",
+      "title": "Sección 3",
+      "children": [
+        {
+          "type": "group",
+          "id": "electric_pump_manual_start",
+          "label": "Pruebas a motobomba eléctrica",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "emergency_manual_start",
+              "type": "check",
+              "label": "Ejercitar los medios manuales de arranque de emergencia (sin carga)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_4",
+      "title": "Sección 4",
+      "children": [
+        {
+          "type": "group",
+          "id": "annual_inspection",
+          "label": "Inspección",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "annual_inspection_1",
+              "type": "check",
+              "label": "Verificar que no se tenga corrosión en gabinete y componentes en general del controlador eléctrico y jockey."
+            },
+            {
+              "id": "annual_inspection_2",
+              "type": "check",
+              "label": "Verificar que no se tenga daño en los aislantes eléctricos de los cables y conexiones de las motobombas eléctrica y jockey."
+            },
+            {
+              "id": "annual_inspection_3",
+              "type": "check",
+              "label": "Verificar que no se tenga humedad en componentes del controlador eléctrico y jockey."
+            },
+            {
+              "id": "annual_inspection_4",
+              "type": "check",
+              "label": "Verificar que no se tengan daños en canalizaciones y flexibles en cableados de alimentación y conexión a motor de motobombas eléctrica y jockey."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "annual_maintenance",
+          "label": "Mantenimiento",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "annual_maintenance_1",
+              "type": "check",
+              "label": "Calibración de tazones de bomba jockey usando espaciador suministrado por fábrica."
+            },
+            {
+              "id": "annual_maintenance_2",
+              "type": "check",
+              "label": "Ajustar las conexiones eléctricas en controlador eléctrico y conexión eléctrica de motor eléctrico y jockey."
+            },
+            {
+              "id": "annual_maintenance_3",
+              "type": "check",
+              "label": "Calibrar la graduación de los interruptores de presión si éstos se encuentran fuera en un 3% en referencia con equipos de lectura del cuarto de bombas."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "annual_tests",
+          "label": "Pruebas",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "annual_1",
+              "type": "check",
+              "label": "Activar el sistema de prueba de protección del interruptor o breaker del controlador eléctrico (si existe el mecanismo)."
+            },
+            {
+              "id": "annual_2",
+              "type": "check",
+              "label": "Con el controlador apagado, activar el mecanismo de arranque de emergencia del controlador eléctrico y verificar utilizando un multímetro la activación de todos los contactores."
+            },
+            {
+              "id": "annual_3",
+              "type": "check",
+              "label": "Verificar la activación de señales de alarma del controlador eléctrico (bomba operando, controlador apagado y problema general)."
+            },
+            {
+              "id": "annual_4",
+              "type": "check",
+              "label": "Verificar la alineación entre la bomba y el motor eléctrico. Realizar correcciones en caso necesario."
+            },
+            {
+              "id": "annual_5",
+              "type": "check",
+              "label": "Para equipos con acoplamiento flexible, verificar que el plástico espaciador del cople no tenga desgaste y se encuentre en buen estado."
+            },
+            {
+              "id": "annual_6",
+              "type": "check",
+              "label": "Encender el sistema de bombeo eléctrico utilizando los medios manuales de emergencia. Verifique previamente la ausencia de condiciones inseguras."
+            },
+            {
+              "id": "final_inspection_annual",
+              "type": "check",
+              "label": "Realizar inspección general. Restablezca el sistema a su modo de operación automática.",
+              "highlight": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

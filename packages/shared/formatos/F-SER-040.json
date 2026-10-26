@@ -1,0 +1,383 @@
+{
+  "code": "F-SER-040",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "system",
+      "type": "text",
+      "label": "Sistema"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    }
+  ],
+  "commentsLabel": "Conclusiones",
+  "sections": [
+    {
+      "id": "preliminary",
+      "title": "Sección 1: Inspecciones preliminares",
+      "children": [
+        {
+          "type": "note",
+          "text": "Solicitar la información al cliente donde aplique.",
+          "tone": "info"
+        },
+        {
+          "id": "preliminary_1",
+          "type": "check",
+          "label": "Revisar si el recinto cuenta con techo suspendido."
+        },
+        {
+          "id": "preliminary_2",
+          "type": "check",
+          "label": "Verificar que el techo no cuente con espacios descubiertos (plafones retirados, lámparas, rejillas, entre otros)."
+        },
+        {
+          "id": "preliminary_3",
+          "type": "check",
+          "label": "Si el sitio cuenta con dampers en los ductos de los sistemas del sitio, verificar que puedan ser apagados durante la prueba."
+        },
+        {
+          "id": "preliminary_4",
+          "type": "check",
+          "label": "Verificar si las fugas evidentes pueden ser selladas (luminarias, puertas, centros de carga, rejillas, canalizaciones de cableado, entre otros)."
+        },
+        {
+          "id": "preliminary_5",
+          "type": "check",
+          "label": "Revisar si el hardware que será utilizado en el sitio se encuentra instalado."
+        },
+        {
+          "id": "preliminary_6",
+          "type": "check",
+          "label": "Verificar si es posible programar un paro del sistema de HVAC para el momento de las pruebas."
+        },
+        {
+          "id": "preliminary_7",
+          "type": "check",
+          "label": "Comprobar que se cuenta con un área suficiente hacia adentro y hacia afuera de la puerta para suministrar el aire durante la prueba."
+        },
+        {
+          "type": "group",
+          "id": "site_data",
+          "label": "Anotar la información solicitada a continuación",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "site_elevation",
+              "type": "text",
+              "label": "Elevación del sitio con respecto al nivel del mar",
+              "inputMode": "decimal",
+              "unit": "m"
+            },
+            {
+              "id": "site_temperature",
+              "type": "text",
+              "label": "Temperatura de operación del sitio",
+              "inputMode": "decimal",
+              "unit": "°C"
+            },
+            {
+              "id": "min_retention_time",
+              "type": "text",
+              "label": "Tiempo mínimo de retención",
+              "inputMode": "decimal",
+              "unit": "min"
+            },
+            {
+              "id": "agent",
+              "type": "text",
+              "label": "Agente"
+            },
+            {
+              "id": "agent_quantity",
+              "type": "text",
+              "label": "Cantidad de agente (peso o volumen)"
+            },
+            {
+              "id": "floor_area",
+              "type": "text",
+              "label": "Área del piso",
+              "inputMode": "decimal",
+              "unit": "m²"
+            },
+            {
+              "id": "max_protected_height",
+              "type": "text",
+              "label": "Altura máxima protegida",
+              "inputMode": "decimal",
+              "unit": "m"
+            },
+            {
+              "id": "min_protected_height",
+              "type": "text",
+              "label": "Altura mínima protegida",
+              "inputMode": "decimal",
+              "unit": "m"
+            },
+            {
+              "id": "site_volume",
+              "type": "text",
+              "label": "Volumen del sitio",
+              "inputMode": "decimal",
+              "unit": "m³"
+            },
+            {
+              "id": "extended_discharge",
+              "type": "text",
+              "label": "Velocidad de descarga extendida (sólo si aplica)"
+            },
+            {
+              "id": "min_concentration",
+              "type": "text",
+              "label": "Concentración mínima de agente requerida",
+              "inputMode": "decimal",
+              "unit": "%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "full_room",
+      "title": "Sección 2: Prueba I - Fugas de cuarto completo",
+      "children": [
+        {
+          "type": "note",
+          "text": "Realizar las actividades descritas a continuación. Si algún punto resultó incorrecto, anotar comentarios en el reporte de observaciones. Si el resultado de las siguientes pruebas no es aceptable, proceder a realizar la prueba de fugas bajo techo.",
+          "tone": "info"
+        },
+        {
+          "id": "full_room_1",
+          "type": "check",
+          "label": "Preparar el sitio para las condiciones en las que se llevará a cabo la prueba."
+        },
+        {
+          "id": "full_room_2",
+          "type": "check",
+          "label": "Montar el equipo de prueba, asegurándose que el sellado sea similar al de la puerta."
+        },
+        {
+          "id": "full_room_3",
+          "type": "check",
+          "label": "Si el agente está diseñado para descargarse debajo de piso falso, remover el 1% de las baldosas que lo conforman."
+        },
+        {
+          "id": "full_room_4",
+          "type": "check",
+          "label": "Presurizar +15 Pa el sitio y verificar fugas utilizando humo de prueba (humo de flotabilidad neutra)."
+        },
+        {
+          "id": "full_room_smoke",
+          "type": "choice",
+          "label": "Indicar la dirección en que se mueve el humo al liberarlo a través del Door-Fan con el equipo de prueba apagado",
+          "options": [
+            {
+              "value": "inside",
+              "label": "Dentro"
+            },
+            {
+              "value": "outside",
+              "label": "Fuera"
+            },
+            {
+              "value": "neutral",
+              "label": "Neutro"
+            }
+          ]
+        },
+        {
+          "id": "full_room_static_pressure",
+          "type": "check",
+          "label": "Anotar la presión estática máxima registrada alrededor del sitio",
+          "measurement": {
+            "unit": "Pa"
+          }
+        },
+        {
+          "id": "full_room_temperature",
+          "type": "check",
+          "label": "Anotar la temperatura del sitio durante la prueba",
+          "measurement": {
+            "unit": "°C"
+          }
+        },
+        {
+          "type": "group",
+          "id": "full_room_results",
+          "label": "Realizar prueba de integridad a recintos Door-Fan Test y anotar los siguientes resultados obtenidos",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "full_room_retention_time",
+              "type": "text",
+              "label": "Tiempo de retención",
+              "inputMode": "decimal",
+              "unit": "min"
+            },
+            {
+              "id": "full_room_leak_area",
+              "type": "text",
+              "label": "Área de fuga",
+              "inputMode": "decimal"
+            },
+            {
+              "id": "full_room_pressure_limit",
+              "type": "text",
+              "label": "Límite de presión del recinto",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            },
+            {
+              "id": "full_room_peak_positive",
+              "type": "text",
+              "label": "Pico de presión positivo",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            },
+            {
+              "id": "full_room_peak_negative",
+              "type": "text",
+              "label": "Pico de presión negativo",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            }
+          ]
+        },
+        {
+          "id": "full_room_result",
+          "type": "choice",
+          "label": "Resultado de la prueba",
+          "options": [
+            {
+              "value": "acceptable",
+              "label": "Aceptable"
+            },
+            {
+              "value": "not_acceptable",
+              "label": "No aceptable"
+            },
+            {
+              "value": "not_applicable",
+              "label": "No aplica"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "below_ceiling",
+      "title": "Sección 3: Prueba II - Fugas inferiores (o fugas bajo techo)",
+      "children": [
+        {
+          "id": "below_ceiling_seal",
+          "type": "check",
+          "label": "Sellar las fugas en el techo utilizando materiales adecuados."
+        },
+        {
+          "id": "below_ceiling_smoke",
+          "type": "choice",
+          "label": "Indicar la dirección en que se mueve el humo al liberarlo a través del Door-Fan con el equipo de prueba apagado",
+          "options": [
+            {
+              "value": "inside",
+              "label": "Dentro"
+            },
+            {
+              "value": "outside",
+              "label": "Fuera"
+            },
+            {
+              "value": "neutral",
+              "label": "Neutro"
+            }
+          ]
+        },
+        {
+          "id": "below_ceiling_static_pressure",
+          "type": "check",
+          "label": "Anotar la presión estática máxima registrada alrededor del sitio",
+          "measurement": {
+            "unit": "Pa"
+          }
+        },
+        {
+          "type": "group",
+          "id": "below_ceiling_results",
+          "label": "Realizar prueba de integridad a recintos Door-Fan Test y anotar los siguientes resultados obtenidos",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "below_ceiling_retention_time",
+              "type": "text",
+              "label": "Tiempo de retención",
+              "inputMode": "decimal",
+              "unit": "min"
+            },
+            {
+              "id": "below_ceiling_leak_area",
+              "type": "text",
+              "label": "Área de fuga",
+              "inputMode": "decimal"
+            },
+            {
+              "id": "below_ceiling_pressure_limit",
+              "type": "text",
+              "label": "Límite de presión del recinto",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            },
+            {
+              "id": "below_ceiling_peak_positive",
+              "type": "text",
+              "label": "Pico de presión positivo",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            },
+            {
+              "id": "below_ceiling_peak_negative",
+              "type": "text",
+              "label": "Pico de presión negativo",
+              "inputMode": "decimal",
+              "unit": "Pa"
+            }
+          ]
+        },
+        {
+          "id": "below_ceiling_result",
+          "type": "choice",
+          "label": "Resultado de la prueba",
+          "options": [
+            {
+              "value": "acceptable",
+              "label": "Aceptable"
+            },
+            {
+              "value": "not_acceptable",
+              "label": "No aceptable"
+            },
+            {
+              "value": "not_applicable",
+              "label": "No aplica"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

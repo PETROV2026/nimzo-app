@@ -1,0 +1,276 @@
+{
+  "code": "F-SER-059",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "system",
+      "type": "text",
+      "label": "Sistema"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "serviceType": {
+    "label": "Tipo de servicio",
+    "help": "Marque el tipo de servicio y su cobertura. Si el servicio tiene periodicidad ajustada, indique la cobertura aplicable.",
+    "allowCustom": true,
+    "options": [
+      {
+        "value": "monthly",
+        "label": "Mensual, Sección 1",
+        "sections": ["section_1"]
+      },
+      {
+        "value": "semiannual",
+        "label": "Semestral, Sección 2, 2A y 2B",
+        "sections": ["section_2", "section_2a", "section_2b"]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section_1",
+      "title": "Sección 1",
+      "children": [
+        {
+          "type": "group",
+          "id": "monthly_inspections",
+          "label": "Inspecciones",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "monthly_1",
+              "type": "check",
+              "label": "El sistema de extinción se encuentra en buen estado, libre de daño físico, obstrucciones y operativo."
+            },
+            {
+              "id": "monthly_2",
+              "type": "check",
+              "label": "El sistema cuenta con su etiqueta de mantenimiento visible y en lugar accesible."
+            },
+            {
+              "id": "monthly_3",
+              "type": "check",
+              "label": "Cada boquilla cuenta con su tapón bien ajustado y sin daño físico."
+            },
+            {
+              "id": "monthly_4",
+              "type": "check",
+              "label": "No hay grasa acumulada en los tapones y fusibles."
+            },
+            {
+              "id": "monthly_5",
+              "type": "check",
+              "label": "Verificar que no se utilicen líquidos de limpieza corrosivos en boquillas y eslabones."
+            },
+            {
+              "id": "monthly_6",
+              "type": "check",
+              "label": "Las boquillas están orientadas a las superficies de cocina a proteger."
+            },
+            {
+              "id": "monthly_7",
+              "type": "check",
+              "label": "Los disparadores manuales se encuentran accesibles, sin daño físico y sin grasa acumulada."
+            },
+            {
+              "id": "monthly_8",
+              "type": "check",
+              "label": "Los indicadores antimanipulación y sellos se encuentran intactos, sin daño físico y sin grasa acumulada."
+            },
+            {
+              "id": "monthly_9",
+              "type": "check",
+              "label": "Verificar que no se ha realizado alguna modificación del área a proteger o añadido más equipo de cocina."
+            },
+            {
+              "id": "monthly_10",
+              "type": "check",
+              "label": "Los manómetros se encuentran sin daño físico o grasa acumulada. Verificar si muestran las presiones adecuadas de operación."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_2",
+      "title": "Sección 2",
+      "children": [
+        {
+          "type": "note",
+          "text": "Las siguientes actividades deben realizarse con el EPP adecuado; existe el riesgo de caída, eléctrico y cortes.",
+          "tone": "warning"
+        },
+        {
+          "type": "group",
+          "id": "semiannual_inspections",
+          "label": "Inspecciones",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "semiannual_1",
+              "type": "check",
+              "label": "Notifique al cliente acerca del alcance del servicio a realizar y sobre el riesgo de activación de señales de alarma de incendio.",
+              "highlight": true
+            },
+            {
+              "id": "semiannual_2",
+              "type": "check",
+              "label": "Deshabilitar el sistema de descarga del agente extintor (según aplique)."
+            },
+            {
+              "id": "semiannual_3",
+              "type": "check",
+              "label": "El gabinete, mangueras, conexiones y accesorios se encuentran libres de daño físico."
+            },
+            {
+              "id": "semiannual_4",
+              "type": "check",
+              "label": "Los tanques están libres de daño físico y cuentan con su etiqueta de datos y características del agente extintor."
+            },
+            {
+              "id": "agent_level",
+              "type": "check",
+              "label": "Verificar que el agente extintor se encuentre dentro del nivel y/o presión adecuada (según aplique).",
+              "measurement": {}
+            },
+            {
+              "id": "cylinder_weight",
+              "type": "check",
+              "label": "Verificar el peso del cilindro que contiene el agente extintor.",
+              "measurement": {
+                "unit": "kg"
+              }
+            },
+            {
+              "id": "semiannual_7",
+              "type": "check",
+              "label": "Verificar que los fusibles, boquillas, activador manual y accesorios estén libres de daño físico."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_2a",
+      "title": "Sección 2A",
+      "children": [
+        {
+          "type": "group",
+          "id": "tests",
+          "label": "Pruebas",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "tests_1",
+              "type": "check",
+              "label": "Los dispositivos de monitoreo del sistema de extinción funcionan correctamente."
+            },
+            {
+              "id": "tests_2",
+              "type": "check",
+              "label": "Activar un fusible y verificar que el sistema opera correctamente."
+            },
+            {
+              "id": "tests_3",
+              "type": "check",
+              "label": "Activar el disparador manual y verificar que el sistema opera correctamente."
+            },
+            {
+              "id": "tests_4",
+              "type": "check",
+              "label": "Verificar que tanto en modo automático como manual, el corte de gas y/o electricidad operen correctamente."
+            },
+            {
+              "id": "tests_5",
+              "type": "check",
+              "label": "Verificar si el sistema de notificación de alarmas operó correctamente al activar el sistema de extinción de cocina."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_2b",
+      "title": "Sección 2B",
+      "children": [
+        {
+          "type": "note",
+          "text": "Se debe hacer un dibujo o nota donde indique el modelo de boquilla de cada punto durante la remoción de las boquillas para asegurar que queden instaladas en el mismo orden.",
+          "tone": "info"
+        },
+        {
+          "type": "group",
+          "id": "maintenance",
+          "label": "Mantenimiento",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "maintenance_1",
+              "type": "check",
+              "label": "Interrumpir la alimentación eléctrica del sistema de extracción y equipo de cocina."
+            },
+            {
+              "id": "maintenance_2",
+              "type": "check",
+              "label": "Limpiar porta-fusibles, soportes de portafusibles, cable acerado donde sea visible, boquillas y sistema en general con desengrasante."
+            },
+            {
+              "id": "maintenance_3",
+              "type": "check",
+              "label": "Reemplazar todos los fusibles."
+            },
+            {
+              "id": "maintenance_4",
+              "type": "check",
+              "label": "Reemplazar los indicadores antimanipulación de los disparadores manuales."
+            },
+            {
+              "id": "maintenance_5",
+              "type": "check",
+              "label": "Reemplazar todos los tapones de las boquillas y ajustar adecuadamente."
+            },
+            {
+              "id": "maintenance_6",
+              "type": "check",
+              "label": "Restablecer el sistema y realizar prueba de funcionamiento cortando un fusible de prueba."
+            },
+            {
+              "id": "maintenance_7",
+              "type": "check",
+              "label": "Restablecer y habilitar el sistema de descarga del agente extintor (según aplique)."
+            },
+            {
+              "id": "maintenance_8",
+              "type": "check",
+              "label": "Restablecer el sistema de alarmas y verificar que quede operativo."
+            },
+            {
+              "id": "maintenance_9",
+              "type": "check",
+              "label": "Restablecer la alimentación eléctrica del sistema de extracción y equipo de cocina."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -146,9 +146,11 @@ apps/admin/
 packages/shared/
 ├── src/
 │   ├── index.ts              Public exports
+│   ├── form-definition.ts    Zod schema of a service form definition
 │   ├── report.ts             Report statuses + labels
 │   └── roles.ts              User roles + labels
-└── formatos/                 Service form definitions (F-SER-XXX), coming next
+├── formatos/                 One JSON definition per service form (F-SER-XXX.json)
+└── test/                     Checks every definition against the schema (`pnpm test:forms`)
 ```
 
 Import it from either app with `import { reportStatusSchema } from '@nimzo/shared'`. There is no build step: each app compiles it directly.
@@ -159,7 +161,14 @@ Values stored in the database are English codes (`draft`, `sent`, `technician`);
 
 **Formatos** (`/forms`) is the catalog of service forms (`public.service_forms`): code `F-SER-XXX` (unique and fixed once created, because reports use it), name, optional subtitle (frequency or test type), icon and active flag. Forms are deactivated, never deleted. The panel shows how the card will look in the mobile app.
 
-Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form (checklists, SI/NO…) are defined later, in `packages/shared/formatos/`.
+Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form live in `packages/shared/formatos/F-SER-XXX.json`, validated by `formDefinitionSchema` (`packages/shared/src/form-definition.ts`):
+
+- `report`: the form's own "Datos del reporte" fields in the General tab. The client block (company, address, branch, contact) and the Firmas tab (supervisor and technician signatures) are the same for every form, so they are not part of the definition.
+- `sections`: the Llenado tab. Each section holds fields, `group`s (`style: "band"` for a titled sub-block, `columns: 2` for side-by-side data), `note`s, `table`s with fixed rows and `list`s the technician can add rows to.
+- `serviceType`: when the type of service (monthly, annual…) decides which sections apply. `allowCustom` lets the technician pick sections by hand ("Otros"). With `items`, a form-level `serviceType` applies to every item (F-SER-039); put it inside `items` when each item picks its own.
+- `items`: when the same sections repeat per piece of equipment (valve, hydrant, hose…); `keyLabel` is what the technician types to add one.
+- Field types: `check` (N/A · X · OK, optionally with a measured value), `yes_no`, `text` (with `multiline`, `inputMode` and `unit`), `date`, `time`, `select`, `choice`, `checkbox`, `photos` and `calc` (a formula over other fields, such as net pressure). `visibleWhen` shows a field only for a given answer, and `highlight` marks it in red.
+- Ids are English snake_case and must stay stable once reports exist; labels are Spanish. Numbering is automatic.
 
 #### Paquetes de servicio
 
@@ -195,6 +204,9 @@ supabase/
 │   ├── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
 │   └── 20261022183129_service_packages.sql               service packages per branch and frequency
 ├── functions/
+│   ├── admin-login/
+│   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only
+│   │   └── index.ts           Deno entry: Cloudflare siteverify and supabase-js
 │   └── admin-users/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)
 │       └── index.ts           Deno entry: wires the handler to supabase-js with the service role
