@@ -38,7 +38,7 @@ export type Database = {
           name: string;
           search_text?: string | null;
           state?: string | null;
-          technician_id?: string;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
@@ -326,7 +326,7 @@ export type Database = {
           package_id: string;
           service_form_id: number;
           system_id?: string | null;
-          technician_id?: string;
+          technician_id: string;
         };
         Update: {
           created_at?: string;
@@ -383,7 +383,7 @@ export type Database = {
           frequency: Database['public']['Enums']['service_frequency'];
           id?: string;
           is_active?: boolean;
-          technician_id?: string;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
@@ -436,7 +436,7 @@ export type Database = {
           notes?: string | null;
           search_text?: string | null;
           system_type: Database['public']['Enums']['system_type'];
-          technician_id?: string;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
