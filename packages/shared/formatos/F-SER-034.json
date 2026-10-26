@@ -1,0 +1,654 @@
+{
+  "code": "F-SER-034",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "arrival_time",
+      "type": "time",
+      "label": "Hora de entrada"
+    },
+    {
+      "id": "month",
+      "type": "select",
+      "label": "Mes correspondiente",
+      "options": [
+        {
+          "value": "january",
+          "label": "Enero"
+        },
+        {
+          "value": "february",
+          "label": "Febrero"
+        },
+        {
+          "value": "march",
+          "label": "Marzo"
+        },
+        {
+          "value": "april",
+          "label": "Abril"
+        },
+        {
+          "value": "may",
+          "label": "Mayo"
+        },
+        {
+          "value": "june",
+          "label": "Junio"
+        },
+        {
+          "value": "july",
+          "label": "Julio"
+        },
+        {
+          "value": "august",
+          "label": "Agosto"
+        },
+        {
+          "value": "september",
+          "label": "Septiembre"
+        },
+        {
+          "value": "october",
+          "label": "Octubre"
+        },
+        {
+          "value": "november",
+          "label": "Noviembre"
+        },
+        {
+          "value": "december",
+          "label": "Diciembre"
+        }
+      ]
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "system",
+      "type": "text",
+      "label": "Sistema"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "sections": [
+    {
+      "id": "equipment",
+      "title": "Datos del equipo",
+      "children": [
+        {
+          "type": "group",
+          "id": "pump",
+          "label": "Bomba",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "pump_orientation",
+              "type": "choice",
+              "label": "Orientación",
+              "options": [
+                {
+                  "value": "horizontal",
+                  "label": "Horizontal"
+                },
+                {
+                  "value": "vertical",
+                  "label": "Vertical"
+                }
+              ]
+            },
+            {
+              "id": "pump_brand",
+              "type": "text",
+              "label": "Marca"
+            },
+            {
+              "id": "pump_model",
+              "type": "text",
+              "label": "Modelo"
+            },
+            {
+              "id": "pump_approval",
+              "type": "choice",
+              "label": "Aprobación",
+              "options": [
+                {
+                  "value": "approved",
+                  "label": "Aprobado"
+                },
+                {
+                  "value": "not_approved",
+                  "label": "No aprobado"
+                }
+              ]
+            },
+            {
+              "id": "pump_serial",
+              "type": "text",
+              "label": "Número de serie"
+            },
+            {
+              "id": "impeller_diameter",
+              "type": "text",
+              "label": "Diámetro de impulsor",
+              "inputMode": "decimal",
+              "unit": "in"
+            },
+            {
+              "id": "rated_flow",
+              "type": "text",
+              "label": "Datos nominales: flujo",
+              "inputMode": "decimal",
+              "unit": "GPM"
+            },
+            {
+              "id": "rated_pressure",
+              "type": "text",
+              "label": "Datos nominales: presión",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "rated_speed",
+              "type": "text",
+              "label": "Datos nominales: velocidad",
+              "inputMode": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "id": "max_pressure",
+              "type": "text",
+              "label": "Máxima presión desarrollada",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "pressure_150",
+              "type": "text",
+              "label": "Presión al 150 % de capacidad",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "gear_head",
+              "type": "yes_no",
+              "label": "Cabezal de engranes"
+            },
+            {
+              "id": "gear_head_brand",
+              "type": "text",
+              "label": "Marca del cabezal",
+              "visibleWhen": {
+                "field": "gear_head",
+                "equals": true
+              }
+            },
+            {
+              "id": "gear_head_model",
+              "type": "text",
+              "label": "Modelo del cabezal",
+              "visibleWhen": {
+                "field": "gear_head",
+                "equals": true
+              }
+            },
+            {
+              "id": "gear_head_serial",
+              "type": "text",
+              "label": "Número de serie del cabezal",
+              "visibleWhen": {
+                "field": "gear_head",
+                "equals": true
+              }
+            },
+            {
+              "id": "gear_head_ratio",
+              "type": "text",
+              "label": "Relación",
+              "visibleWhen": {
+                "field": "gear_head",
+                "equals": true
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "motor",
+          "label": "Motor",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "motor_type",
+              "type": "choice",
+              "label": "Tipo",
+              "options": [
+                {
+                  "value": "diesel",
+                  "label": "Diésel"
+                },
+                {
+                  "value": "electric",
+                  "label": "Eléctrico"
+                }
+              ]
+            },
+            {
+              "id": "motor_brand",
+              "type": "text",
+              "label": "Marca"
+            },
+            {
+              "id": "motor_model",
+              "type": "text",
+              "label": "Modelo"
+            },
+            {
+              "id": "motor_approval",
+              "type": "choice",
+              "label": "Aprobación",
+              "options": [
+                {
+                  "value": "approved",
+                  "label": "Aprobado"
+                },
+                {
+                  "value": "not_approved",
+                  "label": "No aprobado"
+                }
+              ]
+            },
+            {
+              "id": "motor_serial",
+              "type": "text",
+              "label": "Número de serie"
+            },
+            {
+              "id": "motor_rpm",
+              "type": "text",
+              "label": "RPM",
+              "inputMode": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "id": "motor_hp",
+              "type": "text",
+              "label": "HP",
+              "inputMode": "decimal",
+              "unit": "HP"
+            },
+            {
+              "id": "motor_volts",
+              "type": "text",
+              "label": "Motores eléctricos: volts",
+              "inputMode": "decimal",
+              "visibleWhen": {
+                "field": "motor_type",
+                "equals": "electric"
+              },
+              "unit": "V"
+            },
+            {
+              "id": "motor_fla",
+              "type": "text",
+              "label": "Motores eléctricos: F.L.A.",
+              "inputMode": "decimal",
+              "visibleWhen": {
+                "field": "motor_type",
+                "equals": "electric"
+              },
+              "unit": "A"
+            },
+            {
+              "id": "motor_service_factor",
+              "type": "text",
+              "label": "Motores eléctricos: factor de servicio",
+              "inputMode": "decimal",
+              "visibleWhen": {
+                "field": "motor_type",
+                "equals": "electric"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "controller",
+          "label": "Controlador",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "controller_brand",
+              "type": "text",
+              "label": "Marca"
+            },
+            {
+              "id": "controller_model",
+              "type": "text",
+              "label": "Modelo"
+            },
+            {
+              "id": "controller_voltage",
+              "type": "text",
+              "label": "Voltaje",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "controller_approval",
+              "type": "choice",
+              "label": "Aprobación",
+              "options": [
+                {
+                  "value": "approved",
+                  "label": "Aprobado"
+                },
+                {
+                  "value": "not_approved",
+                  "label": "No aprobado"
+                }
+              ]
+            },
+            {
+              "id": "controller_serial",
+              "type": "text",
+              "label": "Número de serie"
+            },
+            {
+              "id": "controller_mode",
+              "type": "choice",
+              "label": "Modo de operación",
+              "options": [
+                {
+                  "value": "manual",
+                  "label": "Manual"
+                },
+                {
+                  "value": "automatic",
+                  "label": "Automático"
+                }
+              ]
+            },
+            {
+              "id": "start_pressure",
+              "type": "text",
+              "label": "Presión de arranque",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "stop_pressure",
+              "type": "text",
+              "label": "Presión de paro",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "water_storage",
+          "label": "Almacenamiento de agua",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "storage_type",
+              "type": "choice",
+              "label": "Tipo",
+              "options": [
+                {
+                  "value": "tank",
+                  "label": "Tanque"
+                },
+                {
+                  "value": "cistern",
+                  "label": "Cisterna"
+                }
+              ]
+            },
+            {
+              "id": "water_column_ft",
+              "type": "text",
+              "label": "Columna de agua",
+              "inputMode": "decimal",
+              "unit": "ft"
+            },
+            {
+              "id": "water_column_psi",
+              "type": "calc",
+              "label": "Columna de agua en PSI",
+              "expression": "water_column_ft / 2.31",
+              "unit": "PSI"
+            },
+            {
+              "id": "storage_capacity",
+              "type": "text",
+              "label": "Capacidad"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "performance",
+      "title": "Desempeño - resultado de prueba de campo",
+      "children": [
+        {
+          "type": "note",
+          "text": "Realizar inspecciones preliminares del sistema y verificar que las condiciones sean adecuadas para su operación antes de realizar las pruebas. Anote los valores solicitados según corresponda.",
+          "tone": "info"
+        },
+        {
+          "type": "table",
+          "id": "performance_runs",
+          "columns": [
+            {
+              "id": "flow_gpm",
+              "type": "text",
+              "label": "Flujo",
+              "inputMode": "decimal",
+              "unit": "GPM"
+            },
+            {
+              "id": "flow_percent",
+              "type": "calc",
+              "label": "% de flujo",
+              "expression": "flow_gpm / rated_flow * 100",
+              "unit": "%"
+            },
+            {
+              "id": "speed",
+              "type": "text",
+              "label": "Velocidad",
+              "inputMode": "numeric",
+              "unit": "RPM"
+            },
+            {
+              "id": "discharge_pressure",
+              "type": "text",
+              "label": "Presión de descarga",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "suction_pressure",
+              "type": "text",
+              "label": "Presión de succión",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "net_pressure",
+              "type": "calc",
+              "label": "Presión neta",
+              "expression": "discharge_pressure - suction_pressure",
+              "unit": "PSI"
+            },
+            {
+              "id": "stream_count",
+              "type": "text",
+              "label": "Corriente (flujo): cantidad",
+              "inputMode": "numeric"
+            },
+            {
+              "id": "stream_sizes",
+              "type": "text",
+              "label": "Corriente (flujo): tamaño(s)"
+            },
+            {
+              "id": "stream_pressure_1",
+              "type": "text",
+              "label": "Corriente (flujo): presión 1",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "stream_pressure_2",
+              "type": "text",
+              "label": "Corriente (flujo): presión 2",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "stream_pressure_3",
+              "type": "text",
+              "label": "Corriente (flujo): presión 3",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "stream_pressure_4",
+              "type": "text",
+              "label": "Corriente (flujo): presión 4",
+              "inputMode": "decimal",
+              "unit": "PSI"
+            },
+            {
+              "id": "voltage_ab",
+              "type": "text",
+              "label": "Voltaje A-B",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "voltage_ac",
+              "type": "text",
+              "label": "Voltaje A-C",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "voltage_bc",
+              "type": "text",
+              "label": "Voltaje B-C",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "current_a",
+              "type": "text",
+              "label": "Amperaje A",
+              "inputMode": "decimal",
+              "unit": "A"
+            },
+            {
+              "id": "current_b",
+              "type": "text",
+              "label": "Amperaje B",
+              "inputMode": "decimal",
+              "unit": "A"
+            },
+            {
+              "id": "current_c",
+              "type": "text",
+              "label": "Amperaje C",
+              "inputMode": "decimal",
+              "unit": "A"
+            }
+          ],
+          "rows": [
+            {
+              "id": "run_1",
+              "label": "Desempeño 1"
+            },
+            {
+              "id": "run_2",
+              "label": "Desempeño 2"
+            },
+            {
+              "id": "run_3",
+              "label": "Desempeño 3"
+            },
+            {
+              "id": "run_4",
+              "label": "Desempeño 4"
+            },
+            {
+              "id": "run_5",
+              "label": "Desempeño 5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "conclusions",
+      "title": "Conclusiones",
+      "children": [
+        {
+          "type": "chart",
+          "id": "performance_chart",
+          "label": "Gráfica de desempeño de sistema de bombeo",
+          "chart": "pump_performance"
+        },
+        {
+          "id": "chart_result",
+          "type": "choice",
+          "label": "Al realizar el análisis de la gráfica, comparando los resultados obtenidos ajustados a velocidad nominal de la bomba contra los datos de fábrica del equipo, se determina que el desempeño de la motobomba contra incendios es",
+          "options": [
+            {
+              "value": "acceptable",
+              "label": "Aceptable"
+            },
+            {
+              "value": "not_acceptable",
+              "label": "No aceptable"
+            }
+          ]
+        },
+        {
+          "id": "nfpa_result",
+          "type": "choice",
+          "label": "NFPA-25 (2017) 8.3.7.3: el ensamble de bomba contra incendio deberá considerarse aceptable si cualquiera de las siguientes condiciones se presenta durante las pruebas: (1) la prueba resulta en no menos del 95 por ciento de la presión a flujo nominal y presión nominal de la curva de la prueba de aceptación de campo, siempre y cuando la curva de la prueba de aceptación coincida con la curva original certificada de la bomba utilizando factores teóricos; (2) la bomba contra incendio es no menos del 95 por ciento de las características de desempeño indicadas en la placa de la bomba. En base a lo anterior, se determina que el resultado es",
+          "options": [
+            {
+              "value": "acceptable",
+              "label": "Aceptable"
+            },
+            {
+              "value": "not_acceptable",
+              "label": "No aceptable"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

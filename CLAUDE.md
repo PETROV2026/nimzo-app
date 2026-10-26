@@ -14,9 +14,10 @@ pnpm env:setup                      # create .env files from the linked Supabase
 pnpm dev                            # all apps via Turborepo
 pnpm mobile | pnpm mobile:android | pnpm mobile:ios   # Expo dev server / Android emulator / iPad simulator (UI preview only)
 pnpm admin                          # admin panel (localhost:5173)
-pnpm check                          # everything CI runs: format:check, lint, typecheck, build, test:db
+pnpm check                          # everything CI runs: format:check, lint, typecheck, build, test:db, test:forms
 pnpm lint | pnpm typecheck | pnpm build | pnpm format
 pnpm test:db                        # apply all migrations to in-memory Postgres (PGlite) and run RLS tests
+pnpm test:forms                     # validate every form definition in packages/shared/formatos/
 pnpm db:new <name>                  # create a migration file in supabase/migrations/
 pnpm db:status                      # local vs applied migrations in the cloud project
 pnpm db:dry                         # preview pending migrations against the cloud database (no changes)
@@ -57,7 +58,7 @@ Two apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one sha
 
 Key design principles that cut across packages:
 
-1. **Forms are data.** Each service form (code `F-SER-XXX`) is a JSON definition validated with Zod, stored in `packages/shared/formatos/` and registered there. A single form engine renders it in the mobile app; the future PDF generator will use the same definition. Adding or changing a form must not require new screens. Supported field types: `N/A / X / OK` checklists, `SI / NO` questions, text, date/time, dropdowns and repeatable groups.
+1. **Forms are data.** Each service form (code `F-SER-XXX`) is a JSON definition validated with Zod, stored in `packages/shared/formatos/` and registered there. A single form engine renders it in the mobile app; the future PDF generator will use the same definition. Adding or changing a form must not require new screens. The schema is `packages/shared/src/form-definition.ts` (see `docs/project-structure.md`): `N/A / X / OK` checks (optionally with a measured value), `SI / NO`, text, date/time, dropdowns, choices, checkboxes, photos, calculated values, tables, repeatable lists, per-equipment items and service types that enable sections. The client block and the two signatures (supervisor and technician) are fixed for every form. `pnpm test:forms` validates every definition.
 2. **Offline first.** The mobile app works against local SQLite. Sync is just two flows: download catalogs (forms, clients, branches, packages) and upload submitted reports with photos and signatures. Don't add other sync paths.
 3. **Service packages** (per branch and frequency: weekly, monthly, quarterly, semiannual, annual) generate all the forms for a visit in one step. Each form in a package can be tied to a system of the branch (one form per system).
 

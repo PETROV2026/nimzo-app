@@ -45,3 +45,6 @@ jobs:
 
       - name: Database tests (migrations + RLS)
         run: pnpm test:db
+
+      - name: Form definition tests
+        run: pnpm test:forms

@@ -1,0 +1,194 @@
+{
+  "code": "F-SER-008",
+  "version": 1,
+  "report": [
+    {
+      "id": "request_date",
+      "type": "date",
+      "label": "Fecha de llenado de solicitud"
+    },
+    {
+      "id": "requested_execution_date",
+      "type": "date",
+      "label": "Fecha solicitada de ejecución de servicio"
+    },
+    {
+      "id": "service_areas",
+      "type": "text",
+      "label": "Áreas de ejecución del servicio"
+    },
+    {
+      "id": "contact_name",
+      "type": "text",
+      "label": "Nombre del contacto"
+    },
+    {
+      "id": "contact_phone",
+      "type": "text",
+      "label": "Teléfono",
+      "inputMode": "numeric"
+    },
+    {
+      "id": "contact_id",
+      "type": "text",
+      "label": "ID"
+    },
+    {
+      "id": "contact_email",
+      "type": "text",
+      "label": "Correo"
+    },
+    {
+      "id": "requester_name",
+      "type": "text",
+      "label": "Nombre del solicitante"
+    },
+    {
+      "id": "project",
+      "type": "text",
+      "label": "Proyecto"
+    },
+    {
+      "id": "sale_order",
+      "type": "text",
+      "label": "No. Venta/OC"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "sections": [
+    {
+      "id": "requested_scope",
+      "title": "Descripción / alcance del servicio solicitado",
+      "children": [
+        {
+          "id": "requested_description",
+          "type": "text",
+          "label": "Descripción",
+          "multiline": true
+        }
+      ]
+    },
+    {
+      "id": "permits",
+      "title": "Permisos requeridos",
+      "children": [
+        {
+          "id": "permit_access",
+          "type": "checkbox",
+          "label": "Acceso / Cursos"
+        },
+        {
+          "id": "permit_electrical",
+          "type": "checkbox",
+          "label": "Trabajos eléctricos"
+        },
+        {
+          "id": "permit_heights",
+          "type": "checkbox",
+          "label": "Trabajos en alturas"
+        },
+        {
+          "id": "permit_hot_work",
+          "type": "checkbox",
+          "label": "Trabajos de corte y soldadura"
+        },
+        {
+          "id": "permit_confined",
+          "type": "checkbox",
+          "label": "Espacios confinados"
+        },
+        {
+          "id": "permit_pipe_interruption",
+          "type": "checkbox",
+          "label": "Interrupción de tuberías"
+        },
+        {
+          "id": "permit_other",
+          "type": "checkbox",
+          "label": "Otros"
+        },
+        {
+          "id": "permit_other_detail",
+          "type": "text",
+          "label": "Especificar otros",
+          "visibleWhen": {
+            "field": "permit_other",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "ppe",
+      "title": "Equipo de protección personal requerido",
+      "children": [
+        {
+          "id": "ppe_boots",
+          "type": "checkbox",
+          "label": "Calzado de seguridad"
+        },
+        {
+          "id": "ppe_glasses",
+          "type": "checkbox",
+          "label": "Lentes de seguridad"
+        },
+        {
+          "id": "ppe_helmet",
+          "type": "checkbox",
+          "label": "Casco de seguridad"
+        },
+        {
+          "id": "ppe_earplugs",
+          "type": "checkbox",
+          "label": "Tapones auditivos"
+        },
+        {
+          "id": "ppe_gloves",
+          "type": "checkbox",
+          "label": "Guantes"
+        },
+        {
+          "id": "ppe_harness",
+          "type": "checkbox",
+          "label": "Arnés"
+        },
+        {
+          "id": "ppe_other",
+          "type": "checkbox",
+          "label": "Otros"
+        },
+        {
+          "id": "ppe_other_detail",
+          "type": "text",
+          "label": "Especificar otros",
+          "visibleWhen": {
+            "field": "ppe_other",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "performed_service",
+      "title": "Reporte del servicio realizado",
+      "children": [
+        {
+          "id": "performed_description",
+          "type": "text",
+          "label": "Descripción",
+          "multiline": true
+        }
+      ]
+    }
+  ]
+}
