@@ -25,3 +25,10 @@ export const clientFormSchema = z.object({
 
 export type ClientFormInput = z.input<typeof clientFormSchema>;
 export type ClientFormValues = z.output<typeof clientFormSchema>;
+
+export const clientCreateSchema = clientFormSchema.extend({
+  technician_id: z.uuid({ error: 'Elige el técnico' }),
+});
+
+export type ClientCreateInput = z.input<typeof clientCreateSchema>;
+export type ClientCreateValues = z.output<typeof clientCreateSchema>;

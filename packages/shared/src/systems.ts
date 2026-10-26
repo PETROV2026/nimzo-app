@@ -34,7 +34,7 @@ export type SystemFormInput = z.input<typeof systemFormSchema>;
 export type SystemFormValues = z.output<typeof systemFormSchema>;
 
 export const systemCreateSchema = systemFormSchema.extend({
-  branch_id: z.number({ error: 'Elige la sucursal' }),
+  branch_id: z.uuid({ error: 'Elige la sucursal' }),
 });
 
 export type SystemCreateInput = z.input<typeof systemCreateSchema>;
