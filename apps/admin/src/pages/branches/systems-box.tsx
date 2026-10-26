@@ -20,7 +20,7 @@ import { StatusChip } from '@/components/status-chip';
 
 import { SystemDialog } from '@/pages/systems/system-dialog';
 
-type DialogState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; systemId: number };
+type DialogState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; systemId: string };
 
 function SystemRowItem({ system, onEdit }: { system: System; onEdit: () => void }) {
   const { mutate: update, mutation } = useUpdate<System>();
@@ -63,7 +63,7 @@ function SystemRowItem({ system, onEdit }: { system: System; onEdit: () => void 
   );
 }
 
-export function SystemsBox({ branchId }: { branchId: number }) {
+export function SystemsBox({ branchId }: { branchId: string }) {
   const [dialog, setDialog] = useState<DialogState>({ mode: 'closed' });
   const { result, query } = useList<System>({
     resource: 'systems',

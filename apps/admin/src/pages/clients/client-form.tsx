@@ -11,17 +11,27 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { clientFormSchema, type Client, type ClientFormInput } from '@nimzo/shared';
+import {
+  clientCreateSchema,
+  clientFormSchema,
+  type Client,
+  type ClientFormInput,
+} from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
 import type { ReactNode } from 'react';
-import { Controller, type Control, type FieldPath } from 'react-hook-form';
+import { Controller, type Control, type FieldPath, type Resolver } from 'react-hook-form';
 import { Link as RouterLink } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
+import { TechnicianField } from '@/components/technician-field';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
-const emptyClient: ClientFormInput = {
+type ClientVariables = ClientFormInput & { technician_id?: string };
+
+type ClientRecord = Client & { technician: { full_name: string; email: string | null } | null };
+
+const emptyClient: ClientVariables = {
   name: '',
   tax_id: '',
   contact_name: '',
@@ -32,7 +42,7 @@ const emptyClient: ClientFormInput = {
 };
 
 type FieldProps = Omit<TextFieldProps, 'name'> & {
-  control: Control<ClientFormInput>;
+  control: Control<ClientVariables>;
   name: Exclude<FieldPath<ClientFormInput>, 'is_active'>;
 };
 
@@ -62,19 +72,22 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
     control,
     handleSubmit,
     refineCore: { onFinish, formLoading, query },
-  } = useForm<Client, HttpError, ClientFormInput>({
+  } = useForm<ClientRecord, HttpError, ClientVariables>({
     refineCoreProps: {
       resource: 'clients',
       action,
       id,
       redirect: isEdit ? 'list' : 'edit',
+      meta: { select: '*, technician:profiles(full_name, email)' },
       successNotification: (response) => ({
         type: 'success',
         message: isEdit ? 'Cliente guardado' : 'Cliente agregado',
         description: response?.data.name,
       }),
     },
-    resolver: zodResolver(clientFormSchema),
+    resolver: (isEdit
+      ? zodResolver(clientFormSchema)
+      : zodResolver(clientCreateSchema)) as Resolver<ClientVariables>,
     defaultValues: emptyClient,
   });
 
@@ -106,12 +119,35 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
               ) : (
                 <Grid container spacing={2}>
                   <Grid size={12}>
+                    {isEdit ? (
+                      <Typography>
+                        <Box component="span" sx={{ color: 'text.secondary' }}>
+                          Técnico:{' '}
+                        </Box>
+                        {query?.data?.data.technician?.full_name ?? '—'}
+                      </Typography>
+                    ) : (
+                      <Controller
+                        control={control}
+                        name="technician_id"
+                        render={({ field, fieldState }) => (
+                          <TechnicianField
+                            value={field.value}
+                            onChange={field.onChange}
+                            onBlur={field.onBlur}
+                            inputRef={field.ref}
+                            error={fieldState.error?.message}
+                          />
+                        )}
+                      />
+                    )}
+                  </Grid>
+                  <Grid size={12}>
                     <FormTextField
                       control={control}
                       name="name"
                       label="Nombre o razón social"
                       required
-                      autoFocus={!isEdit}
                       helperText="Así aparecerá en los reportes."
                     />
                   </Grid>

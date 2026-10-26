@@ -10,6 +10,7 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import {
   systemTypeLabels,
   systemTypeSchema,
+  type Profile,
   type System,
   type SystemType,
   toSearchText,
@@ -27,7 +28,9 @@ import { RowActions } from '@/components/row-actions';
 import { SearchField } from '@/components/search-field';
 import { StatusChip } from '@/components/status-chip';
 import { StatusLinks } from '@/components/status-links';
+import { TechnicianFilter } from '@/components/technician-field';
 import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
+import { technicianCrudFilter } from '@/lib/technician-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
 import { theme } from '@/theme';
 
@@ -35,9 +38,10 @@ import { SystemDialog } from './system-dialog';
 
 type SystemRow = System & {
   branches: { name: string; clients: { name: string } | null } | null;
+  technician?: { full_name: string } | null;
 };
 
-type DialogState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; systemId: number };
+type DialogState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; systemId: string };
 
 function NameCell({ system, onEdit }: { system: System; onEdit: () => void }) {
   const { mutate: update, mutation } = useUpdate<System>();
@@ -79,16 +83,17 @@ export function SystemList() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [type, setType] = useState<SystemType | ''>('');
+  const [technician, setTechnician] = useState<Profile | null>(null);
   const [dialog, setDialog] = useState<DialogState>({ mode: 'closed' });
 
   const { dataGridProps, setFilters } = useDataGrid<SystemRow>({
     resource: 'systems',
-    meta: { select: '*, branches(name, clients(name))' },
+    meta: { select: '*, branches(name, clients(name)), technician:profiles(full_name)' },
     sorters: { initial: [{ field: 'name', order: 'asc' }] },
     pagination: { pageSize: 20 },
   });
 
-  const filters: CrudFilter[] = [...statusCrudFilter(status)];
+  const filters: CrudFilter[] = [...statusCrudFilter(status), ...technicianCrudFilter(technician)];
   if (type) filters.push({ field: 'system_type', operator: 'eq', value: type });
   if (search.trim()) {
     filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
@@ -133,6 +138,13 @@ export function SystemList() {
         ),
       },
       {
+        field: 'technician',
+        headerName: 'Técnico',
+        minWidth: 180,
+        sortable: false,
+        valueGetter: (_, row) => row.technician?.full_name ?? '—',
+      },
+      {
         field: 'location',
         headerName: 'Ubicación',
         minWidth: 160,
@@ -149,7 +161,8 @@ export function SystemList() {
     [],
   );
 
-  const filtering = search.trim().length > 0 || status !== 'all' || type !== '';
+  const filtering =
+    search.trim().length > 0 || status !== 'all' || type !== '' || technician !== null;
   const emptyState = filtering ? (
     <GridEmptyState
       title="No se encontraron sistemas"
@@ -183,6 +196,7 @@ export function SystemList() {
         <Box
           sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, width: { xs: '100%', sm: 'auto' } }}
         >
+          <TechnicianFilter value={technician} onChange={setTechnician} />
           <TextField
             select
             label="Tipo"

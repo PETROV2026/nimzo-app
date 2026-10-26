@@ -3,9 +3,9 @@ import { useOne } from '@refinedev/core';
 
 import type { Crumb } from '@/components/breadcrumbs';
 
-export function useBranchCrumbs({ branchId, clientId }: { branchId?: string; clientId?: number }): {
+export function useBranchCrumbs({ branchId, clientId }: { branchId?: string; clientId?: string }): {
   crumbs: Crumb[];
-  clientId?: number;
+  clientId?: string;
 } {
   const { result: branch } = useOne<Branch>({
     resource: 'branches',
