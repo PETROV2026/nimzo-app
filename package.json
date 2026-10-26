@@ -12,7 +12,6 @@
     "mobile:ios": "pnpm --filter @nimzo/mobile ios",
     "mobile:android": "pnpm --filter @nimzo/mobile android",
     "admin": "pnpm --filter @nimzo/admin dev",
-    "admin:package": "pnpm --filter @nimzo/admin build && node scripts/package-admin.mjs",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
