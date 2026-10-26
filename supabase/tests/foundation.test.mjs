@@ -1,27 +1,26 @@
 import assert from 'node:assert/strict';
 import { before, describe, test } from 'node:test';
 
-import { createTestDb, createUser, runAs } from './harness.mjs';
+import { createTechnicianCatalog, createTestDb, createUser, runAs } from './harness.mjs';
 
 const ADMIN = '00000000-0000-0000-0000-00000000000a';
 const TECH = '00000000-0000-0000-0000-00000000000b';
 const INACTIVE_ADMIN = '00000000-0000-0000-0000-00000000000c';
+const OTHER_TECH = '00000000-0000-0000-0000-00000000000e';
 
 let db;
+let own;
+let other;
 
 before(async () => {
   db = await createTestDb();
   await createUser(db, ADMIN, { fullName: 'Admin Uno', role: 'admin' });
   await createUser(db, TECH, { fullName: 'Tecnico Uno' });
   await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'admin' });
+  await createUser(db, OTHER_TECH, { fullName: 'Tecnico Dos' });
   await db.query('update public.profiles set is_active = false where id = $1', [INACTIVE_ADMIN]);
-
-  const asAdmin = (sql) => runAs(db, 'authenticated', ADMIN, sql);
-  assert.ok((await asAdmin(`insert into public.clients (name) values ('Cliente Demo')`)).ok);
-  assert.ok((await asAdmin(`insert into public.branches (client_id, name) values (1, 'Norte')`)).ok);
-  assert.ok(
-    (await asAdmin(`insert into public.systems (branch_id, system_type, name) values (1, 'sprinkler', 'Red')`)).ok,
-  );
+  own = await createTechnicianCatalog(db, TECH, { prefix: 'Uno' });
+  other = await createTechnicianCatalog(db, OTHER_TECH, { prefix: 'Dos' });
 });
 
 describe('schema', () => {
@@ -36,10 +35,10 @@ describe('schema', () => {
 
   test('updated_at changes on update', async () => {
     const read = async () =>
-      (await db.query('select updated_at from public.clients where id = 1')).rows[0].updated_at;
+      (await db.query('select updated_at from public.clients where id = $1', [own.client])).rows[0].updated_at;
     const before = await read();
     await new Promise((resolve) => setTimeout(resolve, 20));
-    await db.query(`update public.clients set notes = 'x' where id = 1`);
+    await db.query(`update public.clients set notes = 'x' where id = $1`, [own.client]);
     assert.ok((await read()) > before);
   });
 });
@@ -72,7 +71,9 @@ describe('anon', () => {
 
 describe('admin', () => {
   test('can manage catalogs', async () => {
-    const result = await runAs(db, 'authenticated', ADMIN, `update public.systems set notes = 'ok' where id = 1`);
+    const result = await runAs(db, 'authenticated', ADMIN, `update public.systems set notes = 'ok' where id = $1`, [
+      own.system,
+    ]);
     assert.equal(result.affected, 1);
   });
 
@@ -93,7 +94,8 @@ describe('admin', () => {
       db,
       'authenticated',
       INACTIVE_ADMIN,
-      `insert into public.clients (name) values ('No permitido')`,
+      `insert into public.clients (name, technician_id) values ('No permitido', $1)`,
+      [TECH],
     );
     assert.equal(result.ok, false);
   });
@@ -103,20 +105,22 @@ describe('technician', () => {
   const asTech = (sql, params) => runAs(db, 'authenticated', TECH, sql, params);
 
   for (const table of ['profiles', 'clients', 'branches', 'systems']) {
-    test(`can read ${table}`, async () => {
+    test(`can read only their own ${table}`, async () => {
       const result = await asTech(`select * from public.${table}`);
-      assert.ok(result.ok && result.rows.length > 0);
+      assert.ok(result.ok && result.rows.length === 1, result.error);
     });
   }
 
-  test('cannot create catalog rows', async () => {
-    assert.equal((await asTech(`insert into public.clients (name) values ('X')`)).ok, false);
-    assert.equal((await asTech(`insert into public.branches (client_id, name) values (1, 'X')`)).ok, false);
+  test("cannot create catalog rows for someone else", async () => {
+    const client = await asTech(`insert into public.clients (name, technician_id) values ('X', $1)`, [OTHER_TECH]);
+    const branch = await asTech(`insert into public.branches (client_id, name) values ($1, 'X')`, [other.client]);
+    assert.equal(client.ok, false);
+    assert.equal(branch.ok, false);
   });
 
-  test('cannot update or delete catalog rows', async () => {
-    assert.equal((await asTech(`update public.clients set name = 'X' where id = 1`)).affected, 0);
-    assert.equal((await asTech('delete from public.systems where id = 1')).affected, 0);
+  test("cannot update someone else's catalog rows or delete any", async () => {
+    assert.equal((await asTech(`update public.clients set name = 'X' where id = $1`, [other.client])).affected, 0);
+    assert.equal((await asTech('delete from public.systems where id = $1', [own.system])).affected, 0);
   });
 
   test('can update own name', async () => {

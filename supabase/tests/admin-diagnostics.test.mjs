@@ -15,7 +15,7 @@ before(async () => {
   await createUser(db, TECH, { fullName: 'Tecnico Diagnostico' });
   await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'admin' });
   await db.query('update public.profiles set is_active = false where id = $1', [INACTIVE_ADMIN]);
-  await db.query(`insert into public.clients (name) values ('Cliente Uno'), ('Cliente Dos')`);
+  await db.query(`insert into public.clients (name, technician_id) values ('Cliente Uno', $1), ('Cliente Dos', $1)`, [TECH]);
 });
 
 describe('admin_diagnostics()', () => {

@@ -4,6 +4,7 @@ import { before, describe, test } from 'node:test';
 import { createTestDb, createUser, runAs } from './harness.mjs';
 
 const ADMIN = '00000000-0000-0000-0000-0000000000a2';
+const TECH = '00000000-0000-0000-0000-0000000000b2';
 
 let db;
 
@@ -12,26 +13,27 @@ const asAdmin = (sql, params) => runAs(db, 'authenticated', ADMIN, sql, params);
 before(async () => {
   db = await createTestDb();
   await createUser(db, ADMIN, { fullName: 'Admin Catalogos', role: 'admin' });
-  assert.ok((await asAdmin(`insert into public.clients (name) values ('Cliente Demo')`)).ok);
+  await createUser(db, TECH, { fullName: 'Tecnico Catalogos' });
+  assert.ok((await asAdmin(`insert into public.clients (name, technician_id) values ('Cliente Demo', $1)`, [TECH])).ok);
 });
 
 describe('branch state', () => {
   test('accepts an iso 3166-2 mexican state code', async () => {
     const result = await asAdmin(
-      `insert into public.branches (client_id, name, state) values (1, 'Monterrey', 'NLE')`,
+      `insert into public.branches (client_id, name, state) values ((select id from public.clients limit 1), 'Monterrey', 'NLE')`,
     );
     assert.ok(result.ok, result.error);
   });
 
   test('accepts a branch without state', async () => {
-    const result = await asAdmin(`insert into public.branches (client_id, name) values (1, 'Sin estado')`);
+    const result = await asAdmin(`insert into public.branches (client_id, name) values ((select id from public.clients limit 1), 'Sin estado')`);
     assert.ok(result.ok, result.error);
   });
 
   for (const state of ['Nuevo León', 'nle', 'MX-NLE', 'XXX']) {
     test(`rejects '${state}'`, async () => {
       const result = await asAdmin(
-        `insert into public.branches (client_id, name, state) values (1, 'Mal estado', $1)`,
+        `insert into public.branches (client_id, name, state) values ((select id from public.clients limit 1), 'Mal estado', $1)`,
         [state],
       );
       assert.equal(result.ok, false);
@@ -58,7 +60,7 @@ describe('system type', () => {
       ],
     );
     const result = await asAdmin(
-      `insert into public.systems (branch_id, system_type, name) values (1, 'fire_pump', 'Cuarto de bombas')`,
+      `insert into public.systems (branch_id, system_type, name) values ((select id from public.branches limit 1), 'fire_pump', 'Cuarto de bombas')`,
     );
     assert.ok(result.ok, result.error);
   });
@@ -66,7 +68,7 @@ describe('system type', () => {
   for (const type of ['rociadores', 'Sprinkler', '']) {
     test(`rejects '${type}'`, async () => {
       const result = await asAdmin(
-        `insert into public.systems (branch_id, system_type, name) values (1, $1, 'Sistema')`,
+        `insert into public.systems (branch_id, system_type, name) values ((select id from public.branches limit 1), $1, 'Sistema')`,
         [type],
       );
       assert.equal(result.ok, false);

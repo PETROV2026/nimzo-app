@@ -109,3 +109,26 @@ export async function runAs(db, role, userId, sql, params = []) {
     await db.query(`select set_config('request.jwt.claim.sub', '', false)`);
   }
 }
+
+export async function createTechnicianCatalog(db, technicianId, { prefix = '' } = {}) {
+  const client = (
+    await db.query(`insert into public.clients (name, technician_id) values ($1, $2) returning id`, [
+      `Cliente ${prefix} (demo)`.trim(),
+      technicianId,
+    ])
+  ).rows[0].id;
+  const branch = (
+    await db.query(
+      `insert into public.branches (client_id, name, technician_id) values ($1, $2, $3) returning id`,
+      [client, `Sucursal ${prefix}`.trim(), technicianId],
+    )
+  ).rows[0].id;
+  const system = (
+    await db.query(
+      `insert into public.systems (branch_id, system_type, name, technician_id)
+       values ($1, 'sprinkler', $2, $3) returning id`,
+      [branch, `Rociadores ${prefix}`.trim(), technicianId],
+    )
+  ).rows[0].id;
+  return { client, branch, system };
+}
