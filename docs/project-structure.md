@@ -204,7 +204,8 @@ supabase/
 │   ├── 20261022173353_service_forms.sql                  service forms catalog and form-icons bucket
 │   ├── 20261022183129_service_packages.sql               service packages per branch and frequency
 │   ├── 20261026182135_independent_technicians.sql        uuid ids, technician owner on every catalog row, private profiles
-│   └── 20261026183308_reports.sql                        sent reports with folio, and the report-files bucket
+│   ├── 20261026183308_reports.sql                        sent reports with folio, and the report-files bucket
+│   └── 20261026191615_demo_reports_support.sql           demo reports keep their send date and can be removed
 ├── functions/
 │   ├── admin-login/
 │   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only
@@ -213,9 +214,11 @@ supabase/
 │       ├── handler.ts         create, update, deactivate and reset accounts (logic, tested with Node)
 │       └── index.ts           Deno entry: wires the handler to supabase-js with the service role
 ├── seeds/
-│   ├── demo-catalogs.sql          25 fake clients with branches and systems
-│   ├── remove-demo-catalogs.sql   deletes that demo data
-│   └── generate_demo_catalogs.py  regenerates demo-catalogs.sql
+│   ├── demo-catalogs.sql          fake clients with branches and systems for up to 3 demo technicians
+│   ├── demo-reports.sql           3 fake sent reports for each of the 30 forms
+│   ├── remove-demo-catalogs.sql   deletes all that demo data
+│   ├── generate_demo_catalogs.py  regenerates demo-catalogs.sql
+│   └── generate_demo_reports.py   regenerates demo-reports.sql from the form definitions
 ├── tests/
 │   ├── harness.mjs           Runs all migrations on an in-memory Postgres
 │   └── *.test.mjs            Who can read and write each table, codes, demo seeds
@@ -225,14 +228,15 @@ supabase/
 - **The database only changes through migrations.** Create one with `pnpm supabase migration new <name>`, write the SQL, add tests in `supabase/tests/`, and open a PR.
 - `pnpm test:db` checks every migration and permission rule locally, without touching the cloud database. CI runs it on every PR.
 - Only the software lead applies migrations to the cloud project, after review.
-- **Demo data.** To see the admin panel with data, load 25 fake clients (names end in "(demo)", emails at `ejemplo.com`). They belong to the demo technician `tecnico.demo@ejemplo.com`: create that technician in the panel first, or the seed stops with an error.
+- **Demo data.** To see the admin panel with data, load fake clients (names end in "(demo)", emails at `ejemplo.com`) and sent reports. Create the demo technicians in the panel first: `tecnico.demo@ejemplo.com` is required (25 clients); `tecnico.demo2@ejemplo.com` (8 clients) and `tecnico.demo3@ejemplo.com` (6 clients) are optional, and some of their clients repeat companies of the first one on purpose. The reports seed adds 3 sent reports for each of the 30 forms, one per demo technician, with answers filled from the form definitions, dates spread over the last four months and `"demo": true` in the snapshot. Their photo and signature files are not uploaded.
 
   ```bash
-  pnpm supabase db query --linked -f supabase/seeds/demo-catalogs.sql          # load (does nothing if already loaded)
-  pnpm supabase db query --linked -f supabase/seeds/remove-demo-catalogs.sql   # remove
+  pnpm supabase db query --linked -f supabase/seeds/demo-catalogs.sql          # load clients (only for technicians without demo clients)
+  pnpm supabase db query --linked -f supabase/seeds/demo-reports.sql           # load reports (after the catalogs; skips existing ones)
+  pnpm supabase db query --linked -f supabase/seeds/remove-demo-catalogs.sql   # remove all demo data, reports included
   ```
 
-  Both scripts only touch clients whose notes are `Datos de ejemplo` (the removal also deletes their service packages). After changing the catalog tables, update `generate_demo_catalogs.py` and regenerate the file with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql`; `pnpm test:db` checks that both scripts still work.
+  The scripts only touch clients whose notes are `Datos de ejemplo`, and only demo reports can be deleted. After changing the catalog tables or the form definitions, regenerate the files with `python3 supabase/seeds/generate_demo_catalogs.py supabase/seeds/demo-catalogs.sql` and `python3 supabase/seeds/generate_demo_reports.py supabase/seeds/demo-reports.sql`; `pnpm test:db` checks that the scripts still work.
 
 #### Applying the independent-technicians migrations (software lead, once)
 
