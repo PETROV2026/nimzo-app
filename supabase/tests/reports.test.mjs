@@ -183,6 +183,22 @@ describe('reports', () => {
 });
 
 describe('report files', () => {
+  test('a deactivated technician cannot read or upload report files', async () => {
+    const LEAVING = '00000000-0000-0000-0000-0000000000ea';
+    await createUser(db, LEAVING, { fullName: 'Tecnico Saliente' });
+    await db.query(`insert into storage.objects (bucket_id, name) values ('report-files', $1)`, [
+      `${LEAVING}/${randomUUID()}/photo-1.jpg`,
+    ]);
+    await db.query('update public.profiles set is_active = false where id = $1', [LEAVING]);
+    const asLeaving = (sql, params) => runAs(db, 'authenticated', LEAVING, sql, params);
+
+    assert.equal((await asLeaving(`select name from storage.objects where bucket_id = 'report-files'`)).rows.length, 0);
+    const upload = await asLeaving(`insert into storage.objects (bucket_id, name) values ('report-files', $1)`, [
+      `${LEAVING}/${randomUUID()}/photo-2.jpg`,
+    ]);
+    assert.equal(upload.ok, false);
+  });
+
   const reportId = randomUUID();
   const ownPath = `${TECH_A}/${reportId}/photo-1.jpg`;
 
@@ -201,7 +217,8 @@ describe('report files', () => {
 
     assert.equal((await asTechB(`select name from storage.objects where bucket_id = 'report-files'`)).rows.length, 0);
     assert.equal((await asTechA(`select name from storage.objects where bucket_id = 'report-files'`)).rows.length, 1);
-    assert.equal((await asAdmin(`select name from storage.objects where bucket_id = 'report-files'`)).rows.length, 1);
+    assert.equal((await asAdmin('select name from storage.objects where name = $1', [ownPath])).rows.length,
+      1,);
 
     const overwrite = await asTechA(`update storage.objects set name = $1 where name = $2`, [
       `${TECH_A}/${reportId}/photo-2.jpg`,

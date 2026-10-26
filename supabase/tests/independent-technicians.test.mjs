@@ -208,6 +208,18 @@ describe('technician-owned catalogs', () => {
     assert.equal(invalid.ok, false);
   });
 
+  test('a deactivated technician loses access to their own rows at once', async () => {
+    const LEAVING = '00000000-0000-0000-0000-0000000000e9';
+    await createUser(db, LEAVING, { fullName: 'Tecnico Saliente' });
+    const catalog = await createTechnicianCatalog(db, LEAVING, { prefix: 'Saliente' });
+    await db.query('update public.profiles set is_active = false where id = $1', [LEAVING]);
+    const asLeaving = (sql, params) => runAs(db, 'authenticated', LEAVING, sql, params);
+
+    assert.equal((await asLeaving('select id from public.clients')).rows.length, 0);
+    const update = await asLeaving(`update public.clients set name = 'Sigue aquí' where id = $1`, [catalog.client]);
+    assert.equal(update.affected ?? 0, 0);
+  });
+
   test('anon cannot read catalogs', async () => {
     const result = await runAs(db, 'anon', null, 'select id from public.clients');
     assert.equal(result.ok, false);

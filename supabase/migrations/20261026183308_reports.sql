@@ -162,7 +162,7 @@ execute function private.keep_report();
 
 create policy "Technicians can view their own reports"
 on public.reports for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all reports"
 on public.reports for select to authenticated
@@ -170,7 +170,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can send their own reports"
 on public.reports for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 revoke all on public.reports from anon;
 
@@ -187,6 +187,7 @@ on storage.objects for insert to authenticated
 with check (
   bucket_id = 'report-files'
   and (storage.foldername(name))[1] = (select auth.uid())::text
+  and (select private.current_user_role()) = 'technician'
 );
 
 create policy "Technicians can view their own report files"
@@ -194,6 +195,7 @@ on storage.objects for select to authenticated
 using (
   bucket_id = 'report-files'
   and (storage.foldername(name))[1] = (select auth.uid())::text
+  and (select private.current_user_role()) = 'technician'
 );
 
 create policy "Administrators can view all report files"

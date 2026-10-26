@@ -303,7 +303,7 @@ execute function private.check_package_form_system();
 -- ---------------------------------------------------------------------------
 create policy "Technicians can view their own clients"
 on public.clients for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all clients"
 on public.clients for select to authenticated
@@ -311,7 +311,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can create their own clients"
 on public.clients for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can create clients for a technician"
 on public.clients for insert to authenticated
@@ -319,8 +319,8 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can update their own clients"
 on public.clients for update to authenticated
-using (technician_id = (select auth.uid()))
-with check (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician')
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can update clients"
 on public.clients for update to authenticated
@@ -333,7 +333,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can view their own branches"
 on public.branches for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all branches"
 on public.branches for select to authenticated
@@ -341,7 +341,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can create their own branches"
 on public.branches for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can create branches for a technician"
 on public.branches for insert to authenticated
@@ -349,8 +349,8 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can update their own branches"
 on public.branches for update to authenticated
-using (technician_id = (select auth.uid()))
-with check (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician')
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can update branches"
 on public.branches for update to authenticated
@@ -363,7 +363,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can view their own systems"
 on public.systems for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all systems"
 on public.systems for select to authenticated
@@ -371,7 +371,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can create their own systems"
 on public.systems for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can create systems for a technician"
 on public.systems for insert to authenticated
@@ -379,8 +379,8 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can update their own systems"
 on public.systems for update to authenticated
-using (technician_id = (select auth.uid()))
-with check (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician')
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can update systems"
 on public.systems for update to authenticated
@@ -393,7 +393,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can view their own service packages"
 on public.service_packages for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all service packages"
 on public.service_packages for select to authenticated
@@ -401,7 +401,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can create their own service packages"
 on public.service_packages for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can create service packages for a technician"
 on public.service_packages for insert to authenticated
@@ -409,8 +409,8 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can update their own service packages"
 on public.service_packages for update to authenticated
-using (technician_id = (select auth.uid()))
-with check (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician')
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can update service packages"
 on public.service_packages for update to authenticated
@@ -419,7 +419,7 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can view the forms of their packages"
 on public.service_package_forms for select to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can view all package forms"
 on public.service_package_forms for select to authenticated
@@ -427,7 +427,7 @@ using ((select private.is_admin()));
 
 create policy "Technicians can add forms to their packages"
 on public.service_package_forms for insert to authenticated
-with check (technician_id = (select auth.uid()));
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can add forms to packages"
 on public.service_package_forms for insert to authenticated
@@ -435,8 +435,8 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can update forms in their packages"
 on public.service_package_forms for update to authenticated
-using (technician_id = (select auth.uid()))
-with check (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician')
+with check (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can update forms in packages"
 on public.service_package_forms for update to authenticated
@@ -445,7 +445,7 @@ with check ((select private.is_admin()));
 
 create policy "Technicians can remove forms from their packages"
 on public.service_package_forms for delete to authenticated
-using (technician_id = (select auth.uid()));
+using (technician_id = (select auth.uid()) and (select private.current_user_role()) = 'technician');
 
 create policy "Administrators can remove forms from packages"
 on public.service_package_forms for delete to authenticated
