@@ -38,6 +38,10 @@ const supabaseStub = `
   alter table storage.objects enable row level security;
   grant all on storage.objects to anon, authenticated, service_role;
   grant select on storage.buckets to anon, authenticated, service_role;
+  create function storage.foldername(name text) returns text[] language sql immutable as $$
+    select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1]
+  $$;
+  grant execute on function storage.foldername(text) to anon, authenticated, service_role;
 
   create schema auth;
   grant usage on schema auth to anon, authenticated, service_role;
