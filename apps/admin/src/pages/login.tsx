@@ -18,10 +18,13 @@ import { useInvalidateAuthStore } from '@refinedev/core';
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 
+import { Turnstile } from '@/components/turnstile';
 import { authProvider } from '@/providers/auth-provider';
 import { tokens } from '@/theme';
 
 const OVERLAP = 96;
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
 function LabeledField({ id, label, ...props }: TextFieldProps & { id: string; label: string }) {
   return (
@@ -68,6 +71,8 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,13 +80,18 @@ export function LoginPage() {
       setError('Ingresa tu correo y tu contraseña.');
       return;
     }
+    if (!captchaToken) {
+      setError('Completa la verificación de seguridad.');
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
-    const result = await authProvider.login({ email: email.trim(), password });
+    const result = await authProvider.login({ email: email.trim(), password, captchaToken });
     setSubmitting(false);
 
     if (!result.success) {
+      setCaptchaReset((value) => value + 1);
       setError(result.error?.message ?? 'No se pudo iniciar sesión.');
       return;
     }
@@ -192,12 +202,24 @@ export function LoginPage() {
                 },
               }}
             />
+            {TURNSTILE_SITE_KEY ? (
+              <Turnstile
+                siteKey={TURNSTILE_SITE_KEY}
+                resetKey={captchaReset}
+                onToken={setCaptchaToken}
+              />
+            ) : (
+              <Alert severity="error">
+                Falta configurar la verificación de seguridad (VITE_TURNSTILE_SITE_KEY).
+              </Alert>
+            )}
             <Box sx={{ pt: 1.5 }}>
               <Button
                 type="submit"
                 variant="contained"
                 size="large"
                 loading={submitting}
+                disabled={!captchaToken}
                 fullWidth
                 sx={{ minHeight: 52, fontSize: 16, borderRadius: 1.5 }}
               >
