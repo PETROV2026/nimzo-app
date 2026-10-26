@@ -16,7 +16,9 @@ before(async () => {
   await createUser(db, '00000000-0000-0000-0000-0000000000b4', { fullName: 'Tecnico Consultas' });
   await db.query(`update auth.users set email = 'admin.consultas@ejemplo.com', last_sign_in_at = now()
     where id = '00000000-0000-0000-0000-0000000000a4'`);
-  await db.query(seedSql);
+  await createUser(db, '00000000-0000-0000-0000-0000000000c4', { fullName: 'Técnico Demo' });
+  await db.query(`update auth.users set email = 'tecnico.demo@ejemplo.com' where id = '00000000-0000-0000-0000-0000000000c4'`);
+  await db.exec(seedSql);
 });
 
 describe('developer queries library', () => {
@@ -45,7 +47,7 @@ describe('developer queries library', () => {
     assert.ok((await run('systems-by-type')).length >= 1);
     assert.equal((await run('demo-data'))[0].demo_clients, 25);
     assert.equal((await run('recent-sign-ins')).length, 1);
-    assert.equal((await run('users-never-signed-in')).length, 1);
+    assert.equal((await run('users-never-signed-in')).length, 2);
     assert.ok((await run('rls-policies')).length >= 12);
   });
 });

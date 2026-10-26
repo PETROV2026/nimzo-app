@@ -27,7 +27,7 @@ import { Controller, type Resolver } from 'react-hook-form';
 
 import { RecordAutocomplete } from '@/components/record-autocomplete';
 
-type SystemVariables = SystemFormInput & { branch_id?: number };
+type SystemVariables = SystemFormInput & { branch_id?: string };
 
 const emptySystem: SystemVariables = {
   system_type: '' as SystemFormInput['system_type'],
@@ -40,8 +40,8 @@ const emptySystem: SystemVariables = {
 type BranchOption = Branch & { clients: { name: string } | null };
 
 type SystemDialogProps = {
-  branchId?: number;
-  systemId?: number;
+  branchId?: string;
+  systemId?: string;
   onClose: () => void;
 };
 

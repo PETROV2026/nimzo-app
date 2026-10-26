@@ -61,17 +61,19 @@ describe('remove supervisor role migration', () => {
       db,
       'authenticated',
       ADMIN,
-      `insert into public.clients (name) values ('Cliente Migrado')`,
+      `insert into public.clients (name, technician_id) values ('Cliente Migrado', $1)`,
+      [TECH],
     );
     assert.ok(result.ok, result.error);
   });
 
-  test('a former supervisor cannot write catalogs', async () => {
+  test("a former supervisor cannot write someone else's catalogs", async () => {
     const result = await runAs(
       db,
       'authenticated',
       SUPERVISOR,
-      `insert into public.clients (name) values ('No permitido')`,
+      `insert into public.clients (name, technician_id) values ('No permitido', $1)`,
+      [TECH],
     );
     assert.equal(result.ok, false);
   });

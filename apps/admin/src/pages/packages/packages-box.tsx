@@ -78,7 +78,7 @@ function PackageRowItem({ item }: { item: PackageRow }) {
   );
 }
 
-export function PackagesBox({ branchId }: { branchId: number }) {
+export function PackagesBox({ branchId }: { branchId: string }) {
   const [creating, setCreating] = useState(false);
   const { result, query } = useList<PackageRow>({
     resource: 'service_packages',

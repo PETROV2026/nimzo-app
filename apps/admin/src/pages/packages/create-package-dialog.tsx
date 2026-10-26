@@ -18,7 +18,7 @@ import { useId, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 type CreatePackageDialogProps = {
-  branchId: number;
+  branchId: string;
   taken: ServiceFrequency[];
   onClose: () => void;
 };

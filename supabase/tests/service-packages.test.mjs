@@ -5,11 +5,13 @@ import { createTestDb, createUser, runAs } from './harness.mjs';
 
 const ADMIN = '00000000-0000-0000-0000-0000000000a8';
 const TECH = '00000000-0000-0000-0000-0000000000b8';
+const OTHER_TECH = '00000000-0000-0000-0000-0000000000c8';
 
 let db;
 let ids;
 const asAdmin = (sql, params) => runAs(db, 'authenticated', ADMIN, sql, params);
 const asTech = (sql, params) => runAs(db, 'authenticated', TECH, sql, params);
+const asOther = (sql, params) => runAs(db, 'authenticated', OTHER_TECH, sql, params);
 const formId = async (code) =>
   (await db.query('select id from public.service_forms where code = $1', [code])).rows[0].id;
 
@@ -17,7 +19,10 @@ before(async () => {
   db = await createTestDb();
   await createUser(db, ADMIN, { fullName: 'Admin Paquetes', role: 'admin' });
   await createUser(db, TECH, { fullName: 'Tecnico Paquetes' });
-  const client = (await db.query(`insert into public.clients (name) values ('Cliente (demo)') returning id`)).rows[0].id;
+  await createUser(db, OTHER_TECH, { fullName: 'Otro Tecnico' });
+  const client = (
+    await db.query(`insert into public.clients (name, technician_id) values ('Cliente (demo)', $1) returning id`, [TECH])
+  ).rows[0].id;
   const [branchA, branchB] = (
     await db.query(`insert into public.branches (client_id, name) values ($1, 'A'), ($1, 'B') returning id`, [client])
   ).rows.map((row) => row.id);
@@ -98,14 +103,16 @@ describe('service packages', () => {
     assert.equal((await asAdmin('delete from public.service_packages where id = $1', [ids.package])).affected ?? 0, 0);
   });
 
-  test('technicians read packages but cannot change them', async () => {
+  test('the owner reads its packages and another technician cannot touch them', async () => {
     assert.equal((await asTech('select id from public.service_packages')).rows.length, 1);
     assert.equal((await asTech('select id from public.service_package_forms')).rows.length, 1);
+    assert.equal((await asOther('select id from public.service_packages')).rows.length, 0);
     assert.equal(
-      (await asTech(`insert into public.service_packages (branch_id, frequency) values ($1, 'monthly')`, [ids.branchA])).ok,
+      (await asOther(`insert into public.service_packages (branch_id, frequency) values ($1, 'monthly')`, [ids.branchA])).ok,
       false,
     );
-    assert.equal((await asTech('delete from public.service_package_forms')).affected ?? 0, 0);
+    assert.equal((await asOther('delete from public.service_package_forms')).affected ?? 0, 0);
+    assert.equal((await asTech('delete from public.service_packages where id = $1', [ids.package])).affected ?? 0, 0);
   });
 
   test('anon cannot read packages', async () => {

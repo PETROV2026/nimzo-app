@@ -27,10 +27,10 @@ before(async () => {
 
 describe('accent-insensitive search', () => {
   test('an admin can still create catalogs through the api', async () => {
-    assert.ok((await asAdmin(`insert into public.clients (name, tax_id) values ('Construcción Muñoz', 'CMU010101AB1')`)).ok);
-    assert.ok((await asAdmin(`insert into public.branches (client_id, name, city) values (1, 'Planta Querétaro', 'Querétaro')`)).ok);
+    assert.ok((await asAdmin(`insert into public.clients (name, tax_id, technician_id) values ('Construcción Muñoz', 'CMU010101AB1', $1)`, [TECH])).ok);
+    assert.ok((await asAdmin(`insert into public.branches (client_id, name, city) values ((select id from public.clients limit 1), 'Planta Querétaro', 'Querétaro')`)).ok);
     const system = await asAdmin(
-      `insert into public.systems (branch_id, system_type, name, location) values (1, 'fire_pump', 'Cuarto de Bombas', 'Azotea Norte')`,
+      `insert into public.systems (branch_id, system_type, name, location) values ((select id from public.branches limit 1), 'fire_pump', 'Cuarto de Bombas', 'Azotea Norte')`,
     );
     assert.ok(system.ok, system.error);
   });
@@ -60,7 +60,7 @@ describe('accent-insensitive search', () => {
   });
 
   test('search_text follows edits', async () => {
-    assert.ok((await asAdmin(`update public.clients set name = 'Construcción Ávila' where id = 1`)).ok);
+    assert.ok((await asAdmin(`update public.clients set name = 'Construcción Ávila' where tax_id = 'CMU010101AB1'`)).ok);
     assert.deepEqual(await search('clients', 'avila'), ['Construcción Ávila']);
     assert.deepEqual(await search('clients', 'munoz'), []);
   });
@@ -73,7 +73,7 @@ describe('accent-insensitive search', () => {
   });
 
   test('search_text cannot be written by hand', async () => {
-    const result = await asAdmin(`update public.clients set search_text = 'falso' where id = 1`);
+    const result = await asAdmin(`update public.clients set search_text = 'falso' where tax_id = 'CMU010101AB1'`);
     assert.equal(result.ok, false);
   });
 

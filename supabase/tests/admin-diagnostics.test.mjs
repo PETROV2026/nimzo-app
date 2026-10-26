@@ -15,7 +15,7 @@ before(async () => {
   await createUser(db, TECH, { fullName: 'Tecnico Diagnostico' });
   await createUser(db, INACTIVE_ADMIN, { fullName: 'Admin Inactivo', role: 'admin' });
   await db.query('update public.profiles set is_active = false where id = $1', [INACTIVE_ADMIN]);
-  await db.query(`insert into public.clients (name) values ('Cliente Uno'), ('Cliente Dos')`);
+  await db.query(`insert into public.clients (name, technician_id) values ('Cliente Uno', $1), ('Cliente Dos', $1)`, [TECH]);
 });
 
 describe('admin_diagnostics()', () => {
@@ -24,7 +24,7 @@ describe('admin_diagnostics()', () => {
     assert.ok(result.ok, result.error);
     const diagnostics = result.rows[0].d;
     const names = diagnostics.tables.map((table) => table.name);
-    assert.deepEqual(names, ['branches', 'clients', 'profiles', 'service_forms', 'service_package_forms', 'service_packages', 'systems']);
+    assert.deepEqual(names, ['branches', 'clients', 'profiles', 'reports', 'service_forms', 'service_package_forms', 'service_packages', 'systems']);
     const clients = diagnostics.tables.find((table) => table.name === 'clients');
     assert.equal(clients.rows, 2);
     assert.equal(clients.rls_enabled, true);

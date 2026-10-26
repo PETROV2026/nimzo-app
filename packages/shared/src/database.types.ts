@@ -12,43 +12,49 @@ export type Database = {
         Row: {
           address: string | null;
           city: string | null;
-          client_id: number;
+          client_id: string;
+          contact_email: string | null;
           contact_name: string | null;
           contact_phone: string | null;
           created_at: string;
-          id: number;
+          id: string;
           is_active: boolean;
           name: string;
           search_text: string | null;
           state: string | null;
+          technician_id: string;
           updated_at: string;
         };
         Insert: {
           address?: string | null;
           city?: string | null;
-          client_id: number;
+          client_id: string;
+          contact_email?: string | null;
           contact_name?: string | null;
           contact_phone?: string | null;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           name: string;
           search_text?: string | null;
           state?: string | null;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
           address?: string | null;
           city?: string | null;
-          client_id?: number;
+          client_id?: string;
+          contact_email?: string | null;
           contact_name?: string | null;
           contact_phone?: string | null;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           name?: string;
           search_text?: string | null;
           state?: string | null;
+          technician_id?: string;
           updated_at?: string;
         };
         Relationships: [
@@ -59,6 +65,13 @@ export type Database = {
             referencedRelation: 'clients';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'branches_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       clients: {
@@ -67,12 +80,13 @@ export type Database = {
           contact_name: string | null;
           contact_phone: string | null;
           created_at: string;
-          id: number;
+          id: string;
           is_active: boolean;
           name: string;
           notes: string | null;
           search_text: string | null;
           tax_id: string | null;
+          technician_id: string;
           updated_at: string;
         };
         Insert: {
@@ -80,12 +94,13 @@ export type Database = {
           contact_name?: string | null;
           contact_phone?: string | null;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           name: string;
           notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
@@ -93,15 +108,24 @@ export type Database = {
           contact_name?: string | null;
           contact_phone?: string | null;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           name?: string;
           notes?: string | null;
           search_text?: string | null;
           tax_id?: string | null;
+          technician_id?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'clients_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       profiles: {
         Row: {
@@ -142,6 +166,115 @@ export type Database = {
         };
         Relationships: [];
       };
+      reports: {
+        Row: {
+          answers: Json;
+          branch_id: string;
+          client_id: string;
+          created_at: string;
+          folio: number;
+          form_code: string;
+          form_version: number;
+          id: string;
+          sent_at: string;
+          service_form_id: number;
+          service_package_id: string | null;
+          signed_at: string;
+          snapshot: Json;
+          started_at: string;
+          supervisor_name: string;
+          supervisor_signature_path: string;
+          system_id: string | null;
+          technician_id: string;
+          technician_signature_path: string;
+        };
+        Insert: {
+          answers: Json;
+          branch_id: string;
+          client_id: string;
+          created_at?: string;
+          folio?: never;
+          form_code: string;
+          form_version: number;
+          id: string;
+          sent_at?: string;
+          service_form_id: number;
+          service_package_id?: string | null;
+          signed_at: string;
+          snapshot: Json;
+          started_at: string;
+          supervisor_name: string;
+          supervisor_signature_path: string;
+          system_id?: string | null;
+          technician_id: string;
+          technician_signature_path: string;
+        };
+        Update: {
+          answers?: Json;
+          branch_id?: string;
+          client_id?: string;
+          created_at?: string;
+          folio?: never;
+          form_code?: string;
+          form_version?: number;
+          id?: string;
+          sent_at?: string;
+          service_form_id?: number;
+          service_package_id?: string | null;
+          signed_at?: string;
+          snapshot?: Json;
+          started_at?: string;
+          supervisor_name?: string;
+          supervisor_signature_path?: string;
+          system_id?: string | null;
+          technician_id?: string;
+          technician_signature_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reports_branch_id_fkey';
+            columns: ['branch_id'];
+            isOneToOne: false;
+            referencedRelation: 'branches';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_client_id_fkey';
+            columns: ['client_id'];
+            isOneToOne: false;
+            referencedRelation: 'clients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_service_form_id_fkey';
+            columns: ['service_form_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_forms';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_service_package_id_fkey';
+            columns: ['service_package_id'];
+            isOneToOne: false;
+            referencedRelation: 'service_packages';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_system_id_fkey';
+            columns: ['system_id'];
+            isOneToOne: false;
+            referencedRelation: 'systems';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reports_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       service_forms: {
         Row: {
           code: string;
@@ -181,24 +314,27 @@ export type Database = {
       service_package_forms: {
         Row: {
           created_at: string;
-          id: number;
-          package_id: number;
+          id: string;
+          package_id: string;
           service_form_id: number;
-          system_id: number | null;
+          system_id: string | null;
+          technician_id: string;
         };
         Insert: {
           created_at?: string;
-          id?: never;
-          package_id: number;
+          id?: string;
+          package_id: string;
           service_form_id: number;
-          system_id?: number | null;
+          system_id?: string | null;
+          technician_id: string;
         };
         Update: {
           created_at?: string;
-          id?: never;
-          package_id?: number;
+          id?: string;
+          package_id?: string;
           service_form_id?: number;
-          system_id?: number | null;
+          system_id?: string | null;
+          technician_id?: string;
         };
         Relationships: [
           {
@@ -222,31 +358,41 @@ export type Database = {
             referencedRelation: 'systems';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'service_package_forms_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       service_packages: {
         Row: {
-          branch_id: number;
+          branch_id: string;
           created_at: string;
           frequency: Database['public']['Enums']['service_frequency'];
-          id: number;
+          id: string;
           is_active: boolean;
+          technician_id: string;
           updated_at: string;
         };
         Insert: {
-          branch_id: number;
+          branch_id: string;
           created_at?: string;
           frequency: Database['public']['Enums']['service_frequency'];
-          id?: never;
+          id?: string;
           is_active?: boolean;
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
-          branch_id?: number;
+          branch_id?: string;
           created_at?: string;
           frequency?: Database['public']['Enums']['service_frequency'];
-          id?: never;
+          id?: string;
           is_active?: boolean;
+          technician_id?: string;
           updated_at?: string;
         };
         Relationships: [
@@ -257,43 +403,53 @@ export type Database = {
             referencedRelation: 'branches';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'service_packages_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
         ];
       };
       systems: {
         Row: {
-          branch_id: number;
+          branch_id: string;
           created_at: string;
-          id: number;
+          id: string;
           is_active: boolean;
           location: string | null;
           name: string;
           notes: string | null;
           search_text: string | null;
           system_type: Database['public']['Enums']['system_type'];
+          technician_id: string;
           updated_at: string;
         };
         Insert: {
-          branch_id: number;
+          branch_id: string;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           location?: string | null;
           name: string;
           notes?: string | null;
           search_text?: string | null;
           system_type: Database['public']['Enums']['system_type'];
+          technician_id: string;
           updated_at?: string;
         };
         Update: {
-          branch_id?: number;
+          branch_id?: string;
           created_at?: string;
-          id?: never;
+          id?: string;
           is_active?: boolean;
           location?: string | null;
           name?: string;
           notes?: string | null;
           search_text?: string | null;
           system_type?: Database['public']['Enums']['system_type'];
+          technician_id?: string;
           updated_at?: string;
         };
         Relationships: [
@@ -302,6 +458,13 @@ export type Database = {
             columns: ['branch_id'];
             isOneToOne: false;
             referencedRelation: 'branches';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'systems_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
         ];

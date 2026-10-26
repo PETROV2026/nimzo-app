@@ -8,8 +8,7 @@ import { useBranchCrumbs } from './use-branch-crumbs';
 
 export function BranchCreate() {
   const [searchParams] = useSearchParams();
-  const clientParam = Number(searchParams.get('client'));
-  const clientId = Number.isInteger(clientParam) && clientParam > 0 ? clientParam : undefined;
+  const clientId = searchParams.get('client') ?? undefined;
   const { crumbs } = useBranchCrumbs({ clientId });
 
   return (
