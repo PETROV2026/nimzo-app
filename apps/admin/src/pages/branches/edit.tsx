@@ -27,8 +27,8 @@ export function BranchEdit() {
         }
       />
       <BranchForm key={id} action="edit" id={id}>
-        <SystemsBox branchId={Number(id)} />
-        <PackagesBox branchId={Number(id)} />
+        <SystemsBox branchId={String(id)} />
+        <PackagesBox branchId={String(id)} />
       </BranchForm>
     </>
   );

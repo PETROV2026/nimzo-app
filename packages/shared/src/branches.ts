@@ -12,6 +12,10 @@ export const branchFormSchema = z.object({
   city: optionalText,
   state: mexicanStateSchema.nullable(),
   contact_name: optionalText,
+  contact_email: optionalText.refine(
+    (value) => value === null || z.email().safeParse(value).success,
+    'Ingresa un correo válido',
+  ),
   contact_phone: optionalText,
   is_active: z.boolean(),
 });
@@ -20,7 +24,7 @@ export type BranchFormInput = z.input<typeof branchFormSchema>;
 export type BranchFormValues = z.output<typeof branchFormSchema>;
 
 export const branchCreateSchema = branchFormSchema.extend({
-  client_id: z.number({ error: 'Elige el cliente' }),
+  client_id: z.uuid({ error: 'Elige el cliente' }),
 });
 
 export type BranchCreateInput = z.input<typeof branchCreateSchema>;

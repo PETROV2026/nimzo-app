@@ -37,11 +37,12 @@ const emptyBranch: BranchVariables = {
   city: '',
   state: null,
   contact_name: '',
+  contact_email: '',
   contact_phone: '',
   is_active: true,
 };
 
-type BranchVariables = BranchFormInput & { client_id?: number };
+type BranchVariables = BranchFormInput & { client_id?: string };
 
 type TextFieldName = Exclude<FieldPath<BranchFormInput>, 'is_active' | 'state'>;
 
@@ -71,7 +72,7 @@ function FormTextField({ control, name, ...props }: FieldProps) {
 type BranchFormProps = {
   action: 'create' | 'edit';
   id?: string;
-  clientId?: number;
+  clientId?: string;
   children?: ReactNode;
 };
 
@@ -214,11 +215,21 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                 <Grid container spacing={2}>
                   <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">
-                      Quién recibe al técnico en el lugar. Los dos campos son opcionales.
+                      Quién recibe al técnico en el lugar. Los reportes enviados llegan a este
+                      correo. Todos los campos son opcionales.
                     </Typography>
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <FormTextField control={control} name="contact_name" label="Nombre" />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <FormTextField
+                      control={control}
+                      name="contact_email"
+                      label="Correo"
+                      type="email"
+                      autoComplete="off"
+                    />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <FormTextField

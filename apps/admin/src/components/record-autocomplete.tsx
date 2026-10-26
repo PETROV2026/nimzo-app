@@ -1,6 +1,6 @@
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
-import type { BaseRecord } from '@refinedev/core';
+import type { BaseRecord, CrudFilter } from '@refinedev/core';
 import { toSearchText } from '@nimzo/shared';
 import { useAutocomplete } from '@refinedev/mui';
 import { useState, type Ref } from 'react';
@@ -8,12 +8,14 @@ import { useState, type Ref } from 'react';
 type RecordAutocompleteProps<T extends BaseRecord> = {
   resource: string;
   label: string;
-  value: number | undefined;
-  onChange: (id: number | undefined) => void;
+  value: string | undefined;
+  onChange: (id: string | undefined) => void;
   onBlur?: () => void;
   inputRef?: Ref<HTMLInputElement>;
   getOptionLabel: (record: T) => string;
   select?: string;
+  filters?: CrudFilter[];
+  sortField?: string;
   error?: string;
   helperText?: string;
   autoFocus?: boolean;
@@ -29,6 +31,8 @@ export function RecordAutocomplete<T extends BaseRecord>({
   inputRef,
   getOptionLabel,
   select,
+  filters = [],
+  sortField = 'name',
   error,
   helperText,
   autoFocus,
@@ -38,8 +42,8 @@ export function RecordAutocomplete<T extends BaseRecord>({
   const { autocompleteProps } = useAutocomplete<T>({
     resource,
     defaultValue: value,
-    filters: [{ field: 'is_active', operator: 'eq', value: true }],
-    sorters: [{ field: 'name', order: 'asc' }],
+    filters: [{ field: 'is_active', operator: 'eq', value: true }, ...filters],
+    sorters: [{ field: sortField, order: 'asc' }],
     meta: select ? { select } : undefined,
     onSearch: (search) => [
       { field: 'search_text', operator: 'contains', value: toSearchText(search) },
@@ -58,7 +62,7 @@ export function RecordAutocomplete<T extends BaseRecord>({
       value={current}
       onChange={(_, option) => {
         setSelected(option);
-        onChange(option ? Number(option.id) : undefined);
+        onChange(option ? String(option.id) : undefined);
       }}
       onBlur={onBlur}
       getOptionLabel={getOptionLabel}

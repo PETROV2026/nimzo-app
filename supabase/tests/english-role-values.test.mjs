@@ -57,17 +57,19 @@ describe('english role values migration', () => {
       db,
       'authenticated',
       ADMIN,
-      `insert into public.clients (name) values ('Cliente Migrado')`,
+      `insert into public.clients (name, technician_id) values ('Cliente Migrado', $1)`,
+      [TECH],
     );
     assert.ok(result.ok, result.error);
   });
 
-  test('an existing technician still cannot write catalogs', async () => {
+  test("an existing technician still cannot write someone else's catalogs", async () => {
     const result = await runAs(
       db,
       'authenticated',
       TECH,
-      `insert into public.clients (name) values ('No permitido')`,
+      `insert into public.clients (name, technician_id) values ('No permitido', $1)`,
+      [ADMIN],
     );
     assert.equal(result.ok, false);
   });

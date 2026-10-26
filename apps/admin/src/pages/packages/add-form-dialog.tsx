@@ -25,8 +25,8 @@ import { useId, useState } from 'react';
 import { FormIcon } from '@/pages/forms/form-icon';
 
 type AddFormDialogProps = {
-  packageId: number;
-  branchId: number;
+  packageId: string;
+  branchId: string;
   frequency: ServiceFrequency;
   existing: Pick<ServicePackageForm, 'service_form_id' | 'system_id'>[];
   onClose: () => void;
@@ -71,10 +71,10 @@ export function AddFormDialog({
     (a, b) => Number(suggested(b)) - Number(suggested(a)) || a.code.localeCompare(b.code),
   );
 
-  const isTaken = (systemId: number | null) =>
+  const isTaken = (systemId: string | null) =>
     !!form &&
     existing.some((item) => item.service_form_id === form.id && item.system_id === systemId);
-  const targets: (number | null)[] = systems.length ? systems.map((system) => system.id) : [null];
+  const targets: (string | null)[] = systems.length ? systems.map((system) => system.id) : [null];
   const newTargets = targets.filter((systemId) => !isTaken(systemId));
   const skipped = targets.length - newTargets.length;
 
