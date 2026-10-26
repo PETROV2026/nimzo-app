@@ -115,7 +115,7 @@ describe('demo catalogs seed', () => {
   test('demo reports cover every service form for the existing demo technicians', async () => {
     const result = await runSeed(reportsSql);
     assert.equal(Number(result.forms), 30);
-    assert.equal(Number(result.reports), 60);
+    assert.equal(Number(result.reports), 68);
     const { rows } = await db.query(
       `select count(*)::int as total,
               count(*) filter (where snapshot @> '{"demo": true}')::int as demo,
@@ -125,12 +125,24 @@ describe('demo catalogs seed', () => {
        from public.reports`,
     );
     assert.deepEqual({ ...rows[0], days: rows[0].days > 10 }, {
-      total: 60,
-      demo: 60,
+      total: 68,
+      demo: 68,
       empty: 0,
       technicians: 2,
       days: true,
     });
+  });
+
+  test('demo reports of forms for a system type are tied to an active system of that type', async () => {
+    const { rows } = await db.query(
+      `select count(*) filter (where system_id is not null)::int as with_system,
+              count(*) filter (where system_id is null and form_code not in ('F-SER-003', 'F-SER-005', 'F-SER-008', 'F-SER-045'))::int as missing,
+              count(*) filter (where s.is_active is false)::int as inactive
+       from public.reports r left join public.systems s on s.id = r.system_id`,
+    );
+    assert.ok(rows[0].with_system >= 50);
+    assert.equal(rows[0].missing, 0);
+    assert.equal(rows[0].inactive, 0);
   });
 
   test('running the reports seed again inserts nothing', async () => {

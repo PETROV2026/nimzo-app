@@ -150,7 +150,7 @@ def report_rows():
     rng = random.Random(2026)
     branches = {
         t['email']: [
-            (client['name'], branch['name'])
+            (client['name'], branch['name'], {s['system_type'] for s in branch['systems'] if s['is_active']})
             for client in build_catalog(t) if client['is_active']
             for branch in client['branches'] if branch['is_active']
         ]
@@ -160,9 +160,12 @@ def report_rows():
     rows = []
     for path in sorted(FORMS_DIR.glob('F-SER-*.json')):
         form = json.loads(path.read_text())
+        system_type = FORM_SYSTEM_TYPES.get(form['code'])
         for n in range(REPORTS_PER_FORM):
-            email = emails[(len(rows)) % len(emails)]
-            client_name, branch_name = rng.choice(branches[email])
+            order = [emails[(len(rows) + k) % len(emails)] for k in range(len(emails))]
+            email = next((e for e in order if any(system_type in b[2] for b in branches[e])), order[0])
+            candidates = [b for b in branches[email] if system_type in b[2]] or branches[email]
+            client_name, branch_name, _ = rng.choice(candidates)
             signed = TODAY - timedelta(days=rng.randint(1, 120), hours=rng.randint(0, 8))
             started = signed - timedelta(hours=rng.randint(1, 4), minutes=rng.randint(0, 59))
             sent = signed + timedelta(hours=rng.choice([0, 0, 1, 20, 48]), minutes=rng.randint(1, 30))
@@ -170,7 +173,7 @@ def report_rows():
                 'technician_email': email,
                 'client_name': client_name,
                 'branch_name': branch_name,
-                'system_type': FORM_SYSTEM_TYPES.get(form['code']),
+                'system_type': system_type,
                 'form_code': form['code'],
                 'form_version': form['version'],
                 'id': str(uuid.uuid5(NAMESPACE, f"{form['code']}-{n}")),
@@ -216,7 +219,7 @@ resolved as (
   left join lateral (
     select * from public.systems
     where branch_id = b.id and system_type::text = r.system_type
-    order by name
+    order by is_active desc, name
     limit 1
   ) s on true
 ),
