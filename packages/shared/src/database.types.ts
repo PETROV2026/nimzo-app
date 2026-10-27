@@ -129,39 +129,48 @@ export type Database = {
       };
       profiles: {
         Row: {
+          city: string | null;
           created_at: string;
           email: string | null;
           full_name: string;
           id: string;
           is_active: boolean;
           last_sign_in_at: string | null;
+          phone: string | null;
           role: Database['public']['Enums']['user_role'];
           search_text: string | null;
           signature_path: string | null;
+          state: string | null;
           updated_at: string;
         };
         Insert: {
+          city?: string | null;
           created_at?: string;
           email?: string | null;
           full_name?: string;
           id: string;
           is_active?: boolean;
           last_sign_in_at?: string | null;
+          phone?: string | null;
           role?: Database['public']['Enums']['user_role'];
           search_text?: string | null;
           signature_path?: string | null;
+          state?: string | null;
           updated_at?: string;
         };
         Update: {
+          city?: string | null;
           created_at?: string;
           email?: string | null;
           full_name?: string;
           id?: string;
           is_active?: boolean;
           last_sign_in_at?: string | null;
+          phone?: string | null;
           role?: Database['public']['Enums']['user_role'];
           search_text?: string | null;
           signature_path?: string | null;
+          state?: string | null;
           updated_at?: string;
         };
         Relationships: [];

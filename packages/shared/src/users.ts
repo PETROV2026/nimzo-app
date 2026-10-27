@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
 import type { Tables } from './database.types';
+import { optionalText } from './form-fields';
+import { mexicanStateSchema } from './mexican-states';
 import { userRoleSchema } from './roles';
 
 export type Profile = Tables<'profiles'>;
@@ -39,6 +41,18 @@ export type UserUpdateInput = z.input<typeof userUpdateSchema>;
 export const passwordResetSchema = z.object({ password: passwordField });
 
 export type PasswordResetInput = z.input<typeof passwordResetSchema>;
+
+export const profileDetailsSchema = z.object({
+  phone: optionalText,
+  state: mexicanStateSchema.nullable(),
+  city: optionalText,
+});
+
+export type ProfileDetailsInput = z.input<typeof profileDetailsSchema>;
+export type ProfileDetailsValues = z.output<typeof profileDetailsSchema>;
+
+export const signatureBucket = 'signatures';
+export const signatureMaxBytes = 1048576;
 
 export const userRoleDescriptions: Record<z.infer<typeof userRoleSchema>, string> = {
   technician: 'Llena, firma y envía los formatos desde la app móvil.',

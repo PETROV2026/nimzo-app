@@ -105,7 +105,7 @@ Without a session the app only shows the login. With a session it shows a bottom
 | **Inicio** | `src/app/(tabs)/index.tsx` | `home` | Initial tab. Summary of the technician's work: reports in progress and pending to send |
 | **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms: start, fill in and submit reports |
 | **Clientes** | `src/app/(tabs)/clients.tsx` | `business` | Clients, branches and systems downloaded to the device |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | Account details, role and sign out |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | The technician's name, signature, area (state and city), email and phone, editable except name and email; role and sign out |
 
 ```
 src/app/
@@ -206,7 +206,8 @@ supabase/
 │   ├── 20261026182135_independent_technicians.sql        uuid ids, technician owner on every catalog row, private profiles
 │   ├── 20261026183308_reports.sql                        sent reports with folio, and the report-files bucket
 │   ├── 20261026191615_demo_reports_support.sql           demo reports keep their send date and can be removed
-│   └── 20261027151738_own_service_form_keys.sql          own snake_case form keys instead of F-SER-XXX codes
+│   ├── 20261027151738_own_service_form_keys.sql          own snake_case form keys instead of F-SER-XXX codes
+│   └── 20261027160150_technician_profile_details.sql     phone, state, city and the signatures bucket for Perfil
 ├── functions/
 │   ├── admin-login/
 │   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only
