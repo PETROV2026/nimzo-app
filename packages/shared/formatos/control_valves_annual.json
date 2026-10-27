@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-101",
+  "code": "control_valves_annual",
   "version": 1,
   "report": [
     {
@@ -90,6 +90,62 @@
                 "id": "exercise",
                 "type": "check",
                 "label": "Ejercitar cerrando y abriendo 3 vueltas las válvulas normalmente abiertas del sistema. Cerrar un cuarto de vuelta al final."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_3",
+        "title": "Sección 3",
+        "children": [
+          {
+            "type": "group",
+            "id": "switch_inspection",
+            "label": "Inspección",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "supervisory_switch",
+                "type": "check",
+                "label": "El interruptor de supervisión de la válvula está libre de daño físico."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_4",
+        "title": "Sección 4",
+        "children": [
+          {
+            "type": "group",
+            "id": "maintenance_test",
+            "label": "Mantenimiento y prueba",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "lubricate",
+                "type": "check",
+                "label": "Lubricar válvulas (sólo si están accesibles)."
+              },
+              {
+                "id": "close_turns",
+                "type": "check",
+                "label": "Cierre completamente las válvulas normalmente abiertas a partir de su apertura total. Indique el número de vueltas requeridas.",
+                "measurement": {
+                  "label": "Vueltas"
+                }
+              },
+              {
+                "id": "open_turns",
+                "type": "check",
+                "label": "Abra completamente las válvulas normalmente abiertas a partir de su cierre total. Indique el número de vueltas requeridas y cierre un cuarto de vuelta al final.",
+                "measurement": {
+                  "label": "Vueltas"
+                }
               }
             ]
           }

@@ -11,9 +11,9 @@ const files = readdirSync(folder).filter((file) => file.endsWith('.json'));
 
 const seededCodes = [
   ...readFileSync(
-    path.join(root, 'supabase/migrations/20261022173353_service_forms.sql'),
+    path.join(root, 'supabase/migrations/20261027151738_own_service_form_keys.sql'),
     'utf8',
-  ).matchAll(/\('(F-SER-\d{3})'/g),
+  ).matchAll(/\('F-SER-\d{3}', '([a-z0-9_]+)'\)/g),
 ].map((match) => match[1]);
 
 for (const file of files) {

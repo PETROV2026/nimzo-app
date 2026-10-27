@@ -8,13 +8,12 @@ import { tokens } from '@/theme';
 import { FormIcon } from './form-icon';
 
 type CardPreviewProps = {
-  code: string;
   name: string;
   subtitle: string | null | undefined;
   iconPath: string | null;
 };
 
-export function CardPreview({ code, name, subtitle, iconPath }: CardPreviewProps) {
+export function CardPreview({ name, subtitle, iconPath }: CardPreviewProps) {
   return (
     <Postbox title="Vista previa en la app">
       <Box sx={{ bgcolor: tokens.canvas, p: 2, borderRadius: 1 }}>
@@ -34,16 +33,6 @@ export function CardPreview({ code, name, subtitle, iconPath }: CardPreviewProps
         >
           <FormIcon path={iconPath} size={88} />
           <Box sx={{ textAlign: 'center', minWidth: 0 }}>
-            <Typography
-              sx={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: 'text.secondary',
-                letterSpacing: '0.04em',
-              }}
-            >
-              {code.trim().toUpperCase() || 'F-SER-000'}
-            </Typography>
             <Typography
               sx={{ fontSize: 20, fontWeight: 700, lineHeight: 1.2, color: tokens.black }}
             >

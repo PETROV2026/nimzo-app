@@ -1,5 +1,5 @@
 import Button from '@mui/material/Button';
-import type { ServiceForm } from '@nimzo/shared';
+import { formTitle, type ServiceForm } from '@nimzo/shared';
 import { useOne } from '@refinedev/core';
 import { Link, useParams } from 'react-router';
 
@@ -14,7 +14,12 @@ export function ServiceFormEdit() {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'Formatos', to: '/forms' }, { label: result?.code }]} />
+      <Breadcrumbs
+        items={[
+          { label: 'Formatos', to: '/forms' },
+          { label: result ? formTitle(result) : undefined },
+        ]}
+      />
       <PageHeader
         title="Editar formato"
         action={

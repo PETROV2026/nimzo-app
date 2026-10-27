@@ -11,7 +11,12 @@ import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { serviceFormSchema, type ServiceForm, type ServiceFormInput } from '@nimzo/shared';
+import {
+  formTitle,
+  serviceFormSchema,
+  type ServiceForm,
+  type ServiceFormInput,
+} from '@nimzo/shared';
 import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
 import { Controller, useWatch } from 'react-hook-form';
@@ -25,7 +30,7 @@ import { CardPreview } from './card-preview';
 import { IconBox } from './icon-box';
 
 const emptyForm: ServiceFormInput = {
-  code: 'F-SER-',
+  code: '',
   name: '',
   subtitle: '',
   icon_path: null,
@@ -51,7 +56,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
       successNotification: (response) => ({
         type: 'success',
         message: isEdit ? 'Formato guardado' : 'Formato agregado',
-        description: response?.data ? `${response.data.code} · ${response.data.name}` : undefined,
+        description: response?.data ? formTitle(response.data) : undefined,
       }),
       errorNotification: (error) =>
         error?.message?.includes('duplicate') || error?.message?.includes('unique')
@@ -69,9 +74,9 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
     defaultValues: emptyForm,
   });
 
-  const [code, name, subtitle, iconPath] = useWatch({
+  const [name, subtitle, iconPath] = useWatch({
     control,
-    name: ['code', 'name', 'subtitle', 'icon_path'],
+    name: ['name', 'subtitle', 'icon_path'],
   });
   const savedIconPath = query?.data?.data.icon_path ?? null;
   const loadingRecord = isEdit && query?.isLoading;
@@ -83,7 +88,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
     } catch (error) {
       const message = (error as HttpError)?.message ?? '';
       if (message.includes('duplicate') || message.includes('unique')) {
-        setError('code', { message: 'Ya existe un formato con este código.' });
+        setError('code', { message: 'Ya existe un formato con esta clave.' });
       }
     }
   }
@@ -109,29 +114,6 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
                 </>
               ) : (
                 <Grid container spacing={2}>
-                  <Grid size={{ xs: 12, sm: 5 }}>
-                    <Controller
-                      control={control}
-                      name="code"
-                      render={({ field, fieldState }) => (
-                        <TextField
-                          {...field}
-                          label="Código"
-                          required
-                          disabled={isEdit}
-                          autoFocus={!isEdit}
-                          slotProps={{ htmlInput: { style: { textTransform: 'uppercase' } } }}
-                          error={!!fieldState.error}
-                          helperText={
-                            fieldState.error?.message ??
-                            (isEdit
-                              ? 'El código no cambia: los reportes lo usan para identificar el formato.'
-                              : 'Ej. F-SER-112. No se podrá cambiar después.')
-                          }
-                        />
-                      )}
-                    />
-                  </Grid>
                   <Grid size={12}>
                     <Controller
                       control={control}
@@ -141,6 +123,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
                           {...field}
                           label="Nombre"
                           required
+                          autoFocus={!isEdit}
                           error={!!fieldState.error}
                           helperText={fieldState.error?.message ?? 'Ej. Servicio rociadores'}
                         />
@@ -161,11 +144,32 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
                       )}
                     />
                   </Grid>
+                  <Grid size={{ xs: 12, sm: 7 }}>
+                    <Controller
+                      control={control}
+                      name="code"
+                      render={({ field, fieldState }) => (
+                        <TextField
+                          {...field}
+                          label="Clave interna"
+                          required
+                          disabled={isEdit}
+                          error={!!fieldState.error}
+                          helperText={
+                            fieldState.error?.message ??
+                            (isEdit
+                              ? 'La clave no cambia: los reportes la usan para identificar el formato. No se muestra en la app.'
+                              : 'Igual al nombre del archivo de su definición, por ejemplo smoke_detectors_annual. No se muestra en la app y no se podrá cambiar después.')
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
                 </Grid>
               )}
             </Postbox>
 
-            <CardPreview code={code} name={name} subtitle={subtitle} iconPath={iconPath} />
+            <CardPreview name={name} subtitle={subtitle} iconPath={iconPath} />
           </Stack>
         </Grid>
 

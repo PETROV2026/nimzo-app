@@ -109,7 +109,10 @@ export function useGlobalSearch(term: string) {
   const forms = useList<ServiceForm>({
     resource: 'service_forms',
     filters: searchFilter(term),
-    sorters: [{ field: 'code', order: 'asc' }],
+    sorters: [
+      { field: 'name', order: 'asc' },
+      { field: 'subtitle', order: 'asc' },
+    ],
     ...common,
   });
   const users = useList<Profile>({
@@ -173,7 +176,7 @@ export function useGlobalSearch(term: string) {
         results: forms.result.data.map((form) => ({
           key: `form:${form.id}`,
           kind: 'form',
-          label: `${form.code} · ${form.name}`,
+          label: form.name,
           detail: form.subtitle ?? undefined,
           to: `/forms/${form.id}/edit`,
           inactive: !form.is_active,

@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-106",
+  "code": "sprinklers_weekly",
   "version": 1,
   "report": [
     {
@@ -81,80 +81,6 @@
                 "id": "inspection_4",
                 "type": "check",
                 "label": "Inspeccionar que el riser cuente con una placa de identificación y datos hidráulicos."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "section_2",
-        "title": "Sección 2",
-        "children": [
-          {
-            "type": "group",
-            "id": "monthly_inspection",
-            "label": "Inspecciones",
-            "style": "band",
-            "columns": 1,
-            "children": [
-              {
-                "id": "monthly_1",
-                "type": "check",
-                "label": "Verificar que la conexión con bomberos no esté obstruida y esté libre de daño físico."
-              },
-              {
-                "id": "monthly_2",
-                "type": "check",
-                "label": "Verificar que la válvula de seccionamiento (control) esté enclavada o supervisada."
-              },
-              {
-                "id": "monthly_3",
-                "type": "check",
-                "label": "Inspeccionar que los dispositivos de alarma y conexiones estén libres de daño físico."
-              },
-              {
-                "id": "monthly_4",
-                "type": "check",
-                "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "section_3",
-        "title": "Sección 3",
-        "children": [
-          {
-            "type": "group",
-            "id": "flow_tests",
-            "label": "Pruebas de caudal",
-            "style": "band",
-            "columns": 1,
-            "children": [
-              {
-                "id": "pump_start_pressure",
-                "type": "check",
-                "label": "Bajar la presión del sistema por medio de la válvula de DREN PRINCIPAL. Anotar el valor al que arranca la bomba.",
-                "measurement": {
-                  "unit": "PSI"
-                }
-              },
-              {
-                "id": "residual_pressure",
-                "type": "check",
-                "label": "Con la bomba operando abrir la válvula de DREN PRINCIPAL al 100% y anotar el valor de la presión caudal.",
-                "measurement": {
-                  "unit": "PSI"
-                }
-              },
-              {
-                "id": "static_pressure",
-                "type": "check",
-                "label": "Con la bomba operando cerrar la válvula de DREN PRINCIPAL al 100% y anotar el valor de la presión estática.",
-                "measurement": {
-                  "unit": "PSI"
-                }
               }
             ]
           }

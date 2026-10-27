@@ -62,7 +62,7 @@ El personal técnico llena los **formatos de servicio** directamente en una tabl
 
 ### App móvil (técnicos)
 
-- **Catálogo de formatos** de servicio identificados por código (`F-SER-XXX`).
+- **Catálogo de formatos** de servicio, identificados por su nombre y subtítulo (por ejemplo, "Bomba diésel · Anual").
 - **Paquetes de servicio** por sucursal y frecuencia (semanal, mensual, trimestral, anual) que generan todos los formatos de una visita en un solo paso.
 - **Motor de formatos dinámico**: checklists `N/A / X / OK`, preguntas `SI / NO`, campos de texto, fecha y hora, listas desplegables y grupos repetibles.
 - **Evidencia fotográfica** con descripción, comprimida automáticamente antes de subirse.
@@ -279,7 +279,7 @@ Se sigue el estándar [Conventional Commits](https://www.conventionalcommits.org
 ```
 feat: agrega captura de firma del técnico
 fix: corrige autollenado de dirección de sucursal
-docs: documenta formato F-SER-014
+docs: documenta el formato de bomba diésel mensual
 refactor: simplifica el motor de formatos
 chore: actualiza dependencias
 ```

@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-105",
+  "code": "sprinklers_annual",
   "version": 1,
   "report": [
     {
@@ -116,6 +116,45 @@
                 "id": "monthly_4",
                 "type": "check",
                 "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_3",
+        "title": "Sección 3",
+        "children": [
+          {
+            "type": "group",
+            "id": "flow_tests",
+            "label": "Pruebas de caudal",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "pump_start_pressure",
+                "type": "check",
+                "label": "Bajar la presión del sistema por medio de la válvula de DREN PRINCIPAL. Anotar el valor al que arranca la bomba.",
+                "measurement": {
+                  "unit": "PSI"
+                }
+              },
+              {
+                "id": "residual_pressure",
+                "type": "check",
+                "label": "Con la bomba operando abrir la válvula de DREN PRINCIPAL al 100% y anotar el valor de la presión caudal.",
+                "measurement": {
+                  "unit": "PSI"
+                }
+              },
+              {
+                "id": "static_pressure",
+                "type": "check",
+                "label": "Con la bomba operando cerrar la válvula de DREN PRINCIPAL al 100% y anotar el valor de la presión estática.",
+                "measurement": {
+                  "unit": "PSI"
+                }
               }
             ]
           }

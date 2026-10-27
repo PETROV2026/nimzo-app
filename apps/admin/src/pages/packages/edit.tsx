@@ -14,6 +14,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import {
+  formTitle,
   serviceFrequencyLabels,
   type ServiceForm,
   type ServicePackage,
@@ -34,14 +35,14 @@ import { ADMIN_BAR_HEIGHT } from '@/theme';
 import { AddFormDialog } from './add-form-dialog';
 
 type ItemRow = ServicePackageForm & {
-  service_forms: Pick<ServiceForm, 'code' | 'name' | 'subtitle' | 'icon_path' | 'is_active'> | null;
+  service_forms: Pick<ServiceForm, 'name' | 'subtitle' | 'icon_path' | 'is_active'> | null;
   systems: { name: string; is_active: boolean } | null;
 };
 
 function ItemRowView({ item }: { item: ItemRow }) {
   const { mutate: remove, mutation } = useDelete();
   const form = item.service_forms;
-  const label = form ? `${form.code} · ${form.name}` : 'formato';
+  const label = form ? formTitle(form) : 'formato';
 
   return (
     <TableRow>
@@ -101,14 +102,14 @@ export function PackageEdit() {
     filters: [{ field: 'package_id', operator: 'eq', value: id }],
     pagination: { mode: 'off' },
     meta: {
-      select:
-        '*, service_forms(code, name, subtitle, icon_path, is_active), systems(name, is_active)',
+      select: '*, service_forms(name, subtitle, icon_path, is_active), systems(name, is_active)',
     },
   });
   const rows = [...items.result.data].sort(
     (a, b) =>
-      (a.service_forms?.code ?? '').localeCompare(b.service_forms?.code ?? '') ||
-      (a.systems?.name ?? '').localeCompare(b.systems?.name ?? ''),
+      formTitle(a.service_forms ?? { name: '', subtitle: null }).localeCompare(
+        formTitle(b.service_forms ?? { name: '', subtitle: null }),
+      ) || (a.systems?.name ?? '').localeCompare(b.systems?.name ?? ''),
   );
 
   if (query.isError) {
