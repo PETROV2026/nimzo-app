@@ -136,7 +136,7 @@ describe('demo catalogs seed', () => {
   test('demo reports of forms for a system type are tied to an active system of that type', async () => {
     const { rows } = await db.query(
       `select count(*) filter (where system_id is not null)::int as with_system,
-              count(*) filter (where system_id is null and form_code not in ('F-SER-003', 'F-SER-005', 'F-SER-008', 'F-SER-045'))::int as missing,
+              count(*) filter (where system_id is null and form_code not in ('quote_request', 'site_survey', 'work_order', 'observations_report'))::int as missing,
               count(*) filter (where s.is_active is false)::int as inactive
        from public.reports r left join public.systems s on s.id = r.system_id`,
     );
@@ -160,7 +160,7 @@ describe('demo catalogs seed', () => {
     ).rows[0].id;
     await db.query(
       `insert into public.service_package_forms (package_id, service_form_id)
-       select $1, id from public.service_forms where code = 'F-SER-045'`,
+       select $1, id from public.service_forms where code = 'observations_report'`,
       [pkg],
     );
     await db.query(removeSql);

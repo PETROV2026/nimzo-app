@@ -4,7 +4,7 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { toSearchText, type ServiceForm } from '@nimzo/shared';
+import { formTitle, toSearchText, type ServiceForm } from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
 import { useMemo, useState } from 'react';
@@ -37,7 +37,7 @@ function NameCell({ form }: { form: ServiceForm }) {
       successNotification: {
         type: 'success',
         message: form.is_active ? 'Formato desactivado' : 'Formato activado',
-        description: `${form.code} · ${form.name}`,
+        description: formTitle(form),
       },
     });
   }
@@ -55,7 +55,7 @@ function NameCell({ form }: { form: ServiceForm }) {
           </Typography>
         )}
         <RowActions
-          label={`formato ${form.code}`}
+          label={`formato ${formTitle(form)}`}
           editTo={editTo}
           active={form.is_active}
           onToggleActive={toggleActive}
@@ -73,7 +73,12 @@ export function ServiceFormList() {
 
   const { dataGridProps, setFilters } = useDataGrid<ServiceForm>({
     resource: 'service_forms',
-    sorters: { initial: [{ field: 'code', order: 'asc' }] },
+    sorters: {
+      initial: [
+        { field: 'name', order: 'asc' },
+        { field: 'subtitle', order: 'asc' },
+      ],
+    },
     pagination: { pageSize: 50 },
   });
 
@@ -85,16 +90,6 @@ export function ServiceFormList() {
 
   const columns = useMemo<GridColDef<ServiceForm>[]>(
     () => [
-      {
-        field: 'code',
-        headerName: 'Código',
-        width: 130,
-        renderCell: ({ row }) => (
-          <Typography sx={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>
-            {row.code}
-          </Typography>
-        ),
-      },
       {
         field: 'name',
         headerName: 'Formato',
@@ -116,7 +111,7 @@ export function ServiceFormList() {
   const emptyState = filtering ? (
     <GridEmptyState
       title="No se encontraron formatos"
-      description="Busca por código, nombre o subtítulo, o cambia el filtro de estado."
+      description="Busca por nombre o subtítulo, o cambia el filtro de estado."
     />
   ) : (
     <GridEmptyState
@@ -148,7 +143,7 @@ export function ServiceFormList() {
           value={search}
           onChange={setSearch}
           placeholder="Buscar formatos"
-          label="Buscar formatos por código, nombre o subtítulo"
+          label="Buscar formatos por nombre o subtítulo"
         />
       </ListToolbar>
 

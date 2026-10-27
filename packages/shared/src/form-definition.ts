@@ -215,7 +215,7 @@ export type FormItems = z.infer<typeof formItemsSchema>;
 
 export const formDefinitionSchema = z
   .object({
-    code: z.string().regex(/^F-SER-\d{3}$/),
+    code: fieldId,
     version: z.number().int().min(1),
     report: z.array(fieldSchema),
     instructions: z.string().optional(),

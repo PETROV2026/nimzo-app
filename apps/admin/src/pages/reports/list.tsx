@@ -22,7 +22,7 @@ type ReportRow = Report & {
   technician: { full_name: string; email: string | null } | null;
   client: { name: string } | null;
   branch: { name: string } | null;
-  form: { name: string } | null;
+  form: { name: string; subtitle: string | null } | null;
 };
 
 export function ReportList() {
@@ -33,7 +33,7 @@ export function ReportList() {
     resource: 'reports',
     meta: {
       select:
-        'id, folio, form_code, sent_at, client_id, branch_id, technician:profiles(full_name, email), client:clients(name), branch:branches(name), form:service_forms(name)',
+        'id, folio, sent_at, client_id, branch_id, technician:profiles(full_name, email), client:clients(name), branch:branches(name), form:service_forms(name, subtitle)',
     },
     sorters: { initial: [{ field: 'sent_at', order: 'desc' }] },
     pagination: { pageSize: 20 },
@@ -96,17 +96,17 @@ export function ReportList() {
         ),
       },
       {
-        field: 'form_code',
+        field: 'form',
         headerName: 'Formato',
         flex: 1.2,
         minWidth: 220,
         sortable: false,
         renderCell: ({ row }) => (
           <Box sx={{ lineHeight: 1.4, py: 1 }}>
-            <Typography>{row.form_code}</Typography>
-            {row.form && (
+            <Typography>{row.form?.name ?? '—'}</Typography>
+            {row.form?.subtitle && (
               <Typography variant="body2" color="text.secondary">
-                {row.form.name}
+                {row.form.subtitle}
               </Typography>
             )}
           </Box>

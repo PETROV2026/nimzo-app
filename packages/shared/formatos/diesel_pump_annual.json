@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-013",
+  "code": "diesel_pump_annual",
   "version": 1,
   "report": [
     {
@@ -698,7 +698,7 @@
         {
           "id": "tests_17",
           "type": "check",
-          "label": "Realizar prueba de desempeño de la bomba y adjuntar resultados en formato F-SER-034 Prueba de Desempeño de Sistema de Bombeo."
+          "label": "Realizar prueba de desempeño de la bomba y adjuntar resultados en el formato Prueba de desempeño del sistema de bombeo."
         },
         {
           "type": "table",

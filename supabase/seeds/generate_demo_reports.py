@@ -10,13 +10,13 @@ NAMESPACE = uuid.UUID('4f1c2a7e-0b6d-4c33-9a51-6d2f0e8b7c10')
 TODAY = datetime(2026, 10, 26, 18, 0, tzinfo=timezone.utc)
 
 FORM_SYSTEM_TYPES = {
-  'F-SER-013': 'fire_pump', 'F-SER-014': 'fire_pump', 'F-SER-015': 'fire_pump', 'F-SER-017': 'hydrant',
-  'F-SER-018': 'sprinkler', 'F-SER-023': 'clean_agent', 'F-SER-024': 'clean_agent', 'F-SER-034': 'fire_pump',
-  'F-SER-039': 'hydrant', 'F-SER-040': 'clean_agent', 'F-SER-059': 'kitchen_suppression',
-  'F-SER-097': 'fire_extinguisher', 'F-SER-098': 'fire_pump', 'F-SER-099': 'other',
-  'F-SER-100': 'sprinkler', 'F-SER-101': 'sprinkler', 'F-SER-102': 'sprinkler', 'F-SER-103': 'sprinkler',
-  'F-SER-104': 'sprinkler', 'F-SER-105': 'sprinkler', 'F-SER-106': 'sprinkler', 'F-SER-107': 'hydrant',
-  'F-SER-108': 'hydrant', 'F-SER-109': 'fire_alarm', 'F-SER-110': 'fire_alarm', 'F-SER-111': 'fire_alarm',
+  'diesel_pump_annual': 'fire_pump', 'diesel_pump_monthly': 'fire_pump', 'diesel_pump_weekly': 'fire_pump', 'fire_hose_hydrostatic_test': 'hydrant',
+  'water_network_quarterly': 'sprinkler', 'clean_agent_monthly': 'clean_agent', 'clean_agent_semiannual_annual': 'clean_agent', 'pump_performance_test': 'fire_pump',
+  'hydrant_test': 'hydrant', 'enclosure_integrity_test': 'clean_agent', 'kitchen_suppression': 'kitchen_suppression',
+  'dry_chemical_systems': 'fire_extinguisher', 'electric_pump': 'fire_pump', 'spark_suppression': 'other',
+  'control_valves_weekly': 'sprinkler', 'control_valves_monthly': 'sprinkler', 'control_valves_quarterly': 'sprinkler', 'control_valves_annual': 'sprinkler',
+  'sprinklers_weekly': 'sprinkler', 'sprinklers_monthly': 'sprinkler', 'sprinklers_annual': 'sprinkler', 'cabinets_racks_monthly': 'hydrant',
+  'cabinets_racks_annual': 'hydrant', 'fire_alarm_weekly': 'fire_alarm', 'fire_alarm_monthly': 'fire_alarm', 'fire_alarm_annual': 'fire_alarm',
 }
 
 TEXT_SAMPLES = [
@@ -158,7 +158,7 @@ def report_rows():
     }
     emails = [t['email'] for t in TECHNICIANS]
     rows = []
-    for path in sorted(FORMS_DIR.glob('F-SER-*.json')):
+    for path in sorted(FORMS_DIR.glob('*.json')):
         form = json.loads(path.read_text())
         system_type = FORM_SYSTEM_TYPES.get(form['code'])
         for n in range(REPORTS_PER_FORM):

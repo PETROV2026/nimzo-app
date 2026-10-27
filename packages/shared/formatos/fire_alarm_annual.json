@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-110",
+  "code": "fire_alarm_annual",
   "version": 1,
   "report": [
     {
@@ -163,6 +163,85 @@
               "id": "maintenance_1",
               "type": "check",
               "label": "Servicio de limpieza a tablero de control, fuentes de respaldo, anunciadores remotos y estaciones manuales."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "section_3",
+      "title": "Sección 3",
+      "children": [
+        {
+          "type": "group",
+          "id": "annual_tests",
+          "label": "Inspecciones y pruebas",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "annual_1",
+              "type": "check",
+              "label": "Inspeccionar las instalaciones y verificar con el cliente que no han realizado modificaciones al edificio que pudieran afectar la operación del sistema."
+            },
+            {
+              "id": "annual_2",
+              "type": "check",
+              "label": "Verificar que los fusibles, cableado y conexiones del sistema de alarmas se encuentren en buen estado."
+            },
+            {
+              "id": "annual_3",
+              "type": "check",
+              "label": "Simular la condición de falla a tierra en el sistema y verificar la notificación del problema en el tablero de control (sólo si aplica)."
+            },
+            {
+              "id": "annual_4",
+              "type": "check",
+              "label": "Simular falla de suministro principal de energía eléctrica y baterías de respaldo del tablero de control y verificar la notificación del problema."
+            },
+            {
+              "id": "annual_5",
+              "type": "check",
+              "label": "Verificar que los cargadores de baterías del sistema se encuentren operativos y en condiciones físicas adecuadas."
+            },
+            {
+              "id": "annual_6",
+              "type": "check",
+              "label": "Interrumpir alimentación de suministro eléctrico principal (AC) del sistema durante condiciones de carga eléctrica máxima y verificar su correcta operación."
+            },
+            {
+              "id": "annual_7",
+              "type": "check",
+              "label": "Activar el estado de alarma general del sistema al mantener el suministro eléctrico principal (AC) interrumpido. Verificar que el sistema se mantenga operando correctamente por 5 minutos (para sistemas de voceo, considere 15 minutos). Restablezca el suministro eléctrico principal (AC) al finalizar."
+            },
+            {
+              "id": "annual_8",
+              "type": "check",
+              "label": "Si el sistema cuenta con dispositivos adicionales y periféricos, verificar que se encuentren libres de daño físico y realizar pruebas según corresponda."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "annual_maintenance",
+          "label": "Mantenimiento",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "annual_maintenance_1",
+              "type": "check",
+              "label": "Servicio de limpieza a los detectores del sistema."
+            },
+            {
+              "id": "annual_maintenance_2",
+              "type": "check",
+              "label": "Reemplazar baterías de respaldo del tablero de control, fuentes auxiliares y amplificadores del sistema de alarma de incendios."
+            },
+            {
+              "id": "annual_maintenance_3",
+              "type": "check",
+              "label": "Restablecer el sistema de alarma de incendios y verificar su condición de operación."
             }
           ]
         }

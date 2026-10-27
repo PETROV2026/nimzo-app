@@ -103,7 +103,7 @@ Without a session the app only shows the login. With a session it shows a bottom
 | Tab (label) | File | Icon (`MaterialIcons`) | Purpose |
 |---|---|---|---|
 | **Inicio** | `src/app/(tabs)/index.tsx` | `home` | Initial tab. Summary of the technician's work: reports in progress and pending to send |
-| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms (`F-SER-XXX`): start, fill in and submit reports |
+| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms: start, fill in and submit reports |
 | **Clientes** | `src/app/(tabs)/clients.tsx` | `business` | Clients, branches and systems downloaded to the device |
 | **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | Account details, role and sign out |
 
@@ -149,7 +149,7 @@ packages/shared/
 │   ├── form-definition.ts    Zod schema of a service form definition
 │   ├── report.ts             Report statuses + labels
 │   └── roles.ts              User roles + labels
-├── formatos/                 One JSON definition per service form (F-SER-XXX.json)
+├── formatos/                 One JSON definition per service form (<code>.json, e.g. diesel_pump_annual.json)
 └── test/                     Checks every definition against the schema (`pnpm test:forms`)
 ```
 
@@ -159,13 +159,13 @@ Values stored in the database are English codes (`draft`, `sent`, `technician`);
 
 #### Formatos
 
-**Formatos** (`/forms`) is the catalog of service forms (`public.service_forms`): code `F-SER-XXX` (unique and fixed once created, because reports use it), name, optional subtitle (frequency or test type), icon and active flag. Forms are deactivated, never deleted. The panel shows how the card will look in the mobile app.
+**Formatos** (`/forms`) is the catalog of service forms (`public.service_forms`): an internal key (`code`, snake_case in English, unique and fixed once created, because reports use it; never shown in the apps), name, optional subtitle (frequency or test type), icon and active flag. Forms are deactivated, never deleted. The panel shows how the card will look in the mobile app. Everywhere a form is shown, it is identified by `formTitle()` (name · subtitle), never by its key.
 
-Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form live in `packages/shared/formatos/F-SER-XXX.json`, validated by `formDefinitionSchema` (`packages/shared/src/form-definition.ts`):
+Icons live in the public Storage bucket `form-icons` (SVG, PNG or WebP up to 512 KB); only admins can upload, replace or remove them. Use `formIconUrl(path)` from `apps/admin/src/lib/form-icons.ts` to show one. The fields of each form live in `packages/shared/formatos/<code>.json`, validated by `formDefinitionSchema` (`packages/shared/src/form-definition.ts`):
 
 - `report`: the form's own "Datos del reporte" fields in the General tab. The client block (company, address, branch, contact) and the Firmas tab (supervisor and technician signatures) are the same for every form, so they are not part of the definition.
 - `sections`: the Llenado tab. Each section holds fields, `group`s (`style: "band"` for a titled sub-block, `columns: 2` for side-by-side data), `note`s, `table`s with fixed rows and `list`s the technician can add rows to.
-- `serviceType`: when the type of service (monthly, annual…) decides which sections apply. `allowCustom` lets the technician pick sections by hand ("Otros"). With `items`, a form-level `serviceType` applies to every item (F-SER-039); put it inside `items` when each item picks its own.
+- `serviceType`: when the type of service (monthly, annual…) decides which sections apply. `allowCustom` lets the technician pick sections by hand ("Otros"). With `items`, a form-level `serviceType` applies to every item (`hydrant_test`); put it inside `items` when each item picks its own.
 - `items`: when the same sections repeat per piece of equipment (valve, hydrant, hose…); `keyLabel` is what the technician types to add one.
 - Field types: `check` (N/A · X · OK, optionally with a measured value), `yes_no`, `text` (with `multiline`, `inputMode` and `unit`), `date`, `time`, `select`, `choice`, `checkbox`, `photos` and `calc` (a formula over other fields, such as net pressure). `visibleWhen` shows a field only for a given answer, and `highlight` marks it in red.
 - Ids are English snake_case and must stay stable once reports exist; labels are Spanish. Numbering is automatic.
@@ -205,7 +205,8 @@ supabase/
 │   ├── 20261022183129_service_packages.sql               service packages per branch and frequency
 │   ├── 20261026182135_independent_technicians.sql        uuid ids, technician owner on every catalog row, private profiles
 │   ├── 20261026183308_reports.sql                        sent reports with folio, and the report-files bucket
-│   └── 20261026191615_demo_reports_support.sql           demo reports keep their send date and can be removed
+│   ├── 20261026191615_demo_reports_support.sql           demo reports keep their send date and can be removed
+│   └── 20261027151738_own_service_form_keys.sql          own snake_case form keys instead of F-SER-XXX codes
 ├── functions/
 │   ├── admin-login/
 │   │   ├── handler.ts         panel sign-in: Turnstile captcha, then Supabase Auth, admins only

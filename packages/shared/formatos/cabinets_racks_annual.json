@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-102",
+  "code": "cabinets_racks_annual",
   "version": 1,
   "report": [
     {
@@ -13,30 +13,35 @@
       "label": "Fecha de ejecución"
     },
     {
+      "id": "building",
+      "type": "text",
+      "label": "Edificio"
+    },
+    {
       "id": "execution_time",
       "type": "text",
       "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "service_areas",
+      "type": "text",
+      "label": "Áreas de ejecución del servicio"
     }
   ],
   "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
   "items": {
-    "id": "valves",
-    "addLabel": "Agregar válvula",
-    "title": "Número de válvula",
-    "keyLabel": "Número de válvula",
+    "id": "cabinets",
+    "addLabel": "Agregar gabinete",
+    "title": "Número de gabinete",
+    "keyLabel": "Número de gabinete",
     "sections": [
       {
         "id": "section_1",
         "title": "Sección 1",
         "children": [
           {
-            "id": "controlled_system",
-            "type": "text",
-            "label": "Sistema o porción que controla"
-          },
-          {
             "type": "group",
-            "id": "valve_inspection",
+            "id": "cabinet_inspection",
             "label": "Inspección",
             "style": "band",
             "columns": 1,
@@ -44,32 +49,51 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "La válvula se encuentra operativa y libre de daño físico visible."
+                "label": "Estado de gabinete o rack y bolsa de manguera."
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "La válvula está accesible y libre de obstrucciones."
+                "label": "Revisión de etiqueta de mantenimiento."
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "La válvula está equipada con la correspondiente llave para su manipulación."
+                "label": "Inspección del estado de la manguera."
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "La válvula cuenta con candado y/o se encuentra supervisada eléctricamente."
+                "label": "Verificar buen estado del chiflón."
               },
               {
                 "id": "inspection_5",
                 "type": "check",
-                "label": "Verificar el estado correcto de la válvula (abierta o cerrada)."
+                "label": "Revisión de válvula."
               },
               {
                 "id": "inspection_6",
                 "type": "check",
-                "label": "La válvula cuenta con placa de identificación indicando el sistema o parte del sistema que controla."
+                "label": "Soportería en buen estado."
+              },
+              {
+                "id": "inspection_7",
+                "type": "check",
+                "label": "Manguera colocada correctamente."
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "cabinet_maintenance",
+            "label": "Mantenimiento",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "cleaning",
+                "type": "check",
+                "label": "Servicio de limpieza a gabinete o rack y bolsa de manguera."
               }
             ]
           }
@@ -81,35 +105,15 @@
         "children": [
           {
             "type": "group",
-            "id": "valve_test",
-            "label": "Prueba",
+            "id": "annual_maintenance",
+            "label": "Mantenimiento",
             "style": "band",
             "columns": 1,
             "children": [
               {
-                "id": "exercise",
+                "id": "hose_folds",
                 "type": "check",
-                "label": "Ejercitar cerrando y abriendo 3 vueltas las válvulas normalmente abiertas del sistema. Cerrar un cuarto de vuelta al final."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "section_3",
-        "title": "Sección 3",
-        "children": [
-          {
-            "type": "group",
-            "id": "switch_inspection",
-            "label": "Inspección",
-            "style": "band",
-            "columns": 1,
-            "children": [
-              {
-                "id": "supervisory_switch",
-                "type": "check",
-                "label": "El interruptor de supervisión de la válvula está libre de daño físico."
+                "label": "Recorrido de dobleces de manguera."
               }
             ]
           }

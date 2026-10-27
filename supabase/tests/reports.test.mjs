@@ -11,8 +11,8 @@ const TECH_B = '00000000-0000-0000-0000-0000000000ca';
 let db;
 let catalogA;
 let catalogB;
-let form014;
-let form104;
+let dieselPumpMonthlyForm;
+let sprinklersWeeklyForm;
 const asAdmin = (sql, params) => runAs(db, 'authenticated', ADMIN, sql, params);
 const asTechA = (sql, params) => runAs(db, 'authenticated', TECH_A, sql, params);
 const asTechB = (sql, params) => runAs(db, 'authenticated', TECH_B, sql, params);
@@ -43,8 +43,8 @@ function reportRow(technicianId, catalog, overrides = {}) {
     client_id: catalog.client,
     branch_id: catalog.branch,
     system_id: catalog.system,
-    service_form_id: form014,
-    form_code: 'F-SER-014',
+    service_form_id: dieselPumpMonthlyForm,
+    form_code: 'diesel_pump_monthly',
     form_version: 1,
     answers: { vta: 'VTA-1' },
     snapshot: { client: { name: 'Cliente (demo)' }, branch: { name: 'Sucursal (demo)' } },
@@ -73,10 +73,10 @@ before(async () => {
   await createUser(db, TECH_B, { fullName: 'Tecnico B' });
   catalogA = await createTechnicianCatalog(db, TECH_A, { prefix: 'A' });
   catalogB = await createTechnicianCatalog(db, TECH_B, { prefix: 'B' });
-  const forms = (await db.query(`select code, id from public.service_forms where code in ('F-SER-014', 'F-SER-104')`))
+  const forms = (await db.query(`select code, id from public.service_forms where code in ('diesel_pump_monthly', 'sprinklers_weekly')`))
     .rows;
-  form014 = forms.find((form) => form.code === 'F-SER-014').id;
-  form104 = forms.find((form) => form.code === 'F-SER-104').id;
+  dieselPumpMonthlyForm = forms.find((form) => form.code === 'diesel_pump_monthly').id;
+  sprinklersWeeklyForm = forms.find((form) => form.code === 'sprinklers_weekly').id;
 });
 
 describe('reports', () => {
@@ -124,7 +124,7 @@ describe('reports', () => {
     const systemFromAnotherBranch = await insertReport(asTechA, reportRow(TECH_A, { ...catalogA, branch: otherBranch }));
     assert.match(systemFromAnotherBranch.error, /system must belong to the branch/);
 
-    const wrongCode = await insertReport(asTechA, reportRow(TECH_A, catalogA, { service_form_id: form104 }));
+    const wrongCode = await insertReport(asTechA, reportRow(TECH_A, catalogA, { service_form_id: sprinklersWeeklyForm }));
     assert.match(wrongCode.error, /form_code must match/);
 
     const foreignPackage = (
