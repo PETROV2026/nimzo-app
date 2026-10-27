@@ -17,6 +17,7 @@
     "@expo/vector-icons": "~15.1.1",
     "@nimzo/brand": "workspace:*",
     "@nimzo/shared": "workspace:*",
+    "@shopify/react-native-skia": "2.6.2",
     "@supabase/supabase-js": "^2.117.3",
     "expo": "~57.0.28",
     "expo-constants": "~57.0.21",
