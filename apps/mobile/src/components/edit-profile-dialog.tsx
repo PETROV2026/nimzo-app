@@ -5,6 +5,13 @@ import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { TextField } from '@/components/text-field';
 import { colors } from '@/theme/colors';
+import { mexicanStateLabels, mexicanStates, type MexicanState } from '@nimzo/shared';
+import { SelectField } from '@/components/select-field';
+
+const stateOptions = mexicanStates.map((code) => ({
+  value: code,
+  label: mexicanStateLabels[code],
+}));
 
 type EditProfileDialogProps = {
   profile: Profile;
@@ -17,10 +24,11 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
   const [nameError, setNameError] = useState<string>();
   const [phone, setPhone] = useState(profile.phone ?? '');
   const [city, setCity] = useState(profile.city ?? '');
+  const [state, setState] = useState<MexicanState | null>(profile.state);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-    async function handleSave() {
+  async function handleSave() {
     const name = fullName.trim();
     if (!name) {
       setNameError('Escribe tu nombre completo.');
@@ -30,7 +38,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
     const result = await updateProfile({
       fullName: name,
       phone: phone.trim() || null,
-      state: profile.state,
+      state: state,
       city: city.trim() || null,
     });
     setSaving(false);
@@ -59,7 +67,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               <MaterialIcons name="close" size={24} color={colors.muted} />
             </Pressable>
           </View>
-            <TextField
+          <TextField
             label="Nombre completo"
             value={fullName}
             onChangeText={(text) => {
@@ -80,6 +88,14 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
             placeholder="Ej. 686 123 4567"
             editable={!saving}
           />
+          <SelectField
+            label="Estado"
+            value={state}
+            options={stateOptions}
+            onChange={setState}
+            placeholder="Selecciona un estado"
+            disabled={saving}
+          />
           <TextField
             label="Ciudad"
             value={city}
@@ -97,7 +113,12 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={saving} />
             </View>
             <View className="w-[190px]">
-              <Button label="Guardar cambios" onPress={handleSave} loading={saving} />
+              <Button
+                variant="success"
+                label="Guardar cambios"
+                onPress={handleSave}
+                loading={saving}
+              />
             </View>
           </View>
         </View>

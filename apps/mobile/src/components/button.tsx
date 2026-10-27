@@ -1,7 +1,6 @@
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { colors } from '@/theme/colors';
 
-
 const variants = {
   primary: {
     container: 'bg-primary-strong',
@@ -18,7 +17,12 @@ const variants = {
     text: 'text-on-brand',
     spinner: colors['on-brand'],
   },
-}
+  success: {
+    container: 'bg-success',
+    text: 'text-on-success',
+    spinner: colors['on-success'],
+  },
+};
 
 type ButtonProps = {
   label: string;
@@ -27,7 +31,6 @@ type ButtonProps = {
   disabled?: boolean;
   variant?: keyof typeof variants;
 };
-;
 
 export function Button({ label, onPress, loading, disabled, variant = 'primary' }: ButtonProps) {
   const style = variants[variant];

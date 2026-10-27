@@ -93,6 +93,7 @@ apps/mobile/
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
   | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
   | `bg-brand` + `text-on-brand` | orange `#E4572E` + white | Main actions in buttons |
+  | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm actions |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
 
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.

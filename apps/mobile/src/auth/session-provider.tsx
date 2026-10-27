@@ -3,9 +3,9 @@ import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export type Profile = { 
-  fullName: string; 
-  role: UserRole 
+export type Profile = {
+  fullName: string;
+  role: UserRole;
   phone: string | null;
   state: MexicanState | null;
   city: string | null;
@@ -24,7 +24,7 @@ type SessionContextValue = AuthStatus & {
   accessError: string | null;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
-   updateProfile: (changes: ProfileChanges) => Promise<string | null>;
+  updateProfile: (changes: ProfileChanges) => Promise<string | null>;
 };
 
 const mobileRoles: readonly UserRole[] = ['technician'];
@@ -116,7 +116,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }
 
-    async function updateProfile({ fullName, ...changes }: ProfileChanges) {
+  async function updateProfile({ fullName, ...changes }: ProfileChanges) {
     if (!userId) return 'No hay una sesión activa.';
     const { error } = await supabase
       .from('profiles')
