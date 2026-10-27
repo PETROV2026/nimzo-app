@@ -1,5 +1,5 @@
 import { EmptyState } from '@/components/empty-state';
 
 export default function NotesScreen() {
-  return <EmptyState description="Toca “Agregar nota” para crear la primera." />;
+  return <EmptyState icon="event-note" description="Toca “Agregar nota” para crear la primera." />;
 }
