@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-108",
+  "code": "cabinets_racks_monthly",
   "version": 1,
   "report": [
     {
@@ -94,26 +94,6 @@
                 "id": "cleaning",
                 "type": "check",
                 "label": "Servicio de limpieza a gabinete o rack y bolsa de manguera."
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "id": "section_2",
-        "title": "Sección 2",
-        "children": [
-          {
-            "type": "group",
-            "id": "annual_maintenance",
-            "label": "Mantenimiento",
-            "style": "band",
-            "columns": 1,
-            "children": [
-              {
-                "id": "hose_folds",
-                "type": "check",
-                "label": "Recorrido de dobleces de manguera."
               }
             ]
           }

@@ -1,5 +1,5 @@
 {
-  "code": "F-SER-104",
+  "code": "sprinklers_monthly",
   "version": 1,
   "report": [
     {
@@ -81,6 +81,41 @@
                 "id": "inspection_4",
                 "type": "check",
                 "label": "Inspeccionar que el riser cuente con una placa de identificación y datos hidráulicos."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_2",
+        "title": "Sección 2",
+        "children": [
+          {
+            "type": "group",
+            "id": "monthly_inspection",
+            "label": "Inspecciones",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "monthly_1",
+                "type": "check",
+                "label": "Verificar que la conexión con bomberos no esté obstruida y esté libre de daño físico."
+              },
+              {
+                "id": "monthly_2",
+                "type": "check",
+                "label": "Verificar que la válvula de seccionamiento (control) esté enclavada o supervisada."
+              },
+              {
+                "id": "monthly_3",
+                "type": "check",
+                "label": "Inspeccionar que los dispositivos de alarma y conexiones estén libres de daño físico."
+              },
+              {
+                "id": "monthly_4",
+                "type": "check",
+                "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto."
               }
             ]
           }
