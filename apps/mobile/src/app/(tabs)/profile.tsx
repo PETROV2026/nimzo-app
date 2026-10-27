@@ -49,7 +49,7 @@ export default function ProfileScreen() {
             />
           </View>
           <View className="w-[232px]">
-            <Button label="Editar información" onPress={() => setEditing(true)} disabled={!profile} />
+            <Button variant="brand" label="Editar información" onPress={() => setEditing(true)} disabled={!profile} />
           </View>
         </View>
        {editing && profile ? (

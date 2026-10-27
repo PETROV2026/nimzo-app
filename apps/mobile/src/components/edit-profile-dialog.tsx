@@ -13,14 +13,22 @@ type EditProfileDialogProps = {
 
 export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
   const { updateProfile } = useSession();
+  const [fullName, setFullName] = useState(profile.fullName);
+  const [nameError, setNameError] = useState<string>();
   const [phone, setPhone] = useState(profile.phone ?? '');
   const [city, setCity] = useState(profile.city ?? '');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSave() {
+    async function handleSave() {
+    const name = fullName.trim();
+    if (!name) {
+      setNameError('Escribe tu nombre completo.');
+      return;
+    }
     setSaving(true);
     const result = await updateProfile({
+      fullName: name,
       phone: phone.trim() || null,
       state: profile.state,
       city: city.trim() || null,
@@ -51,6 +59,18 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               <MaterialIcons name="close" size={24} color={colors.muted} />
             </Pressable>
           </View>
+            <TextField
+            label="Nombre completo"
+            value={fullName}
+            onChangeText={(text) => {
+              setFullName(text);
+              setNameError(undefined);
+            }}
+            error={nameError}
+            autoCapitalize="words"
+            autoComplete="name"
+            editable={!saving}
+          />
           <TextField
             label="Teléfono"
             value={phone}
@@ -72,7 +92,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               {error}
             </Text>
           ) : null}
-          <View className="flex-row justify-end gap-4">
+          <View className="flex-row justify-center gap-4">
             <View className="w-[190px]">
               <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={saving} />
             </View>

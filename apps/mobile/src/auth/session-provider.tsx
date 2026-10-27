@@ -12,7 +12,7 @@ export type Profile = {
   signaturePath: string | null;
 };
 
-type ProfileChanges = Pick<Profile, 'phone' | 'state' | 'city'>;
+type ProfileChanges = Pick<Profile, 'fullName' | 'phone' | 'state' | 'city'>;
 
 type AuthStatus =
   | { status: 'initializing' }
@@ -116,11 +116,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }
 
-    async function updateProfile(changes: ProfileChanges) {
+    async function updateProfile({ fullName, ...changes }: ProfileChanges) {
     if (!userId) return 'No hay una sesión activa.';
-    const { error } = await supabase.from('profiles').update(changes).eq('id', userId);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ full_name: fullName, ...changes })
+      .eq('id', userId);
     if (error) return 'No se pudieron guardar los cambios. Intenta de nuevo.';
-    setProfile((previous) => (previous ? { ...previous, ...changes } : previous));
+    setProfile((previous) => (previous ? { ...previous, fullName, ...changes } : previous));
     return null;
   }
 
