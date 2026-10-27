@@ -4,6 +4,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
+import { SignatureSection } from '@/components/signature-section';
 
 export default function ProfileScreen() {
   const session = useSession();
@@ -54,7 +55,14 @@ export default function ProfileScreen() {
             />
           </View>
         </View>
-        <View className="mt-16 w-[232px] self-end">
+
+        <View className="mt-8">
+          <SignatureSection signaturePath={profile?.signaturePath ?? null} />
+        </View>
+
+        <View className="mt-12 h-px bg-border" />
+
+        <View className="mt-8 w-[232px] self-end">
           <Button
             variant="secondary"
             label="Cerrar sesión"

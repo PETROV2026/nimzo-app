@@ -25,6 +25,7 @@ type SessionContextValue = AuthStatus & {
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
   updateProfile: (changes: ProfileChanges) => Promise<string | null>;
+  saveSignature: (png: Uint8Array) => Promise<string | null>;
 };
 
 const mobileRoles: readonly UserRole[] = ['technician'];
@@ -127,6 +128,25 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return null;
   }
 
+  async function saveSignature(png: Uint8Array) {
+    if (!userId) return 'No hay una sesión activa.';
+    const signatures = supabase.storage.from('signatures');
+    const path = `${userId}/${Date.now()}.png`;
+    const { error: uploadError } = await signatures.upload(path, png, { contentType: 'image/png' });
+    if (uploadError) return 'No se pudo guardar la firma. Intenta de nuevo.';
+    const { error } = await supabase
+      .from('profiles')
+      .update({ signature_path: path })
+      .eq('id', userId);
+    if (error) {
+      await signatures.remove([path]);
+      return 'No se pudo guardar la firma. Intenta de nuevo.';
+    }
+    if (profile?.signaturePath) await signatures.remove([profile.signaturePath]);
+    setProfile((previous) => (previous ? { ...previous, signaturePath: path } : previous));
+    return null;
+  }
+
   let authStatus: AuthStatus;
   if (session === undefined) {
     authStatus = { status: 'initializing' };
@@ -139,7 +159,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SessionContext value={{ ...authStatus, accessError, signIn, signOut, updateProfile }}>
+    <SessionContext
+      value={{ ...authStatus, accessError, signIn, signOut, updateProfile, saveSignature }}
+    >
       {children}
     </SessionContext>
   );
