@@ -86,6 +86,7 @@ apps/mobile/
   |---|---|---|
   | `bg-background` | white `#FFFFFF` | Main background |
   | `bg-surface` | off-white `#F8F7F8` | Grouped sections |
+  | `bg-canvas` | menta `#F4FBF8` | Main screen background |
   | `text-foreground` | black `#000000` | Text and titles |
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |

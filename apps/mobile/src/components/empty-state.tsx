@@ -12,7 +12,7 @@ type EmptyStateProps = {
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
-    <View className="flex-1 items-center justify-center gap-4 bg-background p-8">
+    <View className="flex-1 items-center justify-center gap-4 bg-canvas p-8">
       {icon ? <MaterialIcons name={icon} size={64} color={colors.muted} /> : null}
       <View className="max-w-md items-center gap-2">
         {title ? (

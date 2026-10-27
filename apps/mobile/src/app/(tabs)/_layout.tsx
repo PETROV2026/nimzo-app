@@ -7,9 +7,9 @@ import type { ColorValue } from 'react-native';
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 function tabIcon(name: IconName) {
-  return ({ color, size }: { color: ColorValue; size: number }) => (
-    <MaterialIcons name={name} color={color} size={size} />
-  );
+  return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
+    return <MaterialIcons name={name} color={color} size={size} />;
+  };
 }
 
 export default function TabsLayout() {
@@ -20,12 +20,25 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.background },
         tabBarLabelStyle: { fontFamily: fonts['sans-medium'] },
+        headerStyle: { backgroundColor: colors.muted },
+        headerTintColor: colors.background,
+        headerTitleAlign: 'center',
+        headerTitleStyle: { fontFamily: fonts['sans-bold'] },
       }}
     >
-      <Tabs.Screen name="services" options={{ title: 'Servicios', tabBarIcon: tabIcon('assignment') }} />
-      <Tabs.Screen name="clients" options={{ title: 'Clientes', tabBarIcon: tabIcon('people-outline') }} />
+      <Tabs.Screen
+        name="services"
+        options={{ title: 'Servicios', tabBarIcon: tabIcon('assignment') }}
+      />
+      <Tabs.Screen
+        name="clients"
+        options={{ title: 'Clientes', tabBarIcon: tabIcon('people-outline') }}
+      />
       <Tabs.Screen name="notes" options={{ title: 'Notas', tabBarIcon: tabIcon('event-note') }} />
-      <Tabs.Screen name="profile" options={{ title: 'Perfil', tabBarIcon: tabIcon('account-circle') }} />
+      <Tabs.Screen
+        name="profile"
+        options={{ title: 'Perfil', tabBarIcon: tabIcon('account-circle') }}
+      />
     </Tabs>
   );
 }

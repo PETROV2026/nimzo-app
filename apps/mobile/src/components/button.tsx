@@ -6,9 +6,25 @@ type ButtonProps = {
   onPress: () => void;
   loading?: boolean;
   disabled?: boolean;
+  variant?: 'primary' | 'secondary';
 };
 
-export function Button({ label, onPress, loading, disabled }: ButtonProps) {
+const variants = {
+  primary: {
+    container: 'bg-primary-strong',
+    text: 'text-on-primary',
+    spinner: colors['on-primary'],
+  },
+  secondary: {
+    container: 'border-2 border-border-strong bg-background',
+    text: 'text-foreground',
+    spinner: colors.foreground,
+  },
+};
+
+export function Button({ label, onPress, loading, disabled, variant = 'primary' }: ButtonProps) {
+  const style = variants[variant];
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -16,12 +32,12 @@ export function Button({ label, onPress, loading, disabled }: ButtonProps) {
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       onPress={onPress}
       disabled={disabled || loading}
-      className="min-h-14 items-center justify-center rounded-lg bg-primary-strong px-6 active:opacity-80 disabled:opacity-50"
+      className={`min-h-14 items-center justify-center rounded-lg px-6 active:opacity-80 disabled:opacity-50 ${style.container}`}
     >
       {loading ? (
-        <ActivityIndicator color={colors['on-primary']} />
+        <ActivityIndicator color={style.spinner} />
       ) : (
-        <Text className="font-sans-semibold text-lg text-on-primary">{label}</Text>
+        <Text className={`font-sans-semibold text-lg ${style.text}`}>{label}</Text>
       )}
     </Pressable>
   );
