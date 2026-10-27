@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
+import { EditProfileDialog } from '@/components/edit-profile-dialog'; 
 
 export default function ProfileScreen() {
   const session = useSession();
   const [signingOut, setSigningOut] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   if (session.status !== 'signed-in') {
     return null;
@@ -46,8 +48,14 @@ export default function ProfileScreen() {
               loading={signingOut}
             />
           </View>
-      </View>
-    </ScrollView>
+          <View className="w-[232px]">
+            <Button label="Editar información" onPress={() => setEditing(true)} disabled={!profile} />
+          </View>
+        </View>
+       {editing && profile ? (
+        <EditProfileDialog profile={profile} onClose={() => setEditing(false)} />
+      ) : null} 
+    </ScrollView>   
   );
 }
 
