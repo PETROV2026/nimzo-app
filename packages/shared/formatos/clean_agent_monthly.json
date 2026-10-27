@@ -1,0 +1,248 @@
+{
+  "code": "clean_agent_monthly",
+  "version": 1,
+  "report": [
+    {
+      "id": "protected_place",
+      "type": "text",
+      "label": "Lugar protegido"
+    },
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "arrival_time",
+      "type": "time",
+      "label": "Hora de entrada"
+    },
+    {
+      "id": "month",
+      "type": "select",
+      "label": "Corresponde al mes de",
+      "options": [
+        {
+          "value": "january",
+          "label": "Enero"
+        },
+        {
+          "value": "february",
+          "label": "Febrero"
+        },
+        {
+          "value": "march",
+          "label": "Marzo"
+        },
+        {
+          "value": "april",
+          "label": "Abril"
+        },
+        {
+          "value": "may",
+          "label": "Mayo"
+        },
+        {
+          "value": "june",
+          "label": "Junio"
+        },
+        {
+          "value": "july",
+          "label": "Julio"
+        },
+        {
+          "value": "august",
+          "label": "Agosto"
+        },
+        {
+          "value": "september",
+          "label": "Septiembre"
+        },
+        {
+          "value": "october",
+          "label": "Octubre"
+        },
+        {
+          "value": "november",
+          "label": "Noviembre"
+        },
+        {
+          "value": "december",
+          "label": "Diciembre"
+        }
+      ]
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "sections": [
+    {
+      "id": "inspection",
+      "title": "Inspección",
+      "children": [
+        {
+          "id": "inspection_1",
+          "type": "check",
+          "label": "El panel se encuentra encendido y libre de daño físico, además de no contar con señales de alarma, supervisión y problema activos."
+        },
+        {
+          "id": "inspection_2",
+          "type": "check",
+          "label": "El panel de control cuenta con etiqueta de mantenimiento."
+        },
+        {
+          "id": "inspection_3",
+          "type": "check",
+          "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación."
+        },
+        {
+          "id": "inspection_4",
+          "type": "check",
+          "label": "Los detectores del sistema emiten una luz intermitente que indica que están operativos."
+        },
+        {
+          "id": "inspection_5",
+          "type": "check",
+          "label": "Los detectores están libres de daño físico, pintura y obstrucciones."
+        },
+        {
+          "id": "inspection_6",
+          "type": "check",
+          "label": "Verificar que los detectores están suficientemente alejados de las ventilas de aire (por lo menos 3 pies)."
+        },
+        {
+          "id": "inspection_7",
+          "type": "check",
+          "label": "Las botoneras de aborto están identificadas, además de estar libres de daño físico, pintura y obstrucciones."
+        },
+        {
+          "id": "inspection_8",
+          "type": "check",
+          "label": "Las estaciones de liberación manual están en posición normal e identificadas, además de estar libres de daño físico, pintura y obstrucciones."
+        },
+        {
+          "id": "inspection_9",
+          "type": "check",
+          "label": "Las estaciones de liberación manual tienen colocado correctamente su sello de seguridad y su llave de restablecimiento."
+        },
+        {
+          "id": "inspection_10",
+          "type": "check",
+          "label": "Los dispositivos de notificación están libres de daño físico, pintura y obstrucciones."
+        },
+        {
+          "id": "inspection_11",
+          "type": "check",
+          "label": "Las boquillas de descarga del agente están orientadas correctamente y están libres de daño físico, pintura y obstrucciones."
+        },
+        {
+          "id": "inspection_12",
+          "type": "check",
+          "label": "Verificar que el recinto protegido no presenta orificios que permitan la fuga del agente al momento de una descarga."
+        },
+        {
+          "id": "inspection_13",
+          "type": "check",
+          "label": "Verificar que el recinto protegido no haya sido alterado o modificado."
+        },
+        {
+          "id": "inspection_14",
+          "type": "check",
+          "label": "Los tanques que contienen el agente limpio están en buenas condiciones y libres de daño físico."
+        },
+        {
+          "id": "inspection_15",
+          "type": "check",
+          "label": "Los tanques cuentan con identificación que indica la descripción del agente y la cantidad del mismo."
+        },
+        {
+          "id": "inspection_16",
+          "type": "check",
+          "label": "Los tanques cuentan con etiqueta de mantenimiento."
+        },
+        {
+          "id": "inspection_17",
+          "type": "check",
+          "label": "Los manómetros de los tanques de agente indican las presiones adecuadas de operación (sólo si aplica)."
+        },
+        {
+          "id": "inspection_18",
+          "type": "check",
+          "label": "Verificar que las mangueras, tubería y conexiones visibles del sistema están en buen estado."
+        },
+        {
+          "id": "inspection_19",
+          "type": "check",
+          "label": "Si el sistema cuenta con dispositivos adicionales, verificar que se encuentren en buen estado."
+        },
+        {
+          "type": "group",
+          "id": "panel_voltages",
+          "label": "Medir los voltajes de suministro principal (AC) y baterías de respaldo del tablero de control. Verifique que los valores obtenidos se encuentren dentro de un rango adecuado",
+          "style": "item",
+          "columns": 2,
+          "children": [
+            {
+              "id": "voltage_status",
+              "type": "check",
+              "label": "Estado"
+            },
+            {
+              "id": "ac_l1_g",
+              "type": "text",
+              "label": "Suministro principal (AC): L1 - G",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "ac_n_g",
+              "type": "text",
+              "label": "Suministro principal (AC): N - G",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "battery_1_voltage",
+              "type": "text",
+              "label": "Baterías de respaldo: #1",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "battery_2_voltage",
+              "type": "text",
+              "label": "Baterías de respaldo: #2",
+              "inputMode": "decimal",
+              "unit": "V"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maintenance",
+      "title": "Mantenimiento",
+      "children": [
+        {
+          "id": "maintenance_1",
+          "type": "check",
+          "label": "Realizar servicio de limpieza al panel de control."
+        },
+        {
+          "id": "maintenance_2",
+          "type": "check",
+          "label": "Verificar que el sistema queda operativo al terminar la inspección. En caso contrario, anotar el motivo en la sección de comentarios."
+        }
+      ]
+    }
+  ]
+}

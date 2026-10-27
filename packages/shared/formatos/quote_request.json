@@ -1,0 +1,319 @@
+{
+  "code": "quote_request",
+  "version": 1,
+  "report": [
+    {
+      "id": "request_date",
+      "type": "date",
+      "label": "Fecha de solicitud"
+    },
+    {
+      "id": "requested_execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución solicitada (sólo si aplica)"
+    },
+    {
+      "id": "trade_name",
+      "type": "text",
+      "label": "Nombre comercial"
+    },
+    {
+      "id": "contact",
+      "type": "text",
+      "label": "Contacto"
+    },
+    {
+      "id": "building",
+      "type": "text",
+      "label": "Edificio"
+    },
+    {
+      "id": "requested_by",
+      "type": "text",
+      "label": "Solicitado por"
+    },
+    {
+      "id": "city",
+      "type": "text",
+      "label": "Ciudad"
+    }
+  ],
+  "header": [
+    {
+      "id": "certainty",
+      "type": "select",
+      "label": "Certeza",
+      "options": [
+        {
+          "value": "p10",
+          "label": "10% (Baja)"
+        },
+        {
+          "value": "p20",
+          "label": "20%"
+        },
+        {
+          "value": "p30",
+          "label": "30%"
+        },
+        {
+          "value": "p40",
+          "label": "40%"
+        },
+        {
+          "value": "p50",
+          "label": "50% (Media)"
+        },
+        {
+          "value": "p60",
+          "label": "60%"
+        },
+        {
+          "value": "p70",
+          "label": "70%"
+        },
+        {
+          "value": "p80",
+          "label": "80%"
+        },
+        {
+          "value": "p90",
+          "label": "90%"
+        },
+        {
+          "value": "p100",
+          "label": "100% (Alta)"
+        }
+      ]
+    }
+  ],
+  "items": {
+    "id": "quotes",
+    "addLabel": "Añadir cotización",
+    "title": "Cotización",
+    "sections": [
+      {
+        "id": "service_data",
+        "title": "Datos del servicio",
+        "children": [
+          {
+            "id": "area",
+            "type": "text",
+            "label": "Área"
+          },
+          {
+            "id": "system",
+            "type": "text",
+            "label": "Sistema"
+          },
+          {
+            "id": "component",
+            "type": "text",
+            "label": "Equipo/componente"
+          },
+          {
+            "id": "observation",
+            "type": "text",
+            "label": "Observación",
+            "multiline": true
+          },
+          {
+            "id": "corrective_action",
+            "type": "text",
+            "label": "Acción correctiva",
+            "multiline": true
+          },
+          {
+            "id": "impact",
+            "type": "text",
+            "label": "Impacto",
+            "multiline": true
+          },
+          {
+            "id": "status",
+            "type": "choice",
+            "label": "Estado",
+            "options": [
+              {
+                "value": "dnc",
+                "label": "DNC"
+              },
+              {
+                "value": "dc",
+                "label": "DC"
+              },
+              {
+                "value": "d",
+                "label": "D"
+              }
+            ]
+          },
+          {
+            "id": "estimated_time",
+            "type": "text",
+            "label": "Tiempo estimado de ejecución"
+          },
+          {
+            "id": "technicians",
+            "type": "text",
+            "label": "Cantidad de técnicos requeridos",
+            "inputMode": "numeric"
+          }
+        ]
+      },
+      {
+        "id": "additional_services",
+        "title": "Servicios adicionales",
+        "children": [
+          {
+            "type": "group",
+            "id": "engineering",
+            "label": "Ingeniería",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "engineering_required",
+                "type": "yes_no",
+                "label": "Requerido"
+              },
+              {
+                "id": "engineering_scope",
+                "type": "text",
+                "label": "Alcance",
+                "visibleWhen": {
+                  "field": "engineering_required",
+                  "equals": true
+                }
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "contractor",
+            "label": "Contratista",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "contractor_required",
+                "type": "yes_no",
+                "label": "Requerido"
+              },
+              {
+                "id": "contractor_scope",
+                "type": "text",
+                "label": "Alcance",
+                "visibleWhen": {
+                  "field": "contractor_required",
+                  "equals": true
+                }
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "lift",
+            "label": "Equipo de elevación",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "lift_required",
+                "type": "yes_no",
+                "label": "Requerido"
+              },
+              {
+                "type": "group",
+                "id": "lift_specs",
+                "label": "Especificaciones",
+                "style": "item",
+                "columns": 2,
+                "visibleWhen": {
+                  "field": "lift_required",
+                  "equals": true
+                },
+                "children": [
+                  {
+                    "id": "lift_min_height",
+                    "type": "text",
+                    "label": "Altura mínima"
+                  },
+                  {
+                    "id": "lift_max_dimensions",
+                    "type": "text",
+                    "label": "Dimensiones máximas"
+                  },
+                  {
+                    "id": "lift_other",
+                    "type": "text",
+                    "label": "Otros"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "materials",
+        "title": "Listado de materiales",
+        "children": [
+          {
+            "id": "pumping_materials",
+            "type": "yes_no",
+            "label": "Los materiales, ¿son para un sistema de bombeo?",
+            "help": "Si la respuesta es sí, solicite fotografía legible de placa de datos o indique marca, modelo y número de serie de controladores, motores y bombas en la sección de notas si se requiere reemplazo de equipo o refacciones."
+          },
+          {
+            "type": "list",
+            "id": "material_list",
+            "label": "Materiales",
+            "addLabel": "Agregar material",
+            "children": [
+              {
+                "id": "material_code",
+                "type": "text",
+                "label": "Número o código de identificación del material"
+              },
+              {
+                "id": "material_description",
+                "type": "text",
+                "label": "Descripción"
+              },
+              {
+                "id": "material_quantity",
+                "type": "text",
+                "label": "Cantidad",
+                "inputMode": "decimal"
+              },
+              {
+                "id": "material_brand",
+                "type": "text",
+                "label": "Marca"
+              },
+              {
+                "id": "material_model",
+                "type": "text",
+                "label": "Modelo"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "images",
+        "title": "Imágenes",
+        "children": [
+          {
+            "id": "quote_photos",
+            "type": "photos",
+            "label": "Imágenes",
+            "count": 4
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}

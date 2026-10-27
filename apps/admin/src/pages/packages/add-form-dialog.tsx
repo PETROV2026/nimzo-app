@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {
+  formTitle,
   serviceFrequencyKeywords,
   serviceFrequencyLabels,
   systemTypeLabels,
@@ -32,10 +33,6 @@ type AddFormDialogProps = {
   onClose: () => void;
 };
 
-function formLabel(form: ServiceForm) {
-  return `${form.code} · ${form.name}${form.subtitle ? ` · ${form.subtitle}` : ''}`;
-}
-
 export function AddFormDialog({
   packageId,
   branchId,
@@ -52,7 +49,10 @@ export function AddFormDialog({
   const forms = useList<ServiceForm>({
     resource: 'service_forms',
     filters: [{ field: 'is_active', operator: 'eq', value: true }],
-    sorters: [{ field: 'code', order: 'asc' }],
+    sorters: [
+      { field: 'name', order: 'asc' },
+      { field: 'subtitle', order: 'asc' },
+    ],
     pagination: { mode: 'off' },
   });
   const branchSystems = useList<System>({
@@ -68,7 +68,8 @@ export function AddFormDialog({
   const keyword = serviceFrequencyKeywords[frequency];
   const suggested = (item: ServiceForm) => toSearchText(item.subtitle ?? '').includes(keyword);
   const options = [...forms.result.data].sort(
-    (a, b) => Number(suggested(b)) - Number(suggested(a)) || a.code.localeCompare(b.code),
+    (a, b) =>
+      Number(suggested(b)) - Number(suggested(a)) || formTitle(a).localeCompare(formTitle(b)),
   );
 
   const isTaken = (systemId: string | null) =>
@@ -98,7 +99,7 @@ export function AddFormDialog({
             newTargets.length === 1
               ? 'Formato agregado al paquete'
               : `${newTargets.length} formatos agregados al paquete`,
-          description: `${form.code} · ${form.name}`,
+          description: formTitle(form),
         },
       },
       { onSuccess: onClose },
@@ -123,25 +124,21 @@ export function AddFormDialog({
                 ? `Sugeridos para ${serviceFrequencyLabels[frequency].toLowerCase()}`
                 : 'Otros formatos'
             }
-            getOptionLabel={formLabel}
+            getOptionLabel={formTitle}
             filterOptions={(items, state) => {
               const term = toSearchText(state.inputValue);
               return term
-                ? items.filter((item) =>
-                    toSearchText(`${item.code} ${item.name} ${item.subtitle ?? ''}`).includes(term),
-                  )
+                ? items.filter((item) => toSearchText(formTitle(item)).includes(term))
                 : items;
             }}
             isOptionEqualToValue={(a, b) => a.id === b.id}
-            noOptionsText="No hay formatos activos con ese código o nombre"
+            noOptionsText="No hay formatos activos con ese nombre"
             loadingText="Cargando formatos…"
             renderOption={({ key, ...props }, item) => (
               <Box component="li" key={key} {...props} sx={{ display: 'flex', gap: 1.5 }}>
                 <FormIcon path={item.icon_path} size={28} />
                 <Box>
-                  <Typography>
-                    {item.code} · {item.name}
-                  </Typography>
+                  <Typography>{item.name}</Typography>
                   {item.subtitle && (
                     <Typography variant="body2" color="text.secondary">
                       {item.subtitle}
@@ -158,7 +155,7 @@ export function AddFormDialog({
                 autoFocus
                 error={!!formError}
                 helperText={
-                  formError ?? 'Busca por código o nombre, por ejemplo F-SER-104 o rociadores.'
+                  formError ?? 'Busca por nombre o frecuencia, por ejemplo rociadores o mensual.'
                 }
               />
             )}

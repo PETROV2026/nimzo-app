@@ -1,0 +1,38 @@
+{
+  "code": "observations_report",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "building",
+      "type": "text",
+      "label": "Edificio"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    }
+  ],
+  "sections": [
+    {
+      "id": "observations",
+      "title": "Observaciones",
+      "children": [
+        {
+          "type": "observations",
+          "id": "client_observations"
+        }
+      ]
+    }
+  ]
+}

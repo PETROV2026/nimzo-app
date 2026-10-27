@@ -1,0 +1,589 @@
+{
+  "code": "diesel_pump_weekly",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "motor_id",
+      "type": "text",
+      "label": "Número de identificación del motor"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "sections": [
+    {
+      "id": "inspection_maintenance",
+      "title": "Inspección y mantenimiento",
+      "children": [
+        {
+          "id": "notify_client",
+          "type": "check",
+          "label": "Notifique al cliente acerca del alcance del servicio a realizar y sobre el riesgo de activación de señales de alarma de incendio.",
+          "highlight": true
+        },
+        {
+          "id": "inspection_2",
+          "type": "check",
+          "label": "Equipos de bombeo operativos."
+        },
+        {
+          "id": "inspection_3",
+          "type": "check",
+          "label": "Ventilación adecuada en cuarto de bombas."
+        },
+        {
+          "id": "inspection_4",
+          "type": "check",
+          "label": "Equipo, tuberías y mangueras sin daños (fugas, golpes o corrosión)."
+        },
+        {
+          "id": "inspection_5",
+          "type": "check",
+          "label": "Controlador de bomba contra incendio en automático."
+        },
+        {
+          "id": "inspection_6",
+          "type": "check",
+          "label": "Controlador diésel no indica problemas y alarmas activas."
+        },
+        {
+          "id": "inspection_7",
+          "type": "check",
+          "label": "Gráfica de presión no indica actividad inusual en el sistema."
+        },
+        {
+          "id": "inspection_8",
+          "type": "check",
+          "label": "Historial de controlador no indica actividad inusual en el sistema."
+        },
+        {
+          "id": "inspection_9",
+          "type": "check",
+          "label": "Tablero de instrumentos de bomba contra incendio en automático."
+        },
+        {
+          "id": "inspection_10",
+          "type": "check",
+          "label": "Baterías libres de daño físico y sin escurrimiento."
+        },
+        {
+          "id": "inspection_11",
+          "type": "check",
+          "label": "Nivel y densidad de electrolito en celdas de baterías son adecuados."
+        },
+        {
+          "id": "inspection_12",
+          "type": "check",
+          "label": "Terminales de baterías libres de daño físico y ajustadas."
+        },
+        {
+          "id": "inspection_13",
+          "type": "check",
+          "label": "Precalentador libre de daño físico visible."
+        },
+        {
+          "id": "inspection_14",
+          "type": "check",
+          "label": "Existen medios de circulación de agua para las pruebas del sistema."
+        },
+        {
+          "id": "inspection_15",
+          "type": "check",
+          "label": "Drenar materiales y agua de tanque de combustible diésel."
+        },
+        {
+          "id": "inspection_16",
+          "type": "check",
+          "label": "Controlador de bomba jockey en automático."
+        },
+        {
+          "id": "inspection_17",
+          "type": "check",
+          "label": "Válvulas con candado o eléctricamente supervisadas."
+        },
+        {
+          "id": "inspection_18",
+          "type": "check",
+          "label": "Válvulas identificadas (sistema o porción de sistema que controlan)."
+        },
+        {
+          "id": "inspection_19",
+          "type": "check",
+          "label": "Válvulas accesibles."
+        },
+        {
+          "id": "inspection_20",
+          "type": "check",
+          "label": "Almacenamiento de agua sin daños (fugas, golpes o corrosión)."
+        },
+        {
+          "id": "inspection_21",
+          "type": "check",
+          "label": "Anclaje de almacenamiento de agua sin daños."
+        },
+        {
+          "id": "inspection_22",
+          "type": "check",
+          "label": "Barandales y escaleras de almacenamiento de agua en buen estado."
+        },
+        {
+          "id": "inspection_23",
+          "type": "check",
+          "label": "Medidor de nivel de almacenamiento de agua no se encuentra atorado."
+        },
+        {
+          "id": "inspection_24",
+          "type": "check",
+          "label": "Área alrededor del almacenamiento libre de obstrucciones y materiales inflamables."
+        },
+        {
+          "id": "inspection_25",
+          "type": "check",
+          "label": "Estado físico del dique, limpieza interna y sin estancamiento de líquidos."
+        },
+        {
+          "type": "group",
+          "id": "open_valves",
+          "label": "Verificar que las siguientes válvulas se encuentren totalmente abiertas",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "valve_1",
+              "type": "check",
+              "label": "Succión de bomba contra incendio."
+            },
+            {
+              "id": "valve_2",
+              "type": "check",
+              "label": "Descarga de bomba contra incendio."
+            },
+            {
+              "id": "valve_3",
+              "type": "check",
+              "label": "Succión de bomba jockey."
+            },
+            {
+              "id": "valve_4",
+              "type": "check",
+              "label": "Descarga de bomba jockey."
+            },
+            {
+              "id": "valve_5",
+              "type": "check",
+              "label": "Suministro de combustible."
+            },
+            {
+              "id": "valve_6",
+              "type": "check",
+              "label": "Enfriamiento de motor."
+            },
+            {
+              "id": "valve_7",
+              "type": "check",
+              "label": "Válvulas restantes de cuarto de bombas en posición correcta (abierta o cerrada)."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "readings",
+          "label": "Realizar las siguientes inspecciones. Anotar el valor y evaluar su estado",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "room_temperature",
+              "type": "check",
+              "label": "Temperatura de cuarto de bombas mayor a 40 °F (5 °C).",
+              "measurement": {
+                "unit": "°C"
+              }
+            },
+            {
+              "id": "hour_meter",
+              "type": "check",
+              "label": "Lectura de horómetro de motor diésel.",
+              "measurement": {
+                "unit": "h"
+              }
+            },
+            {
+              "id": "suction_pressure",
+              "type": "check",
+              "label": "Presión de succión de bomba contra incendio.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "network_pressure",
+              "type": "check",
+              "label": "Presión de red hidráulica contra incendio.",
+              "measurement": {
+                "unit": "PSI"
+              }
+            },
+            {
+              "id": "water_level",
+              "type": "check",
+              "label": "Nivel de agua de almacenamiento.",
+              "measurement": {}
+            },
+            {
+              "id": "fuel_level",
+              "type": "check",
+              "label": "Nivel de combustible mayor a 3/4 (75%).",
+              "measurement": {
+                "unit": "%"
+              }
+            },
+            {
+              "id": "heater_temperature",
+              "type": "check",
+              "label": "Temperatura de motor que mantiene el precalentador.",
+              "measurement": {
+                "unit": "°C"
+              }
+            },
+            {
+              "id": "battery_1_voltage",
+              "type": "check",
+              "label": "Voltaje de banco de baterías #1.",
+              "measurement": {
+                "unit": "V"
+              }
+            },
+            {
+              "id": "battery_1_current",
+              "type": "check",
+              "label": "Amperaje de banco de baterías #1.",
+              "measurement": {
+                "unit": "A"
+              }
+            },
+            {
+              "id": "battery_2_voltage",
+              "type": "check",
+              "label": "Voltaje de banco de baterías #2.",
+              "measurement": {
+                "unit": "V"
+              }
+            },
+            {
+              "id": "battery_2_current",
+              "type": "check",
+              "label": "Amperaje de banco de baterías #2.",
+              "measurement": {
+                "unit": "A"
+              }
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "pump_off",
+          "label": "Colocar el equipo de bombeo principal en posición de apagado y realizar las siguientes actividades",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "off_1",
+              "type": "check",
+              "label": "Desconectar terminal negativa de baterías del motor diésel."
+            },
+            {
+              "id": "off_2",
+              "type": "check",
+              "label": "Densidad de anticongelante dentro de rango aceptable."
+            },
+            {
+              "id": "off_3",
+              "type": "check",
+              "label": "Limpiar filtro de aire de motor diésel."
+            },
+            {
+              "id": "off_4",
+              "type": "check",
+              "label": "Limpiar circuitos y conexiones de controladores diésel y jockey."
+            },
+            {
+              "id": "crankcase_oil",
+              "type": "check",
+              "label": "Nivel de aceite en cárter.",
+              "measurement": {}
+            },
+            {
+              "id": "pump_oil",
+              "type": "check",
+              "label": "Nivel de aceite en bomba.",
+              "measurement": {}
+            },
+            {
+              "id": "coolant_level",
+              "type": "check",
+              "label": "Nivel de anticongelante en intercambiador de motor.",
+              "measurement": {}
+            },
+            {
+              "id": "gear_head_oil",
+              "type": "check",
+              "label": "Nivel de aceite en cabezal de engranes.",
+              "measurement": {}
+            },
+            {
+              "id": "off_9",
+              "type": "check",
+              "label": "Conectar nuevamente las terminales de las baterías, ajustándolas adecuadamente."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "title": "Pruebas",
+      "children": [
+        {
+          "type": "group",
+          "id": "jockey_tests",
+          "label": "Pruebas a motobomba jockey",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "type": "group",
+              "id": "jockey_pressures",
+              "label": "Provocar caída de presión en la línea de sensado. Verifique presiones",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "jockey_start_pressure",
+                  "type": "check",
+                  "label": "Arranque",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "jockey_stop_pressure",
+                  "type": "check",
+                  "label": "Paro",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "jockey_2",
+              "type": "check",
+              "label": "Encender bomba jockey en modo manual por 1 minuto y verificar la ausencia de ruidos extraños y calentamiento. Asegurar evitar incremento de presión en la red."
+            },
+            {
+              "id": "jockey_3",
+              "type": "check",
+              "label": "Provocar una caída de presión instantánea en la línea de sensado del controlador jockey y verificar que no apague y arranque varias veces en unos segundos."
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "id": "diesel_tests",
+          "label": "Pruebas a motobomba diésel",
+          "style": "band",
+          "columns": 1,
+          "children": [
+            {
+              "id": "diesel_1",
+              "type": "check",
+              "label": "Arranque automático por 30 segundos generando caída de presión."
+            },
+            {
+              "id": "diesel_2",
+              "type": "check",
+              "label": "Arranque manual de controlador por 30 segundos (cranks 1 y 2)."
+            },
+            {
+              "id": "diesel_3",
+              "type": "check",
+              "label": "Arranque manual de tablero de instrumentos por 30 segundos (cranks 1 y 2)."
+            },
+            {
+              "id": "diesel_4",
+              "type": "check",
+              "label": "Prueba de protección por sobrevelocidad (67% de velocidad nominal)."
+            },
+            {
+              "id": "diesel_5",
+              "type": "check",
+              "label": "Válvula solenoide de enfriamiento funciona correctamente."
+            },
+            {
+              "id": "diesel_6",
+              "type": "check",
+              "label": "Goteo en prensaestopas de aproximadamente 1 gota por segundo."
+            },
+            {
+              "type": "group",
+              "id": "run_readings",
+              "label": "Marcha en automático o modo de prueba por 30 minutos a cero flujo. Realizar las siguientes inspecciones durante la operación del equipo y anotar la información solicitada",
+              "style": "item",
+              "columns": 2,
+              "children": [
+                {
+                  "id": "run_start_pressure",
+                  "type": "check",
+                  "label": "Presión de arranque",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_rated_speed_time",
+                  "type": "check",
+                  "label": "Tiempo que tarda en alcanzar su velocidad nominal",
+                  "measurement": {
+                    "unit": "s"
+                  }
+                },
+                {
+                  "id": "run_suction_pressure",
+                  "type": "check",
+                  "label": "Presión de succión de bomba principal",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_discharge_pressure",
+                  "type": "check",
+                  "label": "Presión de descarga de bomba principal",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_network_pressure",
+                  "type": "check",
+                  "label": "Presión en red hidráulica contra incendio",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_bearing_temp_coupling",
+                  "type": "check",
+                  "label": "Temperatura de balero al lado del acoplamiento",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_bearing_temp_opposite",
+                  "type": "check",
+                  "label": "Temperatura de balero contrario al acoplamiento",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_oil_pressure",
+                  "type": "check",
+                  "label": "Presión de aceite de motor diésel",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_cooling_pressure",
+                  "type": "check",
+                  "label": "Presión en sistema de enfriamiento (agua)",
+                  "measurement": {
+                    "unit": "PSI"
+                  }
+                },
+                {
+                  "id": "run_engine_temperature",
+                  "type": "check",
+                  "label": "Temperatura del motor",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_speed",
+                  "type": "check",
+                  "label": "Velocidad de la motobomba",
+                  "measurement": {
+                    "unit": "RPM"
+                  }
+                },
+                {
+                  "id": "run_exchanger_in_temp",
+                  "type": "check",
+                  "label": "Temperatura de agua, entrada del intercambiador",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                },
+                {
+                  "id": "run_exchanger_out_temp",
+                  "type": "check",
+                  "label": "Temperatura de agua, salida del intercambiador",
+                  "measurement": {
+                    "unit": "°C"
+                  }
+                }
+              ]
+            },
+            {
+              "id": "diesel_8",
+              "type": "check",
+              "label": "Sistema no presenta ruidos o vibraciones inusuales durante las pruebas."
+            },
+            {
+              "id": "diesel_9",
+              "type": "check",
+              "label": "Ausencia de fugas en motor diésel y escape."
+            },
+            {
+              "id": "diesel_10",
+              "type": "check",
+              "label": "Ausencia de fugas en carcasa de la bomba y sus componentes."
+            },
+            {
+              "id": "final_hour_meter",
+              "type": "check",
+              "label": "Lectura del horómetro al final de las pruebas.",
+              "measurement": {
+                "unit": "h"
+              }
+            },
+            {
+              "id": "final_inspection",
+              "type": "check",
+              "label": "Realizar inspección general, restablecer el sistema a su modo de operación automática y verificar que el sistema queda operativo.",
+              "highlight": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

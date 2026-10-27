@@ -1,0 +1,232 @@
+{
+  "code": "diesel_pump_monthly",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "arrival_time",
+      "type": "time",
+      "label": "Hora de entrada"
+    },
+    {
+      "id": "month",
+      "type": "select",
+      "label": "Mes correspondiente",
+      "options": [
+        {
+          "value": "january",
+          "label": "Enero"
+        },
+        {
+          "value": "february",
+          "label": "Febrero"
+        },
+        {
+          "value": "march",
+          "label": "Marzo"
+        },
+        {
+          "value": "april",
+          "label": "Abril"
+        },
+        {
+          "value": "may",
+          "label": "Mayo"
+        },
+        {
+          "value": "june",
+          "label": "Junio"
+        },
+        {
+          "value": "july",
+          "label": "Julio"
+        },
+        {
+          "value": "august",
+          "label": "Agosto"
+        },
+        {
+          "value": "september",
+          "label": "Septiembre"
+        },
+        {
+          "value": "october",
+          "label": "Octubre"
+        },
+        {
+          "value": "november",
+          "label": "Noviembre"
+        },
+        {
+          "value": "december",
+          "label": "Diciembre"
+        }
+      ]
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "motor_id",
+      "type": "text",
+      "label": "Número de identificación del motor"
+    }
+  ],
+  "sections": [
+    {
+      "id": "inspection_maintenance",
+      "title": "Inspección y mantenimiento",
+      "children": [
+        {
+          "id": "maintenance_1",
+          "type": "check",
+          "label": "Ejercitar cerrando y abriendo las válvulas normalmente abiertas del cuarto de bombas. Cerrar un cuarto de vuelta al final."
+        },
+        {
+          "id": "maintenance_2",
+          "type": "check",
+          "label": "Ejercitar el indicador de nivel del tanque de almacenamiento de agua y verificar que se encuentre libre de movimiento."
+        },
+        {
+          "id": "maintenance_3",
+          "type": "check",
+          "label": "El tanque de almacenamiento de agua no cuenta con materiales extraños o desechos en su superficie."
+        },
+        {
+          "id": "maintenance_4",
+          "type": "check",
+          "label": "Operar manualmente la válvula de llenado automático del tanque de almacenamiento de agua y confirmar que funciona correctamente."
+        },
+        {
+          "id": "maintenance_5",
+          "type": "check",
+          "label": "Ejercitar el indicador de nivel del tanque de combustible y verificar que se encuentre libre de movimiento."
+        },
+        {
+          "id": "maintenance_6",
+          "type": "check",
+          "label": "Probar el interruptor aislador del controlador jockey y verificar que funcione correctamente."
+        },
+        {
+          "id": "maintenance_7",
+          "type": "check",
+          "label": "Activar la protección térmica del controlador jockey utilizando el medio de prueba y verificar que funcione correctamente."
+        },
+        {
+          "id": "maintenance_8",
+          "type": "check",
+          "label": "Ejercitar los interruptores del suministro de AC del controlador diésel y verificar que funcionen correctamente."
+        },
+        {
+          "id": "maintenance_9",
+          "type": "check",
+          "label": "Ejercitar los interruptores del suministro de baterías del controlador diésel y verificar que funcionen correctamente."
+        },
+        {
+          "id": "maintenance_10",
+          "type": "check",
+          "label": "Inspeccionar los componentes internos del controlador diésel y verificar que no cuenten con daño físico visible."
+        },
+        {
+          "id": "maintenance_11",
+          "type": "check",
+          "label": "Rellenar con agua destilada las celdas de las baterías que presentan bajo nivel de electrolito."
+        },
+        {
+          "id": "maintenance_12",
+          "type": "check",
+          "label": "Retirar corrosión de la batería y limpiar su carcasa."
+        },
+        {
+          "id": "maintenance_13",
+          "type": "check",
+          "label": "Inspeccionar y realizar servicio de limpieza de filtros de la línea de suministro de agua del intercambiador de calor."
+        },
+        {
+          "id": "maintenance_14",
+          "type": "check",
+          "label": "Realizar limpieza general del cuarto de bombas en caso necesario."
+        }
+      ]
+    },
+    {
+      "id": "tests",
+      "title": "Pruebas",
+      "children": [
+        {
+          "id": "tests_1",
+          "type": "check",
+          "label": "Durante las pruebas del equipo las protecciones térmicas, disyuntores y fusibles operaron correctamente."
+        },
+        {
+          "type": "table",
+          "id": "manual_starts",
+          "label": "Realizar 6 arranques manuales, alternando baterías 1 y 2, y anotar los voltajes solicitados",
+          "columns": [
+            {
+              "id": "min_voltage",
+              "type": "text",
+              "label": "Voltaje mínimo",
+              "inputMode": "decimal",
+              "unit": "V"
+            },
+            {
+              "id": "max_voltage",
+              "type": "text",
+              "label": "Voltaje máximo",
+              "inputMode": "decimal",
+              "unit": "V"
+            }
+          ],
+          "rows": [
+            {
+              "id": "start_1",
+              "label": "Arranque 1"
+            },
+            {
+              "id": "start_2",
+              "label": "Arranque 2"
+            },
+            {
+              "id": "start_3",
+              "label": "Arranque 3"
+            },
+            {
+              "id": "start_4",
+              "label": "Arranque 4"
+            },
+            {
+              "id": "start_5",
+              "label": "Arranque 5"
+            },
+            {
+              "id": "start_6",
+              "label": "Arranque 6"
+            }
+          ]
+        },
+        {
+          "id": "tests_3",
+          "type": "check",
+          "label": "Verificar que el cargador está trabajando correctamente."
+        },
+        {
+          "id": "tests_4",
+          "type": "check",
+          "label": "Verificar que las baterías no sufren de temperatura excesiva."
+        }
+      ]
+    }
+  ]
+}

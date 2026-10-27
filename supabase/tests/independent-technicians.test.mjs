@@ -42,7 +42,7 @@ async function addPackage(catalog, technicianId) {
     await db.query(
       `insert into public.service_package_forms (package_id, service_form_id, system_id, technician_id)
        values ($1, $2, $3, $4) returning id`,
-      [packageId, await formId('F-SER-104'), catalog.system, technicianId],
+      [packageId, await formId('sprinklers_weekly'), catalog.system, technicianId],
     )
   ).rows[0].id;
   return { ...catalog, package: packageId, packageForm: packageFormId };
@@ -87,7 +87,7 @@ describe('technician-owned catalogs', () => {
       ],
       [
         `insert into public.service_package_forms (package_id, service_form_id, system_id) values ($1, $2, $3)`,
-        [ids.package, await formId('F-SER-039'), ids.system],
+        [ids.package, await formId('hydrant_test'), ids.system],
       ],
     ];
     for (const [sql, params] of steps) {
@@ -123,7 +123,7 @@ describe('technician-owned catalogs', () => {
 
     const foreignSystem = await asAdmin(
       `insert into public.service_package_forms (package_id, service_form_id, system_id) values ($1, $2, $3)`,
-      [catalogA.package, await formId('F-SER-105'), catalogB.system],
+      [catalogA.package, await formId('sprinklers_monthly'), catalogB.system],
     );
     assert.equal(foreignSystem.ok, false);
 

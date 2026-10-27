@@ -1,0 +1,119 @@
+{
+  "code": "fire_hose_hydrostatic_test",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "arrival_time",
+      "type": "time",
+      "label": "Hora de entrada"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    },
+    {
+      "id": "service_areas",
+      "type": "text",
+      "label": "Áreas de ejecución del servicio"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "items": {
+    "id": "hoses",
+    "addLabel": "Agregar manguera",
+    "title": "Número o código de identificación de la manguera",
+    "keyLabel": "Número o código de identificación de la manguera",
+    "sections": [
+      {
+        "id": "hose_test",
+        "title": "Prueba a mangueras contra incendio",
+        "children": [
+          {
+            "type": "group",
+            "id": "activity",
+            "label": "Descripción de la actividad",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "pressurize",
+                "type": "check",
+                "label": "Presurizar la manguera acorde a sus especificaciones."
+              },
+              {
+                "id": "start_pressure",
+                "type": "text",
+                "label": "Anotar el valor de presión al inicio de la prueba",
+                "inputMode": "decimal",
+                "unit": "PSI"
+              },
+              {
+                "id": "start_time",
+                "type": "time",
+                "label": "Anotar la hora inicial de la prueba de la manguera"
+              },
+              {
+                "id": "no_leaks",
+                "type": "check",
+                "label": "Verificar la ausencia de fugas en la manguera, chiflón y conectores."
+              },
+              {
+                "id": "end_pressure",
+                "type": "text",
+                "label": "Anotar la presión que mantuvo la manguera al final de la prueba",
+                "inputMode": "decimal",
+                "unit": "PSI"
+              },
+              {
+                "id": "end_time",
+                "type": "time",
+                "label": "Anotar la hora en la cual concluyó la prueba"
+              },
+              {
+                "id": "good_condition",
+                "type": "check",
+                "label": "La manguera se encuentra en buenas condiciones para su uso."
+              },
+              {
+                "id": "drying",
+                "type": "check",
+                "label": "Colocar la manguera en un sitio en el cual pueda asegurarse su secado para evitar daños por humedad."
+              }
+            ]
+          },
+          {
+            "type": "group",
+            "id": "reinstallation",
+            "label": "Reinstalación de manguera",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "reinstalled",
+                "type": "check",
+                "label": "Reinstalar la manguera en el gabinete o rack correspondiente, recorriendo los dobleces para evitar daño físico."
+              },
+              {
+                "id": "operational",
+                "type": "check",
+                "label": "La manguera quedó operativa."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}

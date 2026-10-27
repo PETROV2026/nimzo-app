@@ -1,0 +1,157 @@
+{
+  "code": "control_valves_annual",
+  "version": 1,
+  "report": [
+    {
+      "id": "vta",
+      "type": "text",
+      "label": "VTA"
+    },
+    {
+      "id": "execution_date",
+      "type": "date",
+      "label": "Fecha de ejecución"
+    },
+    {
+      "id": "execution_time",
+      "type": "text",
+      "label": "Tiempo de ejecución"
+    }
+  ],
+  "instructions": "Realizar las actividades descritas a continuación. Anotar en ESTADO: OK = Correcto, N/A = No aplica, X = Incorrecto. Anotar la información adicional solicitada donde aplique.",
+  "items": {
+    "id": "valves",
+    "addLabel": "Agregar válvula",
+    "title": "Número de válvula",
+    "keyLabel": "Número de válvula",
+    "sections": [
+      {
+        "id": "section_1",
+        "title": "Sección 1",
+        "children": [
+          {
+            "id": "controlled_system",
+            "type": "text",
+            "label": "Sistema o porción que controla"
+          },
+          {
+            "type": "group",
+            "id": "valve_inspection",
+            "label": "Inspección",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "inspection_1",
+                "type": "check",
+                "label": "La válvula se encuentra operativa y libre de daño físico visible."
+              },
+              {
+                "id": "inspection_2",
+                "type": "check",
+                "label": "La válvula está accesible y libre de obstrucciones."
+              },
+              {
+                "id": "inspection_3",
+                "type": "check",
+                "label": "La válvula está equipada con la correspondiente llave para su manipulación."
+              },
+              {
+                "id": "inspection_4",
+                "type": "check",
+                "label": "La válvula cuenta con candado y/o se encuentra supervisada eléctricamente."
+              },
+              {
+                "id": "inspection_5",
+                "type": "check",
+                "label": "Verificar el estado correcto de la válvula (abierta o cerrada)."
+              },
+              {
+                "id": "inspection_6",
+                "type": "check",
+                "label": "La válvula cuenta con placa de identificación indicando el sistema o parte del sistema que controla."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_2",
+        "title": "Sección 2",
+        "children": [
+          {
+            "type": "group",
+            "id": "valve_test",
+            "label": "Prueba",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "exercise",
+                "type": "check",
+                "label": "Ejercitar cerrando y abriendo 3 vueltas las válvulas normalmente abiertas del sistema. Cerrar un cuarto de vuelta al final."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_3",
+        "title": "Sección 3",
+        "children": [
+          {
+            "type": "group",
+            "id": "switch_inspection",
+            "label": "Inspección",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "supervisory_switch",
+                "type": "check",
+                "label": "El interruptor de supervisión de la válvula está libre de daño físico."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "section_4",
+        "title": "Sección 4",
+        "children": [
+          {
+            "type": "group",
+            "id": "maintenance_test",
+            "label": "Mantenimiento y prueba",
+            "style": "band",
+            "columns": 1,
+            "children": [
+              {
+                "id": "lubricate",
+                "type": "check",
+                "label": "Lubricar válvulas (sólo si están accesibles)."
+              },
+              {
+                "id": "close_turns",
+                "type": "check",
+                "label": "Cierre completamente las válvulas normalmente abiertas a partir de su apertura total. Indique el número de vueltas requeridas.",
+                "measurement": {
+                  "label": "Vueltas"
+                }
+              },
+              {
+                "id": "open_turns",
+                "type": "check",
+                "label": "Abra completamente las válvulas normalmente abiertas a partir de su cierre total. Indique el número de vueltas requeridas y cierre un cuarto de vuelta al final.",
+                "measurement": {
+                  "label": "Vueltas"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "sections": []
+}

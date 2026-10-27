@@ -58,11 +58,11 @@ describe('service packages', () => {
   test('an admin adds forms with and without a system', async () => {
     const withSystem = await asAdmin(
       'insert into public.service_package_forms (package_id, service_form_id, system_id) values ($1, $2, $3)',
-      [ids.package, await formId('F-SER-104'), ids.systemA],
+      [ids.package, await formId('sprinklers_weekly'), ids.systemA],
     );
     const withoutSystem = await asAdmin(
       'insert into public.service_package_forms (package_id, service_form_id) values ($1, $2)',
-      [ids.package, await formId('F-SER-045')],
+      [ids.package, await formId('observations_report')],
     );
     assert.ok(withSystem.ok, withSystem.error);
     assert.ok(withoutSystem.ok, withoutSystem.error);
@@ -71,11 +71,11 @@ describe('service packages', () => {
   test('the same form and system cannot be added twice', async () => {
     const again = await asAdmin(
       'insert into public.service_package_forms (package_id, service_form_id, system_id) values ($1, $2, $3)',
-      [ids.package, await formId('F-SER-104'), ids.systemA],
+      [ids.package, await formId('sprinklers_weekly'), ids.systemA],
     );
     const againWithoutSystem = await asAdmin(
       'insert into public.service_package_forms (package_id, service_form_id) values ($1, $2)',
-      [ids.package, await formId('F-SER-045')],
+      [ids.package, await formId('observations_report')],
     );
     assert.equal(again.ok, false);
     assert.equal(againWithoutSystem.ok, false);
@@ -84,7 +84,7 @@ describe('service packages', () => {
   test('the system must belong to the branch of the package', async () => {
     const result = await asAdmin(
       'insert into public.service_package_forms (package_id, service_form_id, system_id) values ($1, $2, $3)',
-      [ids.package, await formId('F-SER-105'), ids.systemB],
+      [ids.package, await formId('sprinklers_monthly'), ids.systemB],
     );
     assert.equal(result.ok, false);
     assert.match(result.error, /branch of the package/);
