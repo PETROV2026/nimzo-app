@@ -1,9 +1,16 @@
-import type { UserRole } from '@nimzo/shared';
+import { mexicanStateSchema, type MexicanState, type UserRole } from '@nimzo/shared';
 import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export type Profile = { fullName: string; role: UserRole };
+export type Profile = { 
+  fullName: string; 
+  role: UserRole 
+  phone: string | null;
+  state: MexicanState | null;
+  city: string | null;
+  signaturePath: string | null;
+};
 
 type AuthStatus =
   | { status: 'initializing' }
@@ -27,12 +34,19 @@ const SessionContext = createContext<SessionContextValue | null>(null);
 async function fetchMobileProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('full_name, role, is_active')
+    .select('full_name, role, is_active, phone, state, city, signature_path')
     .eq('id', userId)
     .maybeSingle();
   if (error) throw error;
   if (!data?.is_active || !mobileRoles.includes(data.role)) return null;
-  return { fullName: data.full_name, role: data.role };
+  return {
+    fullName: data.full_name,
+    role: data.role,
+    phone: data.phone,
+    state: mexicanStateSchema.nullable().catch(null).parse(data.state),
+    city: data.city,
+    signaturePath: data.signature_path,
+  };
 }
 
 function signInErrorMessage(error: { code?: string; name: string }) {
