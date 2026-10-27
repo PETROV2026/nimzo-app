@@ -12,6 +12,8 @@ export type Profile = {
   signaturePath: string | null;
 };
 
+type ProfileChanges = Pick<Profile, 'phone' | 'state' | 'city'>;
+
 type AuthStatus =
   | { status: 'initializing' }
   | { status: 'signed-out' }
@@ -22,6 +24,7 @@ type SessionContextValue = AuthStatus & {
   accessError: string | null;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+   updateProfile: (changes: ProfileChanges) => Promise<string | null>;
 };
 
 const mobileRoles: readonly UserRole[] = ['technician'];
@@ -113,6 +116,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   }
 
+    async function updateProfile(changes: ProfileChanges) {
+    if (!userId) return 'No hay una sesión activa.';
+    const { error } = await supabase.from('profiles').update(changes).eq('id', userId);
+    if (error) return 'No se pudieron guardar los cambios. Intenta de nuevo.';
+    setProfile((previous) => (previous ? { ...previous, ...changes } : previous));
+    return null;
+  }
+
   let authStatus: AuthStatus;
   if (session === undefined) {
     authStatus = { status: 'initializing' };
@@ -125,7 +136,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SessionContext value={{ ...authStatus, accessError, signIn, signOut }}>
+    <SessionContext value={{ ...authStatus, accessError, signIn, signOut, updateProfile }}>
       {children}
     </SessionContext>
   );
