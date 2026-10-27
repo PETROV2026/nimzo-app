@@ -15,13 +15,14 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import {
   passwordResetSchema,
+  userEditSchema,
   userRoleLabels,
-  userUpdateSchema,
   type PasswordResetInput,
   type Profile,
-  type UserUpdateInput,
+  type UserEditInput,
+  type UserEditValues,
 } from '@nimzo/shared';
-import { useGetIdentity, useOne } from '@refinedev/core';
+import { useGetIdentity, useOne, useUpdate } from '@refinedev/core';
 import { useEffect, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Link as RouterLink, useParams } from 'react-router';
@@ -35,9 +36,11 @@ import { generatePassword } from '@/lib/password';
 import type { Identity } from '@/providers/auth-provider';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
+import { ContactFields } from './contact-fields';
 import { CredentialsDialog } from './credentials-dialog';
 import { PasswordInput } from './password-input';
 import { RoleField } from './role-field';
+import { SignatureBox } from './signature-box';
 import { formatLastSignIn } from './format';
 import { useAdminUsers } from './use-admin-users';
 
@@ -131,31 +134,58 @@ export function UserEdit() {
   const { data: identity } = useGetIdentity<Identity>();
   const { result: user, query } = useOne<Profile>({ resource: 'profiles', id });
   const { run, pending } = useAdminUsers();
+  const { mutateAsync: updateProfile, mutation: profileMutation } = useUpdate<Profile>();
   const [confirmActive, setConfirmActive] = useState(false);
   const [resetting, setResetting] = useState(false);
   const isSelf = identity?.id === id;
 
-  const { control, handleSubmit, reset, formState } = useForm<UserUpdateInput>({
-    resolver: zodResolver(userUpdateSchema),
-    defaultValues: { full_name: '', role: 'technician' },
+  const { control, handleSubmit, reset, formState } = useForm<
+    UserEditInput,
+    unknown,
+    UserEditValues
+  >({
+    resolver: zodResolver(userEditSchema),
+    defaultValues: { full_name: '', role: 'technician', phone: '', state: null, city: '' },
   });
 
   useEffect(() => {
-    if (user) reset({ full_name: user.full_name, role: user.role });
+    if (user) {
+      reset({
+        full_name: user.full_name,
+        role: user.role,
+        phone: user.phone ?? '',
+        state: (user.state as UserEditInput['state']) ?? null,
+        city: user.city ?? '',
+      });
+    }
   }, [user, reset]);
 
-  async function save(values: UserUpdateInput) {
+  async function save(values: UserEditValues) {
     if (!user) return;
+    const { dirtyFields } = formState;
+    const accountChanged = !!(dirtyFields.full_name || dirtyFields.role);
+    const detailsChanged = !!(dirtyFields.phone || dirtyFields.state || dirtyFields.city);
+    const notification = { message: 'Usuario guardado', description: values.full_name };
     try {
-      await run(
-        {
-          action: 'update',
-          user_id: user.id,
-          full_name: values.full_name.trim(),
-          role: values.role,
-        },
-        { message: 'Usuario guardado', description: values.full_name.trim() },
-      );
+      if (accountChanged) {
+        await run(
+          { action: 'update', user_id: user.id, full_name: values.full_name, role: values.role },
+          detailsChanged ? undefined : notification,
+        );
+      }
+      if (detailsChanged) {
+        await updateProfile({
+          resource: 'profiles',
+          id: user.id,
+          values: { phone: values.phone, state: values.state, city: values.city },
+          successNotification: { type: 'success', ...notification },
+          errorNotification: (error) => ({
+            type: 'error',
+            message: 'No se pudieron guardar los datos de contacto',
+            description: error?.message,
+          }),
+        });
+      }
     } catch {
       return;
     }
@@ -243,6 +273,24 @@ export function UserEdit() {
                   </Grid>
                 )}
               </Postbox>
+
+              <Postbox title="Datos de contacto">
+                {loading || !user ? (
+                  <>
+                    <Skeleton height={48} />
+                    <Skeleton height={48} />
+                  </>
+                ) : (
+                  <ContactFields control={control} />
+                )}
+              </Postbox>
+
+              {user?.role === 'technician' && (
+                <SignatureBox
+                  path={user.signature_path}
+                  name={user.full_name || user.email || ''}
+                />
+              )}
 
               <Postbox title="Rol">
                 {loading || !user ? (
@@ -351,7 +399,7 @@ export function UserEdit() {
                 <Button
                   type="submit"
                   variant="contained"
-                  loading={pending && formState.isSubmitting}
+                  loading={(pending || profileMutation.isPending) && formState.isSubmitting}
                   disabled={loading || !formState.isDirty}
                 >
                   Guardar cambios

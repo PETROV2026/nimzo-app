@@ -51,6 +51,11 @@ export const profileDetailsSchema = z.object({
 export type ProfileDetailsInput = z.input<typeof profileDetailsSchema>;
 export type ProfileDetailsValues = z.output<typeof profileDetailsSchema>;
 
+export const userEditSchema = userUpdateSchema.extend(profileDetailsSchema.shape);
+
+export type UserEditInput = z.input<typeof userEditSchema>;
+export type UserEditValues = z.output<typeof userEditSchema>;
+
 export const signatureBucket = 'signatures';
 export const signatureMaxBytes = 1048576;
 
