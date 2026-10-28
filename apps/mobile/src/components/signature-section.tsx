@@ -1,14 +1,15 @@
+import { signatureBucket } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
+import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/theme/colors';
-import { useSession } from '@/auth/session-provider';
-import { signatureBucket } from '@nimzo/shared';
 
-const signedUrls = new Map<string, string>();
+const signedUrlSeconds = 300;
+const signedUrls = new Map<string, { url: string; expiresAt: number }>();
 
 type SignatureSectionProps = {
   signaturePath: string | null;
@@ -22,14 +23,23 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
   const [failedPath, setFailedPath] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!signaturePath || signedUrls.has(signaturePath)) return;
+    if (!signaturePath) return;
+    const cached = signedUrls.get(signaturePath);
+    if (cached && cached.expiresAt > Date.now()) return;
     let cancelled = false;
     supabase.storage
       .from(signatureBucket)
-      .createSignedUrl(signaturePath, 3600)
-      .then(({ data }) => {
-        if (data) signedUrls.set(signaturePath, data.signedUrl);
-        if (!cancelled) setFetched({ path: signaturePath, url: data?.signedUrl ?? null });
+      .createSignedUrl(signaturePath, signedUrlSeconds)
+      .then(({ data, error }) => {
+        if (error) {
+          console.warn('No se pudo obtener el enlace de la firma.', error);
+        } else {
+          signedUrls.set(signaturePath, {
+            url: data.signedUrl,
+            expiresAt: Date.now() + (signedUrlSeconds - 30) * 1000,
+          });
+        }
+        if (!cancelled) setFetched({ path: signaturePath, url: error ? null : data.signedUrl });
       });
     return () => {
       cancelled = true;
@@ -37,7 +47,8 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
   }, [signaturePath]);
 
   const url = signaturePath
-    ? (signedUrls.get(signaturePath) ?? (fetched?.path === signaturePath ? fetched.url : undefined))
+    ? (signedUrls.get(signaturePath)?.url ??
+      (fetched?.path === signaturePath ? fetched.url : undefined))
     : undefined;
 
   let preview: ReactNode;
@@ -59,6 +70,8 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
     preview = (
       <Image
         source={{ uri: url, cacheKey: signaturePath }}
+        cachePolicy="memory-disk"
+        transition={120}
         style={{ width: '100%', height: '100%' }}
         contentFit="contain"
         accessibilityLabel="Tu firma"
