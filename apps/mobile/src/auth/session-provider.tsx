@@ -148,7 +148,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       await signatures.remove([path]);
       return 'No se pudo guardar la firma. Intenta de nuevo.';
     }
-    if (profile.signaturePath) await signatures.remove([profile.signaturePath]);
+        const { data: files } = await signatures.list(userId);
+    const oldPaths = (files ?? [])
+      .map((file) => `${userId}/${file.name}`)
+      .filter((filePath) => filePath !== path);
+    if (oldPaths.length > 0) {
+      const { error: removeError } = await signatures.remove(oldPaths);
+      if (removeError) console.warn('No se pudieron borrar las firmas anteriores.', removeError);
+    }
     setProfile((previous) => (previous ? { ...previous, signaturePath: path } : previous));
     return null;
   }
