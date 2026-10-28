@@ -9,25 +9,46 @@ type SignatureDialogProps = {
   onClose: () => void;
 };
 
+type Drawing = {
+  done: string[];
+  current: string | null;
+};
+
+const emptyDrawing: Drawing = { done: [], current: null };
+
+const strokeStyle = {
+  color: colors.foreground,
+  style: 'stroke',
+  strokeWidth: 3,
+  strokeCap: 'round',
+  strokeJoin: 'round',
+} as const;
+
 export function SignatureDialog({ onClose }: SignatureDialogProps) {
   const { saveSignature } = useSession();
   const canvasRef = useCanvasRef();
-  const [strokes, setStrokes] = useState<string[]>([]);
+  const [drawing, setDrawing] = useState<Drawing>(emptyDrawing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasStrokes = drawing.done.length > 0;
 
   function handleStart(event: GestureResponderEvent) {
-    const { locationX, locationY } = event.nativeEvent;
+    const { locationX: x, locationY: y } = event.nativeEvent;
     setError(null);
-    setStrokes((previous) => [...previous, `M${locationX} ${locationY}`]);
+    setDrawing((previous) => ({ ...previous, current: `M${x} ${y} L${x + 0.1} ${y}` }));
   }
 
   function handleMove(event: GestureResponderEvent) {
-    const { locationX, locationY } = event.nativeEvent;
-    setStrokes((previous) => [
-      ...previous.slice(0, -1),
-      `${previous.at(-1)} L${locationX} ${locationY}`,
-    ]);
+    const { locationX: x, locationY: y } = event.nativeEvent;
+    setDrawing((previous) =>
+      previous.current ? { ...previous, current: `${previous.current} L${x} ${y}` } : previous,
+    );
+  }
+
+  function handleEnd() {
+    setDrawing((previous) =>
+      previous.current ? { done: [...previous.done, previous.current], current: null } : previous,
+    );
   }
 
   async function handleSave() {
@@ -57,28 +78,23 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
             onResponderTerminationRequest={() => false}
             onResponderGrant={handleStart}
             onResponderMove={handleMove}
+            onResponderRelease={handleEnd}
+            onResponderTerminate={handleEnd}
           >
             <Canvas ref={canvasRef} style={{ flex: 1 }}>
-              {strokes.map((stroke, index) => (
-                <Path
-                  key={index}
-                  path={stroke}
-                  color={colors.foreground}
-                  style="stroke"
-                  strokeWidth={3}
-                  strokeCap="round"
-                  strokeJoin="round"
-                />
+              {drawing.done.map((stroke, index) => (
+                <Path key={index} path={stroke} {...strokeStyle} />
               ))}
+              {drawing.current ? <Path path={drawing.current} {...strokeStyle} /> : null}
             </Canvas>
-            {strokes.length === 0 ? (
+            {hasStrokes || drawing.current ? null : (
               <Text
                 pointerEvents="none"
                 className="absolute inset-x-0 top-28 text-center font-sans text-base text-muted"
               >
                 Firma aquí con el dedo o con el lápiz
               </Text>
-            ) : null}
+            )}
             <View
               pointerEvents="none"
               className="absolute inset-x-8 bottom-12 h-px bg-border-strong"
@@ -100,8 +116,8 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
               <Button
                 variant="secondary"
                 label="Limpiar"
-                onPress={() => setStrokes([])}
-                disabled={strokes.length === 0 || saving}
+                onPress={() => setDrawing(emptyDrawing)}
+                disabled={!hasStrokes || saving}
               />
             </View>
             <View className="max-w-[396px] flex-[2] flex-row gap-4">
@@ -113,7 +129,7 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
                   variant="success"
                   label="Guardar firma"
                   onPress={handleSave}
-                  disabled={strokes.length === 0}
+                  disabled={!hasStrokes}
                   loading={saving}
                 />
               </View>
