@@ -97,7 +97,7 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
   }
 
   return (
-    <Modal transparent animationType="fade" onRequestClose={onClose}>
+    <Modal transparent animationType="fade" onRequestClose={saving ? undefined : onClose}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center bg-foreground/40 p-4">
           <View className="w-full max-w-[880px] gap-5 rounded-2xl bg-background p-6">
