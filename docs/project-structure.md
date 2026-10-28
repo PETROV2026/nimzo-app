@@ -98,24 +98,24 @@ apps/mobile/
 
 #### Navigation
 
-Without a session the app only shows the login. With a session it shows a bottom tab bar with four tabs, in this order:
+Without a session the app only shows the login. With a session it shows a bottom tab bar with four tabs, in this order. There is no Inicio tab: the app opens on **Servicios**.
 
 | Tab (label) | File | Icon (`MaterialIcons`) | Purpose |
 |---|---|---|---|
-| **Inicio** | `src/app/(tabs)/index.tsx` | `home` | Initial tab. Summary of the technician's work: reports in progress and pending to send |
-| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms: start, fill in and submit reports |
-| **Clientes** | `src/app/(tabs)/clients.tsx` | `business` | Clients, branches and systems downloaded to the device |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | The technician's name, signature, area (state and city), email and phone, editable except name and email; role and sign out |
+| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
+| **Clientes** | `src/app/(tabs)/clients.tsx` | `people-outline` | Clients, branches and systems of the technician |
+| **Notas** | `src/app/(tabs)/notes.tsx` | `event-note` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `account-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out |
 
 ```
 src/app/
 ├── _layout.tsx        Session provider + protected routes (login without a session, tabs with one)
 ├── login.tsx
 └── (tabs)/
-    ├── _layout.tsx    Tab bar
-    ├── index.tsx      Inicio
+    ├── _layout.tsx    Tab bar (initial route: services)
     ├── services.tsx   Servicios
     ├── clients.tsx    Clientes
+    ├── notes.tsx      Notas
     └── profile.tsx    Perfil
 ```
 
