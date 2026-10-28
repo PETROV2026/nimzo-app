@@ -66,6 +66,7 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
   }
 
   const pan = Gesture.Pan()
+    .enabled(!saving)
     .minDistance(0)
     .onBegin((event) => {
       points.set([event.x, event.y, event.x + 0.1, event.y]);
@@ -85,7 +86,10 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
 
   async function handleSave() {
     const png = canvasRef.current?.makeImageSnapshot().encodeToBytes();
-    if (!png) return;
+    if (!png) {
+      setError('No se pudo leer la firma. Intenta de nuevo.');
+      return;
+    }
     setSaving(true);
     const result = await onSave(png);
     setSaving(false);
