@@ -1,7 +1,8 @@
-import { mexicanStateSchema, type MexicanState, type UserRole } from '@nimzo/shared';
+import { mexicanStateSchema, signatureBucket, signatureMaxBytes, type MexicanState, type UserRole } from '@nimzo/shared';
 import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
+
 
 export type Profile = {
   fullName: string;
@@ -129,11 +130,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return null;
   }
 
-  async function saveSignature(png: Uint8Array) {
-    if (!userId || !profile)
-      return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
-    const signatures = supabase.storage.from('signatures');
-    const path = `${userId}/${Date.now()}.png`;
+    async function saveSignature(png: Uint8Array) {
+    if (!userId || !profile) return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
+    if (png.byteLength > signatureMaxBytes) {
+      return 'La firma es demasiado grande. Bórrala y vuelve a firmar.';
+    }
+    const signatures = supabase.storage.from(signatureBucket);
+    const date = new Date().toISOString().replace(/[:.]/g, '-');
+    const path = `${userId}/signature-${date}.png`;
     const { error: uploadError } = await signatures.upload(path, png, { contentType: 'image/png' });
     if (uploadError) return 'No se pudo guardar la firma. Intenta de nuevo.';
     const { error } = await supabase

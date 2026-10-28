@@ -6,6 +6,7 @@ import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/theme/colors';
 import { useSession } from '@/auth/session-provider';
+import { signatureBucket } from '@nimzo/shared';
 
 const signedUrls = new Map<string, string>();
 
@@ -24,7 +25,7 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
     if (!signaturePath || signedUrls.has(signaturePath)) return;
     let cancelled = false;
     supabase.storage
-      .from('signatures')
+      .from(signatureBucket)
       .createSignedUrl(signaturePath, 3600)
       .then(({ data }) => {
         if (data) signedUrls.set(signaturePath, data.signedUrl);

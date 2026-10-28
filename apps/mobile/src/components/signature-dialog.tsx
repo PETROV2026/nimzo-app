@@ -1,4 +1,4 @@
-import { Canvas, Path, useCanvasRef, usePathValue } from '@shopify/react-native-skia';
+import { Canvas, Path, Skia, rect, useCanvasRef, usePathValue } from '@shopify/react-native-skia';
 import { useState } from 'react';
 import { Modal, Text, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -20,6 +20,8 @@ const strokeStyle = {
   strokeCap: 'round',
   strokeJoin: 'round',
 } as const;
+
+const snapshotPadding = 8;
 
 function toSvgPath(points: number[]) {
   'worklet';
@@ -84,8 +86,19 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
       if (value.length > 0) scheduleOnRN(addStroke, toSvgPath(value));
     });
 
+    function strokesArea() {
+    const bounds = Skia.Path.MakeFromSVGString(strokes.join(' '))?.computeTightBounds();
+    if (!bounds) return undefined;
+    return rect(
+      Math.max(bounds.x - snapshotPadding, 0),
+      Math.max(bounds.y - snapshotPadding, 0),
+      bounds.width + snapshotPadding * 2,
+      bounds.height + snapshotPadding * 2,
+    );
+  }
+
   async function handleSave() {
-    const png = canvasRef.current?.makeImageSnapshot().encodeToBytes();
+    const png = canvasRef.current?.makeImageSnapshot(strokesArea()).encodeToBytes();
     if (!png) {
       setError('No se pudo leer la firma. Intenta de nuevo.');
       return;
