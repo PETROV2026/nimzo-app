@@ -31,7 +31,9 @@ export function SelectField<T extends string>({
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={label}
-        className="min-h-14 flex-row items-center justify-between rounded-lg border-2 border-border-strong bg-background px-4"
+        accessibilityValue={{ text: selected?.label ?? placeholder }}
+        accessibilityState={{ disabled }}
+        className={`min-h-14 flex-row items-center justify-between rounded-lg border-2 border-border-strong bg-background px-4 ${disabled ? 'opacity-50' : ''}`}
       >
         <Text className={`font-sans text-lg ${selected ? 'text-foreground' : 'text-muted'}`}>
           {selected?.label ?? placeholder}
