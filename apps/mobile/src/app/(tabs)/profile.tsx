@@ -31,7 +31,10 @@ export default function ProfileScreen() {
         <View className="gap-6 rounded-md bg-background px-8 py-6">
           <View className="gap-4">
             <View className="flex-row gap-8">
-              <InfoField label="Nombre completo" value={profile?.fullName || session.session.user.email} />
+              <InfoField
+                label="Nombre completo"
+                value={profile?.fullName || session.session.user.email}
+              />
               <InfoField label="Rol" value={profile ? userRoleLabels[profile.role] : null} />
             </View>
             <View className="flex-row gap-8">
@@ -48,7 +51,6 @@ export default function ProfileScreen() {
           </View>
           <View className="w-[232px] self-end">
             <Button
-              variant="brand"
               label="Editar información"
               onPress={() => setEditing(true)}
               disabled={!profile}

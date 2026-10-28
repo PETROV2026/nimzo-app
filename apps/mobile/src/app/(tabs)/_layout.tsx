@@ -20,7 +20,7 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors['brand-strong'],
+        tabBarActiveTintColor: colors['primary-strong'],
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.background },
         tabBarLabelStyle: { fontFamily: fonts['sans-medium'] },

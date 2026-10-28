@@ -16,13 +16,6 @@ const colors = {
   accent: '#FFBA49',
   'on-accent': '#000000',
 
-  brand: '#E4572E',
-  'brand-strong': '#B64524',
-  'on-brand': '#FFFFFF',
-
-  success: '#2E7D32',
-  'on-success': '#FFFFFF',
-
   danger: '#E4572E',
   'danger-strong': '#B64524',
   'on-danger': '#FFFFFF',

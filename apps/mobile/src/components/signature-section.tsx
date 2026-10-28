@@ -47,7 +47,7 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
     };
   }, [signaturePath, attempt]);
 
-    function handleRetry() {
+  function handleRetry() {
     if (!signaturePath) return;
     signedUrls.delete(signaturePath);
     setFailedPath(null);
@@ -67,7 +67,7 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
         Aún no tienes una firma registrada. Toca “Firmar” para crearla.
       </Text>
     );
-    } else if (url === null || failedPath === signaturePath) {
+  } else if (url === null || failedPath === signaturePath) {
     preview = (
       <View className="items-center gap-4">
         <Text className="font-sans text-base text-muted">
@@ -104,7 +104,6 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
       </View>
       <View className="w-[232px] self-end">
         <Button
-          variant="brand"
           label={signaturePath ? 'Cambiar firma' : 'Firmar'}
           onPress={() => setSigning(true)}
           disabled={disabled}

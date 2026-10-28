@@ -86,7 +86,7 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
       if (value.length > 0) scheduleOnRN(addStroke, toSvgPath(value));
     });
 
-    function strokesArea() {
+  function strokesArea() {
     const bounds = Skia.Path.MakeFromSVGString(strokes.join(' '))?.computeTightBounds();
     if (!bounds) return undefined;
     return rect(
@@ -174,7 +174,6 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
                 </View>
                 <View className="flex-1">
                   <Button
-                    variant="success"
                     label="Guardar firma"
                     onPress={handleSave}
                     disabled={!hasStrokes}

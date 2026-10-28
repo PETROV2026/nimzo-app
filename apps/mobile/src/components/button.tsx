@@ -12,16 +12,6 @@ const variants = {
     text: 'text-foreground',
     spinner: colors.foreground,
   },
-  brand: {
-    container: 'bg-brand',
-    text: 'text-on-brand',
-    spinner: colors['on-brand'],
-  },
-  success: {
-    container: 'bg-success',
-    text: 'text-on-success',
-    spinner: colors['on-success'],
-  },
 };
 
 type ButtonProps = {

@@ -1,8 +1,13 @@
-import { mexicanStateSchema, signatureBucket, signatureMaxBytes, type MexicanState, type UserRole } from '@nimzo/shared';
+import {
+  mexicanStateSchema,
+  signatureBucket,
+  signatureMaxBytes,
+  type MexicanState,
+  type UserRole,
+} from '@nimzo/shared';
 import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
-
 
 export type Profile = {
   fullName: string;
@@ -130,8 +135,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     return null;
   }
 
-    async function saveSignature(png: Uint8Array) {
-    if (!userId || !profile) return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
+  async function saveSignature(png: Uint8Array) {
+    if (!userId || !profile)
+      return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
     if (png.byteLength > signatureMaxBytes) {
       return 'La firma es demasiado grande. Bórrala y vuelve a firmar.';
     }
@@ -151,7 +157,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       await signatures.remove([path]);
       return 'No se pudo guardar la firma. Intenta de nuevo.';
     }
-        const { data: files } = await signatures.list(userId);
+    const { data: files } = await signatures.list(userId);
     const oldPaths = (files ?? [])
       .map((file) => `${userId}/${file.name}`)
       .filter((filePath) => filePath !== path);

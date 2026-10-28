@@ -55,7 +55,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
   });
 
   return (
-    <Modal transparent animationType="fade" onRequestClose={isSubmitting ? undefined :onClose}>
+    <Modal transparent animationType="fade" onRequestClose={isSubmitting ? undefined : onClose}>
       <ScrollView
         className="flex-1 bg-foreground/40"
         contentContainerClassName="grow items-center justify-center p-8"
@@ -154,12 +154,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               />
             </View>
             <View className="w-[190px]">
-              <Button
-                variant="success"
-                label="Guardar cambios"
-                onPress={onSubmit}
-                loading={isSubmitting}
-              />
+              <Button label="Guardar cambios" onPress={onSubmit} loading={isSubmitting} />
             </View>
           </View>
         </View>
