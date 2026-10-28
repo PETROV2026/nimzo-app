@@ -1,17 +1,22 @@
 import { MaterialIcons } from '@expo/vector-icons';
+import { mexicanStateLabels, mexicanStates, userEditSchema, type MexicanState } from '@nimzo/shared';
 import { useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
+import { z } from 'zod';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
+import { SelectField } from '@/components/select-field';
 import { TextField } from '@/components/text-field';
 import { colors } from '@/theme/colors';
-import { mexicanStateLabels, mexicanStates, type MexicanState } from '@nimzo/shared';
-import { SelectField } from '@/components/select-field';
+
+const profileEditSchema = userEditSchema.omit({ role: true });
 
 const stateOptions = mexicanStates.map((code) => ({
   value: code,
   label: mexicanStateLabels[code],
 }));
+
+type FieldErrors = Partial<Record<'full_name' | 'phone' | 'city', string>>;
 
 type EditProfileDialogProps = {
   profile: Profile;
@@ -21,25 +26,38 @@ type EditProfileDialogProps = {
 export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
   const { updateProfile } = useSession();
   const [fullName, setFullName] = useState(profile.fullName);
-  const [nameError, setNameError] = useState<string>();
   const [phone, setPhone] = useState(profile.phone ?? '');
-  const [city, setCity] = useState(profile.city ?? '');
   const [state, setState] = useState<MexicanState | null>(profile.state);
+  const [city, setCity] = useState(profile.city ?? '');
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function handleChange(field: keyof FieldErrors, setValue: (text: string) => void) {
+    return (text: string) => {
+      setValue(text);
+      setErrors((previous) => ({ ...previous, [field]: undefined }));
+    };
+  }
+
   async function handleSave() {
-    const name = fullName.trim();
-    if (!name) {
-      setNameError('Escribe tu nombre completo.');
+    const parsed = profileEditSchema.safeParse({ full_name: fullName, phone, state, city });
+    if (!parsed.success) {
+      const { fieldErrors } = z.flattenError(parsed.error);
+      setErrors({
+        full_name: fieldErrors.full_name?.[0],
+        phone: fieldErrors.phone?.[0],
+        city: fieldErrors.city?.[0],
+      });
       return;
     }
+    setErrors({});
     setSaving(true);
     const result = await updateProfile({
-      fullName: name,
-      phone: phone.trim() || null,
-      state: state,
-      city: city.trim() || null,
+      fullName: parsed.data.full_name,
+      phone: parsed.data.phone ?? null,
+      state: parsed.data.state,
+      city: parsed.data.city ?? null,
     });
     setSaving(false);
     if (result) {
@@ -70,11 +88,8 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
           <TextField
             label="Nombre completo"
             value={fullName}
-            onChangeText={(text) => {
-              setFullName(text);
-              setNameError(undefined);
-            }}
-            error={nameError}
+            onChangeText={handleChange('full_name', setFullName)}
+            error={errors.full_name}
             autoCapitalize="words"
             autoComplete="name"
             editable={!saving}
@@ -82,7 +97,8 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
           <TextField
             label="Teléfono"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={handleChange('phone', setPhone)}
+            error={errors.phone}
             keyboardType="phone-pad"
             autoComplete="tel"
             placeholder="Ej. 686 123 4567"
@@ -99,7 +115,8 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
           <TextField
             label="Ciudad"
             value={city}
-            onChangeText={setCity}
+            onChangeText={handleChange('city', setCity)}
+            error={errors.city}
             placeholder="Ej. Mexicali"
             editable={!saving}
           />
