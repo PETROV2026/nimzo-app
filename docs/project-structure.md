@@ -105,7 +105,7 @@ Without a session the app only shows the login. With a session it shows a bottom
 | **Inicio** | `src/app/(tabs)/index.tsx` | `home` | Initial tab. Summary of the technician's work: reports in progress and pending to send |
 | **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Service visits and their forms: start, fill in and submit reports |
 | **Clientes** | `src/app/(tabs)/clients.tsx` | `business` | Clients, branches and systems downloaded to the device |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | The technician's name, signature, area (state and city), email and phone, editable except name and email; role and sign out |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `person` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out |
 
 ```
 src/app/
