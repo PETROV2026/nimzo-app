@@ -4,11 +4,12 @@ import { Modal, Text, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { colors } from '@/theme/colors';
 
 type SignatureDialogProps = {
+  title: string;
+  onSave: (png: Uint8Array) => Promise<string | null>;
   onClose: () => void;
 };
 
@@ -29,8 +30,7 @@ function toSvgPath(points: number[]) {
   return svg;
 }
 
-export function SignatureDialog({ onClose }: SignatureDialogProps) {
-  const { saveSignature } = useSession();
+export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps) {
   const canvasRef = useCanvasRef();
   const points = useSharedValue<number[]>([]);
   const [strokes, setStrokes] = useState<string[]>([]);
@@ -87,7 +87,7 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
     const png = canvasRef.current?.makeImageSnapshot().encodeToBytes();
     if (!png) return;
     setSaving(true);
-    const result = await saveSignature(png);
+    const result = await onSave(png);
     setSaving(false);
     if (result) {
       setError(result);
@@ -102,7 +102,7 @@ export function SignatureDialog({ onClose }: SignatureDialogProps) {
         <View className="flex-1 items-center justify-center bg-foreground/40 p-4">
           <View className="w-full max-w-[880px] gap-5 rounded-2xl bg-background p-6">
             <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-              Mi firma
+              {title}
             </Text>
             <View className="h-[320px] overflow-hidden rounded-md border-2 border-dashed border-border-strong">
               <GestureDetector gesture={pan}>

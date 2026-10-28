@@ -5,6 +5,7 @@ import { Button } from '@/components/button';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
 import { colors } from '@/theme/colors';
+import { useSession } from '@/auth/session-provider';
 
 const signedUrls = new Map<string, string>();
 
@@ -14,6 +15,7 @@ type SignatureSectionProps = {
 };
 
 export function SignatureSection({ signaturePath, disabled }: SignatureSectionProps) {
+  const { saveSignature } = useSession();
   const [signing, setSigning] = useState(false);
   const [fetched, setFetched] = useState<{ path: string; url: string | null } | null>(null);
   const [failedPath, setFailedPath] = useState<string | null>(null);
@@ -80,7 +82,13 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
           disabled={disabled}
         />
       </View>
-      {signing ? <SignatureDialog onClose={() => setSigning(false)} /> : null}
+      {signing ? (
+        <SignatureDialog
+          title="Mi firma"
+          onSave={saveSignature}
+          onClose={() => setSigning(false)}
+        />
+      ) : null}
     </View>
   );
 }
