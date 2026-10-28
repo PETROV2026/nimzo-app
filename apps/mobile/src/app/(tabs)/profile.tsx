@@ -31,7 +31,7 @@ export default function ProfileScreen() {
         <View className="gap-6 rounded-md bg-background px-8 py-6">
           <View className="gap-4">
             <View className="flex-row gap-8">
-              <InfoField label="Nombre completo" value={profile?.fullName} />
+              <InfoField label="Nombre completo" value={profile?.fullName || session.session.user.email} />
               <InfoField label="Rol" value={profile ? userRoleLabels[profile.role] : null} />
             </View>
             <View className="flex-row gap-8">
@@ -88,7 +88,7 @@ function InfoField({ label, value }: { label: string; value?: string | null }) {
           ellipsizeMode="tail"
           className={`font-sans text-base ${value ? 'text-foreground' : 'text-muted'}`}
         >
-          {value || 'Sin registrar'}
+          {value || 'Sin capturar'}
         </Text>
       </View>
     </View>
