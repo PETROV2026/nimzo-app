@@ -21,6 +21,7 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
   const [signing, setSigning] = useState(false);
   const [fetched, setFetched] = useState<{ path: string; url: string | null } | null>(null);
   const [failedPath, setFailedPath] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!signaturePath) return;
@@ -44,7 +45,15 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
     return () => {
       cancelled = true;
     };
-  }, [signaturePath]);
+  }, [signaturePath, attempt]);
+
+    function handleRetry() {
+    if (!signaturePath) return;
+    signedUrls.delete(signaturePath);
+    setFailedPath(null);
+    setFetched(null);
+    setAttempt((previous) => previous + 1);
+  }
 
   const url = signaturePath
     ? (signedUrls.get(signaturePath)?.url ??
@@ -58,11 +67,16 @@ export function SignatureSection({ signaturePath, disabled }: SignatureSectionPr
         Aún no tienes una firma registrada. Toca “Firmar” para crearla.
       </Text>
     );
-  } else if (url === null || failedPath === signaturePath) {
+    } else if (url === null || failedPath === signaturePath) {
     preview = (
-      <Text className="font-sans text-base text-muted">
-        No se pudo cargar tu firma. Revisa tu conexión.
-      </Text>
+      <View className="items-center gap-4">
+        <Text className="font-sans text-base text-muted">
+          No se pudo cargar tu firma. Revisa tu conexión.
+        </Text>
+        <View className="w-[190px]">
+          <Button variant="secondary" label="Reintentar" onPress={handleRetry} />
+        </View>
+      </View>
     );
   } else if (url === undefined) {
     preview = <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando firma" />;
