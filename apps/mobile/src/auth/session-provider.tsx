@@ -143,7 +143,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase
       .from('profiles')
       .update({ signature_path: path })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select('id')
+      .single();
+
     if (error) {
       await signatures.remove([path]);
       return 'No se pudo guardar la firma. Intenta de nuevo.';
