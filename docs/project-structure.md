@@ -92,7 +92,7 @@ apps/mobile/
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
   | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
-  | `bg-brand` + `text-on-brand` | orange `#E4572E` + white | Main actions in buttons |
+  | `bg-brand` + `text-on-brand` / `text-brand-strong` | orange `#E4572E` / `#B64524` + white | Main actions; `-strong` for orange text on white |
   | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm actions |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
 

@@ -17,6 +17,7 @@ const colors = {
   'on-accent': '#000000',
 
   brand: '#E4572E',
+  'brand-strong': '#B64524',
   'on-brand': '#FFFFFF',
 
   success: '#2E7D32',

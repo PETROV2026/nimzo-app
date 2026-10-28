@@ -12,11 +12,15 @@ function tabIcon(name: IconName) {
   };
 }
 
+export const unstable_settings = {
+  initialRouteName: 'services',
+};
+
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors['danger'],
+        tabBarActiveTintColor: colors['brand-strong'],
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: { backgroundColor: colors.background },
         tabBarLabelStyle: { fontFamily: fonts['sans-medium'] },
