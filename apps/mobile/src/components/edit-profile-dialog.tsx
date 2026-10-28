@@ -1,8 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { mexicanStateLabels, mexicanStates, userEditSchema, type MexicanState } from '@nimzo/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Modal, Pressable, Text, View } from 'react-native';
-import { z } from 'zod';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SelectField } from '@/components/select-field';
@@ -16,8 +17,6 @@ const stateOptions = mexicanStates.map((code) => ({
   label: mexicanStateLabels[code],
 }));
 
-type FieldErrors = Partial<Record<'full_name' | 'phone' | 'city', string>>;
-
 type EditProfileDialogProps = {
   profile: Profile;
   onClose: () => void;
@@ -25,47 +24,35 @@ type EditProfileDialogProps = {
 
 export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
   const { updateProfile } = useSession();
-  const [fullName, setFullName] = useState(profile.fullName);
-  const [phone, setPhone] = useState(profile.phone ?? '');
-  const [state, setState] = useState<MexicanState | null>(profile.state);
-  const [city, setCity] = useState(profile.city ?? '');
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(profileEditSchema),
+    defaultValues: {
+      full_name: profile.fullName,
+      phone: profile.phone ?? '',
+      state: profile.state,
+      city: profile.city ?? '',
+    },
+  });
 
-  function handleChange(field: keyof FieldErrors, setValue: (text: string) => void) {
-    return (text: string) => {
-      setValue(text);
-      setErrors((previous) => ({ ...previous, [field]: undefined }));
-    };
-  }
-
-  async function handleSave() {
-    const parsed = profileEditSchema.safeParse({ full_name: fullName, phone, state, city });
-    if (!parsed.success) {
-      const { fieldErrors } = z.flattenError(parsed.error);
-      setErrors({
-        full_name: fieldErrors.full_name?.[0],
-        phone: fieldErrors.phone?.[0],
-        city: fieldErrors.city?.[0],
-      });
-      return;
-    }
-    setErrors({});
-    setSaving(true);
+  const onSubmit = handleSubmit(async (values) => {
+    setError(null);
     const result = await updateProfile({
-      fullName: parsed.data.full_name,
-      phone: parsed.data.phone ?? null,
-      state: parsed.data.state,
-      city: parsed.data.city ?? null,
+      fullName: values.full_name,
+      phone: values.phone ?? null,
+      state: values.state,
+      city: values.city ?? null,
     });
-    setSaving(false);
     if (result) {
       setError(result);
       return;
     }
     onClose();
-  }
+  });
 
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
@@ -85,40 +72,67 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               <MaterialIcons name="close" size={24} color={colors.muted} />
             </Pressable>
           </View>
-          <TextField
-            label="Nombre completo"
-            value={fullName}
-            onChangeText={handleChange('full_name', setFullName)}
-            error={errors.full_name}
-            autoCapitalize="words"
-            autoComplete="name"
-            editable={!saving}
+          <Controller
+            control={control}
+            name="full_name"
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Nombre completo"
+                value={field.value ?? ''}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+                autoCapitalize="words"
+                autoComplete="name"
+                editable={!isSubmitting}
+              />
+            )}
           />
-          <TextField
-            label="Teléfono"
-            value={phone}
-            onChangeText={handleChange('phone', setPhone)}
-            error={errors.phone}
-            keyboardType="phone-pad"
-            autoComplete="tel"
-            placeholder="Ej. 686 123 4567"
-            editable={!saving}
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Teléfono"
+                value={field.value ?? ''}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+                keyboardType="phone-pad"
+                autoComplete="tel"
+                placeholder="Ej. 686 123 4567"
+                editable={!isSubmitting}
+              />
+            )}
           />
-          <SelectField
-            label="Estado"
-            value={state}
-            options={stateOptions}
-            onChange={setState}
-            placeholder="Selecciona un estado"
-            disabled={saving}
+          <Controller
+            control={control}
+            name="state"
+            render={({ field }) => (
+              <SelectField
+                label="Estado"
+                value={field.value ?? null}
+                options={stateOptions}
+                onChange={field.onChange}
+                placeholder="Selecciona un estado"
+                disabled={isSubmitting}
+              />
+            )}
           />
-          <TextField
-            label="Ciudad"
-            value={city}
-            onChangeText={handleChange('city', setCity)}
-            error={errors.city}
-            placeholder="Ej. Mexicali"
-            editable={!saving}
+          <Controller
+            control={control}
+            name="city"
+            render={({ field, fieldState }) => (
+              <TextField
+                label="Ciudad"
+                value={field.value ?? ''}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                error={fieldState.error?.message}
+                placeholder="Ej. Mexicali"
+                editable={!isSubmitting}
+              />
+            )}
           />
           {error ? (
             <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
@@ -127,14 +141,19 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
           ) : null}
           <View className="flex-row justify-center gap-4">
             <View className="w-[190px]">
-              <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={saving} />
+              <Button
+                variant="secondary"
+                label="Cancelar"
+                onPress={onClose}
+                disabled={isSubmitting}
+              />
             </View>
             <View className="w-[190px]">
               <Button
                 variant="success"
                 label="Guardar cambios"
-                onPress={handleSave}
-                loading={saving}
+                onPress={onSubmit}
+                loading={isSubmitting}
               />
             </View>
           </View>
