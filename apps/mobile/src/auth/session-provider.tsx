@@ -118,7 +118,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   async function updateProfile({ fullName, ...changes }: ProfileChanges) {
-    if (!userId) return 'No hay una sesión activa.';
+    if (!userId || !profile) return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
     const { error } = await supabase
       .from('profiles')
       .update({ full_name: fullName, ...changes })
@@ -129,7 +129,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   async function saveSignature(png: Uint8Array) {
-    if (!userId) return 'No hay una sesión activa.';
+    if (!userId || !profile) return 'No se pudo cargar tu perfil. Revisa tu conexión e intenta de nuevo.';
     const signatures = supabase.storage.from('signatures');
     const path = `${userId}/${Date.now()}.png`;
     const { error: uploadError } = await signatures.upload(path, png, { contentType: 'image/png' });
@@ -142,7 +142,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       await signatures.remove([path]);
       return 'No se pudo guardar la firma. Intenta de nuevo.';
     }
-    if (profile?.signaturePath) await signatures.remove([profile.signaturePath]);
+    if (profile.signaturePath) await signatures.remove([profile.signaturePath]);
     setProfile((previous) => (previous ? { ...previous, signaturePath: path } : previous));
     return null;
   }

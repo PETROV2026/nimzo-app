@@ -42,7 +42,7 @@ export function Button({ label, onPress, loading, disabled, variant = 'primary' 
       accessibilityState={{ disabled: disabled || loading, busy: loading }}
       onPress={onPress}
       disabled={disabled || loading}
-      className={`min-h-14 items-center justify-center rounded-lg px-6 active:opacity-80 disabled:opacity-50 ${style.container}`}
+      className={`min-h-14 items-center justify-center rounded-lg px-6 active:opacity-80 ${disabled ? 'opacity-50' : ''} ${style.container}`}
     >
       {loading ? (
         <ActivityIndicator color={style.spinner} />

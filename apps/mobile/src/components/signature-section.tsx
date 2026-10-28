@@ -7,9 +7,10 @@ import { supabase } from '@/lib/supabase';
 
 type SignatureSectionProps = {
   signaturePath: string | null;
+  disabled: boolean;
 };
 
-export function SignatureSection({ signaturePath }: SignatureSectionProps) {
+export function SignatureSection({ signaturePath, disabled }: SignatureSectionProps) {
   const [signing, setSigning] = useState(false);
   const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ export function SignatureSection({ signaturePath }: SignatureSectionProps) {
           variant="brand"
           label={signaturePath ? 'Cambiar firma' : 'Firmar'}
           onPress={() => setSigning(true)}
+          disabled={disabled}
         />
       </View>
       {signing ? <SignatureDialog onClose={() => setSigning(false)} /> : null}

@@ -57,7 +57,7 @@ export default function ProfileScreen() {
         </View>
 
         <View className="mt-8">
-          <SignatureSection signaturePath={profile?.signaturePath ?? null} />
+          <SignatureSection signaturePath={profile?.signaturePath ?? null} disabled={!profile} />
         </View>
 
         <View className="mt-12 h-px bg-border" />
