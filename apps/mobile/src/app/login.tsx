@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Pressable,
   ScrollView,
@@ -73,6 +74,7 @@ export default function LoginScreen() {
 
     setErrors({});
     setSubmitError(null);
+    Keyboard.dismiss();
     setSubmitting(true);
     const error = await signIn(result.data.email, result.data.password);
     setSubmitting(false);
@@ -124,10 +126,12 @@ export default function LoginScreen() {
           rightAccessory={
             <Pressable
               onPress={() => setShowPassword((previous) => !previous)}
+              disabled={loading}
               hitSlop={8}
-              className="min-h-14 min-w-14 items-center justify-center"
+              className={`min-h-14 min-w-14 items-center justify-center ${loading ? 'opacity-50' : ''}`}
               accessibilityRole="button"
               accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              accessibilityState={{ disabled: loading }}
             >
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
