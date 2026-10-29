@@ -23,6 +23,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 
 import { AppLayout } from '@/components/layout/app-layout';
+import { GlobalLoading } from '@/components/loading/global-loading';
 import { SnackbarProvider } from '@/components/snackbar-provider';
 import { dataProvider } from '@/lib/data-provider';
 import { supabase } from '@/lib/supabase';
@@ -360,6 +361,7 @@ export default function App() {
               </Route>
             </Routes>
             <UnsavedChangesNotifier />
+            <GlobalLoading />
             <DocumentTitleHandler
               handler={({ resource, action, pathname }) => {
                 const toolTitle = pathname ? toolTitles[pathname] : undefined;
