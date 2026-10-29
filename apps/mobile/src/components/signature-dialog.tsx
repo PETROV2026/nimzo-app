@@ -1,9 +1,18 @@
-import { Canvas, Path, Skia, rect, useCanvasRef, usePathValue } from '@shopify/react-native-skia';
+import {
+  Canvas,
+  PaintStyle,
+  Path,
+  Skia,
+  StrokeCap,
+  StrokeJoin,
+  type SkPath,
+  type SkPathBuilder,
+} from '@shopify/react-native-skia';
 import { useState } from 'react';
 import { Modal, Text, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
-import { scheduleOnRN } from 'react-native-worklets';
+import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import { Button } from '@/components/button';
 import { colors } from '@/theme/colors';
 
@@ -13,99 +22,141 @@ type SignatureDialogProps = {
   onClose: () => void;
 };
 
+type Ink = { svg: string; x: number; y: number; width: number; height: number };
+
+const strokeWidth = 3.5;
 const strokeStyle = {
   color: colors.foreground,
   style: 'stroke',
-  strokeWidth: 3,
+  strokeWidth,
   strokeCap: 'round',
   strokeJoin: 'round',
 } as const;
 
-const snapshotPadding = 8;
+const minimumInkSize = 24;
+const exportPadding = 12;
+const exportScale = 2;
+const exportMaxWidth = 1200;
 
-function toSvgPath(points: number[]) {
-  'worklet';
-  let svg = `M${points[0]} ${points[1]}`;
-  for (let index = 2; index < points.length; index += 2) {
-    svg += ` L${points[index]} ${points[index + 1]}`;
-  }
-  return svg;
+function renderSignaturePng(ink: Ink) {
+  const path = Skia.Path.MakeFromSVGString(ink.svg);
+  if (!path) return null;
+  const scale = Math.min(exportScale, exportMaxWidth / (ink.width + exportPadding * 2));
+  const width = Math.ceil((ink.width + exportPadding * 2) * scale);
+  const height = Math.ceil((ink.height + exportPadding * 2) * scale);
+  const surface = Skia.Surface.Make(width, height);
+  if (!surface) return null;
+  const paint = Skia.Paint();
+  paint.setAntiAlias(true);
+  paint.setColor(Skia.Color(colors.foreground));
+  paint.setStyle(PaintStyle.Stroke);
+  paint.setStrokeWidth(strokeWidth);
+  paint.setStrokeCap(StrokeCap.Round);
+  paint.setStrokeJoin(StrokeJoin.Round);
+  const canvas = surface.getCanvas();
+  canvas.clear(Skia.Color('transparent'));
+  canvas.scale(scale, scale);
+  canvas.translate(exportPadding - ink.x, exportPadding - ink.y);
+  canvas.drawPath(path, paint);
+  surface.flush();
+  return surface.makeImageSnapshot().encodeToBytes();
 }
 
 export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps) {
-  const canvasRef = useCanvasRef();
-  const points = useSharedValue<number[]>([]);
-  const [strokes, setStrokes] = useState<string[]>([]);
+  const inkBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
+  const strokeBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
+  const inkPath = useSharedValue<SkPath>(Skia.Path.Make());
+  const strokePath = useSharedValue<SkPath>(Skia.Path.Make());
+  const lastPoint = useSharedValue({ x: 0, y: 0 });
+  const [ink, setInk] = useState<Ink | null>(null);
+  const [drawing, setDrawing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [touched, setTouched] = useState(false);
-  const hasStrokes = strokes.length > 0;
-
-  const currentPath = usePathValue((path) => {
-    'worklet';
-    const value = points.get();
-    if (value.length < 2) return;
-    path.moveTo(value[0], value[1]);
-    for (let index = 2; index < value.length; index += 2) {
-      path.lineTo(value[index], value[index + 1]);
-    }
-  });
-
-  function addStroke(stroke: string) {
-    setError(null);
-    setStrokes((previous) => [...previous, stroke]);
-  }
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const hasInk = ink !== null;
+  const canSave = !!ink && ink.width + ink.height >= minimumInkSize;
 
   function startStroke() {
     setError(null);
-    setTouched(true);
+    setDrawing(true);
   }
 
   function handleClear() {
-    points.set([]);
-    setStrokes([]);
-    setTouched(false);
+    scheduleOnUI(() => {
+      'worklet';
+      inkBuilder.get().reset();
+      strokeBuilder.get().reset();
+      inkPath.set(Skia.Path.Make());
+      strokePath.set(Skia.Path.Make());
+    });
+    setInk(null);
+    setDrawing(false);
+  }
+
+  function handleClose() {
+    if (saving) return;
+    if (hasInk && !confirmingDiscard) {
+      setConfirmingDiscard(true);
+      return;
+    }
+    onClose();
   }
 
   const pan = Gesture.Pan()
-    .enabled(!saving)
+    .enabled(!saving && !confirmingDiscard)
+    .maxPointers(1)
     .minDistance(0)
     .onBegin((event) => {
-      points.set([event.x, event.y, event.x + 0.1, event.y]);
+      const builder = strokeBuilder.get();
+      builder
+        .reset()
+        .moveTo(event.x, event.y)
+        .lineTo(event.x + 0.1, event.y);
+      lastPoint.set({ x: event.x, y: event.y });
+      strokePath.set(builder.build());
       scheduleOnRN(startStroke);
     })
     .onUpdate((event) => {
-      points.modify((value) => {
-        'worklet';
-        value.push(event.x, event.y);
-        return value;
-      });
+      const builder = strokeBuilder.get();
+      const last = lastPoint.get();
+      builder.quadTo(last.x, last.y, (last.x + event.x) / 2, (last.y + event.y) / 2);
+      lastPoint.set({ x: event.x, y: event.y });
+      strokePath.set(builder.build());
     })
     .onFinalize(() => {
-      const value = points.get();
-      if (value.length > 0) scheduleOnRN(addStroke, toSvgPath(value));
+      const builder = strokeBuilder.get();
+      if (builder.isEmpty()) return;
+      const last = lastPoint.get();
+      const stroke = builder.lineTo(last.x, last.y).detach();
+      const allInk = inkBuilder.get().addPath(stroke).build();
+      inkPath.set(allInk);
+      strokePath.set(Skia.Path.Make());
+      const bounds = allInk.computeTightBounds();
+      scheduleOnRN(setInk, {
+        svg: allInk.toSVGString(),
+        x: bounds.x - strokeWidth,
+        y: bounds.y - strokeWidth,
+        width: bounds.width + strokeWidth * 2,
+        height: bounds.height + strokeWidth * 2,
+      });
     });
 
-  function strokesArea() {
-    const bounds = Skia.Path.MakeFromSVGString(strokes.join(' '))?.computeTightBounds();
-    if (!bounds) return undefined;
-    return rect(
-      Math.max(bounds.x - snapshotPadding, 0),
-      Math.max(bounds.y - snapshotPadding, 0),
-      bounds.width + snapshotPadding * 2,
-      bounds.height + snapshotPadding * 2,
-    );
-  }
-
   async function handleSave() {
-    const png = canvasRef.current?.makeImageSnapshot(strokesArea()).encodeToBytes();
+    if (!ink) return;
+    const png = renderSignaturePng(ink);
     if (!png) {
       setError('No se pudo leer la firma. Intenta de nuevo.');
       return;
     }
     setSaving(true);
-    const result = await onSave(png);
-    setSaving(false);
+    let result: string | null;
+    try {
+      result = await onSave(png);
+    } catch {
+      result = 'No se pudo guardar la firma. Intenta de nuevo.';
+    } finally {
+      setSaving(false);
+    }
     if (result) {
       setError(result);
       return;
@@ -114,7 +165,7 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
   }
 
   return (
-    <Modal transparent animationType="fade" onRequestClose={saving ? undefined : onClose}>
+    <Modal transparent animationType="fade" onRequestClose={handleClose}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center bg-foreground/40 p-4">
           <View className="w-full max-w-[880px] gap-5 rounded-2xl bg-background p-6">
@@ -123,14 +174,12 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
             </Text>
             <View className="h-[320px] overflow-hidden rounded-md border-2 border-dashed border-border-strong">
               <GestureDetector gesture={pan}>
-                <Canvas ref={canvasRef} style={{ flex: 1 }}>
-                  {strokes.map((stroke, index) => (
-                    <Path key={index} path={stroke} {...strokeStyle} />
-                  ))}
-                  <Path path={currentPath} {...strokeStyle} />
+                <Canvas style={{ flex: 1 }}>
+                  <Path path={inkPath} {...strokeStyle} />
+                  <Path path={strokePath} {...strokeStyle} />
                 </Canvas>
               </GestureDetector>
-              {hasStrokes || touched ? null : (
+              {hasInk || drawing ? null : (
                 <Text
                   pointerEvents="none"
                   className="absolute inset-x-0 top-28 text-center font-sans text-base text-muted"
@@ -154,34 +203,52 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
                 {error}
               </Text>
             ) : null}
-            <View className="flex-row justify-between gap-4">
-              <View className="max-w-[190px] flex-1">
-                <Button
-                  variant="secondary"
-                  label="Limpiar"
-                  onPress={handleClear}
-                  disabled={!hasStrokes || saving}
-                />
-              </View>
-              <View className="max-w-[396px] flex-[2] flex-row gap-4">
-                <View className="flex-1">
+            {confirmingDiscard ? (
+              <View className="flex-row items-center justify-between gap-4">
+                <Text className="flex-1 font-sans-medium text-lg text-foreground">
+                  ¿Descartar la firma que dibujaste?
+                </Text>
+                <View className="w-[190px]">
                   <Button
                     variant="secondary"
-                    label="Cancelar"
-                    onPress={onClose}
-                    disabled={saving}
+                    label="Seguir firmando"
+                    onPress={() => setConfirmingDiscard(false)}
                   />
                 </View>
-                <View className="flex-1">
-                  <Button
-                    label="Guardar firma"
-                    onPress={handleSave}
-                    disabled={!hasStrokes}
-                    loading={saving}
-                  />
+                <View className="w-[190px]">
+                  <Button label="Descartar" onPress={onClose} />
                 </View>
               </View>
-            </View>
+            ) : (
+              <View className="flex-row justify-between gap-4">
+                <View className="max-w-[190px] flex-1">
+                  <Button
+                    variant="secondary"
+                    label="Limpiar"
+                    onPress={handleClear}
+                    disabled={!hasInk || saving}
+                  />
+                </View>
+                <View className="max-w-[396px] flex-[2] flex-row gap-4">
+                  <View className="flex-1">
+                    <Button
+                      variant="secondary"
+                      label="Cancelar"
+                      onPress={handleClose}
+                      disabled={saving}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      label="Guardar firma"
+                      onPress={handleSave}
+                      disabled={!canSave}
+                      loading={saving}
+                    />
+                  </View>
+                </View>
+              </View>
+            )}
           </View>
         </View>
       </GestureHandlerRootView>
