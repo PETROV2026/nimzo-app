@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Tables } from './database.types';
 import { optionalText } from './form-fields';
 import { mexicanStateSchema } from './mexican-states';
+import { isValidPhone } from './phone';
 import { userRoleSchema } from './roles';
 
 export type Profile = Tables<'profiles'>;
@@ -43,7 +44,9 @@ export const passwordResetSchema = z.object({ password: passwordField });
 export type PasswordResetInput = z.input<typeof passwordResetSchema>;
 
 export const profileDetailsSchema = z.object({
-  phone: optionalText,
+  phone: optionalText.refine((value) => value === null || isValidPhone(value), {
+    error: 'Escribe un teléfono válido, por ejemplo 81 1234 5678',
+  }),
   state: mexicanStateSchema.nullable(),
   city: optionalText,
 });
