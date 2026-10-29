@@ -10,7 +10,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SessionProvider, useSession } from '@/auth/session-provider';
-import { colors, fonts } from '@/theme';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 SplashScreen.preventAutoHideAsync();
@@ -55,19 +54,6 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="login" />
-      </Stack.Protected>
-      <Stack.Protected guard={signedIn && __DEV__}>
-        <Stack.Screen
-          name="form-preview"
-          options={{
-            headerShown: true,
-            title: 'Vista previa de campos',
-            headerTitleAlign: 'center',
-            headerStyle: { backgroundColor: colors.muted },
-            headerTintColor: colors.background,
-            headerTitleStyle: { fontFamily: fonts['sans-bold'] },
-          }}
-        />
       </Stack.Protected>
     </Stack>
   );

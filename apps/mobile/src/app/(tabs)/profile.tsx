@@ -7,7 +7,6 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { SignatureSection } from '@/components/signature-section';
 import { useOnline } from '@/lib/use-online';
-import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   const session = useSession();
@@ -77,16 +76,6 @@ export default function ProfileScreen() {
             disabled={!canEdit}
           />
         </View>
-
-        {__DEV__ ? (
-          <View className="mt-8 w-[232px] self-end">
-            <Button
-              variant="secondary"
-              label="Vista previa de campos"
-              onPress={() => router.push('/form-preview')}
-            />
-          </View>
-        ) : null}
 
         <View className="mt-12 h-px bg-border" />
 
