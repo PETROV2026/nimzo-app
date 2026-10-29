@@ -31,7 +31,7 @@ export function OptionButtons<T extends string>({
   onChange,
 }: OptionButtonsProps<T>) {
   return (
-    <View accessibilityRole="radiogroup" accessibilityLabel={label} className="flex-row gap-2">
+    <View accessibilityRole="radiogroup" accessibilityLabel={label} className="flex-row flex-wrap gap-2">
       {options.map((option) => {
         const selected = option.value === value;
         const style = selectedStyles[option.tone ?? 'primary'];
