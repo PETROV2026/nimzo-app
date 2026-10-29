@@ -10,7 +10,7 @@ import { toNumber } from '@/forms/to-number';
 type CheckFieldProps = FieldProps<Extract<FormField, { type: 'check' }>, CheckValue>;
 
 const options: Option<CheckStatus>[] = [
-  { value: 'na', label: 'N/A' },
+  { value: 'na', label: 'N/A', tone: 'neutral' },
   { value: 'x', label: 'X', tone: 'danger' },
   { value: 'ok', label: 'OK' },
 ];

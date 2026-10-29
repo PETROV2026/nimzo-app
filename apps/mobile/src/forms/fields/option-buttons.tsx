@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme';
 
-export type Option<T extends string> = { value: T; label: string; tone?: 'danger' };
+export type Option<T extends string> = { value: T; label: string; tone?: 'danger' | 'neutral' };
 
 type OptionButtonsProps<T extends string> = {
   label: string;
@@ -21,6 +21,11 @@ const selectedStyles = {
     box: 'border-danger-strong bg-danger-strong',
     text: 'text-on-danger',
     icon: colors['on-danger'],
+  },
+  neutral: {
+    box: 'border-muted bg-muted',
+    text: 'text-background',
+    icon: colors.background,
   },
 };
 
