@@ -99,21 +99,21 @@ apps/mobile/
 
 #### Navigation
 
-Without a session the app only shows the login. With a session it shows a bottom tab bar with four tabs, in this order. There is no Inicio tab: the app opens on **Servicios**.
+Without a session the app only shows the login. With a session it shows four tabs, in this order. There is no Inicio tab: the app opens on **Servicios**.
 
-| Tab (label) | File | Icon (`MaterialIcons`) | Purpose |
+| Tab (label) | File | Icon (`Ionicons`, filled when active) | Purpose |
 |---|---|---|---|
-| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
-| **Clientes** | `src/app/(tabs)/clients.tsx` | `people-outline` | Clients, branches and systems of the technician |
-| **Notas** | `src/app/(tabs)/notes.tsx` | `event-note` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `account-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
+| **Servicios** | `src/app/(tabs)/services.tsx` | `clipboard` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
+| **Clientes** | `src/app/(tabs)/clients.tsx` | `people` | Clients, branches and systems of the technician |
+| **Notas** | `src/app/(tabs)/notes.tsx` | `document-text` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `person-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
 
 ```
 src/app/
 ├── _layout.tsx        Session provider + protected routes (login without a session, tabs with one)
 ├── login.tsx
 └── (tabs)/
-    ├── _layout.tsx    Tab bar
+    ├── _layout.tsx    Tabs with the adaptive navigation bar (src/components/navigation-bar.tsx)
     ├── index.tsx      Redirects to Servicios (hidden from the tab bar)
     ├── services.tsx   Servicios
     ├── clients.tsx    Clientes
@@ -121,7 +121,7 @@ src/app/
     └── profile.tsx    Perfil
 ```
 
-The header shows a yellow "Sin conexión" pill (`src/components/connection-status.tsx`) only while there is no internet; nothing is shown when online. Labels are in Spanish, file names in English. The active tab uses `primary-strong`, inactive tabs `muted`, and every tab keeps a touch target of at least 48 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
+The header shows a yellow "Sin conexión" pill (`src/components/connection-status.tsx`) only while there is no internet; nothing is shown when online. Labels are in Spanish, file names in English. The navigation is adaptive (`src/components/navigation-bar.tsx`): on a tablet in landscape (at least 900 px wide) it is a vertical rail on the left with the Nimzo flame on top; otherwise a full-width bar along the bottom edge. Both use the brand gray (`muted`), like the header, so the content sits in a gray frame. Every tab shows its icon and label; the active one has a mint (`canvas`) pill behind a filled `primary-strong` icon and a bold label, and the pill grows in over 180 ms (reduced motion respected). `tabBarBadge` shows a yellow count. Every tab keeps a touch target of at least 64 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
 
 ### `apps/admin` — admin panel
 

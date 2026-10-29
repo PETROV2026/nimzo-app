@@ -1,76 +1,36 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import type { BottomTabBarButtonProps } from 'expo-router/js-tabs';
 import { StatusBar } from 'expo-status-bar';
-import type { ComponentProps } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { ConnectionStatus } from '@/components/connection-status';
+import { NavigationBar } from '@/components/navigation-bar';
 import { colors, fonts } from '@/theme';
-import { Pressable, type ColorValue } from 'react-native';
 
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
-
-function tabIcon(name: IconName) {
-  return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
-    return <MaterialIcons name={name} color={color} size={size} />;
-  };
-}
-
-function TabButton({
-  children,
-  style,
-  onPress,
-  onLongPress,
-  accessibilityState,
-  accessibilityLabel,
-  testID,
-}: BottomTabBarButtonProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      onLongPress={onLongPress}
-      accessibilityRole="tab"
-      accessibilityState={accessibilityState}
-      accessibilityLabel={accessibilityLabel}
-      testID={testID}
-      android_ripple={null}
-      style={style}
-    >
-      {children}
-    </Pressable>
-  );
-}
+const railMinWidth = 900;
 
 export default function TabsLayout() {
+  const { width, height } = useWindowDimensions();
+  const variant = width > height && width >= railMinWidth ? 'rail' : 'dock';
+
   return (
     <>
       <StatusBar style="light" />
       <Tabs
+        tabBar={(props) => <NavigationBar {...props} variant={variant} />}
         screenOptions={{
-          tabBarActiveTintColor: colors['primary-strong'],
-          tabBarInactiveTintColor: colors.muted,
-          tabBarStyle: { backgroundColor: colors.background },
-          tabBarLabelStyle: { fontFamily: fonts['sans-medium'] },
-          tabBarButton: TabButton,
+          tabBarPosition: variant === 'rail' ? 'left' : 'bottom',
           headerStyle: { backgroundColor: colors.muted },
+          headerShadowVisible: false,
           headerTintColor: colors.background,
-          headerTitleAlign: 'center',
-          headerTitleStyle: { fontFamily: fonts['sans-bold'] },
+          headerTitleAlign: 'left',
+          headerTitleStyle: { fontFamily: fonts['sans-bold'], fontSize: 22 },
           headerRight: () => <ConnectionStatus />,
+          sceneStyle: { backgroundColor: colors.canvas },
         }}
       >
-        <Tabs.Screen
-          name="services"
-          options={{ title: 'Servicios', tabBarIcon: tabIcon('assignment') }}
-        />
-        <Tabs.Screen
-          name="clients"
-          options={{ title: 'Clientes', tabBarIcon: tabIcon('people-outline') }}
-        />
-        <Tabs.Screen name="notes" options={{ title: 'Notas', tabBarIcon: tabIcon('event-note') }} />
-        <Tabs.Screen
-          name="profile"
-          options={{ title: 'Perfil', tabBarIcon: tabIcon('account-circle') }}
-        />
+        <Tabs.Screen name="services" options={{ title: 'Servicios' }} />
+        <Tabs.Screen name="clients" options={{ title: 'Clientes' }} />
+        <Tabs.Screen name="notes" options={{ title: 'Notas' }} />
+        <Tabs.Screen name="profile" options={{ title: 'Perfil' }} />
         <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
     </>

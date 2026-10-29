@@ -60,7 +60,7 @@ export function SelectField<T extends string>({
                   }}
                   accessibilityRole="button"
                   accessibilityState={{ selected: option.value === value }}
-                  className={`min-h-12 justify-center px-6 ${option.value === value ? 'bg-surface' : ''}`}
+                  className={`min-h-14 justify-center px-6 ${option.value === value ? 'bg-surface' : ''}`}
                 >
                   <Text className="font-sans text-lg text-foreground">{option.label}</Text>
                 </Pressable>

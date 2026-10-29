@@ -76,7 +76,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
                 hitSlop={8}
                 accessibilityRole="button"
                 accessibilityLabel="Cerrar"
-                className={`min-h-12 min-w-12 items-center justify-center ${isSubmitting ? 'opacity-50' : ''}`}
+                className={`min-h-14 min-w-14 items-center justify-center ${isSubmitting ? 'opacity-50' : ''}`}
               >
                 <MaterialIcons name="close" size={24} color={colors.muted} />
               </Pressable>
@@ -114,35 +114,41 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
                 />
               )}
             />
-            <Controller
-              control={control}
-              name="state"
-              render={({ field }) => (
-                <SelectField
-                  label="Estado"
-                  value={field.value ?? null}
-                  options={stateOptions}
-                  onChange={field.onChange}
-                  placeholder="Selecciona un estado"
-                  disabled={isSubmitting}
+            <View className="flex-row gap-4">
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="state"
+                  render={({ field }) => (
+                    <SelectField
+                      label="Estado"
+                      value={field.value ?? null}
+                      options={stateOptions}
+                      onChange={field.onChange}
+                      placeholder="Selecciona"
+                      disabled={isSubmitting}
+                    />
+                  )}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              name="city"
-              render={({ field, fieldState }) => (
-                <TextField
-                  label="Ciudad"
-                  value={field.value ?? ''}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  placeholder="Ej. Mexicali"
-                  editable={!isSubmitting}
+              </View>
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="city"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label="Ciudad"
+                      value={field.value ?? ''}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                      placeholder="Ej. Mexicali"
+                      editable={!isSubmitting}
+                    />
+                  )}
                 />
-              )}
-            />
+              </View>
+            </View>
             {error ? (
               <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
                 {error}
