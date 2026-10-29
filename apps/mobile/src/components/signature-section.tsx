@@ -6,90 +6,107 @@ import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
+import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme/colors';
 
 const signedUrlSeconds = 300;
 const signedUrls = new Map<string, { url: string; expiresAt: number }>();
 
+function memoryUrl(path: string) {
+  const cached = signedUrls.get(path);
+  return cached && cached.expiresAt > Date.now() ? cached.url : null;
+}
+
+async function resolveSignatureUri(path: string) {
+  const fromMemory = memoryUrl(path);
+  if (fromMemory) return fromMemory;
+  const diskPath = await Image.getCachePathAsync(path);
+  if (diskPath) return diskPath.startsWith('file://') ? diskPath : `file://${diskPath}`;
+  const { data, error } = await supabase.storage
+    .from(signatureBucket)
+    .createSignedUrl(path, signedUrlSeconds);
+  if (error) {
+    console.warn('Could not create the signature URL.', error);
+    return null;
+  }
+  signedUrls.set(path, {
+    url: data.signedUrl,
+    expiresAt: Date.now() + (signedUrlSeconds - 30) * 1000,
+  });
+  return data.signedUrl;
+}
+
 type SignatureSectionProps = {
-  signaturePath: string | null;
+  signaturePath: string | null | undefined;
   disabled: boolean;
 };
 
 export function SignatureSection({ signaturePath, disabled }: SignatureSectionProps) {
   const { saveSignature } = useSession();
+  const online = useOnline();
   const [signing, setSigning] = useState(false);
-  const [fetched, setFetched] = useState<{ path: string; url: string | null } | null>(null);
-  const [failedPath, setFailedPath] = useState<string | null>(null);
+  const [resolved, setResolved] = useState<{ path: string; uri: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!signaturePath) return;
-    const cached = signedUrls.get(signaturePath);
-    if (cached && cached.expiresAt > Date.now()) return;
     let cancelled = false;
-    supabase.storage
-      .from(signatureBucket)
-      .createSignedUrl(signaturePath, signedUrlSeconds)
-      .then(({ data, error }) => {
-        if (error) {
-          console.warn('No se pudo obtener el enlace de la firma.', error);
-        } else {
-          signedUrls.set(signaturePath, {
-            url: data.signedUrl,
-            expiresAt: Date.now() + (signedUrlSeconds - 30) * 1000,
-          });
-        }
-        if (!cancelled) setFetched({ path: signaturePath, url: error ? null : data.signedUrl });
-      });
+    resolveSignatureUri(signaturePath).then((uri) => {
+      if (!cancelled) setResolved({ path: signaturePath, uri });
+    });
     return () => {
       cancelled = true;
     };
-  }, [signaturePath, attempt]);
+  }, [signaturePath, attempt, online]);
 
   function handleRetry() {
-    if (!signaturePath) return;
-    signedUrls.delete(signaturePath);
-    setFailedPath(null);
-    setFetched(null);
+    if (signaturePath) signedUrls.delete(signaturePath);
+    setResolved(null);
     setAttempt((previous) => previous + 1);
   }
 
-  const url = signaturePath
-    ? (signedUrls.get(signaturePath)?.url ??
-      (fetched?.path === signaturePath ? fetched.url : undefined))
-    : undefined;
+  const current = resolved?.path === signaturePath ? resolved : null;
 
   let preview: ReactNode;
-  if (!signaturePath) {
+  if (signaturePath === undefined) {
     preview = (
-      <Text className="font-sans text-base text-muted">
+      <Text className="px-6 text-center font-sans text-base text-muted">
+        Tu firma se mostrará cuando se cargue tu perfil.
+      </Text>
+    );
+  } else if (signaturePath === null) {
+    preview = (
+      <Text className="px-6 text-center font-sans text-base text-muted">
         Aún no tienes una firma registrada. Toca “Firmar” para crearla.
       </Text>
     );
-  } else if (url === null || failedPath === signaturePath) {
+  } else if (!current) {
+    preview = <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando firma" />;
+  } else if (!current.uri) {
     preview = (
-      <View className="items-center gap-4">
-        <Text className="font-sans text-base text-muted">
-          No se pudo cargar tu firma. Revisa tu conexión.
+      <View className="items-center gap-4 px-6">
+        <Text className="text-center font-sans text-base text-muted">
+          {online
+            ? 'No se pudo cargar tu firma.'
+            : 'Tu firma se mostrará cuando vuelvas a tener conexión.'}
         </Text>
-        <View className="w-[190px]">
-          <Button variant="secondary" label="Reintentar" onPress={handleRetry} />
-        </View>
+        {online ? (
+          <View className="w-[190px]">
+            <Button variant="secondary" label="Reintentar" onPress={handleRetry} />
+          </View>
+        ) : null}
       </View>
     );
-  } else if (url === undefined) {
-    preview = <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando firma" />;
   } else {
     preview = (
       <Image
-        source={{ uri: url, cacheKey: signaturePath }}
+        source={{ uri: current.uri, cacheKey: signaturePath }}
         cachePolicy="memory-disk"
         transition={120}
         style={{ width: '100%', height: '100%' }}
         contentFit="contain"
         accessibilityLabel="Tu firma"
-        onError={() => setFailedPath(signaturePath)}
+        onError={() => setResolved({ path: signaturePath, uri: null })}
       />
     );
   }

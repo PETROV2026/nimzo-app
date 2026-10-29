@@ -3,12 +3,16 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { SignatureSection } from '@/components/signature-section';
+import { useOnline } from '@/lib/use-online';
 
 export default function ProfileScreen() {
   const session = useSession();
+  const online = useOnline();
   const [signingOut, setSigningOut] = useState(false);
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false);
   const [editing, setEditing] = useState(false);
 
   if (session.status !== 'signed-in') {
@@ -16,6 +20,7 @@ export default function ProfileScreen() {
   }
 
   const { profile, signOut } = session;
+  const canEdit = online && profile !== null;
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -29,37 +34,47 @@ export default function ProfileScreen() {
           Información personal
         </Text>
         <View className="gap-6 rounded-md bg-background px-8 py-6">
-          <View className="gap-4">
-            <View className="flex-row gap-8">
-              <InfoField
-                label="Nombre completo"
-                value={profile?.fullName || session.session.user.email}
-              />
-              <InfoField label="Rol" value={profile ? userRoleLabels[profile.role] : null} />
+          {profile ? null : (
+            <Text className="font-sans text-base text-foreground">
+              No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
+            </Text>
+          )}
+          {profile ? (
+            <View className="gap-4">
+              <View className="flex-row gap-8">
+                <InfoField
+                  label="Nombre completo"
+                  value={profile.fullName || session.session.user.email}
+                />
+                <InfoField label="Rol" value={userRoleLabels[profile.role]} />
+              </View>
+              <View className="flex-row gap-8">
+                <InfoField label="Correo electrónico" value={session.session.user.email} />
+                <InfoField label="Teléfono" value={profile.phone} />
+              </View>
+              <View className="flex-row gap-8">
+                <InfoField
+                  label="Estado"
+                  value={profile.state ? mexicanStateLabels[profile.state] : null}
+                />
+                <InfoField label="Ciudad" value={profile.city} />
+              </View>
             </View>
-            <View className="flex-row gap-8">
-              <InfoField label="Correo electrónico" value={session.session.user.email} />
-              <InfoField label="Teléfono" value={profile?.phone} />
-            </View>
-            <View className="flex-row gap-8">
-              <InfoField
-                label="Estado"
-                value={profile?.state ? mexicanStateLabels[profile.state] : null}
-              />
-              <InfoField label="Ciudad" value={profile?.city} />
-            </View>
-          </View>
+          ) : null}
           <View className="w-[232px] self-end">
             <Button
               label="Editar información"
               onPress={() => setEditing(true)}
-              disabled={!profile}
+              disabled={!canEdit}
             />
           </View>
         </View>
 
         <View className="mt-8">
-          <SignatureSection signaturePath={profile?.signaturePath ?? null} disabled={!profile} />
+          <SignatureSection
+            signaturePath={profile ? profile.signaturePath : undefined}
+            disabled={!canEdit}
+          />
         </View>
 
         <View className="mt-12 h-px bg-border" />
@@ -68,13 +83,22 @@ export default function ProfileScreen() {
           <Button
             variant="secondary"
             label="Cerrar sesión"
-            onPress={handleSignOut}
-            loading={signingOut}
+            onPress={() => setConfirmingSignOut(true)}
           />
         </View>
       </View>
       {editing && profile ? (
         <EditProfileDialog profile={profile} onClose={() => setEditing(false)} />
+      ) : null}
+      {confirmingSignOut ? (
+        <ConfirmDialog
+          title="¿Cerrar sesión?"
+          message="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
+          confirmLabel="Cerrar sesión"
+          onConfirm={handleSignOut}
+          onClose={() => setConfirmingSignOut(false)}
+          loading={signingOut}
+        />
       ) : null}
     </ScrollView>
   );

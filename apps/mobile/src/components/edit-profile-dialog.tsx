@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SelectField } from '@/components/select-field';
@@ -56,109 +56,114 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
 
   return (
     <Modal transparent animationType="fade" onRequestClose={isSubmitting ? undefined : onClose}>
-      <ScrollView
-        className="flex-1 bg-foreground/40"
-        contentContainerClassName="grow items-center justify-center p-8"
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="w-full max-w-[520px] gap-5 rounded-2xl bg-background p-6">
-          <View className="flex-row items-center justify-between">
-            <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-              Editar información del usuario
-            </Text>
-            <Pressable
-              onPress={onClose}
-              disabled={isSubmitting}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Cerrar"
-              className="min-h-12 min-w-12 items-center justify-center"
-            >
-              <MaterialIcons name="close" size={24} color={colors.muted} />
-            </Pressable>
-          </View>
-          <Controller
-            control={control}
-            name="full_name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Nombre completo"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                autoCapitalize="words"
-                autoComplete="name"
-                editable={!isSubmitting}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Teléfono"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                keyboardType="phone-pad"
-                autoComplete="tel"
-                placeholder="Ej. 686 123 4567"
-                editable={!isSubmitting}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="state"
-            render={({ field }) => (
-              <SelectField
-                label="Estado"
-                value={field.value ?? null}
-                options={stateOptions}
-                onChange={field.onChange}
-                placeholder="Selecciona un estado"
-                disabled={isSubmitting}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="city"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Ciudad"
-                value={field.value ?? ''}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                placeholder="Ej. Mexicali"
-                editable={!isSubmitting}
-              />
-            )}
-          />
-          {error ? (
-            <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
-              {error}
-            </Text>
-          ) : null}
-          <View className="flex-row justify-center gap-4">
-            <View className="w-[190px]">
-              <Button
-                variant="secondary"
-                label="Cancelar"
+      <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="grow items-center justify-center p-8"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full max-w-[520px] gap-5 rounded-2xl bg-background p-6">
+            <View className="flex-row items-center justify-between">
+              <Text
+                accessibilityRole="header"
+                className="font-sans-semibold text-xl text-foreground"
+              >
+                Editar tu información
+              </Text>
+              <Pressable
                 onPress={onClose}
                 disabled={isSubmitting}
-              />
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel="Cerrar"
+                className={`min-h-12 min-w-12 items-center justify-center ${isSubmitting ? 'opacity-50' : ''}`}
+              >
+                <MaterialIcons name="close" size={24} color={colors.muted} />
+              </Pressable>
             </View>
-            <View className="w-[190px]">
-              <Button label="Guardar cambios" onPress={onSubmit} loading={isSubmitting} />
+            <Controller
+              control={control}
+              name="full_name"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Nombre completo"
+                  value={field.value ?? ''}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  autoCapitalize="words"
+                  autoComplete="name"
+                  editable={!isSubmitting}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Teléfono"
+                  value={field.value ?? ''}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  keyboardType="phone-pad"
+                  autoComplete="tel"
+                  placeholder="Ej. 686 123 4567"
+                  editable={!isSubmitting}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="state"
+              render={({ field }) => (
+                <SelectField
+                  label="Estado"
+                  value={field.value ?? null}
+                  options={stateOptions}
+                  onChange={field.onChange}
+                  placeholder="Selecciona un estado"
+                  disabled={isSubmitting}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="city"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label="Ciudad"
+                  value={field.value ?? ''}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  placeholder="Ej. Mexicali"
+                  editable={!isSubmitting}
+                />
+              )}
+            />
+            {error ? (
+              <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
+                {error}
+              </Text>
+            ) : null}
+            <View className="flex-row justify-center gap-4">
+              <View className="w-[190px]">
+                <Button
+                  variant="secondary"
+                  label="Cancelar"
+                  onPress={onClose}
+                  disabled={isSubmitting}
+                />
+              </View>
+              <View className="w-[190px]">
+                <Button label="Guardar cambios" onPress={onSubmit} loading={isSubmitting} />
+              </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -86,14 +86,12 @@ apps/mobile/
   |---|---|---|
   | `bg-background` | white `#FFFFFF` | Main background |
   | `bg-surface` | off-white `#F8F7F8` | Grouped sections |
-  | `bg-canvas` | menta `#F4FBF8` | Main screen background |
+  | `bg-canvas` | mint `#F4FBF8` | Main screen background |
   | `text-foreground` | black `#000000` | Text and titles |
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
   | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
-  | `text-on-brand` / `text-brand-strong` | orange `#E4572E` / `#B64524` + white | Main actions; `-strong` for orange text on white |
-  | `text-on-success` | green `#2E7D32` + white | Save and confirm actions |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
 
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
@@ -108,21 +106,22 @@ Without a session the app only shows the login. With a session it shows a bottom
 | **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
 | **Clientes** | `src/app/(tabs)/clients.tsx` | `people-outline` | Clients, branches and systems of the technician |
 | **Notas** | `src/app/(tabs)/notes.tsx` | `event-note` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `account-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `account-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
 
 ```
 src/app/
 ├── _layout.tsx        Session provider + protected routes (login without a session, tabs with one)
 ├── login.tsx
 └── (tabs)/
-    ├── _layout.tsx    Tab bar (initial route: services)
+    ├── _layout.tsx    Tab bar
+    ├── index.tsx      Redirects to Servicios (hidden from the tab bar)
     ├── services.tsx   Servicios
     ├── clients.tsx    Clientes
     ├── notes.tsx      Notas
     └── profile.tsx    Perfil
 ```
 
-Labels are in Spanish, file names in English. The active tab uses `primary-strong`, inactive tabs `muted`, and every tab keeps a touch target of at least 48 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
+The header shows a yellow "Sin conexión" pill (`src/components/connection-status.tsx`) only while there is no internet; nothing is shown when online. Labels are in Spanish, file names in English. The active tab uses `primary-strong`, inactive tabs `muted`, and every tab keeps a touch target of at least 48 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
 
 ### `apps/admin` — admin panel
 
