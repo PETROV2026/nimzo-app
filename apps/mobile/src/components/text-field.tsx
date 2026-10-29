@@ -3,7 +3,7 @@ import { Text, TextInput, View, type TextInputProps } from 'react-native';
 import { colors } from '@/theme/colors';
 
 type TextFieldProps = TextInputProps & {
-  label: string;
+  label?: string;
   error?: string;
   rightAccessory?: ReactNode;
   ref?: Ref<TextInput>;
@@ -28,7 +28,7 @@ export function TextField({
 
   return (
     <View className="gap-2">
-      <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
+      {label ? <Text className="font-sans-medium text-lg text-foreground">{label}</Text> : null}
       <View className={`flex-row items-center rounded-lg border-2 bg-background ${borderClass}`}>
         <TextInput
           ref={ref}

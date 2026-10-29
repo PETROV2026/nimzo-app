@@ -10,6 +10,6 @@ export type CheckboxValue = boolean;
 export type FieldProps<F, V> = {
   field: F;
   value?: V;
-  onChange: (value: V) => void;
+  onChange: (value: V | undefined) => void;
   error?: string;
 };

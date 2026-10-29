@@ -5,6 +5,7 @@ import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
 import { FieldLabel } from './field-label';
 import { OptionButtons, type Option } from './option-buttons';
+import { toNumber } from '@/forms/to-number';
 
 type CheckFieldProps = FieldProps<Extract<FormField, { type: 'check' }>, CheckValue>;
 
@@ -13,11 +14,6 @@ const options: Option<CheckStatus>[] = [
   { value: 'x', label: 'X', tone: 'danger' },
   { value: 'ok', label: 'OK' },
 ];
-
-function toNumber(text: string) {
-  const number = Number(text.replace(',', '.'));
-  return text.trim() && !Number.isNaN(number) ? number : undefined;
-}
 
 export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
   const [text, setText] = useState(value?.value?.toString() ?? '');
