@@ -8,7 +8,12 @@ type ChoiceFieldProps = FieldProps<Extract<FormField, { type: 'choice' }>, Optio
 export function ChoiceField({ field, value, onChange, error }: ChoiceFieldProps) {
   return (
     <FieldLabel field={field} error={error}>
-      <OptionButtons label={field.label} options={field.options} value={value} onChange={onChange} />
+      <OptionButtons
+        label={field.label}
+        options={field.options}
+        value={value}
+        onChange={onChange}
+      />
     </FieldLabel>
   );
 }

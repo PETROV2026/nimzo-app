@@ -48,7 +48,7 @@ function RootNavigator() {
 
   const signedIn = status === 'signed-in';
 
-    return (
+  return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" />

@@ -82,31 +82,31 @@ export default function FormPreviewScreen() {
   return (
     <View className="flex-1 bg-canvas">
       <KeyboardAwareScrollView bottomOffset={24} contentContainerStyle={{ gap: 32, padding: 32 }}>
-      <CheckField field={fields.visual} {...bind<CheckValue>(fields.visual)} />
-      <CheckField field={fields.pressure} {...bind<CheckValue>(fields.pressure)} />
-      <YesNoField field={fields.running} {...bind<YesNoValue>(fields.running)} />
-      <TextFormField field={fields.notes} {...bind<TextValue>(fields.notes)} />
-      <TextFormField field={fields.flow} {...bind<TextValue>(fields.flow)} />
-      <DateField field={fields.date} {...bind<DateValue>(fields.date)} />
-      <TimeField field={fields.time} {...bind<TimeValue>(fields.time)} />
-      <SelectField field={fields.frequency} {...bind<OptionValue>(fields.frequency)} />
-      <ChoiceField field={fields.condition} {...bind<OptionValue>(fields.condition)} />
-      <CheckboxField field={fields.present} {...bind<CheckboxValue>(fields.present)} />
+        <CheckField field={fields.visual} {...bind<CheckValue>(fields.visual)} />
+        <CheckField field={fields.pressure} {...bind<CheckValue>(fields.pressure)} />
+        <YesNoField field={fields.running} {...bind<YesNoValue>(fields.running)} />
+        <TextFormField field={fields.notes} {...bind<TextValue>(fields.notes)} />
+        <TextFormField field={fields.flow} {...bind<TextValue>(fields.flow)} />
+        <DateField field={fields.date} {...bind<DateValue>(fields.date)} />
+        <TimeField field={fields.time} {...bind<TimeValue>(fields.time)} />
+        <SelectField field={fields.frequency} {...bind<OptionValue>(fields.frequency)} />
+        <ChoiceField field={fields.condition} {...bind<OptionValue>(fields.condition)} />
+        <CheckboxField field={fields.present} {...bind<CheckboxValue>(fields.present)} />
 
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => setShowErrors(true)}
-        className="min-h-14 items-center justify-center self-start rounded-lg bg-primary-strong px-6"
-      >
-        <Text className="font-sans-semibold text-lg text-on-primary">Revisar obligatorios</Text>
-      </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => setShowErrors(true)}
+          className="min-h-14 items-center justify-center self-start rounded-lg bg-primary-strong px-6"
+        >
+          <Text className="font-sans-semibold text-lg text-on-primary">Revisar obligatorios</Text>
+        </Pressable>
 
-      <View className="gap-2 rounded-lg border-2 border-border bg-surface p-4">
-        <Text className="font-sans-semibold text-lg text-foreground">Valores guardados</Text>
-        <Text className="font-sans text-base text-foreground">
-          {JSON.stringify(values, null, 2)}
-        </Text>
-      </View>
+        <View className="gap-2 rounded-lg border-2 border-border bg-surface p-4">
+          <Text className="font-sans-semibold text-lg text-foreground">Valores guardados</Text>
+          <Text className="font-sans text-base text-foreground">
+            {JSON.stringify(values, null, 2)}
+          </Text>
+        </View>
       </KeyboardAwareScrollView>
     </View>
   );
