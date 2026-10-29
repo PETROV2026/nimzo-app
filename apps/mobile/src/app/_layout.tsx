@@ -11,14 +11,17 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SessionProvider, useSession } from '@/auth/session-provider';
 import { colors, fonts } from '@/theme';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
     <SessionProvider>
-      <RootNavigator />
-      <StatusBar style="dark" />
+      <KeyboardProvider>
+        <RootNavigator />
+        <StatusBar style="dark" />
+      </KeyboardProvider>
     </SessionProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import { CheckField } from '@/forms/fields/check-field';
 import { CheckboxField } from '@/forms/fields/checkbox-field';
@@ -18,6 +18,8 @@ import type {
   TimeValue,
   YesNoValue,
 } from '@/forms/types';
+
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 
 const fields = {
   visual: {
@@ -78,7 +80,8 @@ export default function FormPreviewScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-canvas" contentContainerClassName="gap-8 p-8">
+    <View className="flex-1 bg-canvas">
+      <KeyboardAwareScrollView bottomOffset={24} contentContainerStyle={{ gap: 32, padding: 32 }}>
       <CheckField field={fields.visual} {...bind<CheckValue>(fields.visual)} />
       <CheckField field={fields.pressure} {...bind<CheckValue>(fields.pressure)} />
       <YesNoField field={fields.running} {...bind<YesNoValue>(fields.running)} />
@@ -104,6 +107,7 @@ export default function FormPreviewScreen() {
           {JSON.stringify(values, null, 2)}
         </Text>
       </View>
-    </ScrollView>
+      </KeyboardAwareScrollView>
+    </View>
   );
 }
