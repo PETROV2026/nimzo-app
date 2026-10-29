@@ -1,6 +1,7 @@
 const colors = {
   background: '#FFFFFF',
   surface: '#F8F7F8',
+  canvas: '#F4FBF8',
 
   foreground: '#000000',
   muted: '#484349',
