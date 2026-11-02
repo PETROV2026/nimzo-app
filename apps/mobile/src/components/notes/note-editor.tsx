@@ -2,7 +2,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ClientPicker } from '@/components/notes/client-picker';
 import { NoteMenu } from '@/components/notes/note-menu';
@@ -182,6 +181,19 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
+        {showBack ? (
+          <Pressable
+            onPress={handleDone}
+            accessibilityRole="button"
+            accessibilityLabel="Volver a tus notas"
+            className="min-h-14 flex-row items-center gap-2 rounded-full border-2 border-border bg-background pl-3 pr-5 active:bg-surface"
+          >
+            <View className="h-9 w-9 items-center justify-center rounded-full bg-canvas">
+              <MaterialIcons name="arrow-back" size={22} color={colors['primary-strong']} />
+            </View>
+            <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
+          </Pressable>
+        ) : null}
         <View className="flex-1" />
         <ToolbarButton
           icon="push-pin"
@@ -190,11 +202,6 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
           onPress={() => update({ pinned: !note.pinned })}
         />
         <ToolbarButton icon="more-vert" label="Más" onPress={() => setMenuOpen(true)} />
-        {showBack ? (
-          <View className="ml-2 w-[140px]">
-            <Button label="Listo" onPress={handleDone} />
-          </View>
-        ) : null}
       </View>
 
       <View className="flex-1 flex-row">
