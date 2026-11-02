@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
+import { AndroidImportance } from 'expo-notifications';
 import { useEffect } from 'react';
 import type { Note } from '@/notes/notes-db';
 
@@ -17,7 +18,7 @@ Notifications.setNotificationHandler({
 async function ensureReady() {
   await Notifications.setNotificationChannelAsync(channelId, {
     name: 'Recordatorios de notas',
-    importance: Notifications.AndroidImportance.HIGH,
+    importance: AndroidImportance.HIGH,
   });
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;

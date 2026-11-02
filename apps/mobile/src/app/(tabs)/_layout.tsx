@@ -12,7 +12,13 @@ type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 function tabIcon(name: IconName) {
   return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
-    return <MaterialIcons name={name} color={color} size={size} />;
+    return (
+      <MaterialIcons
+        name={name}
+        color={typeof color === 'string' ? color : undefined}
+        size={size}
+      />
+    );
   };
 }
 
@@ -33,7 +39,6 @@ function TabButton({
       accessibilityState={accessibilityState}
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      android_ripple={null}
       style={style}
     >
       {children}

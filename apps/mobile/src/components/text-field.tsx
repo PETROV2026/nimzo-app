@@ -1,12 +1,12 @@
 import { useState, type ReactNode, type Ref } from 'react';
-import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, TextInput, View, type TextInputInstance, type TextInputProps } from 'react-native';
 import { colors } from '@/theme/colors';
 
 type TextFieldProps = TextInputProps & {
   label: string;
   error?: string;
   rightAccessory?: ReactNode;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 };
 
 export function TextField({

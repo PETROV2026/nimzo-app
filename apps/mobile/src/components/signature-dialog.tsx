@@ -10,7 +10,11 @@ import {
 } from '@shopify/react-native-skia';
 import { useState } from 'react';
 import { Modal, Text, View } from 'react-native';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import {
+  GestureDetector,
+  GestureHandlerRootView,
+  usePanGesture,
+} from 'react-native-gesture-handler';
 import { useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import { Button } from '@/components/button';
@@ -102,11 +106,12 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
     onClose();
   }
 
-  const pan = Gesture.Pan()
-    .enabled(!saving && !confirmingDiscard)
-    .maxPointers(1)
-    .minDistance(0)
-    .onBegin((event) => {
+  const pan = usePanGesture({
+    enabled: !saving && !confirmingDiscard,
+    maxPointers: 1,
+    minDistance: 0,
+    onBegin: (event) => {
+      'worklet';
       const builder = strokeBuilder.get();
       builder
         .reset()
@@ -115,15 +120,17 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
       lastPoint.set({ x: event.x, y: event.y });
       strokePath.set(builder.build());
       scheduleOnRN(startStroke);
-    })
-    .onUpdate((event) => {
+    },
+    onUpdate: (event) => {
+      'worklet';
       const builder = strokeBuilder.get();
       const last = lastPoint.get();
       builder.quadTo(last.x, last.y, (last.x + event.x) / 2, (last.y + event.y) / 2);
       lastPoint.set({ x: event.x, y: event.y });
       strokePath.set(builder.build());
-    })
-    .onFinalize(() => {
+    },
+    onFinalize: () => {
+      'worklet';
       const builder = strokeBuilder.get();
       if (builder.isEmpty()) return;
       const last = lastPoint.get();
@@ -139,7 +146,8 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
         width: bounds.width + strokeWidth * 2,
         height: bounds.height + strokeWidth * 2,
       });
-    });
+    },
+  });
 
   async function handleSave() {
     if (!ink) return;
