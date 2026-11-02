@@ -286,6 +286,8 @@ Requires Android Studio (about 10 GB).
 
 4. Expo starts the bundler (Metro), installs Expo Go in the emulator and opens the app on the login screen.
 
+Expo Go only opens projects of its own SDK, and the project uses **SDK 58**. If Expo Go says the project is incompatible, uninstall Expo Go from the emulator and run `pnpm mobile:android` again: Expo installs the matching version. On a tablet, install the Expo Go for SDK 58 from Google Play or https://expo.dev/go, and turn off automatic updates for Expo Go so a newer SDK doesn't replace it.
+
 ### Option 2 — a real Android tablet
 
 1. Install **Expo Go** from Google Play.

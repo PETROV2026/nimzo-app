@@ -27,7 +27,8 @@ type NavigationBarProps = BottomTabBarProps & { variant: 'rail' | 'dock' };
 export function NavigationBar({
   state,
   descriptors,
-  navigation,
+  emitter,
+  navigateToTab,
   insets,
   variant,
 }: NavigationBarProps) {
@@ -39,18 +40,17 @@ export function NavigationBar({
       const label = typeof options.title === 'string' ? options.title : route.name;
 
       function handlePress() {
-        const event = navigation.emit({
+        const event = emitter.emit({
           type: 'tabPress',
           target: route.key,
           canPreventDefault: true,
         });
-        if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
+        if (!focused && !event.defaultPrevented) navigateToTab(route.key);
       }
 
       function handleLongPress() {
-        navigation.emit({ type: 'tabLongPress', target: route.key });
+        emitter.emit({ type: 'tabLongPress', target: route.key });
       }
-
       return (
         <NavigationItem
           key={route.key}
@@ -136,7 +136,6 @@ function NavigationItem({
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      android_ripple={null}
       accessibilityRole="tab"
       accessibilityLabel={badge ? `${label}, ${badge} pendientes` : label}
       accessibilityState={{ selected: focused }}

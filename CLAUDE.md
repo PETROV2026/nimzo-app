@@ -48,7 +48,7 @@ Two apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one sha
 
 | Path | What | Stack |
 |---|---|---|
-| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians (Android tablets only, landscape + portrait) | Expo SDK 57, Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
+| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians (Android tablets only, landscape + portrait) | Expo SDK 58 (React Native 0.88, React 19.3), Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
 | `apps/admin` (`@nimzo/admin`) | Web panel for administrators (users, clients, branches, systems, service packages, report history) | Vite 8, React 19, Refine 5 with the Supabase data provider, **Material UI v6** via `@refinedev/mui` (pinned: Refine requires MUI v6), oxlint. No Tailwind, no other UI library |
 | `packages/shared` (`@nimzo/shared`) | Types, Zod schemas and **form definitions** consumed by the apps | TypeScript, Zod 4 |
 | `packages/brand` (`@nimzo/brand`) | Logos used by both apps. `source/` holds the originals; `logos/`, the mobile app icons/splash and the favicons are generated with `pnpm brand:assets` (Python + Pillow). See its README for which logo to use where | PNG assets |
