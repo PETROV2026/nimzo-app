@@ -93,6 +93,7 @@ apps/mobile/
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
   | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
+  | `placeholder` (via `placeholderTextColor={colors.placeholder}`) | gray `#6D696D` | Placeholder text in inputs (5.3:1 on white) |
 
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
 - **Install packages with `npx expo install <pkg>`** from `apps/mobile`, so versions match the Expo SDK.

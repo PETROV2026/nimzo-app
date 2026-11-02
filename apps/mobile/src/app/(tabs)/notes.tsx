@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   FlatList,
   Modal,
@@ -20,6 +20,7 @@ import { useNotes } from '@/notes/use-notes';
 import { colors } from '@/theme';
 
 const splitMinWidth = 900;
+const savedNoticeMs = 2500;
 
 type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
@@ -44,6 +45,7 @@ export default function NotesScreen() {
   const split = width > height && width >= splitMinWidth;
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [savedNotice, setSavedNotice] = useState(false);
   const { noteId } = useLocalSearchParams<{ noteId?: string }>();
   const notes = useNotes(technicianId, search);
 
@@ -52,6 +54,12 @@ export default function NotesScreen() {
     setOpenedNoteId(noteId);
     setSelectedId(noteId);
   }
+
+  useEffect(() => {
+    if (!savedNotice) return;
+    const timer = setTimeout(() => setSavedNotice(false), savedNoticeMs);
+    return () => clearTimeout(timer);
+  }, [savedNotice]);
 
   if (!technicianId) return null;
 
@@ -74,11 +82,21 @@ export default function NotesScreen() {
               value={search}
               onChangeText={setSearch}
               placeholder="Buscar en tus notas"
-              placeholderTextColor={colors['border-strong']}
+              placeholderTextColor={colors.placeholder}
               accessibilityLabel="Buscar en tus notas"
               returnKeyType="search"
               className="min-h-14 flex-1 font-sans text-lg text-foreground"
             />
+            {searching ? (
+              <Pressable
+                onPress={() => setSearch('')}
+                accessibilityRole="button"
+                accessibilityLabel="Borrar búsqueda"
+                className="-mr-2 min-h-14 min-w-14 items-center justify-center"
+              >
+                <MaterialIcons name="close" size={22} color={colors.muted} />
+              </Pressable>
+            ) : null}
           </View>
         </View>
       ) : null}
@@ -173,9 +191,20 @@ export default function NotesScreen() {
               noteId={selectedId}
               showBack
               onClose={() => setSelectedId(null)}
+              onSaved={() => setSavedNotice(true)}
             />
           </View>
         </Modal>
+      ) : null}
+      {savedNotice ? (
+        <View
+          accessibilityRole="alert"
+          accessibilityLiveRegion="polite"
+          className="absolute bottom-8 left-4 right-28 flex-row items-center gap-3 self-start rounded-xl bg-foreground px-4 py-3"
+        >
+          <MaterialIcons name="check-circle" size={22} color={colors.primary} />
+          <Text className="font-sans-medium text-base text-background">Nota guardada</Text>
+        </View>
       ) : null}
     </View>
   );

@@ -50,8 +50,9 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
     );
   } else if (clients === null) {
     content = (
-      <View className="py-10">
-        <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando clientes" />
+      <View className="items-center gap-3 py-10">
+        <ActivityIndicator color={colors.muted} />
+        <Text className="font-sans text-base text-muted">Cargando tus clientes…</Text>
       </View>
     );
   } else if (failed) {
@@ -120,7 +121,7 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Buscar cliente"
-                placeholderTextColor={colors['border-strong']}
+                placeholderTextColor={colors.placeholder}
                 accessibilityLabel="Buscar cliente"
                 className="min-h-14 flex-1 font-sans text-lg text-foreground"
               />

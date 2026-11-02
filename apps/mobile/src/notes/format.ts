@@ -37,3 +37,10 @@ export function formatUpdated(value: string, now = new Date()) {
 export function isOverdue(value: string | null, now = new Date()) {
   return value !== null && new Date(value).getTime() < now.getTime();
 }
+
+export function formatSaved(value: string, now = new Date()) {
+  const date = new Date(value);
+  return sameDay(date, now)
+    ? `Guardada a las ${time.format(date)}`
+    : `Guardada el ${shortDate.format(date)} a las ${time.format(date)}`;
+}

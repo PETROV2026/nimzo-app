@@ -38,7 +38,7 @@ export function TextField({
         <TextInput
           ref={ref}
           className={`min-h-14 flex-1 px-4 font-sans text-lg ${disabled ? 'text-muted' : 'text-foreground'}`}
-          placeholderTextColor={colors['border-strong']}
+          placeholderTextColor={colors.placeholder}
           cursorColor={colors['primary-strong']}
           selectionColor={colors.primary}
           accessibilityLabel={label}

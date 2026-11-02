@@ -8,6 +8,7 @@ const colors = {
 
   border: '#E4E3E4',
   'border-strong': '#888589',
+  placeholder: '#6D696D',
 
   primary: '#20A39E',
   'primary-strong': '#19827E',

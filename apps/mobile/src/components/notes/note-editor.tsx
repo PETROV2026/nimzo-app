@@ -2,9 +2,10 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ClientPicker } from '@/components/notes/client-picker';
-import { formatReminder, isOverdue } from '@/notes/format';
+import { formatReminder, formatSaved, isOverdue } from '@/notes/format';
 import { noteColors } from '@/notes/note-colors';
 import {
   deleteNote,
@@ -26,11 +27,14 @@ const savedFeedbackMs = 2000;
 type NoteEditorProps = {
   noteId: string;
   onClose: () => void;
+  onSaved?: () => void;
   showBack: boolean;
 };
 
-export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
+export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorProps) {
   const [note, setNote] = useState<Note | null>(() => getNote(noteId));
+  const [savedAt, setSavedAt] = useState<string | null>(() => note?.updatedAt ?? null);
+  const [pending, setPending] = useState(false);
   const [focusItemId, setFocusItemId] = useState<string | null>(null);
   const [pickingClient, setPickingClient] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -45,6 +49,8 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
     const timer = setTimeout(() => {
       saveNote(note);
       dirty.current = false;
+      setPending(false);
+      setSavedAt(nowIso());
     }, autosaveMs);
     return () => clearTimeout(timer);
   }, [note]);
@@ -73,6 +79,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
 
   function update(changes: Partial<Note>) {
     dirty.current = true;
+    setPending(true);
     setJustSaved(false);
     setNote((previous) => (previous ? { ...previous, ...changes } : previous));
   }
@@ -150,7 +157,10 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
     if (!note || isEmptyNote(note)) return;
     saveNote(note);
     dirty.current = false;
+    setPending(false);
+    setSavedAt(nowIso());
     if (showBack) {
+      onSaved?.();
       onClose();
       return;
     }
@@ -170,45 +180,45 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
   const filled = items.filter((item) => item.text.trim() !== '');
   const done = filled.filter((item) => item.done).length;
   const overdue = isOverdue(note.remindAt);
+  const empty = isEmptyNote(note);
+  const status = empty
+    ? 'Escribe algo para poder guardar la nota.'
+    : pending
+      ? 'Guardando…'
+      : savedAt
+        ? formatSaved(savedAt)
+        : '';
 
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
-        {showBack ? (
-          <ToolbarButton icon="arrow-back" label="Notas" onPress={onClose} />
-        ) : (
-          <View className="flex-1" />
-        )}
-        {showBack ? <View className="flex-1" /> : null}
-        <ToolbarButton
-          icon="push-pin"
-          label={note.pinned ? 'Fijada' : 'Fijar'}
-          active={note.pinned}
-          onPress={() => update({ pinned: !note.pinned })}
-        />
+        {showBack ? <ToolbarButton icon="arrow-back" label="Notas" onPress={onClose} /> : null}
         <ToolbarButton
           icon="delete-outline"
           label="Eliminar"
           tone="danger"
           onPress={() => setConfirmingDelete(true)}
         />
-        <Pressable
-          onPress={handleSave}
-          disabled={isEmptyNote(note)}
-          accessibilityRole="button"
-          accessibilityLabel={justSaved ? 'Nota guardada' : 'Guardar nota'}
-          accessibilityState={{ disabled: isEmptyNote(note) }}
-          className={`ml-1 min-h-14 flex-row items-center gap-2 rounded-full bg-primary-strong px-5 active:opacity-80 ${isEmptyNote(note) ? 'opacity-50' : ''}`}
+        <Text
+          numberOfLines={2}
+          accessibilityLiveRegion="polite"
+          className="flex-1 px-2 text-center font-sans text-sm text-muted"
         >
-          <MaterialIcons
-            name={justSaved ? 'check-circle' : 'check'}
-            size={22}
-            color={colors['on-primary']}
+          {status}
+        </Text>
+        <ToolbarButton
+          icon="push-pin"
+          label={note.pinned ? 'Fijada' : 'Fijar'}
+          active={note.pinned}
+          onPress={() => update({ pinned: !note.pinned })}
+        />
+        <View className="w-[168px]">
+          <Button
+            label={justSaved ? '✓ Guardada' : 'Guardar'}
+            onPress={handleSave}
+            disabled={empty}
           />
-          <Text className="font-sans-semibold text-base text-on-primary">
-            {justSaved ? 'Guardada' : 'Guardar'}
-          </Text>
-        </Pressable>
+        </View>
       </View>
 
       <ScrollView
@@ -222,6 +232,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
             accessibilityLabel="Color de la nota"
             className="flex-row items-center gap-2"
           >
+            <Text className="mr-1 font-sans-medium text-base text-muted">Color</Text>
             {noteColors.map((option) => {
               const selected = note.color === option.value;
               return (
@@ -257,7 +268,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
             value={note.title}
             onChangeText={(title) => update({ title })}
             placeholder="Título"
-            placeholderTextColor={colors['border-strong']}
+            placeholderTextColor={colors.placeholder}
             accessibilityLabel="Título de la nota"
             className="font-sans-bold text-3xl text-foreground"
           />
@@ -265,7 +276,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
             value={note.body}
             onChangeText={(body) => update({ body })}
             placeholder="Escribe aquí lo que necesitas recordar…"
-            placeholderTextColor={colors['border-strong']}
+            placeholderTextColor={colors.placeholder}
             accessibilityLabel="Texto de la nota"
             multiline
             textAlignVertical="top"
@@ -313,7 +324,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
                     returnKeyType="next"
                     autoFocus={item.id === focusItemId}
                     placeholder="Escribe un pendiente"
-                    placeholderTextColor={colors['border-strong']}
+                    placeholderTextColor={colors.placeholder}
                     accessibilityLabel="Texto del pendiente"
                     className={`min-h-14 flex-1 font-sans text-lg ${item.done ? 'text-muted line-through' : 'text-foreground'}`}
                   />
@@ -389,12 +400,17 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
           title="¿Eliminar esta nota?"
           message="Se borra de la tablet y no se puede recuperar."
           confirmLabel="Eliminar"
+          destructive
           onConfirm={() => void handleDelete()}
           onClose={() => setConfirmingDelete(false)}
         />
       ) : null}
     </View>
   );
+}
+
+function nowIso() {
+  return new Date().toISOString();
 }
 
 function isPast(date: Date) {
