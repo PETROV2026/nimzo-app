@@ -23,7 +23,6 @@ import { colors } from '@/theme';
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 const autosaveMs = 400;
-const savedFeedbackMs = 2000;
 
 type NoteEditorProps = {
   noteId: string;
@@ -40,7 +39,6 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
   const [pickingClient, setPickingClient] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [reminderError, setReminderError] = useState<string | null>(null);
-  const [justSaved, setJustSaved] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const latest = useRef(note);
   const dirty = useRef(false);
@@ -71,18 +69,11 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
     [],
   );
 
-  useEffect(() => {
-    if (!justSaved) return;
-    const timer = setTimeout(() => setJustSaved(false), savedFeedbackMs);
-    return () => clearTimeout(timer);
-  }, [justSaved]);
-
   if (!note) return null;
 
   function update(changes: Partial<Note>) {
     dirty.current = true;
     setPending(true);
-    setJustSaved(false);
     setNote((previous) => (previous ? { ...previous, ...changes } : previous));
   }
 
@@ -155,18 +146,15 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
     });
   }
 
-  function handleSave() {
-    if (!note || isEmptyNote(note)) return;
-    saveNote(note);
-    dirty.current = false;
-    setPending(false);
-    setSavedAt(nowIso());
-    if (showBack) {
+  function handleDone() {
+    if (note && !isEmptyNote(note)) {
+      if (dirty.current) {
+        saveNote(note);
+        dirty.current = false;
+      }
       onSaved?.();
-      onClose();
-      return;
     }
-    setJustSaved(true);
+    onClose();
   }
 
   async function handleDelete() {
@@ -184,7 +172,7 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
   const overdue = isOverdue(note.remindAt);
   const empty = isEmptyNote(note);
   const status = empty
-    ? 'Escribe algo para poder guardar la nota.'
+    ? 'Se guarda sola en cuanto escribas.'
     : pending
       ? 'Guardando…'
       : savedAt
@@ -194,7 +182,6 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
-        {showBack ? <ToolbarButton icon="arrow-back" label="Notas" onPress={onClose} /> : null}
         <View className="flex-1" />
         <ToolbarButton
           icon="push-pin"
@@ -203,13 +190,11 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
           onPress={() => update({ pinned: !note.pinned })}
         />
         <ToolbarButton icon="more-vert" label="Más" onPress={() => setMenuOpen(true)} />
-        <View className="ml-2 w-[168px]">
-          <Button
-            label={justSaved ? '✓ Guardada' : 'Guardar'}
-            onPress={handleSave}
-            disabled={empty}
-          />
-        </View>
+        {showBack ? (
+          <View className="ml-2 w-[140px]">
+            <Button label="Listo" onPress={handleDone} />
+          </View>
+        ) : null}
       </View>
 
       <View className="flex-1 flex-row">
@@ -340,8 +325,7 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
             ) : null}
 
             <Text className="font-sans text-sm text-muted">
-              Toca Guardar al terminar. Por si acaso, la nota también se guarda sola mientras
-              escribes. Se queda solo en esta tablet.
+              La nota se guarda sola mientras escribes y se queda solo en esta tablet.
             </Text>
           </View>
         </ScrollView>
