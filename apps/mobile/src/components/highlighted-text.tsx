@@ -1,17 +1,15 @@
-import { Text } from 'react-native';
-import { splitByMatches } from '@/notes/highlight';
+import { splitByMatches } from '@nimzo/shared';
+import { Text, type TextProps } from 'react-native';
 
-type HighlightedTextProps = {
+type HighlightedTextProps = Omit<TextProps, 'children'> & {
   text: string;
-  term: string;
-  className?: string;
-  numberOfLines?: number;
+  term?: string;
 };
 
-export function HighlightedText({ text, term, className, numberOfLines }: HighlightedTextProps) {
+export function HighlightedText({ text, term = '', ...props }: HighlightedTextProps) {
   const parts = splitByMatches(text, term);
   return (
-    <Text numberOfLines={numberOfLines} className={className}>
+    <Text {...props}>
       {parts.map((part, index) =>
         part.match ? (
           <Text key={index} className="rounded bg-accent font-sans-semibold text-on-accent">

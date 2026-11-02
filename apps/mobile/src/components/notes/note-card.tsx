@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { HighlightedText } from '@/components/highlighted-text';
 import { formatReminder, formatUpdated, isOverdue } from '@/notes/format';
-import { excerptAround, findMatches } from '@/notes/highlight';
+import { excerptAround, findMatches } from '@nimzo/shared';
 import { noteColorClass } from '@/notes/note-colors';
 import type { Note } from '@/notes/notes-db';
 import { colors } from '@/theme';

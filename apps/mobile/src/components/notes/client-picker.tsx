@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { toSearchText } from '@nimzo/shared';
+import { matchesSearch } from '@nimzo/shared';
 import { useEffect, useState } from 'react';
+import { HighlightedText } from '@/components/highlighted-text';
 import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
@@ -38,8 +39,7 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
     };
   }, [online]);
 
-  const term = toSearchText(search);
-  const visible = (clients ?? []).filter((client) => toSearchText(client.name).includes(term));
+  const visible = (clients ?? []).filter((client) => matchesSearch(client.name, search));
 
   let content;
   if (!online) {
@@ -82,7 +82,11 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
             className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-surface ${item.id === selectedId ? 'bg-canvas' : ''}`}
           >
             <MaterialIcons name="business" size={22} color={colors.muted} />
-            <Text className="flex-1 font-sans text-lg text-foreground">{item.name}</Text>
+            <HighlightedText
+              text={item.name}
+              term={search}
+              className="flex-1 font-sans text-lg text-foreground"
+            />
             {item.id === selectedId ? (
               <MaterialIcons name="check" size={22} color={colors['primary-strong']} />
             ) : null}
