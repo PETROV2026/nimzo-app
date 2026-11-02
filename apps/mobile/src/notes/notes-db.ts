@@ -142,6 +142,15 @@ export function getNote(id: string, technicianId: string) {
   return row ? fromRow(row) : null;
 }
 
+export function notesWithReminders() {
+  return db.getAllSync<NoteRow>('select * from notes where remind_at is not null').map(fromRow);
+}
+
+export function setNotificationId(id: string, notificationId: string | null) {
+  db.runSync('update notes set notification_id = ? where id = ?', notificationId, id);
+  notify();
+}
+
 export function createNote(technicianId: string): Note {
   const now = new Date().toISOString();
   const note: Note = {

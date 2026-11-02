@@ -16,7 +16,7 @@ import {
   type ChecklistItem,
   type Note,
 } from '@/notes/notes-db';
-import { cancelReminder, scheduleReminder } from '@/notes/reminders';
+import { cancelReminder, refreshReminder, reminderKey, scheduleReminder } from '@/notes/reminders';
 import { colors } from '@/theme';
 
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
@@ -42,6 +42,7 @@ export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }:
   const [menuOpen, setMenuOpen] = useState(false);
   const latest = useRef(note);
   const dirty = useRef(false);
+  const scheduledKey = useRef(note ? reminderKey(note) : '');
 
   useEffect(() => {
     latest.current = note;
@@ -62,8 +63,9 @@ export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }:
       if (isEmptyNote(current)) {
         void cancelReminder(current.notificationId);
         deleteNote(current.id);
-      } else if (dirty.current) {
-        saveNote(current);
+      } else {
+        if (dirty.current) saveNote(current);
+        if (reminderKey(current) !== scheduledKey.current) void refreshReminder(current);
       }
     },
     [],
@@ -129,6 +131,7 @@ export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }:
       return;
     }
     await cancelReminder(previousId);
+    scheduledKey.current = reminderKey(note);
     update({ remindAt: date.toISOString(), notificationId: result.notificationId });
   }
 
