@@ -1,8 +1,10 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { mexicanStateLabels, userRoleLabels } from '@nimzo/shared';
+import Constants from 'expo-constants';
 import { useState, type ComponentProps } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
+import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { SectionHeader } from '@/components/section-header';
@@ -11,9 +13,10 @@ import { SupportDialog } from '@/components/support-dialog';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
 
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
+type IconName = ComponentProps<typeof Feather>['name'];
 
 const twoColumnWidth = 900;
+const appVersion = Constants.expoConfig?.version;
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -41,11 +44,9 @@ export default function ProfileScreen() {
   const email = session.session.user.email ?? null;
   const name = profile?.fullName || email || '';
   const role = profile ? userRoleLabels[profile.role] : '';
-  const area = profile
-    ? [profile.city, profile.state ? mexicanStateLabels[profile.state] : null]
-        .filter(Boolean)
-        .join(', ') || null
-    : null;
+  const city = profile?.city || null;
+  const state = profile?.state ? mexicanStateLabels[profile.state] : null;
+  const subtitle = [role, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -53,30 +54,56 @@ export default function ProfileScreen() {
   }
 
   const identity = (
-    <View className="overflow-hidden rounded-2xl bg-background">
-      <View className="h-24 bg-primary" />
-      <View className="-mt-14 items-center gap-1 px-6 pb-6">
-        <View className="h-28 w-28 items-center justify-center rounded-full border-4 border-background bg-primary-strong">
-          <Text className="font-sans-bold text-4xl text-on-primary">{initials(name)}</Text>
-        </View>
+    <View className="flex-row items-center gap-5">
+      <View className="h-20 w-20 items-center justify-center rounded-full bg-danger">
+        <Text className="font-sans-bold text-3xl text-on-danger">{initials(name)}</Text>
+      </View>
+      <View className="flex-1 gap-1">
         <Text
           accessibilityRole="header"
           numberOfLines={2}
-          className="mt-3 text-center font-sans-bold text-2xl text-foreground"
+          className="font-sans-bold text-[28px] text-foreground"
         >
           {name}
         </Text>
-        {email ? (
-          <Text numberOfLines={1} className="text-center font-sans text-base text-muted">
-            {email}
+        {subtitle ? (
+          <Text numberOfLines={1} className="font-sans text-base text-muted">
+            {subtitle}
           </Text>
         ) : null}
-        {role ? (
-          <View className="mt-3 rounded-full bg-canvas px-4 py-1.5">
-            <Text className="font-sans-semibold text-sm text-primary-strong">{role}</Text>
-          </View>
-        ) : null}
       </View>
+    </View>
+  );
+
+  const contact = (
+    <View
+      className={`gap-6 rounded-2xl border border-border bg-background p-6 ${wide ? 'flex-1' : ''}`}
+    >
+      <SectionHeader
+        title="Datos de contacto"
+        description="Así te localizan tus clientes y el equipo de Nimzo."
+        action={
+          <Button
+            variant="ghost"
+            icon="edit-2"
+            label="Editar"
+            onPress={() => setEditing(true)}
+            disabled={!canEdit}
+          />
+        }
+      />
+      {profile ? (
+        <View className="gap-[18px]">
+          <InfoRow icon="mail" label="Correo electrónico" value={email} />
+          <InfoRow icon="phone" label="Teléfono" value={profile.phone} />
+          <InfoRow icon="map-pin" label="Ciudad" value={city} />
+          <InfoRow icon="map" label="Estado" value={state} />
+        </View>
+      ) : (
+        <Text className="font-sans text-base text-foreground">
+          No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
+        </Text>
+      )}
     </View>
   );
 
@@ -86,18 +113,14 @@ export default function ProfileScreen() {
       accessibilityRole="button"
       accessibilityLabel="Ayuda y soporte"
       accessibilityHint="Muestra el correo para contactar a soporte"
-      className="min-h-16 flex-row items-center gap-4 rounded-2xl bg-background px-5 py-3 active:bg-surface"
+      className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-surface"
     >
-      <View className="h-10 w-10 items-center justify-center rounded-full bg-canvas">
-        <MaterialIcons name="support-agent" size={22} color={colors['primary-strong']} />
-      </View>
+      <Feather name="headphones" size={22} color={colors.danger} />
       <View className="flex-1 gap-0.5">
-        <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
-        <Text className="font-sans text-sm text-muted">
-          ¿Algún problema con la app? Escríbenos.
-        </Text>
+        <Text className="font-sans-semibold text-[17px] text-foreground">Ayuda y soporte</Text>
+        <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>
       </View>
-      <MaterialIcons name="chevron-right" size={26} color={colors.muted} />
+      <Feather name="chevron-right" size={20} color={colors.muted} />
     </Pressable>
   );
 
@@ -106,79 +129,51 @@ export default function ProfileScreen() {
       onPress={() => setConfirmingSignOut(true)}
       accessibilityRole="button"
       accessibilityLabel="Cerrar sesión"
-      className="min-h-16 flex-row items-center gap-4 rounded-2xl bg-danger/10 px-5 active:bg-danger/20"
+      className="min-h-16 flex-row items-center gap-3 px-2 active:opacity-70"
     >
-      <View className="h-10 w-10 items-center justify-center rounded-full bg-danger">
-        <MaterialIcons name="logout" size={22} color={colors['on-danger']} />
-      </View>
-      <Text className="flex-1 font-sans-semibold text-lg text-danger-strong">Cerrar sesión</Text>
-      <MaterialIcons name="chevron-right" size={26} color={colors['danger-strong']} />
+      <Feather name="log-out" size={22} color={colors['danger-strong']} />
+      <Text className="font-sans-bold text-[17px] text-danger-strong">Cerrar sesión</Text>
+      <Feather name="chevron-right" size={20} color={colors['danger-strong']} />
     </Pressable>
   );
 
-  const details = (
-    <View className="gap-6">
-      <View className="gap-3">
-        <SectionHeader
-          title="Datos de contacto"
-          description="Así te localizan tus clientes y el equipo de Nimzo."
-          action={
-            <Pressable
-              onPress={() => setEditing(true)}
-              disabled={!canEdit}
-              accessibilityRole="button"
-              accessibilityLabel="Editar datos de contacto"
-              accessibilityState={{ disabled: !canEdit }}
-              className={`min-h-14 flex-row items-center gap-2 rounded-full border-2 border-border px-5 active:bg-surface ${canEdit ? '' : 'opacity-50'}`}
-            >
-              <MaterialIcons name="edit" size={20} color={colors['primary-strong']} />
-              <Text className="font-sans-semibold text-base text-primary-strong">Editar</Text>
-            </Pressable>
-          }
-        />
-        <View className="rounded-2xl bg-background px-5">
-          {profile ? (
-            <>
-              <InfoRow icon="mail-outline" label="Correo" value={email} />
-              <InfoRow icon="phone" label="Teléfono" value={profile.phone} />
-              <InfoRow icon="place" label="Zona" value={area} last />
-            </>
-          ) : (
-            <Text className="py-6 font-sans text-base text-foreground">
-              No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
-            </Text>
-          )}
-        </View>
-      </View>
+  const version = appVersion ? (
+    <Text className="text-center font-sans text-[13px] text-muted">Versión {appVersion}</Text>
+  ) : null;
 
-      <SignatureSection
-        signaturePath={profile ? profile.signaturePath : undefined}
-        disabled={!canEdit}
-        name={name}
-        role={role}
-      />
+  const footer = wide ? (
+    <View className="flex-row items-center">
+      <View className="flex-1" />
+      {version}
+      <View className="flex-1 items-end">{signOutRow}</View>
+    </View>
+  ) : (
+    <View className="gap-1">
+      <View className="items-end">{signOutRow}</View>
+      {version}
     </View>
   );
 
   return (
-    <ScrollView className="flex-1 bg-canvas" contentContainerClassName="items-center p-6">
-      {wide ? (
-        <View className="w-full max-w-[1120px] flex-row items-start gap-6">
-          <View className="w-[340px] gap-4">
-            {identity}
-            {supportRow}
-            {signOutRow}
-          </View>
-          <View className="flex-1">{details}</View>
+    <ScrollView className="flex-1 bg-canvas" contentContainerClassName="items-center p-7">
+      <View className="w-full max-w-[1120px] gap-6">
+        {identity}
+        <View className={wide ? 'flex-row gap-6' : 'gap-6'}>
+          {contact}
+          <SignatureSection
+            className={wide ? 'w-2/5' : undefined}
+            signaturePath={profile ? profile.signaturePath : undefined}
+            disabled={!canEdit}
+            name={name}
+            role={role}
+          />
         </View>
-      ) : (
-        <View className="w-full max-w-[720px] gap-6">
-          {identity}
-          {details}
-          {supportRow}
-          {signOutRow}
+        {supportRow}
+        <View className="gap-1">
+          <View className="mx-2.5 h-px bg-border" />
+          {footer}
         </View>
-      )}
+      </View>
 
       {editing && profile ? (
         <EditProfileDialog profile={profile} onClose={() => setEditing(false)} />
@@ -205,27 +200,23 @@ export default function ProfileScreen() {
 type InfoRowProps = {
   icon: IconName;
   label: string;
-  value?: string | null;
-  last?: boolean;
+  value: string | null;
 };
 
-function InfoRow({ icon, label, value, last }: InfoRowProps) {
+function InfoRow({ icon, label, value }: InfoRowProps) {
   return (
     <View
       accessible
       accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
-      className={`min-h-[72px] flex-row items-center gap-4 py-3 ${last ? '' : 'border-b border-border'}`}
+      className="flex-row items-center gap-3.5"
     >
-      <View className="h-10 w-10 items-center justify-center rounded-full bg-canvas">
-        <MaterialIcons name={icon} size={22} color={colors['primary-strong']} />
+      <Feather name={icon} size={22} color={colors.danger} />
+      <View className="flex-1">
+        <Text className="font-sans text-[13px] text-muted">{label}</Text>
+        <Text numberOfLines={2} className="font-sans-medium text-[17px] text-muted">
+          {value || 'Sin capturar'}
+        </Text>
       </View>
-      <Text className="font-sans text-lg text-muted">{label}</Text>
-      <Text
-        numberOfLines={2}
-        className={`flex-1 text-right font-sans-medium text-lg ${value ? 'text-foreground' : 'text-muted'}`}
-      >
-        {value || 'Sin capturar'}
-      </Text>
     </View>
   );
 }

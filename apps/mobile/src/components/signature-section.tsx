@@ -1,7 +1,7 @@
 import { signatureBucket } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SectionHeader } from '@/components/section-header';
@@ -42,9 +42,16 @@ type SignatureSectionProps = {
   disabled: boolean;
   name: string;
   role: string;
+  className?: string;
 };
 
-export function SignatureSection({ signaturePath, disabled, name, role }: SignatureSectionProps) {
+export function SignatureSection({
+  signaturePath,
+  disabled,
+  name,
+  role,
+  className,
+}: SignatureSectionProps) {
   const { saveSignature } = useSession();
   const online = useOnline();
   const [signing, setSigning] = useState(false);
@@ -69,17 +76,18 @@ export function SignatureSection({ signaturePath, disabled, name, role }: Signat
   }
 
   const current = resolved?.path === signaturePath ? resolved : null;
+  const holder = [role, 'Titular de la firma'].filter(Boolean).join(' · ');
 
   let preview: ReactNode;
   if (signaturePath === undefined) {
     preview = (
-      <Text className="px-6 text-center font-sans text-base text-muted">
+      <Text className="text-center font-sans text-sm text-muted">
         Tu firma se mostrará cuando se cargue tu perfil.
       </Text>
     );
   } else if (signaturePath === null) {
     preview = (
-      <Text className="px-6 text-center font-sans text-base text-muted">
+      <Text className="text-center font-sans text-sm text-muted">
         Aún no tienes firma. Créala una vez y se usará en todos tus reportes.
       </Text>
     );
@@ -87,16 +95,20 @@ export function SignatureSection({ signaturePath, disabled, name, role }: Signat
     preview = <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando firma" />;
   } else if (!current.uri) {
     preview = (
-      <View className="items-center gap-4 px-6">
-        <Text className="text-center font-sans text-base text-muted">
+      <View className="items-center gap-1">
+        <Text className="text-center font-sans text-sm text-muted">
           {online
             ? 'No se pudo cargar tu firma.'
             : 'Tu firma se mostrará cuando vuelvas a tener conexión.'}
         </Text>
         {online ? (
-          <View className="w-[190px]">
-            <Button variant="secondary" label="Reintentar" onPress={handleRetry} />
-          </View>
+          <Pressable
+            onPress={handleRetry}
+            accessibilityRole="button"
+            className="min-h-12 justify-center px-3 active:opacity-70"
+          >
+            <Text className="font-sans-semibold text-sm text-primary-strong">Reintentar</Text>
+          </Pressable>
         ) : null}
       </View>
     );
@@ -115,27 +127,29 @@ export function SignatureSection({ signaturePath, disabled, name, role }: Signat
   }
 
   return (
-    <View className="gap-3">
+    <View className={`gap-5 rounded-2xl border border-border bg-background p-6 ${className ?? ''}`}>
       <SectionHeader title="Tu firma" description="Así aparece en cada reporte que envías." />
 
-      <View className="gap-5 rounded-2xl bg-background p-5">
-        <View className="rounded-xl border border-border px-6 pb-4 pt-2">
-          <View className="h-[140px] items-center justify-center">{preview}</View>
-          <View className="h-px bg-foreground" />
-          <Text numberOfLines={1} className="mt-2 font-sans-medium text-base text-foreground">
-            {name}
-          </Text>
-          <Text className="font-sans text-sm text-muted">{role}</Text>
-        </View>
+      <View className="h-[120px] rounded-lg border border-border px-6 pb-5 pt-3">
+        <View className="flex-1 items-center justify-center">{preview}</View>
+        <View className="h-px bg-border" />
+      </View>
 
-        <View className="w-full max-w-[240px] self-end">
-          <Button
-            variant={signaturePath ? 'secondary' : 'primary'}
-            label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
-            onPress={() => setSigning(true)}
-            disabled={disabled}
-          />
-        </View>
+      <View className="gap-0.5">
+        <Text numberOfLines={1} className="font-sans-semibold text-base text-muted">
+          {name}
+        </Text>
+        <Text className="font-sans text-[13px] text-muted">{holder}</Text>
+      </View>
+
+      <View className="mt-auto">
+        <Button
+          variant={signaturePath ? 'outline' : 'primary'}
+          icon="edit-3"
+          label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
+          onPress={() => setSigning(true)}
+          disabled={disabled}
+        />
       </View>
 
       {signing ? (
@@ -148,3 +162,4 @@ export function SignatureSection({ signaturePath, disabled, name, role }: Signat
     </View>
   );
 }
+

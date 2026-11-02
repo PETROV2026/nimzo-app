@@ -1,16 +1,28 @@
-import { ActivityIndicator, Pressable, Text } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme/colors';
 
 const variants = {
   primary: {
     container: 'bg-primary-strong',
     text: 'text-on-primary',
-    spinner: colors['on-primary'],
+    tint: colors['on-primary'],
   },
   secondary: {
     container: 'border-2 border-border-strong bg-background',
     text: 'text-foreground',
-    spinner: colors.foreground,
+    tint: colors.foreground,
+  },
+  outline: {
+    container: 'border border-border bg-background',
+    text: 'text-primary-strong',
+    tint: colors['primary-strong'],
+  },
+  ghost: {
+    container: '',
+    text: 'text-primary-strong',
+    tint: colors['primary-strong'],
   },
 };
 
@@ -20,9 +32,17 @@ type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   variant?: keyof typeof variants;
+  icon?: ComponentProps<typeof Feather>['name'];
 };
 
-export function Button({ label, onPress, loading, disabled, variant = 'primary' }: ButtonProps) {
+export function Button({
+  label,
+  onPress,
+  loading,
+  disabled,
+  variant = 'primary',
+  icon,
+}: ButtonProps) {
   const style = variants[variant];
 
   return (
@@ -35,10 +55,14 @@ export function Button({ label, onPress, loading, disabled, variant = 'primary' 
       className={`min-h-16 items-center justify-center rounded-lg px-6 active:opacity-80 ${disabled ? 'opacity-50' : ''} ${style.container}`}
     >
       {loading ? (
-        <ActivityIndicator color={style.spinner} />
+        <ActivityIndicator color={style.tint} />
       ) : (
-        <Text className={`font-sans-semibold text-lg ${style.text}`}>{label}</Text>
+        <View className="flex-row items-center gap-2.5">
+          {icon ? <Feather name={icon} size={20} color={style.tint} /> : null}
+          <Text className={`font-sans-semibold text-lg ${style.text}`}>{label}</Text>
+        </View>
       )}
     </Pressable>
   );
 }
+
