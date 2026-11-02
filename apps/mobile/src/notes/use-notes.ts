@@ -1,6 +1,6 @@
 import { toSearchText } from '@nimzo/shared';
 import { useSyncExternalStore } from 'react';
-import { listNotes, notesVersion, subscribeNotes, type Note } from '@/notes/notes-db';
+import { notesSnapshot, subscribeNotes, type Note } from '@/notes/notes-db';
 
 function searchableText(note: Note) {
   return toSearchText(
@@ -11,8 +11,7 @@ function searchableText(note: Note) {
 }
 
 export function useNotes(technicianId: string, search: string) {
-  useSyncExternalStore(subscribeNotes, notesVersion);
-  const notes = listNotes(technicianId);
+  const notes = useSyncExternalStore(subscribeNotes, () => notesSnapshot(technicianId));
   const term = toSearchText(search.trim());
   return term ? notes.filter((note) => searchableText(note).includes(term)) : notes;
 }

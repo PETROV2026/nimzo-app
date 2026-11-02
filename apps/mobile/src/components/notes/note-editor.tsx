@@ -21,6 +21,7 @@ import { colors } from '@/theme';
 type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 const autosaveMs = 400;
+const savedFeedbackMs = 2000;
 
 type NoteEditorProps = {
   noteId: string;
@@ -34,6 +35,7 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
   const [pickingClient, setPickingClient] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [reminderError, setReminderError] = useState<string | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
   const latest = useRef(note);
   const dirty = useRef(false);
 
@@ -61,10 +63,17 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
     [],
   );
 
+  useEffect(() => {
+    if (!justSaved) return;
+    const timer = setTimeout(() => setJustSaved(false), savedFeedbackMs);
+    return () => clearTimeout(timer);
+  }, [justSaved]);
+
   if (!note) return null;
 
   function update(changes: Partial<Note>) {
     dirty.current = true;
+    setJustSaved(false);
     setNote((previous) => (previous ? { ...previous, ...changes } : previous));
   }
 
@@ -137,6 +146,17 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
     });
   }
 
+  function handleSave() {
+    if (!note || isEmptyNote(note)) return;
+    saveNote(note);
+    dirty.current = false;
+    if (showBack) {
+      onClose();
+      return;
+    }
+    setJustSaved(true);
+  }
+
   async function handleDelete() {
     if (!note) return;
     await cancelReminder(note.notificationId);
@@ -172,6 +192,23 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
           tone="danger"
           onPress={() => setConfirmingDelete(true)}
         />
+        <Pressable
+          onPress={handleSave}
+          disabled={isEmptyNote(note)}
+          accessibilityRole="button"
+          accessibilityLabel={justSaved ? 'Nota guardada' : 'Guardar nota'}
+          accessibilityState={{ disabled: isEmptyNote(note) }}
+          className={`ml-1 min-h-14 flex-row items-center gap-2 rounded-full bg-primary-strong px-5 active:opacity-80 ${isEmptyNote(note) ? 'opacity-50' : ''}`}
+        >
+          <MaterialIcons
+            name={justSaved ? 'check-circle' : 'check'}
+            size={22}
+            color={colors['on-primary']}
+          />
+          <Text className="font-sans-semibold text-base text-on-primary">
+            {justSaved ? 'Guardada' : 'Guardar'}
+          </Text>
+        </Pressable>
       </View>
 
       <ScrollView
@@ -330,7 +367,8 @@ export function NoteEditor({ noteId, onClose, showBack }: NoteEditorProps) {
           ) : null}
 
           <Text className="font-sans text-sm text-muted">
-            Tus notas se guardan solas y solo en esta tablet.
+            Toca Guardar al terminar. Por si acaso, la nota también se guarda sola mientras
+            escribes. Se queda solo en esta tablet.
           </Text>
         </View>
       </ScrollView>

@@ -73,10 +73,6 @@ export function subscribeNotes(listener: () => void) {
   };
 }
 
-export function notesVersion() {
-  return version;
-}
-
 function parseChecklist(value: string): ChecklistItem[] {
   try {
     const parsed: unknown = JSON.parse(value);
@@ -111,6 +107,15 @@ export function listNotes(technicianId: string) {
       technicianId,
     )
     .map(fromRow);
+}
+
+let snapshot: { technicianId: string; version: number; notes: Note[] } | null = null;
+
+export function notesSnapshot(technicianId: string) {
+  if (!snapshot || snapshot.technicianId !== technicianId || snapshot.version !== version) {
+    snapshot = { technicianId, version, notes: listNotes(technicianId) };
+  }
+  return snapshot.notes;
 }
 
 export function getNote(id: string) {
