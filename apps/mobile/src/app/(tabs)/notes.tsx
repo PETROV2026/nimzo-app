@@ -52,12 +52,13 @@ export default function NotesScreen() {
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [savedNotice, setSavedNotice] = useState(false);
-  const { noteId } = useLocalSearchParams<{ noteId?: string }>();
+  const { noteId, openedAt } = useLocalSearchParams<{ noteId?: string; openedAt?: string }>();
   const notes = useNotes(technicianId, search);
 
-  const [openedNoteId, setOpenedNoteId] = useState<string | undefined>(undefined);
-  if (noteId && noteId !== openedNoteId) {
-    setOpenedNoteId(noteId);
+  const openRequest = noteId ? `${noteId}:${openedAt ?? ''}` : undefined;
+  const [handledRequest, setHandledRequest] = useState<string | undefined>(undefined);
+  if (noteId && openRequest !== handledRequest) {
+    setHandledRequest(openRequest);
     setSelectedId(noteId);
   }
 

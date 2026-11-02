@@ -40,8 +40,8 @@ async function remindersChannel() {
 
 export async function scheduleReminder(note: Note, remindAt: Date): Promise<ScheduleResult> {
   try {
-    if (!(await hasPermission())) return { ok: false, reason: 'permission' };
     const channel = await remindersChannel();
+    if (!(await hasPermission())) return { ok: false, reason: 'permission' };
     const snippet = note.body.trim() || note.checklist.find((item) => !item.done)?.text || '';
     const notificationId = await Notifications.scheduleNotificationAsync({
       content: {
@@ -71,11 +71,20 @@ export async function cancelReminder(notificationId: string | null) {
   }
 }
 
-export function useOpenNoteFromNotification() {
-  const response = Notifications.useLastNotificationResponse();
+function openNoteFrom(response: Notifications.NotificationResponse | null) {
+  const noteId = response?.notification.request.content.data?.noteId;
+  if (typeof noteId !== 'string') return;
+  router.navigate({ pathname: '/notes', params: { noteId, openedAt: String(Date.now()) } });
+}
 
+export function useOpenNoteFromNotification() {
   useEffect(() => {
-    const noteId = response?.notification.request.content.data?.noteId;
-    if (typeof noteId === 'string') router.navigate({ pathname: '/notes', params: { noteId } });
-  }, [response]);
+    openNoteFrom(Notifications.getLastNotificationResponse());
+    Notifications.clearLastNotificationResponse();
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      openNoteFrom(response);
+      Notifications.clearLastNotificationResponse();
+    });
+    return () => subscription.remove();
+  }, []);
 }
