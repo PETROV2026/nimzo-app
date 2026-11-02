@@ -2,16 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
-import {
-  Linking,
-  Modal,
-  Platform,
-  Pressable,
-  ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { colors } from '@/theme';
@@ -41,8 +32,6 @@ type SupportDialogProps = {
 };
 
 export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
-  const { height } = useWindowDimensions();
-  const compact = height < 800;
   const [copied, setCopied] = useState(false);
   const [noMailApp, setNoMailApp] = useState(false);
 
@@ -72,25 +61,17 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
         className="flex-1 bg-foreground/40"
         contentContainerClassName="grow items-center justify-center p-8"
       >
-        <View
-          className={`w-full rounded-3xl bg-background ${compact ? 'max-w-[560px] gap-4 p-6' : 'max-w-[640px] gap-6 p-8'}`}
-        >
+        <View className="w-full max-w-[560px] gap-4 rounded-3xl bg-background p-6">
           <DialogHeader title="Ayuda y soporte" onClose={onClose} />
 
           <View className="flex-row items-center gap-4">
-            <View
-              className={`items-center justify-center rounded-2xl bg-danger ${compact ? 'h-12 w-12' : 'h-16 w-16'}`}
-            >
-              <Feather name="headphones" size={compact ? 24 : 30} color={colors['on-danger']} />
+            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger">
+              <Feather name="headphones" size={24} color={colors['on-danger']} />
             </View>
-            <Text
-              className={`flex-1 font-sans-bold text-foreground ${compact ? 'text-xl' : 'text-[23px]'}`}
-            >
-              ¿Necesitas ayuda?
-            </Text>
+            <Text className="flex-1 font-sans-bold text-xl text-foreground">¿Necesitas ayuda?</Text>
           </View>
 
-          <Text className={`font-sans text-muted ${compact ? 'text-base' : 'text-[17px] leading-6'}`}>
+          <Text className="font-sans text-base text-muted">
             Escríbenos y cuéntanos qué estabas haciendo y qué ocurrió. Si puedes, agrega una
             captura de pantalla al correo.
           </Text>
@@ -98,10 +79,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
           <View className="flex-row items-center gap-4 rounded-xl border border-border p-5">
             <View className="flex-1 gap-2">
               <Text className="font-sans text-[13px] text-muted">Correo de soporte</Text>
-              <Text
-                selectable
-                className={`font-sans text-foreground ${compact ? 'text-lg' : 'text-[21px]'}`}
-              >
+              <Text selectable className="font-sans text-lg text-foreground">
                 {supportEmail}
               </Text>
             </View>
@@ -113,9 +91,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               className="min-h-[52px] flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
             >
               <Feather name={copied ? 'check' : 'copy'} size={22} color={colors.muted} />
-              <Text
-                className={`font-sans-semibold text-muted ${compact ? 'text-base' : 'text-lg'}`}
-              >
+              <Text className="font-sans-semibold text-base text-muted">
                 {copied ? 'Copiado' : 'Copiar'}
               </Text>
             </Pressable>

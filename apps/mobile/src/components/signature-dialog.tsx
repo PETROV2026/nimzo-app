@@ -270,7 +270,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                     />
                   </View>
                   <View className="flex-1">
-                    <Button variant="danger" label="Descartar" onPress={onClose} />
+                    <Button variant="destructive" label="Descartar" onPress={onClose} />
                   </View>
                 </View>
               </View>
@@ -287,6 +287,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                 <View className="w-[190px]">
                   <Button
                     label="Guardar firma"
+                    variant="success"
                     onPress={handleSave}
                     disabled={!canSave}
                     loading={saving}

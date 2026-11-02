@@ -1,14 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { useEffect, type ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import Animated, {
-  ReduceMotion,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
 import { colors } from '@/theme';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -51,6 +45,7 @@ export function NavigationBar({
       function handleLongPress() {
         emitter.emit({ type: 'tabLongPress', target: route.key });
       }
+
       return (
         <NavigationItem
           key={route.key}
@@ -90,7 +85,7 @@ export function NavigationBar({
   return (
     <View
       accessibilityRole="tablist"
-      className="w-full flex-row bg-muted px-2 pt-2"
+      className="w-full flex-row border-t border-border bg-background px-2 pt-2"
       style={{
         paddingBottom: insets.bottom + 8,
         paddingLeft: insets.left + 8,
@@ -121,17 +116,7 @@ function NavigationItem({
   onPress,
   onLongPress,
 }: NavigationItemProps) {
-  const progress = useSharedValue(focused ? 1 : 0);
-
-  useEffect(() => {
-    progress.set(withTiming(focused ? 1 : 0, { duration: 180, reduceMotion: ReduceMotion.System }));
-  }, [focused, progress]);
-
-  const indicatorStyle = useAnimatedStyle(() => ({
-    opacity: progress.get(),
-    transform: [{ scaleX: 0.5 + progress.get() * 0.5 }],
-  }));
-
+  const rail = variant === 'rail';
   return (
     <Pressable
       onPress={onPress}
@@ -142,12 +127,11 @@ function NavigationItem({
       className={`min-h-16 items-center justify-center gap-1 ${variant === 'dock' ? 'flex-1' : 'w-full'}`}
     >
       <View className="h-9 w-16 items-center justify-center">
-        <Animated.View className="absolute inset-0 rounded-full bg-canvas" style={indicatorStyle} />
-        <View className={focused ? '' : 'opacity-70'}>
+        <View className='font-sans-medium text-muted'>
           <Ionicons
-            name={focused ? icon.active : icon.inactive}
-            size={24}
-            color={focused ? colors['primary-strong'] : colors.background}
+          name={focused ? icon.active : icon.inactive}
+          size={24}
+          color={focused ? colors.danger : rail ? colors.background : colors.muted}
           />
         </View>
         {badge !== undefined ? (
@@ -158,7 +142,7 @@ function NavigationItem({
       </View>
       <Text
         numberOfLines={1}
-        className={`text-sm ${focused ? 'font-sans-bold text-background' : 'font-sans-medium text-background opacity-70'}`}
+        className={`text-sm ${focused ? 'font-sans-bold text-danger' : `font-sans-medium ${rail ? 'text-background' : 'text-muted'}`}`}
       >
         {label}
       </Text>

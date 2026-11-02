@@ -25,9 +25,19 @@ const variants = {
     tint: colors['primary-strong'],
   },
   danger: {
-    container: 'bg-danger-strong',
+    container: 'bg-danger',
     text: 'text-on-danger',
     tint: colors['on-danger'],
+  },
+  success: {
+    container: 'bg-success',
+    text: 'text-on-success',
+    tint: colors['on-success'],
+  },
+  destructive: {
+    container: 'bg-destructive',
+    text: 'text-on-destructive',
+    tint: colors['on-destructive'],
   },
 };
 

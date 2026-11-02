@@ -9,7 +9,7 @@ type ConfirmDialogProps = {
   message: string;
   note?: string;
   confirmLabel: string;
-  tone?: 'primary' | 'danger';
+  tone?: 'primary' | 'destructive';
   onConfirm: () => void;
   onClose: () => void;
   loading?: boolean;

@@ -165,7 +165,7 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
                 />
               </View>
               <View className="w-[190px]">
-                <Button label="Guardar cambios" onPress={onSubmit} loading={isSubmitting} />
+                <Button label="Guardar cambios" variant="success" onPress={onSubmit} loading={isSubmitting} />
               </View>
             </View>
           </View>

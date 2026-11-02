@@ -131,9 +131,9 @@ export default function ProfileScreen() {
       accessibilityLabel="Cerrar sesión"
       className="min-h-16 flex-row items-center gap-3 px-2 active:opacity-70"
     >
-      <Feather name="log-out" size={22} color={colors['danger-strong']} />
-      <Text className="font-sans-bold text-[17px] text-danger-strong">Cerrar sesión</Text>
-      <Feather name="chevron-right" size={20} color={colors['danger-strong']} />
+      <Feather name="log-out" size={22} color={colors.danger} />
+      <Text className="font-sans-bold text-[17px] text-danger">Cerrar sesión</Text>
+      <Feather name="chevron-right" size={20} color={colors.danger} />
     </Pressable>
   );
 
@@ -189,7 +189,7 @@ export default function ProfileScreen() {
           message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
           note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
           confirmLabel="Cerrar sesión"
-          tone="danger"
+          tone="destructive"
           onConfirm={handleSignOut}
           onClose={() => setConfirmingSignOut(false)}
           loading={signingOut}
