@@ -25,13 +25,14 @@ const autosaveMs = 400;
 
 type NoteEditorProps = {
   noteId: string;
+  technicianId: string;
   onClose: () => void;
   onSaved?: () => void;
   showBack: boolean;
 };
 
-export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorProps) {
-  const [note, setNote] = useState<Note | null>(() => getNote(noteId));
+export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }: NoteEditorProps) {
+  const [note, setNote] = useState<Note | null>(() => getNote(noteId, technicianId));
   const [savedAt, setSavedAt] = useState<string | null>(() => note?.updatedAt ?? null);
   const [pending, setPending] = useState(false);
   const [focusItemId, setFocusItemId] = useState<string | null>(null);
@@ -70,50 +71,56 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
 
   if (!note) return null;
 
-  function update(changes: Partial<Note>) {
+  function update(changes: Partial<Note> | ((previous: Note) => Partial<Note>)) {
     dirty.current = true;
     setPending(true);
-    setNote((previous) => (previous ? { ...previous, ...changes } : previous));
+    setNote((previous) =>
+      previous
+        ? { ...previous, ...(typeof changes === 'function' ? changes(previous) : changes) }
+        : previous,
+    );
+  }
+
+  function updateChecklist(change: (checklist: ChecklistItem[]) => ChecklistItem[]) {
+    update((previous) => ({ checklist: change(previous.checklist) }));
   }
 
   function updateItem(id: string, changes: Partial<ChecklistItem>) {
-    if (!note) return;
-    update({
-      checklist: note.checklist.map((item) => (item.id === id ? { ...item, ...changes } : item)),
-    });
+    updateChecklist((checklist) =>
+      checklist.map((item) => (item.id === id ? { ...item, ...changes } : item)),
+    );
   }
 
   function addItem(afterId?: string) {
-    if (!note) return;
     const item = newChecklistItem();
-    const index = afterId ? note.checklist.findIndex((entry) => entry.id === afterId) : -1;
-    const checklist = [...note.checklist];
-    checklist.splice(index === -1 ? checklist.length : index + 1, 0, item);
-    update({ checklist });
+    updateChecklist((checklist) => {
+      const index = afterId ? checklist.findIndex((entry) => entry.id === afterId) : -1;
+      const next = [...checklist];
+      next.splice(index === -1 ? next.length : index + 1, 0, item);
+      return next;
+    });
     setFocusItemId(item.id);
   }
 
   function removeItem(id: string) {
-    if (!note) return;
-    update({ checklist: note.checklist.filter((item) => item.id !== id) });
+    updateChecklist((checklist) => checklist.filter((item) => item.id !== id));
   }
 
   async function applyReminder(date: Date | null) {
     if (!note) return;
+    const previousId = note.notificationId;
     setReminderError(null);
-    await cancelReminder(note.notificationId);
     if (!date) {
+      await cancelReminder(previousId);
       update({ remindAt: null, notificationId: null });
       return;
     }
     if (isPast(date)) {
-      update({ remindAt: null, notificationId: null });
       setReminderError('Elige una fecha y hora que aún no hayan pasado.');
       return;
     }
     const result = await scheduleReminder(note, date);
     if (!result.ok) {
-      update({ remindAt: null, notificationId: null });
       setReminderError(
         result.reason === 'permission'
           ? 'Para recibir el aviso, permite las notificaciones de Nimzo en los ajustes de la tablet.'
@@ -121,6 +128,7 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
       );
       return;
     }
+    await cancelReminder(previousId);
     update({ remindAt: date.toISOString(), notificationId: result.notificationId });
   }
 
@@ -389,12 +397,10 @@ type ToolbarButtonProps = {
   label: string;
   onPress: () => void;
   active?: boolean;
-  tone?: 'default' | 'danger';
 };
 
-function ToolbarButton({ icon, label, onPress, active, tone = 'default' }: ToolbarButtonProps) {
-  const color =
-    tone === 'danger' ? colors['danger-strong'] : active ? colors['primary-strong'] : colors.muted;
+function ToolbarButton({ icon, label, onPress, active }: ToolbarButtonProps) {
+  const color = active ? colors['primary-strong'] : colors.muted;
   return (
     <Pressable
       onPress={onPress}
@@ -405,7 +411,7 @@ function ToolbarButton({ icon, label, onPress, active, tone = 'default' }: Toolb
     >
       <MaterialIcons name={icon} size={22} color={color} />
       <Text
-        className={`font-sans-semibold text-base ${tone === 'danger' ? 'text-danger-strong' : active ? 'text-primary-strong' : 'text-muted'}`}
+        className={`font-sans-semibold text-base ${active ? 'text-primary-strong' : 'text-muted'}`}
       >
         {label}
       </Text>

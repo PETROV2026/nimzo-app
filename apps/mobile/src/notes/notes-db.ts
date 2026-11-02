@@ -39,7 +39,12 @@ type NoteRow = {
 
 const db = openDatabaseSync('nimzo.db');
 
-db.execSync(`
+const schemaVersion = 1;
+
+db.execSync('pragma journal_mode = wal');
+
+if ((db.getFirstSync<{ user_version: number }>('pragma user_version')?.user_version ?? 0) < 1) {
+  db.execSync(`
   create table if not exists notes (
     id text primary key not null,
     technician_id text not null,
@@ -57,6 +62,8 @@ db.execSync(`
   );
   create index if not exists notes_technician_idx on notes (technician_id, pinned, updated_at);
 `);
+  db.execSync(`pragma user_version = ${schemaVersion}`);
+}
 
 const listeners = new Set<() => void>();
 let version = 0;
@@ -73,10 +80,18 @@ export function subscribeNotes(listener: () => void) {
   };
 }
 
+function isChecklistItem(value: unknown): value is ChecklistItem {
+  if (typeof value !== 'object' || value === null) return false;
+  const item = value as Record<string, unknown>;
+  return (
+    typeof item.id === 'string' && typeof item.text === 'string' && typeof item.done === 'boolean'
+  );
+}
+
 function parseChecklist(value: string): ChecklistItem[] {
   try {
     const parsed: unknown = JSON.parse(value);
-    return Array.isArray(parsed) ? (parsed as ChecklistItem[]) : [];
+    return Array.isArray(parsed) ? parsed.filter(isChecklistItem) : [];
   } catch {
     return [];
   }
@@ -118,8 +133,12 @@ export function notesSnapshot(technicianId: string) {
   return snapshot.notes;
 }
 
-export function getNote(id: string) {
-  const row = db.getFirstSync<NoteRow>('select * from notes where id = ?', id);
+export function getNote(id: string, technicianId: string) {
+  const row = db.getFirstSync<NoteRow>(
+    'select * from notes where id = ? and technician_id = ?',
+    id,
+    technicianId,
+  );
   return row ? fromRow(row) : null;
 }
 

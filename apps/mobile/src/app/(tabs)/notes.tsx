@@ -16,7 +16,7 @@ import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
 import { NoteEditor } from '@/components/notes/note-editor';
 import { dateGroup, dateGroups } from '@/notes/format';
-import { createNote, type Note } from '@/notes/notes-db';
+import { createNote, getNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
 import { colors } from '@/theme';
 
@@ -27,20 +27,33 @@ type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
 
 function buildList(notes: Note[]): ListItem[] {
-  const items: ListItem[] = [];
-  const pinned = notes.filter((note) => note.pinned);
-  if (pinned.length > 0) {
-    items.push({ type: 'header', key: 'pinned', label: 'Fijadas' });
-    items.push(...pinned.map((note) => ({ type: 'note' as const, key: note.id, note })));
+  const now = new Date();
+  const pinned: Note[] = [];
+  const byGroup = new Map<string, Note[]>();
+  for (const note of notes) {
+    if (note.pinned) {
+      pinned.push(note);
+      continue;
+    }
+    const group = dateGroup(note.updatedAt, now);
+    byGroup.set(group, [...(byGroup.get(group) ?? []), note]);
   }
-  const others = notes.filter((note) => !note.pinned);
-  for (const group of dateGroups) {
-    const inGroup = others.filter((note) => dateGroup(note.updatedAt) === group);
-    if (inGroup.length === 0) continue;
-    items.push({ type: 'header', key: group, label: group });
-    items.push(...inGroup.map((note) => ({ type: 'note' as const, key: note.id, note })));
-  }
-  return items;
+  const sections: [string, string, Note[]][] = [
+    ['pinned', 'Fijadas', pinned],
+    ...dateGroups.map((group): [string, string, Note[]] => [
+      group,
+      group,
+      byGroup.get(group) ?? [],
+    ]),
+  ];
+  return sections.flatMap(([key, label, inSection]) =>
+    inSection.length === 0
+      ? []
+      : [
+          { type: 'header' as const, key, label },
+          ...inSection.map((note) => ({ type: 'note' as const, key: note.id, note })),
+        ],
+  );
 }
 
 export default function NotesScreen() {
@@ -59,7 +72,7 @@ export default function NotesScreen() {
   const [handledRequest, setHandledRequest] = useState<string | undefined>(undefined);
   if (noteId && openRequest !== handledRequest) {
     setHandledRequest(openRequest);
-    setSelectedId(noteId);
+    if (technicianId && getNote(noteId, technicianId)) setSelectedId(noteId);
   }
 
   useEffect(() => {
@@ -164,6 +177,7 @@ export default function NotesScreen() {
             <NoteEditor
               key={selectedId}
               noteId={selectedId}
+              technicianId={technicianId}
               showBack={false}
               onClose={() => setSelectedId(null)}
             />
@@ -197,6 +211,7 @@ export default function NotesScreen() {
             <NoteEditor
               key={selectedId}
               noteId={selectedId}
+              technicianId={technicianId}
               showBack
               onClose={() => setSelectedId(null)}
               onSaved={() => setSavedNotice(true)}
