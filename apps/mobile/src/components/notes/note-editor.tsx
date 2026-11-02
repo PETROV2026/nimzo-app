@@ -186,11 +186,9 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
             onPress={handleDone}
             accessibilityRole="button"
             accessibilityLabel="Volver a tus notas"
-            className="min-h-14 flex-row items-center gap-2 rounded-full border-2 border-border bg-background pl-3 pr-5 active:bg-surface"
+            className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-surface"
           >
-            <View className="h-9 w-9 items-center justify-center rounded-full bg-canvas">
-              <MaterialIcons name="arrow-back" size={22} color={colors['primary-strong']} />
-            </View>
+            <MaterialIcons name="arrow-back" size={24} color={colors.foreground} />
             <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
           </Pressable>
         ) : null}
