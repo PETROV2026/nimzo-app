@@ -5,8 +5,9 @@ import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ClientPicker } from '@/components/notes/client-picker';
+import { NoteMenu } from '@/components/notes/note-menu';
 import { formatReminder, formatSaved, isOverdue } from '@/notes/format';
-import { noteColors } from '@/notes/note-colors';
+import { noteColorClass } from '@/notes/note-colors';
 import {
   deleteNote,
   getNote,
@@ -40,6 +41,7 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [reminderError, setReminderError] = useState<string | null>(null);
   const [justSaved, setJustSaved] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const latest = useRef(note);
   const dirty = useRef(false);
 
@@ -193,26 +195,15 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
         {showBack ? <ToolbarButton icon="arrow-back" label="Notas" onPress={onClose} /> : null}
-        <ToolbarButton
-          icon="delete-outline"
-          label="Eliminar"
-          tone="danger"
-          onPress={() => setConfirmingDelete(true)}
-        />
-        <Text
-          numberOfLines={2}
-          accessibilityLiveRegion="polite"
-          className="flex-1 px-2 text-center font-sans text-sm text-muted"
-        >
-          {status}
-        </Text>
+        <View className="flex-1" />
         <ToolbarButton
           icon="push-pin"
           label={note.pinned ? 'Fijada' : 'Fijar'}
           active={note.pinned}
           onPress={() => update({ pinned: !note.pinned })}
         />
-        <View className="w-[168px]">
+        <ToolbarButton icon="more-vert" label="Más" onPress={() => setMenuOpen(true)} />
+        <View className="ml-2 w-[168px]">
           <Button
             label={justSaved ? '✓ Guardada' : 'Guardar'}
             onPress={handleSave}
@@ -221,168 +212,149 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
         </View>
       </View>
 
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="items-center px-6 py-6"
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="w-full max-w-[760px] gap-6">
-          <View
-            accessibilityRole="radiogroup"
-            accessibilityLabel="Color de la nota"
-            className="flex-row items-center gap-2"
-          >
-            <Text className="mr-1 font-sans-medium text-base text-muted">Color</Text>
-            {noteColors.map((option) => {
-              const selected = note.color === option.value;
-              return (
-                <Pressable
-                  key={option.value}
-                  onPress={() => update({ color: option.value })}
-                  accessibilityRole="radio"
-                  accessibilityLabel={option.label}
-                  accessibilityState={{ selected }}
-                  className="min-h-14 min-w-14 items-center justify-center"
-                >
-                  <View
-                    className={`h-9 w-9 items-center justify-center rounded-full ${option.className} ${selected ? 'border-[3px] border-foreground' : ''}`}
-                  >
-                    {selected ? (
-                      <MaterialIcons
-                        name="check"
-                        size={18}
-                        color={
-                          option.value === 'yellow' || option.value === 'none'
-                            ? colors.foreground
-                            : colors.background
-                        }
-                      />
-                    ) : null}
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <TextInput
-            value={note.title}
-            onChangeText={(title) => update({ title })}
-            placeholder="Título"
-            placeholderTextColor={colors.placeholder}
-            accessibilityLabel="Título de la nota"
-            className="font-sans-bold text-3xl text-foreground"
-          />
-          <TextInput
-            value={note.body}
-            onChangeText={(body) => update({ body })}
-            placeholder="Escribe aquí lo que necesitas recordar…"
-            placeholderTextColor={colors.placeholder}
-            accessibilityLabel="Texto de la nota"
-            multiline
-            textAlignVertical="top"
-            className="min-h-[120px] font-sans text-lg leading-7 text-foreground"
-          />
-
-          <View className="gap-2">
-            <View className="flex-row items-baseline justify-between">
-              <Text
-                accessibilityRole="header"
-                className="font-sans-semibold text-xl text-foreground"
-              >
-                Pendientes
+      <View className="flex-1 flex-row">
+        {note.color === 'none' ? null : <View className={`w-1.5 ${noteColorClass(note.color)}`} />}
+        <ScrollView
+          className="flex-1"
+          contentContainerClassName="items-center px-6 py-6"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="w-full max-w-[760px] gap-6">
+            {status ? (
+              <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-muted">
+                {status}
               </Text>
-              {filled.length > 0 ? (
-                <Text className="font-sans-medium text-base text-muted">
-                  {done} de {filled.length} hechos
-                </Text>
-              ) : null}
-            </View>
-            <View className="overflow-hidden rounded-2xl border border-border">
-              {items.map((item, index) => (
-                <View
-                  key={item.id}
-                  className={`flex-row items-center ${index > 0 ? 'border-t border-border' : ''}`}
+            ) : null}
+
+            <TextInput
+              value={note.title}
+              onChangeText={(title) => update({ title })}
+              placeholder="Título"
+              placeholderTextColor={colors.placeholder}
+              accessibilityLabel="Título de la nota"
+              className="font-sans-bold text-3xl text-foreground"
+            />
+            <TextInput
+              value={note.body}
+              onChangeText={(body) => update({ body })}
+              placeholder="Escribe aquí lo que necesitas recordar…"
+              placeholderTextColor={colors.placeholder}
+              accessibilityLabel="Texto de la nota"
+              multiline
+              textAlignVertical="top"
+              className="min-h-[120px] font-sans text-lg leading-7 text-foreground"
+            />
+
+            <View className="gap-2">
+              <View className="flex-row items-baseline justify-between">
+                <Text
+                  accessibilityRole="header"
+                  className="font-sans-semibold text-xl text-foreground"
                 >
-                  <Pressable
-                    onPress={() => updateItem(item.id, { done: !item.done })}
-                    accessibilityRole="checkbox"
-                    accessibilityLabel={item.text || 'Pendiente sin texto'}
-                    accessibilityState={{ checked: item.done }}
-                    className="min-h-14 min-w-14 items-center justify-center"
-                  >
-                    <MaterialIcons
-                      name={item.done ? 'check-box' : 'check-box-outline-blank'}
-                      size={28}
-                      color={item.done ? colors['primary-strong'] : colors['border-strong']}
-                    />
-                  </Pressable>
-                  <TextInput
-                    value={item.text}
-                    onChangeText={(text) => updateItem(item.id, { text })}
-                    onSubmitEditing={() => addItem(item.id)}
-                    submitBehavior="submit"
-                    returnKeyType="next"
-                    autoFocus={item.id === focusItemId}
-                    placeholder="Escribe un pendiente"
-                    placeholderTextColor={colors.placeholder}
-                    accessibilityLabel="Texto del pendiente"
-                    className={`min-h-14 flex-1 font-sans text-lg ${item.done ? 'text-muted line-through' : 'text-foreground'}`}
-                  />
-                  <Pressable
-                    onPress={() => removeItem(item.id)}
-                    accessibilityRole="button"
-                    accessibilityLabel="Quitar pendiente"
-                    className="min-h-14 min-w-14 items-center justify-center"
-                  >
-                    <MaterialIcons name="close" size={22} color={colors.muted} />
-                  </Pressable>
-                </View>
-              ))}
-              <Pressable
-                onPress={() => addItem()}
-                accessibilityRole="button"
-                className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-surface ${items.length > 0 ? 'border-t border-border' : ''}`}
-              >
-                <MaterialIcons name="add" size={24} color={colors['primary-strong']} />
-                <Text className="font-sans-semibold text-lg text-primary-strong">
-                  Agregar pendiente
+                  Pendientes
                 </Text>
-              </Pressable>
+                {filled.length > 0 ? (
+                  <Text className="font-sans-medium text-base text-muted">
+                    {done} de {filled.length} hechos
+                  </Text>
+                ) : null}
+              </View>
+              <View className="overflow-hidden rounded-2xl border border-border">
+                {items.map((item, index) => (
+                  <View
+                    key={item.id}
+                    className={`flex-row items-center ${index > 0 ? 'border-t border-border' : ''}`}
+                  >
+                    <Pressable
+                      onPress={() => updateItem(item.id, { done: !item.done })}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel={item.text || 'Pendiente sin texto'}
+                      accessibilityState={{ checked: item.done }}
+                      className="min-h-14 min-w-14 items-center justify-center"
+                    >
+                      <MaterialIcons
+                        name={item.done ? 'check-box' : 'check-box-outline-blank'}
+                        size={28}
+                        color={item.done ? colors['primary-strong'] : colors['border-strong']}
+                      />
+                    </Pressable>
+                    <TextInput
+                      value={item.text}
+                      onChangeText={(text) => updateItem(item.id, { text })}
+                      onSubmitEditing={() => addItem(item.id)}
+                      submitBehavior="submit"
+                      returnKeyType="next"
+                      autoFocus={item.id === focusItemId}
+                      placeholder="Escribe un pendiente"
+                      placeholderTextColor={colors.placeholder}
+                      accessibilityLabel="Texto del pendiente"
+                      className={`min-h-14 flex-1 font-sans text-lg ${item.done ? 'text-muted line-through' : 'text-foreground'}`}
+                    />
+                    <Pressable
+                      onPress={() => removeItem(item.id)}
+                      accessibilityRole="button"
+                      accessibilityLabel="Quitar pendiente"
+                      className="min-h-14 min-w-14 items-center justify-center"
+                    >
+                      <MaterialIcons name="close" size={22} color={colors.muted} />
+                    </Pressable>
+                  </View>
+                ))}
+                <Pressable
+                  onPress={() => addItem()}
+                  accessibilityRole="button"
+                  className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-surface ${items.length > 0 ? 'border-t border-border' : ''}`}
+                >
+                  <MaterialIcons name="add" size={24} color={colors['primary-strong']} />
+                  <Text className="font-sans-semibold text-lg text-primary-strong">
+                    Agregar pendiente
+                  </Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
 
-          <View className="overflow-hidden rounded-2xl border border-border">
-            <DetailRow
-              icon="business"
-              label="Cliente"
-              value={note.clientName}
-              placeholder="Ligar a un cliente"
-              onPress={() => setPickingClient(true)}
-              onClear={() => update({ clientId: null, clientName: null })}
-            />
-            <View className="h-px bg-border" />
-            <DetailRow
-              icon={overdue ? 'alarm-off' : 'alarm'}
-              label="Recordatorio"
-              value={note.remindAt ? formatReminder(note.remindAt) : null}
-              placeholder="Avisarme en una fecha y hora"
-              tone={overdue ? 'alert' : 'default'}
-              onPress={pickReminder}
-              onClear={() => void applyReminder(null)}
-            />
-          </View>
-          {reminderError ? (
-            <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
-              {reminderError}
+            <View className="overflow-hidden rounded-2xl border border-border">
+              <DetailRow
+                icon="business"
+                label="Cliente"
+                value={note.clientName}
+                placeholder="Ligar a un cliente"
+                onPress={() => setPickingClient(true)}
+                onClear={() => update({ clientId: null, clientName: null })}
+              />
+              <View className="h-px bg-border" />
+              <DetailRow
+                icon={overdue ? 'alarm-off' : 'alarm'}
+                label="Recordatorio"
+                value={note.remindAt ? formatReminder(note.remindAt) : null}
+                placeholder="Avisarme en una fecha y hora"
+                tone={overdue ? 'alert' : 'default'}
+                onPress={pickReminder}
+                onClear={() => void applyReminder(null)}
+              />
+            </View>
+            {reminderError ? (
+              <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
+                {reminderError}
+              </Text>
+            ) : null}
+
+            <Text className="font-sans text-sm text-muted">
+              Toca Guardar al terminar. Por si acaso, la nota también se guarda sola mientras
+              escribes. Se queda solo en esta tablet.
             </Text>
-          ) : null}
+          </View>
+        </ScrollView>
+      </View>
 
-          <Text className="font-sans text-sm text-muted">
-            Toca Guardar al terminar. Por si acaso, la nota también se guarda sola mientras
-            escribes. Se queda solo en esta tablet.
-          </Text>
-        </View>
-      </ScrollView>
+      {menuOpen ? (
+        <NoteMenu
+          color={note.color}
+          onColor={(color) => update({ color })}
+          onDelete={() => setConfirmingDelete(true)}
+          onClose={() => setMenuOpen(false)}
+        />
+      ) : null}
 
       {pickingClient ? (
         <ClientPicker

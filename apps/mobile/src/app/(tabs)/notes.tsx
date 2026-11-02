@@ -15,6 +15,7 @@ import { useSession } from '@/auth/session-provider';
 import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
 import { NoteEditor } from '@/components/notes/note-editor';
+import { dateGroup, dateGroups } from '@/notes/format';
 import { createNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
 import { colors } from '@/theme';
@@ -26,15 +27,20 @@ type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
 
 function buildList(notes: Note[]): ListItem[] {
+  const items: ListItem[] = [];
   const pinned = notes.filter((note) => note.pinned);
-  if (pinned.length === 0) return notes.map((note) => ({ type: 'note', key: note.id, note }));
+  if (pinned.length > 0) {
+    items.push({ type: 'header', key: 'pinned', label: 'Fijadas' });
+    items.push(...pinned.map((note) => ({ type: 'note' as const, key: note.id, note })));
+  }
   const others = notes.filter((note) => !note.pinned);
-  return [
-    { type: 'header', key: 'pinned', label: 'Fijadas' },
-    ...pinned.map((note) => ({ type: 'note' as const, key: note.id, note })),
-    ...(others.length > 0 ? [{ type: 'header' as const, key: 'others', label: 'Notas' }] : []),
-    ...others.map((note) => ({ type: 'note' as const, key: note.id, note })),
-  ];
+  for (const group of dateGroups) {
+    const inGroup = others.filter((note) => dateGroup(note.updatedAt) === group);
+    if (inGroup.length === 0) continue;
+    items.push({ type: 'header', key: group, label: group });
+    items.push(...inGroup.map((note) => ({ type: 'note' as const, key: note.id, note })));
+  }
+  return items;
 }
 
 export default function NotesScreen() {

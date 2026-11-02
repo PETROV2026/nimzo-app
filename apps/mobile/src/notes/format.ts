@@ -44,3 +44,17 @@ export function formatSaved(value: string, now = new Date()) {
     ? `Guardada a las ${time.format(date)}`
     : `Guardada el ${shortDate.format(date)} a las ${time.format(date)}`;
 }
+
+export const dateGroups = ['Hoy', 'Ayer', 'Últimos 7 días', 'Anteriores'] as const;
+
+export type DateGroup = (typeof dateGroups)[number];
+
+export function dateGroup(value: string, now = new Date()): DateGroup {
+  const date = new Date(value);
+  const day = dayLabel(date, now);
+  if (day === 'Hoy' || day === 'Mañana') return 'Hoy';
+  if (day === 'Ayer') return 'Ayer';
+  const weekAgo = new Date(now);
+  weekAgo.setDate(now.getDate() - 7);
+  return date.getTime() >= weekAgo.getTime() ? 'Últimos 7 días' : 'Anteriores';
+}
