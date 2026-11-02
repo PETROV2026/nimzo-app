@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   FlatList,
   Modal,
@@ -21,7 +21,6 @@ import { useNotes } from '@/notes/use-notes';
 import { colors } from '@/theme';
 
 const splitMinWidth = 900;
-const savedNoticeMs = 2500;
 
 type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
@@ -64,7 +63,6 @@ export default function NotesScreen() {
   const split = width > height && width >= splitMinWidth;
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [savedNotice, setSavedNotice] = useState(false);
   const { noteId, openedAt } = useLocalSearchParams<{ noteId?: string; openedAt?: string }>();
   const notes = useNotes(technicianId, search);
 
@@ -74,12 +72,6 @@ export default function NotesScreen() {
     setHandledRequest(openRequest);
     if (technicianId && getNote(noteId, technicianId)) setSelectedId(noteId);
   }
-
-  useEffect(() => {
-    if (!savedNotice) return;
-    const timer = setTimeout(() => setSavedNotice(false), savedNoticeMs);
-    return () => clearTimeout(timer);
-  }, [savedNotice]);
 
   if (!technicianId) return null;
 
@@ -214,20 +206,9 @@ export default function NotesScreen() {
               technicianId={technicianId}
               showBack
               onClose={() => setSelectedId(null)}
-              onSaved={() => setSavedNotice(true)}
             />
           </View>
         </Modal>
-      ) : null}
-      {savedNotice ? (
-        <View
-          accessibilityRole="alert"
-          accessibilityLiveRegion="polite"
-          className="absolute bottom-8 left-4 right-28 flex-row items-center gap-3 self-start rounded-xl bg-foreground px-4 py-3"
-        >
-          <MaterialIcons name="check-circle" size={22} color={colors.primary} />
-          <Text className="font-sans-medium text-base text-background">Nota guardada</Text>
-        </View>
       ) : null}
     </View>
   );

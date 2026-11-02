@@ -27,11 +27,10 @@ type NoteEditorProps = {
   noteId: string;
   technicianId: string;
   onClose: () => void;
-  onSaved?: () => void;
   showBack: boolean;
 };
 
-export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }: NoteEditorProps) {
+export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEditorProps) {
   const [note, setNote] = useState<Note | null>(() => getNote(noteId, technicianId));
   const [savedAt, setSavedAt] = useState<string | null>(() => note?.updatedAt ?? null);
   const [pending, setPending] = useState(false);
@@ -156,17 +155,6 @@ export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }:
     });
   }
 
-  function handleDone() {
-    if (note && !isEmptyNote(note)) {
-      if (dirty.current) {
-        saveNote(note);
-        dirty.current = false;
-      }
-      onSaved?.();
-    }
-    onClose();
-  }
-
   async function handleDelete() {
     if (!note) return;
     await cancelReminder(note.notificationId);
@@ -194,7 +182,7 @@ export function NoteEditor({ noteId, technicianId, onClose, onSaved, showBack }:
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
         {showBack ? (
           <Pressable
-            onPress={handleDone}
+            onPress={onClose}
             accessibilityRole="button"
             accessibilityLabel="Volver a tus notas"
             className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-surface"
