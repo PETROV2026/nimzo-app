@@ -111,15 +111,17 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
       setReminderError('Elige una fecha y hora que aún no hayan pasado.');
       return;
     }
-    const notificationId = await scheduleReminder(note, date);
-    if (!notificationId) {
+    const result = await scheduleReminder(note, date);
+    if (!result.ok) {
       update({ remindAt: null, notificationId: null });
       setReminderError(
-        'Para recibir el aviso, permite las notificaciones de Nimzo en los ajustes de la tablet.',
+        result.reason === 'permission'
+          ? 'Para recibir el aviso, permite las notificaciones de Nimzo en los ajustes de la tablet.'
+          : 'No se pudo programar el recordatorio. Intenta de nuevo.',
       );
       return;
     }
-    update({ remindAt: date.toISOString(), notificationId });
+    update({ remindAt: date.toISOString(), notificationId: result.notificationId });
   }
 
   function pickReminder() {
@@ -128,14 +130,12 @@ export function NoteEditor({ noteId, onClose, onSaved, showBack }: NoteEditorPro
       mode: 'date',
       value: start,
       minimumDate: new Date(),
-      onChange: (dateEvent, pickedDate) => {
-        if (dateEvent.type !== 'set' || !pickedDate) return;
+      onValueChange: (_dateEvent, pickedDate) => {
         DateTimePickerAndroid.open({
           mode: 'time',
           value: start,
           is24Hour: false,
-          onChange: (timeEvent, pickedTime) => {
-            if (timeEvent.type !== 'set' || !pickedTime) return;
+          onValueChange: (_timeEvent, pickedTime) => {
             const date = new Date(pickedDate);
             date.setHours(pickedTime.getHours(), pickedTime.getMinutes(), 0, 0);
             void applyReminder(date);

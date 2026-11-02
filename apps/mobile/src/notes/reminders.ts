@@ -15,32 +15,51 @@ Notifications.setNotificationHandler({
   }),
 });
 
-async function ensureReady() {
-  await Notifications.setNotificationChannelAsync(channelId, {
-    name: 'Recordatorios de notas',
-    importance: AndroidImportance.HIGH,
-  });
+export type ScheduleResult =
+  { ok: true; notificationId: string } | { ok: false; reason: 'permission' | 'failed' };
+
+async function hasPermission() {
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
   const requested = await Notifications.requestPermissionsAsync();
   return requested.granted;
 }
 
-export async function scheduleReminder(note: Note, remindAt: Date) {
-  if (!(await ensureReady())) return null;
-  const snippet = note.body.trim() || note.checklist.find((item) => !item.done)?.text || '';
-  return Notifications.scheduleNotificationAsync({
-    content: {
-      title: note.title.trim() || 'Recordatorio de tu nota',
-      body: snippet || 'Toca para abrir la nota.',
-      data: { noteId: note.id },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DATE,
-      date: remindAt,
-      channelId,
-    },
-  });
+async function remindersChannel() {
+  try {
+    await Notifications.setNotificationChannelAsync(channelId, {
+      name: 'Recordatorios de notas',
+      importance: AndroidImportance.HIGH,
+    });
+    return channelId;
+  } catch (error) {
+    console.warn('Could not create the note reminders channel; using the default one.', error);
+    return undefined;
+  }
+}
+
+export async function scheduleReminder(note: Note, remindAt: Date): Promise<ScheduleResult> {
+  try {
+    if (!(await hasPermission())) return { ok: false, reason: 'permission' };
+    const channel = await remindersChannel();
+    const snippet = note.body.trim() || note.checklist.find((item) => !item.done)?.text || '';
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: note.title.trim() || 'Recordatorio de tu nota',
+        body: snippet || 'Toca para abrir la nota.',
+        data: { noteId: note.id },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: remindAt,
+        ...(channel ? { channelId: channel } : {}),
+      },
+    });
+    return { ok: true, notificationId };
+  } catch (error) {
+    console.warn('Could not schedule the note reminder.', error);
+    return { ok: false, reason: 'failed' };
+  }
 }
 
 export async function cancelReminder(notificationId: string | null) {
