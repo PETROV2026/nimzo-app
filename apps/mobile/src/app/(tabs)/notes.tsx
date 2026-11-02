@@ -145,10 +145,10 @@ export default function NotesScreen() {
         onPress={handleNew}
         accessibilityRole="button"
         accessibilityLabel="Nueva nota"
-        className="absolute bottom-6 right-6 h-[72px] w-[72px] items-center justify-center rounded-full bg-primary-strong active:opacity-80"
+        className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 ${split ? 'bottom-5 right-5 h-14 w-14' : 'bottom-6 right-6 h-[72px] w-[72px]'}`}
         style={{ elevation: 6 }}
       >
-        <MaterialIcons name="add" size={36} color={colors['on-primary']} />
+        <MaterialIcons name="add" size={split ? 28 : 36} color={colors['on-primary']} />
       </Pressable>
     </View>
   );
