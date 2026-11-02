@@ -9,7 +9,7 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
+  type TextInputInstance,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -29,7 +29,7 @@ const appVersion = Constants.expoConfig?.version;
 const twoColumnMinWidth = 900;
 
 export default function LoginScreen() {
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [rememberedEmail] = useState(readLastEmail);
   const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState('');
