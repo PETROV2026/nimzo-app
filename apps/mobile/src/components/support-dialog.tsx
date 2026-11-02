@@ -1,9 +1,19 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
-import { Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  Linking,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { Button } from '@/components/button';
+import { DialogHeader } from '@/components/dialog-header';
 import { colors } from '@/theme';
 
 const supportEmail = String(Constants.expoConfig?.extra?.supportEmail ?? '');
@@ -31,6 +41,8 @@ type SupportDialogProps = {
 };
 
 export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
+  const { height } = useWindowDimensions();
+  const compact = height < 800;
   const [copied, setCopied] = useState(false);
   const [noMailApp, setNoMailApp] = useState(false);
 
@@ -60,77 +72,75 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
         className="flex-1 bg-foreground/40"
         contentContainerClassName="grow items-center justify-center p-8"
       >
-        <View className="w-full max-w-[520px] overflow-hidden rounded-2xl bg-background">
-          <View className="items-center gap-3 bg-canvas px-6 pb-6 pt-8">
-            <Pressable
-              onPress={onClose}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Cerrar"
-              className="absolute right-2 top-2 min-h-14 min-w-14 items-center justify-center rounded-full active:bg-background"
+        <View
+          className={`w-full rounded-3xl bg-background ${compact ? 'max-w-[560px] gap-4 p-6' : 'max-w-[640px] gap-6 p-8'}`}
+        >
+          <DialogHeader title="Ayuda y soporte" onClose={onClose} />
+
+          <View className="flex-row items-center gap-4">
+            <View
+              className={`items-center justify-center rounded-2xl bg-danger ${compact ? 'h-12 w-12' : 'h-16 w-16'}`}
             >
-              <MaterialIcons name="close" size={24} color={colors.muted} />
-            </Pressable>
-            <View className="h-20 w-20 items-center justify-center rounded-full bg-primary-strong">
-              <MaterialIcons name="support-agent" size={44} color={colors['on-primary']} />
+              <Feather name="headphones" size={compact ? 24 : 30} color={colors['on-danger']} />
             </View>
             <Text
-              accessibilityRole="header"
-              className="text-center font-sans-bold text-2xl text-foreground"
+              className={`flex-1 font-sans-bold text-foreground ${compact ? 'text-xl' : 'text-[23px]'}`}
             >
               ¿Necesitas ayuda?
             </Text>
-            <Text className="max-w-[400px] text-center font-sans text-base leading-6 text-muted">
-              Escríbenos y te respondemos lo antes posible. Cuéntanos qué estabas haciendo y, si
-              puedes, agrega una captura de pantalla.
-            </Text>
           </View>
 
-          <View className="gap-5 p-6">
-            <View className="flex-row items-center gap-4 rounded-xl border border-border px-4 py-4">
-              <View className="h-11 w-11 items-center justify-center rounded-full bg-canvas">
-                <MaterialIcons name="mail-outline" size={22} color={colors['primary-strong']} />
-              </View>
-              <View className="flex-1 gap-0.5">
-                <Text className="font-sans text-sm text-muted">Correo de soporte</Text>
-                <Text selectable className="font-sans-semibold text-lg text-foreground">
-                  {supportEmail}
-                </Text>
-              </View>
-              <Pressable
-                onPress={handleCopy}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel={copied ? 'Correo copiado' : 'Copiar correo'}
-                className="min-h-14 flex-row items-center gap-1.5 rounded-full px-4 active:bg-surface"
+          <Text className={`font-sans text-muted ${compact ? 'text-base' : 'text-[17px] leading-6'}`}>
+            Escríbenos y cuéntanos qué estabas haciendo y qué ocurrió. Si puedes, agrega una
+            captura de pantalla al correo.
+          </Text>
+
+          <View className="flex-row items-center gap-4 rounded-xl border border-border p-5">
+            <View className="flex-1 gap-2">
+              <Text className="font-sans text-[13px] text-muted">Correo de soporte</Text>
+              <Text
+                selectable
+                className={`font-sans text-foreground ${compact ? 'text-lg' : 'text-[21px]'}`}
               >
-                <MaterialIcons
-                  name={copied ? 'check' : 'content-copy'}
-                  size={20}
-                  color={colors['primary-strong']}
-                />
-                <Text className="font-sans-semibold text-base text-primary-strong">
-                  {copied ? 'Copiado' : 'Copiar'}
-                </Text>
-              </Pressable>
+                {supportEmail}
+              </Text>
             </View>
-
-            {noMailApp ? (
-              <View
-                accessibilityRole="alert"
-                className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
+            <Pressable
+              onPress={handleCopy}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={copied ? 'Correo copiado' : 'Copiar correo'}
+              className="min-h-[52px] flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
+            >
+              <Feather name={copied ? 'check' : 'copy'} size={22} color={colors.muted} />
+              <Text
+                className={`font-sans-semibold text-muted ${compact ? 'text-base' : 'text-lg'}`}
               >
-                <MaterialIcons name="info-outline" size={22} color={colors['on-accent']} />
-                <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
-                  No encontramos una app de correo en esta tablet. Copia el correo y escríbenos
-                  desde tu teléfono o computadora.
-                </Text>
-              </View>
-            ) : null}
+                {copied ? 'Copiado' : 'Copiar'}
+              </Text>
+            </Pressable>
+          </View>
 
-            <Button label="Escribir correo" onPress={handleWrite} />
-            <Text className="text-center font-sans text-sm leading-5 text-muted">
-              El correo ya incluye la versión de la app y tu cuenta para ayudarte más rápido.
+          {noMailApp ? (
+            <View
+              accessibilityRole="alert"
+              className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
+            >
+              <Feather name="info" size={22} color={colors['on-accent']} />
+              <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
+                No encontramos una app de correo en esta tablet. Copia el correo y escríbenos
+                desde tu teléfono o computadora.
+              </Text>
+            </View>
+          ) : null}
+
+          <Button variant="danger" icon="mail" label="Escribir correo" onPress={handleWrite} />
+
+          <View className="flex-row items-start gap-3 rounded-[10px] bg-canvas p-4">
+            <Feather name="info" size={20} color={colors['primary-strong']} />
+            <Text className="flex-1 font-sans text-sm leading-5 text-muted">
+              Al abrir el correo se incluyen tu cuenta y la versión de la app para ayudarnos a
+              revisar el problema. No compartas tu contraseña.
             </Text>
           </View>
         </View>

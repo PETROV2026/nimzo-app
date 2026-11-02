@@ -155,6 +155,8 @@ export function SignatureSection({
       {signing ? (
         <SignatureDialog
           title="Tu firma"
+          name={name}
+          role={role}
           onSave={saveSignature}
           onClose={() => setSigning(false)}
         />
@@ -162,4 +164,3 @@ export function SignatureSection({
     </View>
   );
 }
-

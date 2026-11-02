@@ -1,3 +1,4 @@
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import {
   Canvas,
   PaintStyle,
@@ -9,7 +10,7 @@ import {
   type SkPathBuilder,
 } from '@shopify/react-native-skia';
 import { useState } from 'react';
-import { Modal, Text, View } from 'react-native';
+import { Modal, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import {
   GestureDetector,
   GestureHandlerRootView,
@@ -18,10 +19,13 @@ import {
 import { useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import { Button } from '@/components/button';
+import { DialogHeader } from '@/components/dialog-header';
 import { colors } from '@/theme/colors';
 
 type SignatureDialogProps = {
   title: string;
+  name: string;
+  role: string;
   onSave: (png: Uint8Array) => Promise<string | null>;
   onClose: () => void;
 };
@@ -66,7 +70,9 @@ function renderSignaturePng(ink: Ink) {
   return surface.makeImageSnapshot().encodeToBytes();
 }
 
-export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps) {
+export function SignatureDialog({ title, name, role, onSave, onClose }: SignatureDialogProps) {
+  const { height } = useWindowDimensions();
+  const compact = height < 800;
   const inkBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
   const strokeBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
   const inkPath = useSharedValue<SkPath>(Skia.Path.Make());
@@ -79,6 +85,8 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const hasInk = ink !== null;
   const canSave = !!ink && ink.width + ink.height >= minimumInkSize;
+  const clearDisabled = !hasInk || saving;
+  const holder = [role, 'Firma personal para reportes'].filter(Boolean).join(' · ');
 
   function startStroke() {
     setError(null);
@@ -176,84 +184,113 @@ export function SignatureDialog({ title, onSave, onClose }: SignatureDialogProps
     <Modal transparent animationType="fade" onRequestClose={handleClose}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center bg-foreground/40 p-4">
-          <View className="w-full max-w-[880px] gap-5 rounded-2xl bg-background p-6">
-            <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-              {title}
-            </Text>
-            <View className="h-[320px] overflow-hidden rounded-md border-2 border-dashed border-border-strong">
-              <GestureDetector gesture={pan}>
-                <Canvas style={{ flex: 1 }}>
-                  <Path path={inkPath} {...strokeStyle} />
-                  <Path path={strokePath} {...strokeStyle} />
-                </Canvas>
-              </GestureDetector>
-              {hasInk || drawing ? null : (
-                <Text
-                  pointerEvents="none"
-                  className="absolute inset-x-0 top-28 text-center font-sans text-base text-muted"
-                >
-                  Firma aquí con el dedo o con el lápiz
+          <View
+            className={`w-full rounded-3xl bg-background ${compact ? 'max-w-[560px] gap-4 p-6' : 'max-w-[640px] gap-6 p-8'}`}
+          >
+            <DialogHeader
+              title={title}
+              description="Dibuja tu firma con el dedo o un lápiz. Se incluirá en cada reporte que envíes."
+              onClose={handleClose}
+              disabled={saving}
+            />
+
+             {compact ? null : (
+            <View className="flex-row items-center gap-3.5 rounded-[10px] bg-canvas p-4">
+              <Feather name="user" size={22} color={colors['primary-strong']} />
+              <View className="flex-1 gap-0.5">
+                <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
+                  {name}
                 </Text>
-              )}
+                <Text className="font-sans text-sm text-muted">{holder}</Text>
+              </View>
+            </View>
+          )}
+            <View className="gap-2">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-sans-bold text-base text-foreground">Área de dibujo</Text>
+                <Pressable
+                  onPress={handleClear}
+                  disabled={clearDisabled}
+                  accessibilityRole="button"
+                  accessibilityLabel="Limpiar firma"
+                  accessibilityState={{ disabled: clearDisabled }}
+                  className={`min-h-12 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-surface ${clearDisabled ? 'opacity-50' : ''}`}
+                >
+                  <MaterialCommunityIcons
+                    name="eraser"
+                    size={20}
+                    color={colors['primary-strong']}
+                  />
+                  <Text className="font-sans-semibold text-base text-primary-strong">Limpiar</Text>
+                </Pressable>
+              </View>
               <View
-                pointerEvents="none"
-                className="absolute inset-x-8 bottom-12 h-px bg-border-strong"
-              />
-              <Text
-                pointerEvents="none"
-                className="absolute bottom-14 left-8 font-sans text-lg text-muted"
+                className={`overflow-hidden rounded-lg border border-border ${compact ? 'h-[160px]' : 'h-[220px]'}`}
               >
-                ×
+                <GestureDetector gesture={pan}>
+                  <Canvas style={{ flex: 1 }}>
+                    <Path path={inkPath} {...strokeStyle} />
+                    <Path path={strokePath} {...strokeStyle} />
+                  </Canvas>
+                </GestureDetector>
+                {hasInk || drawing ? null : (
+                  <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
+                    <Text className="font-sans text-base text-muted">
+                      Firma aquí con el dedo o con el lápiz
+                    </Text>
+                  </View>
+                )}
+                <View
+                  pointerEvents="none"
+                  className="absolute inset-x-6 bottom-5 h-px bg-border"
+                />
+              </View>
+              <Text className="font-sans text-[13px] text-muted">
+                Revisa el trazo antes de guardarlo.
               </Text>
             </View>
+
             {error ? (
               <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
                 {error}
               </Text>
             ) : null}
+
             {confirmingDiscard ? (
-              <View className="flex-row items-center justify-between gap-4">
-                <Text className="flex-1 font-sans-medium text-lg text-foreground">
+              <View className="gap-4">
+                <Text className="font-sans-medium text-lg text-foreground">
                   ¿Descartar la firma que dibujaste?
                 </Text>
-                <View className="w-[190px]">
-                  <Button
-                    variant="secondary"
-                    label="Seguir firmando"
-                    onPress={() => setConfirmingDiscard(false)}
-                  />
-                </View>
-                <View className="w-[190px]">
-                  <Button label="Descartar" onPress={onClose} />
-                </View>
-              </View>
-            ) : (
-              <View className="flex-row justify-between gap-4">
-                <View className="max-w-[190px] flex-1">
-                  <Button
-                    variant="secondary"
-                    label="Limpiar"
-                    onPress={handleClear}
-                    disabled={!hasInk || saving}
-                  />
-                </View>
-                <View className="max-w-[396px] flex-[2] flex-row gap-4">
+                <View className="flex-row gap-3">
                   <View className="flex-1">
                     <Button
                       variant="secondary"
-                      label="Cancelar"
-                      onPress={handleClose}
-                      disabled={saving}
+                      label="Seguir firmando"
+                      onPress={() => setConfirmingDiscard(false)}
                     />
                   </View>
                   <View className="flex-1">
-                    <Button
-                      label="Guardar firma"
-                      onPress={handleSave}
-                      disabled={!canSave}
-                      loading={saving}
-                    />
+                    <Button variant="danger" label="Descartar" onPress={onClose} />
                   </View>
+                </View>
+              </View>
+            ) : (
+              <View className="flex-row justify-center gap-4">
+                <View className="w-[190px]">
+                  <Button
+                    variant="secondary"
+                    label="Cancelar"
+                    onPress={handleClose}
+                    disabled={saving}
+                  />
+                </View>
+                <View className="w-[190px]">
+                  <Button
+                    label="Guardar firma"
+                    onPress={handleSave}
+                    disabled={!canSave}
+                    loading={saving}
+                  />
                 </View>
               </View>
             )}

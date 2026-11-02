@@ -24,6 +24,11 @@ const variants = {
     text: 'text-primary-strong',
     tint: colors['primary-strong'],
   },
+  danger: {
+    container: 'bg-danger-strong',
+    text: 'text-on-danger',
+    tint: colors['on-danger'],
+  },
 };
 
 type ButtonProps = {
@@ -65,4 +70,3 @@ export function Button({
     </Pressable>
   );
 }
-

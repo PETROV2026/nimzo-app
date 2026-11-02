@@ -1,16 +1,19 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
+import { DialogHeader } from '@/components/dialog-header';
 import { SelectField } from '@/components/select-field';
 import { TextField } from '@/components/text-field';
 import { colors } from '@/theme/colors';
 
+
 const profileEditSchema = userEditSchema.omit({ role: true });
+
 
 const stateOptions = mexicanStates.map((code) => ({
   value: code,
@@ -19,10 +22,13 @@ const stateOptions = mexicanStates.map((code) => ({
 
 type EditProfileDialogProps = {
   profile: Profile;
+  email: string | null;
   onClose: () => void;
 };
 
-export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
+export function EditProfileDialog({ profile, email, onClose }: EditProfileDialogProps) {
+  const { height } = useWindowDimensions();
+  const compact = height < 800;
   const { updateProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
   const {
@@ -62,25 +68,13 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
           contentContainerClassName="grow items-center justify-center p-8"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="w-full max-w-[520px] gap-5 rounded-2xl bg-background p-6">
-            <View className="flex-row items-center justify-between">
-              <Text
-                accessibilityRole="header"
-                className="font-sans-semibold text-xl text-foreground"
-              >
-                Editar tu información
-              </Text>
-              <Pressable
-                onPress={onClose}
-                disabled={isSubmitting}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel="Cerrar"
-                className={`min-h-14 min-w-14 items-center justify-center ${isSubmitting ? 'opacity-50' : ''}`}
-              >
-                <MaterialIcons name="close" size={24} color={colors.muted} />
-              </Pressable>
-            </View>
+          <View className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}>
+            <DialogHeader
+              title="Editar tu información"
+              description="Mantén tus datos de contacto al día."
+              onClose={onClose}
+              disabled={isSubmitting}
+            />
             <Controller
               control={control}
               name="full_name"
@@ -97,24 +91,31 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
                 />
               )}
             />
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field, fieldState }) => (
-                <TextField
-                  label="Teléfono"
-                  value={field.value ?? ''}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  keyboardType="phone-pad"
-                  autoComplete="tel"
-                  placeholder="Ej. 686 123 4567"
-                  editable={!isSubmitting}
+            <View className="flex-row gap-5">
+              <View className="w-[210px]">
+                <Controller
+                  control={control}
+                  name="phone"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label="Teléfono"
+                      value={field.value ?? ''}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                      keyboardType="phone-pad"
+                      autoComplete="tel"
+                      placeholder="Ej. 686 123 4567"
+                      editable={!isSubmitting}
+                    />
+                  )}
                 />
-              )}
-            />
-            <View className="flex-row gap-4">
+              </View>
+              <View className="flex-1">
+                <ReadOnlyField label="Correo electrónico · Solo lectura" value={email ?? ''} />
+              </View>
+            </View>
+            <View className="flex-row gap-5">
               <View className="flex-1">
                 <Controller
                   control={control}
@@ -171,5 +172,23 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
+  );
+}
+
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="gap-2">
+      <Text className="font-sans-semibold text-sm text-muted">{label}</Text>
+      <View
+        accessible
+        accessibilityLabel={`${label}: ${value}`}
+        className="min-h-[54px] flex-row items-center gap-3 rounded-[10px] border border-border bg-canvas px-4"
+      >
+        <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
+          {value}
+        </Text>
+        <Feather name="lock" size={18} color={colors.muted} />
+      </View>
+    </View>
   );
 }

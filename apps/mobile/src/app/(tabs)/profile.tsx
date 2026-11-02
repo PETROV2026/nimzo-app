@@ -176,7 +176,7 @@ export default function ProfileScreen() {
       </View>
 
       {editing && profile ? (
-        <EditProfileDialog profile={profile} onClose={() => setEditing(false)} />
+        <EditProfileDialog profile={profile} email={email} onClose={() => setEditing(false)} />
       ) : null}
 
       {showingSupport ? (
@@ -186,8 +186,10 @@ export default function ProfileScreen() {
       {confirmingSignOut ? (
         <ConfirmDialog
           title="¿Cerrar sesión?"
-          message="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
+          message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
+          note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
           confirmLabel="Cerrar sesión"
+          tone="danger"
           onConfirm={handleSignOut}
           onClose={() => setConfirmingSignOut(false)}
           loading={signingOut}
