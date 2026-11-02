@@ -1,7 +1,9 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { HighlightedText } from '@/components/highlighted-text';
 import { formatReminder, formatUpdated, isOverdue } from '@/notes/format';
+import { excerptAround, findMatches } from '@/notes/highlight';
 import { noteColorClass } from '@/notes/note-colors';
 import type { Note } from '@/notes/notes-db';
 import { colors } from '@/theme';
@@ -16,10 +18,12 @@ function Chip({
   icon,
   label,
   tone = 'default',
+  term = '',
 }: {
   icon: IconName;
   label: string;
   tone?: 'default' | 'alert';
+  term?: string;
 }) {
   return (
     <View
@@ -30,27 +34,37 @@ function Chip({
         size={16}
         color={tone === 'alert' ? colors['danger-strong'] : colors.muted}
       />
-      <Text
+      <HighlightedText
+        text={label}
+        term={term}
         numberOfLines={1}
         className={`max-w-[180px] font-sans-medium text-sm ${tone === 'alert' ? 'text-danger-strong' : 'text-muted'}`}
-      >
-        {label}
-      </Text>
+      />
     </View>
   );
+}
+
+function searchSnippet(note: Note, snippet: string, term: string) {
+  if (!term.trim()) return snippet;
+  if (findMatches(snippet, term).length > 0) return excerptAround(snippet, term);
+  const item = note.checklist.find((entry) => findMatches(entry.text, term).length > 0);
+  return item ? `Pendiente: ${item.text}` : snippet;
 }
 
 type NoteCardProps = {
   note: Note;
   selected: boolean;
+  search: string;
   onPress: () => void;
 };
 
-export function NoteCard({ note, selected, onPress }: NoteCardProps) {
+export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
   const headline = noteHeadline(note);
-  const snippet = note.title.trim()
-    ? note.body.trim()
-    : note.body.trim().split('\n').slice(1).join(' ').trim();
+  const snippet = searchSnippet(
+    note,
+    note.title.trim() ? note.body.trim() : note.body.trim().split('\n').slice(1).join(' ').trim(),
+    search,
+  );
   const items = note.checklist.filter((item) => item.text.trim() !== '');
   const done = items.filter((item) => item.done).length;
   const overdue = isOverdue(note.remindAt);
@@ -69,19 +83,27 @@ export function NoteCard({ note, selected, onPress }: NoteCardProps) {
           {note.pinned ? (
             <MaterialIcons name="push-pin" size={18} color={colors['primary-strong']} />
           ) : null}
-          <Text numberOfLines={1} className="flex-1 font-sans-semibold text-lg text-foreground">
-            {headline}
-          </Text>
+          <HighlightedText
+            text={headline}
+            term={search}
+            numberOfLines={1}
+            className="flex-1 font-sans-semibold text-lg text-foreground"
+          />
           <Text className="font-sans text-sm text-muted">{formatUpdated(note.updatedAt)}</Text>
         </View>
         {snippet ? (
-          <Text numberOfLines={2} className="font-sans text-base leading-6 text-muted">
-            {snippet}
-          </Text>
+          <HighlightedText
+            text={snippet}
+            term={search}
+            numberOfLines={2}
+            className="font-sans text-base leading-6 text-muted"
+          />
         ) : null}
         {note.clientName || items.length > 0 || note.remindAt ? (
           <View className="flex-row flex-wrap gap-2 pt-0.5">
-            {note.clientName ? <Chip icon="business" label={note.clientName} /> : null}
+            {note.clientName ? (
+              <Chip icon="business" label={note.clientName} term={search} />
+            ) : null}
             {items.length > 0 ? <Chip icon="check-box" label={`${done}/${items.length}`} /> : null}
             {note.remindAt ? (
               <Chip

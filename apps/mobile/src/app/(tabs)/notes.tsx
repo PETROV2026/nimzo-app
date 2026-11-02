@@ -128,6 +128,7 @@ export default function NotesScreen() {
               </Text>
             ) : (
               <NoteCard
+                search={search}
                 note={item.note}
                 selected={split && item.note.id === selectedId}
                 onPress={() => setSelectedId(item.note.id)}
