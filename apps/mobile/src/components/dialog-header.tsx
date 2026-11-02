@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 type DialogHeaderProps = {
   title: string;

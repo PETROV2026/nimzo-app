@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 const variants = {
   primary: {

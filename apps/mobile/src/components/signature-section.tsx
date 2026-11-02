@@ -8,7 +8,7 @@ import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 const signedUrlSeconds = 300;
 const signedUrls = new Map<string, { url: string; expiresAt: number }>();

@@ -117,6 +117,8 @@ function NavigationItem({
   onLongPress,
 }: NavigationItemProps) {
   const rail = variant === 'rail';
+  const iconColor = focused ? colors.danger : rail ? colors.background : colors.muted;
+  const textColor = focused ? 'text-danger' : rail ? 'text-background' : 'text-muted';
   return (
     <Pressable
       onPress={onPress}
@@ -124,14 +126,14 @@ function NavigationItem({
       accessibilityRole="tab"
       accessibilityLabel={badge ? `${label}, ${badge} pendientes` : label}
       accessibilityState={{ selected: focused }}
-      className={`min-h-16 items-center justify-center gap-1 ${variant === 'dock' ? 'flex-1' : 'w-full'}`}
+      className={`min-h-16 items-center justify-center gap-1 ${rail ? 'w-full' : 'flex-1'}`}
     >
       <View className="h-9 w-16 items-center justify-center">
-        <View className='font-sans-medium text-muted'>
+        <View className="font-sans-medium text-muted">
           <Ionicons
-          name={focused ? icon.active : icon.inactive}
-          size={24}
-          color={focused ? colors.danger : rail ? colors.background : colors.muted}
+            name={focused ? icon.active : icon.inactive}
+            size={24}
+            color={focused ? colors.danger : rail ? colors.background : colors.muted}
           />
         </View>
         {badge !== undefined ? (
@@ -142,7 +144,7 @@ function NavigationItem({
       </View>
       <Text
         numberOfLines={1}
-        className={`text-sm ${focused ? 'font-sans-bold text-danger' : `font-sans-medium ${rail ? 'text-background' : 'text-muted'}`}`}
+        className={`text-sm ${focused ? 'font-sans-bold' : 'font-sans-medium'} ${textColor}`}
       >
         {label}
       </Text>

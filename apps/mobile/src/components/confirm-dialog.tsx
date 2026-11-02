@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { Modal, Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 type ConfirmDialogProps = {
   title: string;

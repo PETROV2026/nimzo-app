@@ -20,7 +20,7 @@ import { useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 type SignatureDialogProps = {
   title: string;
@@ -194,17 +194,17 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
               disabled={saving}
             />
 
-             {compact ? null : (
-            <View className="flex-row items-center gap-3.5 rounded-[10px] bg-canvas p-4">
-              <Feather name="user" size={22} color={colors['primary-strong']} />
-              <View className="flex-1 gap-0.5">
-                <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
-                  {name}
-                </Text>
-                <Text className="font-sans text-sm text-muted">{holder}</Text>
+            {compact ? null : (
+              <View className="flex-row items-center gap-3.5 rounded-[10px] bg-canvas p-4">
+                <Feather name="user" size={22} color={colors['primary-strong']} />
+                <View className="flex-1 gap-0.5">
+                  <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
+                    {name}
+                  </Text>
+                  <Text className="font-sans text-sm text-muted">{holder}</Text>
+                </View>
               </View>
-            </View>
-          )}
+            )}
             <View className="gap-2">
               <View className="flex-row items-center justify-between">
                 <Text className="font-sans-bold text-base text-foreground">Área de dibujo</Text>
@@ -234,16 +234,16 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                   </Canvas>
                 </GestureDetector>
                 {hasInk || drawing ? null : (
-                  <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
+                  <View
+                    pointerEvents="none"
+                    className="absolute inset-0 items-center justify-center"
+                  >
                     <Text className="font-sans text-base text-muted">
                       Firma aquí con el dedo o con el lápiz
                     </Text>
                   </View>
                 )}
-                <View
-                  pointerEvents="none"
-                  className="absolute inset-x-6 bottom-5 h-px bg-border"
-                />
+                <View pointerEvents="none" className="absolute inset-x-6 bottom-5 h-px bg-border" />
               </View>
               <Text className="font-sans text-[13px] text-muted">
                 Revisa el trazo antes de guardarlo.
@@ -251,7 +251,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
             </View>
 
             {error ? (
-              <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
+              <Text accessibilityRole="alert" className="font-sans text-base text-destructive">
                 {error}
               </Text>
             ) : null}

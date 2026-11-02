@@ -162,8 +162,8 @@ export default function LoginScreen() {
             accessibilityLiveRegion="assertive"
             className="flex-row items-start gap-3 rounded-lg border-2 border-danger px-4 py-3"
           >
-            <Ionicons name="alert-circle-outline" size={24} color={colors['danger-strong']} />
-            <Text className="flex-1 font-sans-medium text-base leading-6 text-danger-strong">
+            <Ionicons name="alert-circle-outline" size={24} color={colors['destructive']} />
+            <Text className="flex-1 font-sans-medium text-base leading-6 text-destructive">
               {formError}
             </Text>
           </View>

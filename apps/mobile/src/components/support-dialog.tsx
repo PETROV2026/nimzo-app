@@ -72,8 +72,8 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
           </View>
 
           <Text className="font-sans text-base text-muted">
-            Escríbenos y cuéntanos qué estabas haciendo y qué ocurrió. Si puedes, agrega una
-            captura de pantalla al correo.
+            Escríbenos y cuéntanos qué estabas haciendo y qué ocurrió. Si puedes, agrega una captura
+            de pantalla al correo.
           </Text>
 
           <View className="flex-row items-center gap-4 rounded-xl border border-border p-5">
@@ -104,8 +104,8 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
             >
               <Feather name="info" size={22} color={colors['on-accent']} />
               <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
-                No encontramos una app de correo en esta tablet. Copia el correo y escríbenos
-                desde tu teléfono o computadora.
+                No encontramos una app de correo en esta tablet. Copia el correo y escríbenos desde
+                tu teléfono o computadora.
               </Text>
             </View>
           ) : null}

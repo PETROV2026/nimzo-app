@@ -91,7 +91,9 @@ apps/mobile/
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
-  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
+  | `bg-danger` / `text-destructive` | orange `#E4572E` / `#B43D3D` | Errors and destructive actions |
+  | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm buttons |
+  | `bg-destructive` + `text-on-destructive` | red `#B43D3D` + white | Sign out and discard buttons |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
 
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.

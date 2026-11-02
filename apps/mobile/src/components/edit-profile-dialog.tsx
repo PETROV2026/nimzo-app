@@ -3,17 +3,22 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Modal, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { SelectField } from '@/components/select-field';
 import { TextField } from '@/components/text-field';
-import { colors } from '@/theme/colors';
-
+import { colors } from '@/theme';
 
 const profileEditSchema = userEditSchema.omit({ role: true });
-
 
 const stateOptions = mexicanStates.map((code) => ({
   value: code,
@@ -68,7 +73,9 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
           contentContainerClassName="grow items-center justify-center p-8"
           keyboardShouldPersistTaps="handled"
         >
-          <View className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}>
+          <View
+            className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}
+          >
             <DialogHeader
               title="Editar tu información"
               description="Mantén tus datos de contacto al día."
@@ -151,7 +158,7 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
               </View>
             </View>
             {error ? (
-              <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
+              <Text accessibilityRole="alert" className="font-sans text-base text-destructive">
                 {error}
               </Text>
             ) : null}
@@ -165,7 +172,12 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
                 />
               </View>
               <View className="w-[190px]">
-                <Button label="Guardar cambios" variant="success" onPress={onSubmit} loading={isSubmitting} />
+                <Button
+                  label="Guardar cambios"
+                  variant="success"
+                  onPress={onSubmit}
+                  loading={isSubmitting}
+                />
               </View>
             </View>
           </View>
