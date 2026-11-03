@@ -204,7 +204,7 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
                 {hasInk || drawing ? null : (
                   <View
                     pointerEvents="none"
-                    className="absolute inset-x-0 top-0 bottom-16 items-center justify-center gap-2"
+                    className="absolute inset-x-0 top-0 bottom-10 items-center justify-center gap-2"
                   >
                     <Icon name="create-outline" size={28} color={colors['border-strong']} />
                     <Text className="font-sans text-base text-muted">
@@ -212,7 +212,7 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
                     </Text>
                   </View>
                 )}
-                <View pointerEvents="none" className="absolute inset-x-8 bottom-14 gap-1.5">
+                <View pointerEvents="none" className="absolute inset-x-8 bottom-4 gap-1">
                   <View className="h-px bg-border-strong" />
                   <Text numberOfLines={1} className="text-center font-sans text-sm text-muted">
                     {name}
