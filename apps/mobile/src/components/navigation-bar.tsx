@@ -123,7 +123,7 @@ export function NavigationBar({
         >
           <Image
             source={brandMark}
-            style={{ width: 30, height: 38 }}
+            style={{ width: 42, height: 54 }}
             contentFit="contain"
             accessibilityLabel="Nimzo"
           />
