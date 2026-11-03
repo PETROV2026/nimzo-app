@@ -18,6 +18,7 @@ const palette = {
     item: 'min-h-20 w-full',
     pill: 'h-10 w-[72px]',
     activePill: 'bg-background',
+    pressedPill: 'bg-background/20',
     iconSize: 28,
     labelSize: 'text-base',
     activeLabel: 'text-background',
@@ -28,6 +29,7 @@ const palette = {
     item: 'min-h-16 flex-1',
     pill: 'h-9 w-16',
     activePill: '',
+    pressedPill: 'bg-border',
     iconSize: 24,
     labelSize: 'text-sm',
     activeLabel: 'text-danger-strong',
@@ -160,31 +162,35 @@ function NavigationItem({
       accessibilityRole="tab"
       accessibilityLabel={badge === undefined ? spokenLabel : `${spokenLabel}, ${badge} pendientes`}
       accessibilityState={{ selected: focused }}
-      className={`items-center justify-center gap-1 active:opacity-70 ${tone.item}`}
+      className={`items-center justify-center gap-1 ${tone.item}`}
     >
-      <View
-        className={`items-center justify-center rounded-full ${tone.pill} ${focused ? tone.activePill : ''}`}
-      >
-        <Icon
-          name={focused ? icon.active : icon.inactive}
-          size={tone.iconSize}
-          color={focused ? colors.danger : tone.inactiveIcon}
-        />
-        {badge === undefined ? null : (
-          <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
-            <Text maxFontSizeMultiplier={1.2} className="font-sans-bold text-xs text-on-accent">
-              {badge}
-            </Text>
+      {({ pressed }) => (
+        <>
+          <View
+            className={`items-center justify-center rounded-full ${tone.pill} ${focused ? tone.activePill : pressed ? tone.pressedPill : ''}`}
+          >
+            <Icon
+              name={focused ? icon.active : icon.inactive}
+              size={tone.iconSize}
+              color={focused ? colors.danger : tone.inactiveIcon}
+            />
+            {badge === undefined ? null : (
+              <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
+                <Text maxFontSizeMultiplier={1.2} className="font-sans-bold text-xs text-on-accent">
+                  {badge}
+                </Text>
+              </View>
+            )}
           </View>
-        )}
-      </View>
-      <Text
-        numberOfLines={1}
-        maxFontSizeMultiplier={1.3}
-        className={`${tone.labelSize} ${focused ? `font-sans-bold ${tone.activeLabel}` : `font-sans-medium ${tone.inactiveLabel}`}`}
-      >
-        {label}
-      </Text>
+          <Text
+            numberOfLines={1}
+            maxFontSizeMultiplier={1.3}
+            className={`${tone.labelSize} ${focused ? `font-sans-bold ${tone.activeLabel}` : `font-sans-medium ${tone.inactiveLabel}`}`}
+          >
+            {label}
+          </Text>
+        </>
+      )}
     </Pressable>
   );
 }

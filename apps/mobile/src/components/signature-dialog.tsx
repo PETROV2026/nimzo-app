@@ -214,7 +214,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                   accessibilityRole="button"
                   accessibilityLabel="Limpiar firma"
                   accessibilityState={{ disabled: clearDisabled }}
-                  className={`min-h-14 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-surface ${clearDisabled ? 'opacity-50' : ''}`}
+                  className={`min-h-14 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-border ${clearDisabled ? 'opacity-50' : ''}`}
                 >
                   <Icon name="eraser" size={20} color={colors['primary-strong']} />
                   <Text className="font-sans-semibold text-base text-primary-strong">Limpiar</Text>

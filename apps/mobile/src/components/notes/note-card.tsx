@@ -72,7 +72,7 @@ export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`Nota: ${headline}`}
       accessibilityState={{ selected }}
-      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl border-2 bg-background active:bg-surface ${selected ? 'border-primary-strong' : 'border-transparent'}`}
+      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl border-2 bg-background active:bg-border ${selected ? 'border-primary-strong' : 'border-transparent'}`}
     >
       <View className={`w-2 ${noteColorClass(note.color)}`} />
       <View className="flex-1 gap-1.5 px-4 py-3">

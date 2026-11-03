@@ -91,7 +91,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               hitSlop={8}
               accessibilityRole="button"
               accessibilityLabel={copied ? 'Correo copiado' : 'Copiar correo'}
-              className="min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
+              className="min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-border"
             >
               <Icon name={copied ? 'check' : 'content-copy'} size={22} color={colors.muted} />
               <Text className="font-sans-semibold text-base text-muted">

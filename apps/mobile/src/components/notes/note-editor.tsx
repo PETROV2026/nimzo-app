@@ -183,7 +183,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
             onPress={onClose}
             accessibilityRole="button"
             accessibilityLabel="Volver a tus notas"
-            className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-surface"
+            className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
           >
             <Icon name="arrow-left" size={24} color={colors.foreground} />
             <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
@@ -290,7 +290,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                 <Pressable
                   onPress={() => addItem()}
                   accessibilityRole="button"
-                  className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-surface ${items.length > 0 ? 'border-t border-border' : ''}`}
+                  className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-border ${items.length > 0 ? 'border-t border-border' : ''}`}
                 >
                   <Icon name="plus" size={24} color={colors['primary-strong']} />
                   <Text className="font-sans-semibold text-lg text-primary-strong">
@@ -396,7 +396,7 @@ function ToolbarButton({ icon, label, onPress, active }: ToolbarButtonProps) {
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={active === undefined ? undefined : { selected: active }}
-      className={`min-h-14 flex-row items-center gap-2 rounded-full px-4 active:bg-surface ${active ? 'bg-canvas' : ''}`}
+      className={`min-h-14 flex-row items-center gap-2 rounded-full px-4 active:bg-border ${active ? 'bg-canvas' : ''}`}
     >
       <Icon name={icon} size={22} color={color} />
       <Text
@@ -433,7 +433,7 @@ function DetailRow({
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${value ?? placeholder}`}
-        className="min-h-16 flex-1 flex-row items-center gap-4 px-4 active:bg-surface"
+        className="min-h-16 flex-1 flex-row items-center gap-4 px-4 active:bg-border"
       >
         <View className="h-10 w-10 items-center justify-center rounded-full bg-canvas">
           <Icon

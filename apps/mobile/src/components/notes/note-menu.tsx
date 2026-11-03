@@ -71,7 +71,7 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
             onDelete();
           }}
           accessibilityRole="button"
-          className="min-h-16 flex-row items-center gap-3 px-4 active:bg-surface"
+          className="min-h-16 flex-row items-center gap-3 px-4 active:bg-border"
         >
           <Icon name="trash-can-outline" size={24} color={colors['danger-strong']} />
           <Text className="font-sans-semibold text-lg text-danger-strong">Eliminar nota</Text>

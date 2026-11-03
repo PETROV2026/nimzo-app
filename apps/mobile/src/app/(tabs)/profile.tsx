@@ -115,7 +115,7 @@ export default function ProfileScreen() {
       accessibilityRole="button"
       accessibilityLabel="Ayuda y soporte"
       accessibilityHint="Muestra el correo para contactar a soporte"
-      className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-surface"
+      className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-border"
     >
       <Icon name="face-agent" size={24} color={colors.danger} />
       <View className="flex-1 gap-0.5">
@@ -131,7 +131,7 @@ export default function ProfileScreen() {
       onPress={() => setConfirmingSignOut(true)}
       accessibilityRole="button"
       accessibilityLabel="Cerrar sesión"
-      className="min-h-16 flex-row items-center gap-3 px-2 active:opacity-70"
+      className="min-h-16 flex-row items-center gap-3 rounded-xl px-4 active:bg-destructive/10"
     >
       <Icon name="logout" size={24} color={colors.destructive} />
       <Text className="font-sans-bold text-lg text-destructive">Cerrar sesión</Text>

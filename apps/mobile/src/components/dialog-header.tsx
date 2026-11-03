@@ -22,7 +22,7 @@ export function DialogHeader({ title, description, onClose, disabled }: DialogHe
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Cerrar"
-          className={`min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-surface ${disabled ? 'opacity-50' : ''}`}
+          className={`min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-border ${disabled ? 'opacity-50' : ''}`}
         >
           <Icon name="close" size={24} color={colors.muted} />
           <Text className="font-sans-medium text-base text-muted">Cerrar</Text>

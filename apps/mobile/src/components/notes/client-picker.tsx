@@ -79,7 +79,7 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
             onPress={() => onSelect(item)}
             accessibilityRole="button"
             accessibilityState={{ selected: item.id === selectedId }}
-            className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-surface ${item.id === selectedId ? 'bg-canvas' : ''}`}
+            className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-border ${item.id === selectedId ? 'bg-canvas' : ''}`}
           >
             <Icon name="domain" size={22} color={colors.muted} />
             <HighlightedText
