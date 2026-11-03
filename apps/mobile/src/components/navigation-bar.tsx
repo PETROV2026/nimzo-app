@@ -1,22 +1,39 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme';
 
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
+type IconName = ComponentProps<typeof Ionicons>['name'];
 
-const icons: Record<string, IconName> = {
-  services: 'assignment',
-  clients: 'people',
-  notes: 'event-note',
-  profile: 'account-circle',
+type Variant = 'rail' | 'dock';
+
+const icons: Record<string, { active: IconName; inactive: IconName }> = {
+  services: { active: 'clipboard', inactive: 'clipboard-outline' },
+  clients: { active: 'people', inactive: 'people-outline' },
+  notes: { active: 'document-text', inactive: 'document-text-outline' },
+  profile: { active: 'person-circle', inactive: 'person-circle-outline' },
+};
+
+const palette = {
+  rail: {
+    pill: 'bg-background',
+    activeLabel: 'text-background',
+    inactiveLabel: 'text-background',
+    inactiveIcon: colors.background,
+  },
+  dock: {
+    pill: '',
+    activeLabel: 'text-danger-strong',
+    inactiveLabel: 'text-muted',
+    inactiveIcon: colors.muted,
+  },
 };
 
 const brandMark = require('@nimzo/brand/logos/icon-color.webp');
 
-type NavigationBarProps = BottomTabBarProps & { variant: 'rail' | 'dock' };
+type NavigationBarProps = BottomTabBarProps & { variant: Variant };
 
 export function NavigationBar({
   state,
@@ -50,6 +67,8 @@ export function NavigationBar({
         <NavigationItem
           key={route.key}
           label={label}
+          accessibilityLabel={options.tabBarAccessibilityLabel}
+          testID={options.tabBarButtonTestID}
           icon={icons[route.name]}
           badge={options.tabBarBadge}
           focused={focused}
@@ -99,16 +118,20 @@ export function NavigationBar({
 
 type NavigationItemProps = {
   label: string;
-  icon: IconName;
+  accessibilityLabel: string | undefined;
+  testID: string | undefined;
+  icon: { active: IconName; inactive: IconName };
   badge: string | number | undefined;
   focused: boolean;
-  variant: 'rail' | 'dock';
+  variant: Variant;
   onPress: () => void;
   onLongPress: () => void;
 };
 
 function NavigationItem({
   label,
+  accessibilityLabel,
+  testID,
   icon,
   badge,
   focused,
@@ -116,31 +139,38 @@ function NavigationItem({
   onPress,
   onLongPress,
 }: NavigationItemProps) {
-  const rail = variant === 'rail';
-  const iconColor = focused ? colors['primary-strong'] : rail ? colors.background : colors.muted;
-  const textColor = rail ? 'text-background' : focused ? 'text-primary-strong' : 'text-muted';
+  const tone = palette[variant];
+  const spokenLabel = accessibilityLabel ?? label;
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
+      testID={testID}
       accessibilityRole="tab"
-      accessibilityLabel={badge ? `${label}, ${badge} pendientes` : label}
+      accessibilityLabel={badge === undefined ? spokenLabel : `${spokenLabel}, ${badge} pendientes`}
       accessibilityState={{ selected: focused }}
-      className={`min-h-16 items-center justify-center gap-1 ${rail ? 'w-full' : 'flex-1'}`}
+      className={`min-h-16 items-center justify-center gap-1 active:opacity-70 ${variant === 'rail' ? 'w-full' : 'flex-1'}`}
     >
       <View
-        className={`h-9 w-16 items-center justify-center rounded-full ${focused ? 'bg-canvas' : ''}`}
+        className={`h-9 w-16 items-center justify-center rounded-full ${focused ? tone.pill : ''}`}
       >
-        <MaterialIcons name={icon} size={24} color={iconColor} />
-        {badge !== undefined ? (
+        <Ionicons
+          name={focused ? icon.active : icon.inactive}
+          size={24}
+          color={focused ? colors.danger : tone.inactiveIcon}
+        />
+        {badge === undefined ? null : (
           <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
-            <Text className="font-sans-bold text-xs text-on-accent">{badge}</Text>
+            <Text maxFontSizeMultiplier={1.2} className="font-sans-bold text-xs text-on-accent">
+              {badge}
+            </Text>
           </View>
-        ) : null}
+        )}
       </View>
       <Text
         numberOfLines={1}
-        className={`text-sm ${focused ? 'font-sans-bold' : 'font-sans-medium'} ${textColor}`}
+        maxFontSizeMultiplier={1.3}
+        className={`text-sm ${focused ? `font-sans-bold ${tone.activeLabel}` : `font-sans-medium ${tone.inactiveLabel}`}`}
       >
         {label}
       </Text>
