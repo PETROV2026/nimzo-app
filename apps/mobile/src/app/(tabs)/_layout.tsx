@@ -4,6 +4,7 @@ import type { BottomTabBarButtonProps } from 'expo-router/js-tabs';
 import { StatusBar } from 'expo-status-bar';
 import type { ComponentProps } from 'react';
 import { ConnectionStatus } from '@/components/connection-status';
+import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors, fonts } from '@/theme';
 import { Pressable, type ColorValue } from 'react-native';
 
@@ -46,6 +47,7 @@ function TabButton({
 }
 
 export default function TabsLayout() {
+  useOpenNoteFromNotification();
   return (
     <>
       <StatusBar style="light" />

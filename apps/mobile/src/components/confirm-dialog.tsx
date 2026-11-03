@@ -8,6 +8,7 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
   onClose: () => void;
   loading?: boolean;
+  destructive?: boolean;
 };
 
 export function ConfirmDialog({
@@ -17,6 +18,7 @@ export function ConfirmDialog({
   onConfirm,
   onClose,
   loading,
+  destructive,
 }: ConfirmDialogProps) {
   return (
     <Modal transparent animationType="fade" onRequestClose={loading ? undefined : onClose}>
@@ -31,7 +33,12 @@ export function ConfirmDialog({
               <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={loading} />
             </View>
             <View className="flex-1">
-              <Button label={confirmLabel} onPress={onConfirm} loading={loading} />
+              <Button
+                label={confirmLabel}
+                onPress={onConfirm}
+                loading={loading}
+                variant={destructive ? 'danger' : 'primary'}
+              />
             </View>
           </View>
         </View>

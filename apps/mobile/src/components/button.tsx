@@ -7,6 +7,11 @@ const variants = {
     text: 'text-on-primary',
     spinner: colors['on-primary'],
   },
+  danger: {
+    container: 'bg-danger-strong',
+    text: 'text-on-danger',
+    spinner: colors['on-danger'],
+  },
   secondary: {
     container: 'border-2 border-border-strong bg-background',
     text: 'text-foreground',
