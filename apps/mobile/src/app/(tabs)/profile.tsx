@@ -26,7 +26,7 @@ const appVersion = Constants.expoConfig?.version;
 export default function ProfileScreen() {
   const session = useSession();
   const online = useOnline();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const notifications = useNotificationAccess();
   const [editing, setEditing] = useState(false);
@@ -46,6 +46,7 @@ export default function ProfileScreen() {
 
   const { profile, signOut, saveSignature } = session;
   const roomy = width >= roomyWidth;
+  const contactLayout = !roomy ? 'stacked' : width > height ? 'row' : 'grid';
   const canEdit = online && profile !== null;
   const email = session.session.user.email ?? null;
   const name = profile?.fullName || email || '';
@@ -173,9 +174,28 @@ export default function ProfileScreen() {
           }
         />
         {profile ? (
-          <View className={roomy ? 'flex-row gap-6' : 'gap-4'}>
-            {contactFields.map((field) => (
-              <View key={field.label} className={roomy ? 'flex-1' : ''}>
+          <View
+            className={
+              contactLayout === 'row'
+                ? 'flex-row gap-6'
+                : contactLayout === 'grid'
+                  ? 'flex-row flex-wrap gap-x-6 gap-y-5'
+                  : 'gap-4'
+            }
+          >
+            {contactFields.map((field, index) => (
+              <View
+                key={field.label}
+                className={
+                  contactLayout === 'row'
+                    ? 'flex-1'
+                    : contactLayout === 'grid'
+                      ? index === 0
+                        ? 'w-full'
+                        : 'min-w-0 flex-1 basis-[40%]'
+                      : ''
+                }
+              >
                 <InfoRow {...field} onAdd={edit} />
               </View>
             ))}
