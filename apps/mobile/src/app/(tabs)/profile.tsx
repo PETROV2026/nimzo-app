@@ -10,18 +10,12 @@ import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { SectionHeader } from '@/components/section-header';
 import { SignatureSection } from '@/components/signature-section';
 import { SupportDialog } from '@/components/support-dialog';
+import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
 
 const twoColumnWidth = 900;
 const appVersion = Constants.expoConfig?.version;
-
-function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  const first = parts[0]?.[0] ?? '';
-  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
 
 export default function ProfileScreen() {
   const session = useSession();
