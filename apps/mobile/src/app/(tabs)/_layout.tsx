@@ -23,7 +23,7 @@ export default function TabsLayout() {
           headerStyle: { backgroundColor: colors.muted },
           headerShadowVisible: false,
           headerTintColor: colors.background,
-          headerTitleAlign: 'left',
+          headerTitleAlign: 'center',
           headerTitleStyle: { fontFamily: fonts['sans-bold'], fontSize: 22 },
           headerRight: () => <ConnectionStatus />,
           sceneStyle: { backgroundColor: colors.canvas },
