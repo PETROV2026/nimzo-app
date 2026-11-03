@@ -127,6 +127,11 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               revisar el problema. No compartas tu contraseña.
             </Text>
           </View>
+          {appVersion ? (
+            <Text selectable className="text-center font-sans text-sm text-muted">
+              Versión de la app: {appVersion}
+            </Text>
+          ) : null}
         </View>
       </ScrollView>
     </Modal>

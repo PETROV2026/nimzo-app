@@ -214,7 +214,7 @@ export default function ProfileScreen() {
             />
           </View>
           {appVersion ? (
-            <Text className="px-1 font-sans text-sm text-muted">Versión {appVersion}</Text>
+            <Text className="text-center font-sans text-sm text-muted">Versión {appVersion}</Text>
           ) : null}
         </View>
 
