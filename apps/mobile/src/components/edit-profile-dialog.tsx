@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   KeyboardAvoidingView,
@@ -9,6 +9,7 @@ import {
   Text,
   useWindowDimensions,
   View,
+  type TextInputInstance,
 } from 'react-native';
 import { Icon } from '@/components/icon';
 import { useSession, type Profile } from '@/auth/session-provider';
@@ -27,19 +28,21 @@ const stateOptions = mexicanStates.map((code) => ({
 
 type EditProfileDialogProps = {
   profile: Profile;
-  email: string | null;
   onClose: () => void;
 };
 
-export function EditProfileDialog({ profile, email, onClose }: EditProfileDialogProps) {
+export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
   const { height } = useWindowDimensions();
   const compact = height < 800;
   const { updateProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const phoneRef = useRef<TextInputInstance>(null);
+  const cityRef = useRef<TextInputInstance>(null);
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
@@ -65,8 +68,17 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
     onClose();
   });
 
+  function handleClose() {
+    if (isSubmitting) return;
+    if (isDirty && !confirmingDiscard) {
+      setConfirmingDiscard(true);
+      return;
+    }
+    onClose();
+  }
+
   return (
-    <Modal transparent animationType="fade" onRequestClose={isSubmitting ? undefined : onClose}>
+    <Modal transparent animationType="fade" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
         <ScrollView
           className="flex-1"
@@ -77,9 +89,9 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
             className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}
           >
             <DialogHeader
-              title="Editar tu información"
-              description="Mantén tus datos de contacto al día."
-              onClose={onClose}
+              title="Editar tus datos"
+              description="Aparecen junto a tu firma en cada reporte que envías."
+              onClose={handleClose}
               disabled={isSubmitting}
             />
             <Controller
@@ -94,113 +106,124 @@ export function EditProfileDialog({ profile, email, onClose }: EditProfileDialog
                   error={fieldState.error?.message}
                   autoCapitalize="words"
                   autoComplete="name"
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => phoneRef.current?.focus()}
+                  editable={!isSubmitting}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field, fieldState }) => (
+                <TextField
+                  ref={phoneRef}
+                  label="Teléfono (opcional)"
+                  value={field.value ?? ''}
+                  onChangeText={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  keyboardType="phone-pad"
+                  autoComplete="tel"
+                  placeholder="Ej. 686 123 4567"
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => cityRef.current?.focus()}
                   editable={!isSubmitting}
                 />
               )}
             />
             <View className="flex-row gap-5">
-              <View className="w-[210px]">
-                <Controller
-                  control={control}
-                  name="phone"
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      label="Teléfono"
-                      value={field.value ?? ''}
-                      onChangeText={field.onChange}
-                      onBlur={field.onBlur}
-                      error={fieldState.error?.message}
-                      keyboardType="phone-pad"
-                      autoComplete="tel"
-                      placeholder="Ej. 686 123 4567"
-                      editable={!isSubmitting}
-                    />
-                  )}
-                />
-              </View>
-              <View className="flex-1">
-                <ReadOnlyField label="Correo electrónico · Solo lectura" value={email ?? ''} />
-              </View>
-            </View>
-            <View className="flex-row gap-5">
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name="state"
-                  render={({ field }) => (
-                    <SelectField
-                      label="Estado"
-                      value={field.value ?? null}
-                      options={stateOptions}
-                      onChange={field.onChange}
-                      placeholder="Selecciona"
-                      disabled={isSubmitting}
-                    />
-                  )}
-                />
-              </View>
               <View className="flex-1">
                 <Controller
                   control={control}
                   name="city"
                   render={({ field, fieldState }) => (
                     <TextField
-                      label="Ciudad"
+                      ref={cityRef}
+                      label="Ciudad (opcional)"
                       value={field.value ?? ''}
                       onChangeText={field.onChange}
                       onBlur={field.onBlur}
                       error={fieldState.error?.message}
+                      autoCapitalize="words"
+                      autoComplete="address-line2"
                       placeholder="Ej. Mexicali"
+                      returnKeyType="done"
                       editable={!isSubmitting}
+                    />
+                  )}
+                />
+              </View>
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="state"
+                  render={({ field }) => (
+                    <SelectField
+                      label="Estado (opcional)"
+                      value={field.value ?? null}
+                      options={stateOptions}
+                      onChange={field.onChange}
+                      placeholder="Selecciona tu estado"
+                      disabled={isSubmitting}
                     />
                   )}
                 />
               </View>
             </View>
             {error ? (
-              <Text accessibilityRole="alert" className="font-sans text-base text-destructive">
-                {error}
-              </Text>
+              <View
+                accessibilityRole="alert"
+                className="flex-row items-start gap-3 rounded-lg border-2 border-destructive px-4 py-3"
+              >
+                <Icon name="alert-circle-outline" size={22} color={colors.destructive} />
+                <Text className="flex-1 font-sans-medium text-base text-destructive">{error}</Text>
+              </View>
             ) : null}
-            <View className="flex-row justify-center gap-4">
-              <View className="w-[190px]">
-                <Button
-                  variant="secondary"
-                  label="Cancelar"
-                  onPress={onClose}
-                  disabled={isSubmitting}
-                />
+            {confirmingDiscard ? (
+              <View className="gap-4">
+                <Text className="font-sans-medium text-lg text-foreground">
+                  ¿Descartar los cambios que hiciste?
+                </Text>
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <Button
+                      variant="secondary"
+                      label="Seguir editando"
+                      onPress={() => setConfirmingDiscard(false)}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button variant="destructive" label="Descartar" onPress={onClose} />
+                  </View>
+                </View>
               </View>
-              <View className="w-[190px]">
-                <Button
-                  label="Guardar cambios"
-                  variant="success"
-                  onPress={onSubmit}
-                  loading={isSubmitting}
-                />
+            ) : (
+              <View className="flex-row gap-3">
+                <View className="flex-1">
+                  <Button
+                    variant="secondary"
+                    label="Cancelar"
+                    onPress={handleClose}
+                    disabled={isSubmitting}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label="Guardar cambios"
+                    variant="success"
+                    onPress={onSubmit}
+                    loading={isSubmitting}
+                    disabled={!isDirty}
+                  />
+                </View>
               </View>
-            </View>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
-  );
-}
-
-function ReadOnlyField({ label, value }: { label: string; value: string }) {
-  return (
-    <View className="gap-2">
-      <Text className="font-sans-semibold text-sm text-muted">{label}</Text>
-      <View
-        accessible
-        accessibilityLabel={`${label}: ${value}`}
-        className="min-h-14 flex-row items-center gap-3 rounded-lg border border-border bg-canvas px-4"
-      >
-        <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
-          {value}
-        </Text>
-        <Icon name="lock-closed-outline" size={20} color={colors.muted} />
-      </View>
-    </View>
   );
 }

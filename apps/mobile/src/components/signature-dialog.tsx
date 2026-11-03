@@ -84,7 +84,6 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const hasInk = ink !== null;
   const canSave = !!ink && ink.width + ink.height >= minimumInkSize;
-  const clearDisabled = !hasInk || saving;
 
   function startStroke() {
     setError(null);
@@ -183,43 +182,18 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View className="flex-1 items-center justify-center bg-foreground/40 p-4">
           <View
-            className={`w-full rounded-3xl bg-background ${compact ? 'max-w-[560px] gap-4 p-6' : 'max-w-[640px] gap-6 p-8'}`}
+            className={`w-full rounded-3xl bg-background ${compact ? 'max-w-[760px] gap-4 p-6' : 'max-w-[880px] gap-6 p-8'}`}
           >
             <DialogHeader
               title={title}
-              description="Dibuja tu firma con el dedo o un lápiz. Se incluirá en cada reporte que envíes."
+              description="Se incluirá en cada reporte que envíes."
               onClose={handleClose}
               disabled={saving}
             />
 
-            {compact ? null : (
-              <View className="flex-row items-center gap-3.5 rounded-lg bg-canvas p-4">
-                <Icon name="id-card-outline" size={22} color={colors['primary-strong']} />
-                <View className="flex-1 gap-0.5">
-                  <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
-                    {name}
-                  </Text>
-                  <Text className="font-sans text-sm text-muted">Firma personal para reportes</Text>
-                </View>
-              </View>
-            )}
             <View className="gap-2">
-              <View className="flex-row items-center justify-between">
-                <Text className="font-sans-bold text-base text-foreground">Área de dibujo</Text>
-                <Pressable
-                  onPress={handleClear}
-                  disabled={clearDisabled}
-                  accessibilityRole="button"
-                  accessibilityLabel="Limpiar firma"
-                  accessibilityState={{ disabled: clearDisabled }}
-                  className={`min-h-14 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-border ${clearDisabled ? 'opacity-50' : ''}`}
-                >
-                  <Icon name="trash-outline" size={20} color={colors['primary-strong']} />
-                  <Text className="font-sans-semibold text-base text-primary-strong">Limpiar</Text>
-                </Pressable>
-              </View>
               <View
-                className={`overflow-hidden rounded-lg border border-border ${compact ? 'h-[160px]' : 'h-[220px]'}`}
+                className={`overflow-hidden rounded-xl border-2 ${hasInk ? 'border-border' : 'border-dashed border-border-strong'} ${compact ? 'h-56' : 'h-72'}`}
               >
                 <GestureDetector gesture={pan}>
                   <Canvas style={{ flex: 1 }}>
@@ -230,17 +204,39 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
                 {hasInk || drawing ? null : (
                   <View
                     pointerEvents="none"
-                    className="absolute inset-0 items-center justify-center"
+                    className="absolute inset-x-0 top-0 bottom-16 items-center justify-center gap-2"
                   >
+                    <Icon name="create-outline" size={28} color={colors['border-strong']} />
                     <Text className="font-sans text-base text-muted">
-                      Firma aquí con el dedo o con el lápiz
+                      Firma aquí con el dedo o con un lápiz
                     </Text>
                   </View>
                 )}
-                <View pointerEvents="none" className="absolute inset-x-6 bottom-5 h-px bg-border" />
+                <View pointerEvents="none" className="absolute inset-x-8 bottom-14 gap-1.5">
+                  <View className="h-px bg-border-strong" />
+                  <Text numberOfLines={1} className="text-center font-sans text-sm text-muted">
+                    {name}
+                  </Text>
+                </View>
+                {hasInk ? (
+                  <Pressable
+                    onPress={handleClear}
+                    disabled={saving}
+                    accessibilityRole="button"
+                    accessibilityLabel="Borrar firma y empezar de nuevo"
+                    className="absolute right-2 top-2 min-h-14 flex-row items-center gap-2 rounded-lg bg-background px-4 active:bg-border"
+                  >
+                    <Icon name="trash-outline" size={20} color={colors['primary-strong']} />
+                    <Text className="font-sans-semibold text-base text-primary-strong">Borrar</Text>
+                  </Pressable>
+                ) : null}
               </View>
-              <Text className="font-sans text-sm text-muted">
-                Revisa el trazo antes de guardarlo.
+              <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-muted">
+                {!hasInk
+                  ? 'Usa todo el espacio: una firma grande se lee mejor en el reporte.'
+                  : canSave
+                    ? 'Revisa que se lea bien antes de guardarla.'
+                    : 'Haz la firma un poco más grande para poder guardarla.'}
               </Text>
             </View>
 
@@ -269,8 +265,8 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
                 </View>
               </View>
             ) : (
-              <View className="flex-row justify-center gap-4">
-                <View className="w-[190px]">
+              <View className="flex-row gap-3">
+                <View className="flex-1">
                   <Button
                     variant="secondary"
                     label="Cancelar"
@@ -278,7 +274,7 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
                     disabled={saving}
                   />
                 </View>
-                <View className="w-[190px]">
+                <View className="flex-1">
                   <Button
                     label="Guardar firma"
                     variant="success"

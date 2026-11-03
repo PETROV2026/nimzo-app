@@ -229,7 +229,7 @@ export default function ProfileScreen() {
         </View>
 
         {editing && profile ? (
-          <EditProfileDialog profile={profile} email={email} onClose={() => setEditing(false)} />
+          <EditProfileDialog profile={profile} onClose={() => setEditing(false)} />
         ) : null}
 
         {signing ? (
