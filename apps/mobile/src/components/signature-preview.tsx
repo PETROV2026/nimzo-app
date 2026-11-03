@@ -37,10 +37,9 @@ async function resolveSignatureUri(path: string) {
 type SignaturePreviewProps = {
   signaturePath: string | null | undefined;
   name: string;
-  size?: 'line' | 'large' | 'thumbnail';
 };
 
-export function SignaturePreview({ signaturePath, name, size = 'line' }: SignaturePreviewProps) {
+export function SignaturePreview({ signaturePath, name }: SignaturePreviewProps) {
   const online = useOnline();
   const [resolved, setResolved] = useState<{ path: string; uri: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -106,25 +105,9 @@ export function SignaturePreview({ signaturePath, name, size = 'line' }: Signatu
     );
   }
 
-  if (size === 'thumbnail') {
-    return (
-      <View className="h-14 w-44 items-center justify-center overflow-hidden rounded-lg border border-border bg-background px-2">
-        {signaturePath === null ? (
-          <Text className="font-sans text-sm text-muted">Sin firma</Text>
-        ) : current?.uri ? (
-          preview
-        ) : current ? (
-          <Text className="font-sans text-sm text-muted">No disponible</Text>
-        ) : (
-          <ActivityIndicator color={colors.muted} accessibilityLabel="Cargando firma" />
-        )}
-      </View>
-    );
-  }
-
   return (
     <View className="gap-2">
-      <View className={`${size === 'large' ? 'h-48' : 'h-36'} px-4 pt-2`}>
+      <View className="h-48 px-4 pt-2">
         <View className="flex-1 items-center justify-center">{preview}</View>
         <View className="h-px bg-border-strong" />
       </View>

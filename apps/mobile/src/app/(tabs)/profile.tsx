@@ -1,6 +1,6 @@
 import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
@@ -20,14 +20,6 @@ import { useNotificationAccess } from '@/notes/reminders';
 import { colors } from '@/theme';
 
 const roomyWidth = 640;
-
-type Design = 'report' | 'list' | 'hero';
-
-const designOptions: { value: Design; label: string }[] = [
-  { value: 'report', label: 'Vista del reporte' },
-  { value: 'list', label: 'Lista de ajustes' },
-  { value: 'hero', label: 'Firma protagonista' },
-];
 const appVersion = Constants.expoConfig?.version;
 
 export default function ProfileScreen() {
@@ -42,7 +34,6 @@ export default function ProfileScreen() {
   const [signingOut, setSigningOut] = useState(false);
   const [showingSupport, setShowingSupport] = useState(false);
   const [showingPrivacy, setShowingPrivacy] = useState(false);
-  const [design, setDesign] = useState<Design>('report');
 
   if (session.status !== 'signed-in') {
     return null;
@@ -127,143 +118,21 @@ export default function ProfileScreen() {
     </View>
   );
 
-  const contactRows = profile ? (
-    <>
-      <InfoRow
-        icon="call-outline"
-        label="Teléfono"
-        value={profile.phone}
-        emptyLabel="Agregar teléfono"
-        onAdd={edit}
-      />
-      <InfoRow
-        icon="business-outline"
-        label="Ciudad"
-        value={city}
-        emptyLabel="Agregar ciudad"
-        onAdd={edit}
-      />
-      <InfoRow
-        icon="map-outline"
-        label="Estado"
-        value={state}
-        emptyLabel="Agregar estado"
-        onAdd={edit}
-      />
-    </>
-  ) : null;
+  const contactFields: Omit<InfoRowProps, 'onAdd'>[] = [
+    {
+      icon: 'call-outline',
+      label: 'Teléfono',
+      value: profile?.phone ?? null,
+      emptyLabel: 'Agregar teléfono',
+    },
+    { icon: 'business-outline', label: 'Ciudad', value: city, emptyLabel: 'Agregar ciudad' },
+    { icon: 'map-outline', label: 'Estado', value: state, emptyLabel: 'Agregar estado' },
+  ];
 
   const profileMissing = (
     <Text className="font-sans text-base text-foreground">
       No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
     </Text>
-  );
-
-  const reportCard = (
-    <View className="gap-6 rounded-2xl border border-border bg-background p-6">
-      <SectionHeader
-        title="Así apareces en tus reportes"
-        description="Tus clientes reciben estos datos y tu firma en cada reporte que envías."
-      />
-      {profile ? (
-        <View className="gap-6 rounded-xl border border-border-strong p-6">
-          <View className={roomy ? 'flex-row items-center gap-8' : 'gap-6'}>
-            <View className="flex-1 gap-4">
-              <Text numberOfLines={2} className="font-sans-bold text-xl text-foreground">
-                {name}
-              </Text>
-              {contactRows}
-            </View>
-            <View className={roomy ? 'w-2/5' : ''}>
-              <SignaturePreview signaturePath={profile.signaturePath} name={name} />
-            </View>
-          </View>
-        </View>
-      ) : (
-        <Text className="font-sans text-base text-foreground">
-          No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
-        </Text>
-      )}
-      <View className={roomy ? 'flex-row gap-4' : 'gap-3'}>
-        <View className={roomy ? 'flex-1' : ''}>
-          <Button
-            variant="outline"
-            icon="pencil-outline"
-            label="Editar datos"
-            onPress={() => setEditing(true)}
-            disabled={!canEdit}
-          />
-        </View>
-        <View className={roomy ? 'flex-1' : ''}>
-          <Button
-            variant={missingSignature ? 'primary' : 'outline'}
-            icon="create-outline"
-            label={missingSignature ? 'Crear firma' : 'Cambiar firma'}
-            onPress={() => setSigning(true)}
-            disabled={!canEdit}
-          />
-        </View>
-      </View>
-    </View>
-  );
-
-  const settingsList = (
-    <View className="gap-3">
-      <View className="gap-0.5 px-1">
-        <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-          Datos que aparecen en tus reportes
-        </Text>
-        <Text className="font-sans text-base text-muted">
-          Toca un dato para cambiarlo. Tus clientes los reciben en cada reporte.
-        </Text>
-      </View>
-      {profile ? (
-        <View className="overflow-hidden rounded-2xl border border-border bg-background">
-          <SettingRow
-            icon="call-outline"
-            label="Teléfono"
-            value={profile.phone}
-            emptyLabel="Agregar teléfono"
-            disabled={!canEdit}
-            onPress={() => setEditing(true)}
-          />
-          <SettingRow
-            icon="business-outline"
-            label="Ciudad"
-            value={city}
-            emptyLabel="Agregar ciudad"
-            disabled={!canEdit}
-            onPress={() => setEditing(true)}
-          />
-          <SettingRow
-            icon="map-outline"
-            label="Estado"
-            value={state}
-            emptyLabel="Agregar estado"
-            disabled={!canEdit}
-            onPress={() => setEditing(true)}
-          />
-          <SettingRow
-            icon="create-outline"
-            label="Firma"
-            value={null}
-            emptyLabel={missingSignature ? 'Crear firma' : 'Cambiar firma'}
-            disabled={!canEdit}
-            onPress={() => setSigning(true)}
-            trailing={
-              <SignaturePreview
-                signaturePath={profile.signaturePath}
-                name={name}
-                size="thumbnail"
-              />
-            }
-            last
-          />
-        </View>
-      ) : (
-        profileMissing
-      )}
-    </View>
   );
 
   const signatureHero = (
@@ -282,11 +151,7 @@ export default function ProfileScreen() {
             />
           }
         />
-        <SignaturePreview
-          signaturePath={profile ? profile.signaturePath : undefined}
-          name={name}
-          size="large"
-        />
+        <SignaturePreview signaturePath={profile ? profile.signaturePath : undefined} name={name} />
       </View>
       <View className="gap-5 rounded-2xl border border-border bg-background p-6">
         <SectionHeader
@@ -304,39 +169,11 @@ export default function ProfileScreen() {
         />
         {profile ? (
           <View className={roomy ? 'flex-row gap-6' : 'gap-4'}>
-            {roomy ? (
-              <>
-                <View className="flex-1">
-                  <InfoRow
-                    icon="call-outline"
-                    label="Teléfono"
-                    value={profile.phone}
-                    emptyLabel="Agregar teléfono"
-                    onAdd={edit}
-                  />
-                </View>
-                <View className="flex-1">
-                  <InfoRow
-                    icon="business-outline"
-                    label="Ciudad"
-                    value={city}
-                    emptyLabel="Agregar ciudad"
-                    onAdd={edit}
-                  />
-                </View>
-                <View className="flex-1">
-                  <InfoRow
-                    icon="map-outline"
-                    label="Estado"
-                    value={state}
-                    emptyLabel="Agregar estado"
-                    onAdd={edit}
-                  />
-                </View>
-              </>
-            ) : (
-              contactRows
-            )}
+            {contactFields.map((field) => (
+              <View key={field.label} className={roomy ? 'flex-1' : ''}>
+                <InfoRow {...field} onAdd={edit} />
+              </View>
+            ))}
           </View>
         ) : (
           profileMissing
@@ -344,31 +181,6 @@ export default function ProfileScreen() {
       </View>
     </View>
   );
-
-  const designPicker = __DEV__ ? (
-    <View className="gap-2 rounded-2xl border-2 border-dashed border-border-strong bg-background p-4">
-      <Text className="font-sans-semibold text-base text-foreground">
-        Elige un diseño (solo en desarrollo)
-      </Text>
-      <View accessibilityRole="radiogroup" className="flex-row gap-2">
-        {designOptions.map((option) => (
-          <Pressable
-            key={option.value}
-            onPress={() => setDesign(option.value)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: design === option.value }}
-            className={`min-h-14 flex-1 items-center justify-center rounded-xl px-3 ${design === option.value ? 'bg-primary-strong' : 'bg-surface active:bg-border'}`}
-          >
-            <Text
-              className={`text-center font-sans-semibold text-base ${design === option.value ? 'text-on-primary' : 'text-foreground'}`}
-            >
-              {option.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  ) : null;
 
   const notificationsRow =
     notifications.access === 'askable' || notifications.access === 'blocked' ? (
@@ -389,8 +201,7 @@ export default function ProfileScreen() {
           {signatureAlert}
           {identity}
           {offlineHint}
-          {designPicker}
-          {design === 'report' ? reportCard : design === 'list' ? settingsList : signatureHero}
+          {signatureHero}
           <View className="gap-3">
             {notificationsRow}
             <ActionRow
@@ -550,52 +361,6 @@ function ActionRow({ icon, title, description, tone = 'default', onPress }: Acti
       {tone === 'destructive' ? null : (
         <Icon name="chevron-forward" size={24} color={colors.muted} />
       )}
-    </Pressable>
-  );
-}
-
-type SettingRowProps = {
-  icon: IconName;
-  label: string;
-  value: string | null;
-  emptyLabel: string;
-  disabled: boolean;
-  onPress: () => void;
-  trailing?: ReactNode;
-  last?: boolean;
-};
-
-function SettingRow({
-  icon,
-  label,
-  value,
-  emptyLabel,
-  disabled,
-  onPress,
-  trailing,
-  last,
-}: SettingRowProps) {
-  return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      accessibilityRole="button"
-      accessibilityLabel={value ? `${label}: ${value}` : `${label}: ${emptyLabel}`}
-      accessibilityState={{ disabled }}
-      className={`min-h-20 flex-row items-center gap-4 px-5 py-3 active:bg-border ${last ? '' : 'border-b border-border'}`}
-    >
-      <Icon name={icon} size={24} color={colors.danger} />
-      <View className="flex-1 gap-0.5">
-        <Text className="font-sans text-sm text-muted">{label}</Text>
-        <Text
-          numberOfLines={1}
-          className={`font-sans-medium text-lg ${value ? 'text-foreground' : disabled ? 'text-muted' : 'text-primary-strong'}`}
-        >
-          {value ?? emptyLabel}
-        </Text>
-      </View>
-      {trailing}
-      {disabled ? null : <Icon name="chevron-forward" size={24} color={colors.muted} />}
     </Pressable>
   );
 }
