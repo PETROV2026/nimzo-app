@@ -91,10 +91,11 @@ apps/mobile/
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
-  | `bg-danger` / `text-destructive` | orange `#E4572E` / `#B43D3D` | Errors and destructive actions |
+  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and warnings; `-strong` for orange text and filled buttons |
   | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm buttons |
   | `bg-destructive` + `text-on-destructive` | red `#B43D3D` + white | Sign out and discard buttons |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
+  | `placeholder` (via `placeholderTextColor={colors.placeholder}`) | gray `#6D696D` | Placeholder text in inputs (5.3:1 on white) |
 
   Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
 - **Install packages with `npx expo install <pkg>`** from `apps/mobile`, so versions match the Expo SDK.
@@ -107,7 +108,7 @@ Without a session the app only shows the login. With a session it shows four tab
 |---|---|---|---|
 | **Servicios** | `src/app/(tabs)/services.tsx` | `clipboard` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
 | **Clientes** | `src/app/(tabs)/clients.tsx` | `people` | Clients, branches and systems of the technician |
-| **Notas** | `src/app/(tabs)/notes.tsx` | `document-text` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
+| **Notas** | `src/app/(tabs)/notes.tsx` | `document-text` | The technician's own notes: title, text, a checklist of to-dos, an optional client, pin and color, and an optional reminder with a local notification (`expo-notifications`; tapping it opens the note). Stored only on the device in SQLite (`src/notes/notes-db.ts`, table `notes`, filtered by technician), they autosave and work offline; they are not synced, so they stay on that tablet. The list is grouped into Fijadas, Hoy, Ayer, Últimos 7 días and Anteriores. Notes save themselves (there is no Save button): the save status ("Guardando…", "Guardada a las…") sits at the top of the content. The editor toolbar has only Fijar and a Más menu (note color and Eliminar), plus a "← Notas" back button in portrait that closes the note. Landscape shows the list and the open note side by side; portrait opens the note full screen |
 | **Perfil** | `src/app/(tabs)/profile.tsx` | `person-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
 
 ```

@@ -8,7 +8,7 @@ packages/brand/
 ├── source/       original logos (2000×2000, transparent). Edit or replace these only.
 ├── logos/        optimized versions for use inside the apps: trimmed, ≤960 px, WebP (generated)
 └── scripts/
-    └── generate.py   regenerates logos/, the mobile app icons and the favicons
+    └── generate.py   regenerates logos/, the mobile app icons, the notification icon and the favicons
 ```
 
 ## Which logo to use
@@ -23,6 +23,8 @@ packages/brand/
 | `logo-stacked-yellow.webp` | Stacked variant with yellow icon and white text, for dark backgrounds |
 | `icon-color.webp` | Icon without the name: app icon, favicon, small spaces |
 | `icon-black.webp` / `icon-white.webp` | Single-color icon (Android themed icon, dark backgrounds) |
+
+The Android notification icon (`apps/mobile/assets/images/notification-icon.png`, 96×96, pure white on transparent) is generated from `icon-color` and set in the `expo-notifications` plugin of `apps/mobile/app.json`, with the brand teal as accent color. Android tints it, so it must stay white.
 
 ## Using a logo
 

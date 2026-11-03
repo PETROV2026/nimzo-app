@@ -44,6 +44,12 @@ def place(content: Image.Image, size: int, max_ratio: float, background=(0, 0, 0
     return canvas
 
 
+def silhouette(image: Image.Image) -> Image.Image:
+    white = Image.new("RGBA", image.size, WHITE)
+    white.putalpha(image.getchannel("A"))
+    return white
+
+
 def palette(image: Image.Image) -> Image.Image:
     return image.quantize(colors=PALETTE_COLORS, method=Image.Quantize.FASTOCTREE)
 
@@ -69,6 +75,7 @@ def main() -> None:
     save_png(place(icon_color, 1024, 0.62, WHITE).convert("RGB"), MOBILE_IMAGES / "icon.png")
     save_png(place(icon_color, 1024, 0.56), MOBILE_IMAGES / "android-icon-foreground.png")
     save_png(place(icon_black, 1024, 0.56), MOBILE_IMAGES / "android-icon-monochrome.png")
+    save_png(silhouette(place(icon_color, 96, 0.84)), MOBILE_IMAGES / "notification-icon.png")
     save_png(fit(trim(icon_color, padding_ratio=0), SPLASH_MAX_SIZE), MOBILE_IMAGES / "splash-icon.png")
     save_png(place(icon_color, 48, 0.9), MOBILE_IMAGES / "favicon.png")
     save_png(place(icon_color, 64, 0.9), ADMIN_PUBLIC / "favicon.png")

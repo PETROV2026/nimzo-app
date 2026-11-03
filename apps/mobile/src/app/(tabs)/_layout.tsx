@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useWindowDimensions } from 'react-native';
 import { ConnectionStatus } from '@/components/connection-status';
 import { NavigationBar } from '@/components/navigation-bar';
+import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors, fonts } from '@/theme';
 
 const railMinWidth = 900;
@@ -11,6 +12,7 @@ export default function TabsLayout() {
   const { width, height } = useWindowDimensions();
   const variant = width > height && width >= railMinWidth ? 'rail' : 'dock';
 
+  useOpenNoteFromNotification();
   return (
     <>
       <StatusBar style="light" />

@@ -12,6 +12,7 @@ import { writeLastEmail } from '@/lib/last-email';
 import { clearCachedProfile, readCachedProfile, writeCachedProfile } from '@/lib/profile-cache';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
+import { useReminderOwner } from '@/notes/reminders';
 
 export type Profile = {
   fullName: string;
@@ -128,6 +129,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const userId = session?.user.id ?? null;
+  useReminderOwner(session === undefined ? undefined : userId);
   const checked = userId !== null && checkedUserId === userId && profile !== undefined;
   const cached = userId && !checked ? cachedProfile(userId) : null;
   const currentProfile = checked ? (profile ?? null) : cached;
