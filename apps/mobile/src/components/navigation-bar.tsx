@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { getDefaultHeaderHeight } from 'expo-router/react-navigation';
-import { Pressable, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Icon, type IconName } from '@/components/icon';
 import { initials } from '@/lib/initials';
@@ -60,7 +59,6 @@ export function NavigationBar({
   variant,
 }: NavigationBarProps) {
   const session = useSession();
-  const layout = useWindowDimensions();
   const signedIn = session.status === 'signed-in';
   const name = signedIn ? session.profile?.fullName || session.session.user.email || '' : '';
   const technicianInitials = initials(name);
@@ -112,15 +110,13 @@ export function NavigationBar({
       <View
         accessibilityRole="tablist"
         className="w-[120px] items-center border-r border-background/20 bg-muted"
-        style={{ paddingBottom: insets.bottom + 16, paddingLeft: insets.left }}
+        style={{
+          paddingTop: insets.top + 16,
+          paddingBottom: insets.bottom + 16,
+          paddingLeft: insets.left,
+        }}
       >
-        <View
-          className="w-full items-center justify-center"
-          style={{
-            height: getDefaultHeaderHeight(layout, false, insets.top),
-            paddingTop: insets.top,
-          }}
-        >
+        <View className="w-full items-center justify-center">
           <Image
             source={brandMark}
             style={{ width: 42, height: 54 }}
