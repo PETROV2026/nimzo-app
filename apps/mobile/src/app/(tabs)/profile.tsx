@@ -11,7 +11,7 @@ import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { Icon, type IconName } from '@/components/icon';
 import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
-import { SignatureSection } from '@/components/signature-section';
+import { SignaturePreview } from '@/components/signature-preview';
 import { SupportDialog } from '@/components/support-dialog';
 import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
@@ -19,7 +19,7 @@ import { useOnline } from '@/lib/use-online';
 import { useNotificationAccess } from '@/notes/reminders';
 import { colors } from '@/theme';
 
-const twoColumnWidth = 900;
+const roomyWidth = 640;
 const appVersion = Constants.expoConfig?.version;
 
 export default function ProfileScreen() {
@@ -40,7 +40,7 @@ export default function ProfileScreen() {
   }
 
   const { profile, signOut, saveSignature } = session;
-  const wide = width >= twoColumnWidth;
+  const roomy = width >= roomyWidth;
   const canEdit = online && profile !== null;
   const email = session.session.user.email ?? null;
   const name = profile?.fullName || email || '';
@@ -118,63 +118,72 @@ export default function ProfileScreen() {
     </View>
   );
 
-  const contact = (
-    <View
-      className={`gap-6 rounded-2xl border border-border bg-background p-6 ${wide ? 'flex-1' : ''}`}
-    >
+  const reportCard = (
+    <View className="gap-6 rounded-2xl border border-border bg-background p-6">
       <SectionHeader
-        title="Datos de contacto"
-        description="Aparecen en cada reporte que envías."
-        action={
-          <Button
-            variant="ghost"
-            icon="pencil-outline"
-            label="Editar"
-            onPress={() => setEditing(true)}
-            disabled={!canEdit}
-          />
-        }
+        title="Así apareces en tus reportes"
+        description="Tus clientes reciben estos datos y tu firma en cada reporte que envías."
       />
       {profile ? (
-        <View className="gap-4">
-          <InfoRow
-            icon="call-outline"
-            label="Teléfono"
-            value={profile.phone}
-            emptyLabel="Agregar teléfono"
-            onAdd={edit}
-          />
-          <InfoRow
-            icon="business-outline"
-            label="Ciudad"
-            value={city}
-            emptyLabel="Agregar ciudad"
-            onAdd={edit}
-          />
-          <InfoRow
-            icon="map-outline"
-            label="Estado"
-            value={state}
-            emptyLabel="Agregar estado"
-            onAdd={edit}
-          />
+        <View className="gap-6 rounded-xl border border-border-strong p-6">
+          <View className={roomy ? 'flex-row items-center gap-8' : 'gap-6'}>
+            <View className="flex-1 gap-4">
+              <Text numberOfLines={2} className="font-sans-bold text-xl text-foreground">
+                {name}
+              </Text>
+              <InfoRow
+                icon="call-outline"
+                label="Teléfono"
+                value={profile.phone}
+                emptyLabel="Agregar teléfono"
+                onAdd={edit}
+              />
+              <InfoRow
+                icon="business-outline"
+                label="Ciudad"
+                value={city}
+                emptyLabel="Agregar ciudad"
+                onAdd={edit}
+              />
+              <InfoRow
+                icon="map-outline"
+                label="Estado"
+                value={state}
+                emptyLabel="Agregar estado"
+                onAdd={edit}
+              />
+            </View>
+            <View className={roomy ? 'w-2/5' : ''}>
+              <SignaturePreview signaturePath={profile.signaturePath} name={name} />
+            </View>
+          </View>
         </View>
       ) : (
         <Text className="font-sans text-base text-foreground">
           No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
         </Text>
       )}
+      <View className={roomy ? 'flex-row gap-4' : 'gap-3'}>
+        <View className={roomy ? 'flex-1' : ''}>
+          <Button
+            variant="outline"
+            icon="pencil-outline"
+            label="Editar datos"
+            onPress={() => setEditing(true)}
+            disabled={!canEdit}
+          />
+        </View>
+        <View className={roomy ? 'flex-1' : ''}>
+          <Button
+            variant={missingSignature ? 'primary' : 'outline'}
+            icon="create-outline"
+            label={missingSignature ? 'Crear firma' : 'Cambiar firma'}
+            onPress={() => setSigning(true)}
+            disabled={!canEdit}
+          />
+        </View>
+      </View>
     </View>
-  );
-
-  const signature = (
-    <SignatureSection
-      className={wide ? 'w-2/5' : undefined}
-      signaturePath={profile ? profile.signaturePath : undefined}
-      disabled={!canEdit}
-      name={name}
-      onSign={() => setSigning(true)}
-    />
   );
 
   const notificationsRow =
@@ -196,10 +205,7 @@ export default function ProfileScreen() {
           {signatureAlert}
           {identity}
           {offlineHint}
-          <View className={wide ? 'flex-row gap-6' : 'gap-6'}>
-            {wide ? contact : signature}
-            {wide ? signature : contact}
-          </View>
+          {reportCard}
           <View className="gap-3">
             {notificationsRow}
             <ActionRow

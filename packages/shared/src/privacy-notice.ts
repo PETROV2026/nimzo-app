@@ -5,8 +5,8 @@ export type PrivacyNoticeSection = { title: string; paragraphs: string[] };
 export const privacyNoticeUpdatedAt = '2026-11-03';
 
 export const privacyNoticeController = {
-  legalName: '[Razón social del responsable]',
-  address: '[Domicilio fiscal completo]',
+  legalName: 'Petrov',
+  address: 'Calz. Cetys 1590-1, Vista Hermosa, 21240 Mexicali, B.C.',
 };
 
 export const privacyNotice: PrivacyNoticeSection[] = [

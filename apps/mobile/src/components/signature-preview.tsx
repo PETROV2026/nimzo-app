@@ -3,7 +3,6 @@ import { Image } from 'expo-image';
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { Button } from '@/components/button';
-import { SectionHeader } from '@/components/section-header';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
@@ -35,21 +34,12 @@ async function resolveSignatureUri(path: string) {
   return data.signedUrl;
 }
 
-type SignatureSectionProps = {
+type SignaturePreviewProps = {
   signaturePath: string | null | undefined;
-  disabled: boolean;
   name: string;
-  onSign: () => void;
-  className?: string;
 };
 
-export function SignatureSection({
-  signaturePath,
-  disabled,
-  name,
-  onSign,
-  className,
-}: SignatureSectionProps) {
+export function SignaturePreview({ signaturePath, name }: SignaturePreviewProps) {
   const online = useOnline();
   const [resolved, setResolved] = useState<{ path: string; uri: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -116,23 +106,12 @@ export function SignatureSection({
   }
 
   return (
-    <View className={`gap-5 rounded-2xl border border-border bg-background p-6 ${className ?? ''}`}>
-      <SectionHeader title="Tu firma" description="Así aparece en cada reporte que envías." />
-
-      <View className="h-40 rounded-lg border border-border px-6 pb-5 pt-3">
+    <View className="gap-2">
+      <View className="h-36 px-4 pt-2">
         <View className="flex-1 items-center justify-center">{preview}</View>
-        <View className="h-px bg-border" />
+        <View className="h-px bg-border-strong" />
       </View>
-
-      <View className="mt-auto">
-        <Button
-          variant={signaturePath ? 'outline' : 'primary'}
-          icon="create-outline"
-          label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
-          onPress={onSign}
-          disabled={disabled}
-        />
-      </View>
+      <Text className="text-center font-sans text-sm text-muted">Firma del técnico</Text>
     </View>
   );
 }
