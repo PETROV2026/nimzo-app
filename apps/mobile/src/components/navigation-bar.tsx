@@ -1,9 +1,7 @@
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { Pressable, Text, View } from 'react-native';
-import { useSession } from '@/auth/session-provider';
 import { Icon, type IconName } from '@/components/icon';
-import { initials } from '@/lib/initials';
 import { colors } from '@/theme';
 
 type Variant = 'rail' | 'dock';
@@ -27,8 +25,6 @@ const palette = {
     labelSize: 'text-base',
     activeLabel: 'text-background',
     inactiveLabel: 'text-background/70',
-    avatar: 'border-2 border-background/70',
-    avatarText: 'text-background/70',
   },
   dock: {
     item: 'min-h-16 flex-1',
@@ -41,8 +37,6 @@ const palette = {
     labelSize: 'text-sm',
     activeLabel: 'text-danger-strong',
     inactiveLabel: 'text-muted',
-    avatar: 'border-2 border-muted',
-    avatarText: 'text-muted',
   },
 };
 
@@ -58,11 +52,6 @@ export function NavigationBar({
   insets,
   variant,
 }: NavigationBarProps) {
-  const session = useSession();
-  const signedIn = session.status === 'signed-in';
-  const name = signedIn ? session.profile?.fullName || session.session.user.email || '' : '';
-  const technicianInitials = initials(name);
-
   const items = state.routes
     .map((route, index) => ({ route, focused: state.index === index }))
     .filter(({ route }) => route.name in icons)
@@ -92,7 +81,6 @@ export function NavigationBar({
             accessibilityLabel={options.tabBarAccessibilityLabel}
             testID={options.tabBarButtonTestID}
             icon={icons[route.name]}
-            avatar={route.name === 'profile' && technicianInitials ? technicianInitials : undefined}
             badge={options.tabBarBadge}
             focused={focused}
             variant={variant}
@@ -151,7 +139,6 @@ type NavigationItemProps = {
   accessibilityLabel: string | undefined;
   testID: string | undefined;
   icon: { active: IconName; inactive: IconName };
-  avatar: string | undefined;
   badge: string | number | undefined;
   focused: boolean;
   variant: Variant;
@@ -164,7 +151,6 @@ function NavigationItem({
   accessibilityLabel,
   testID,
   icon,
-  avatar,
   badge,
   focused,
   variant,
@@ -188,24 +174,11 @@ function NavigationItem({
           <View
             className={`items-center justify-center rounded-full ${tone.mark} ${focused ? tone.activeMark : pressed ? tone.pressedMark : ''}`}
           >
-            {avatar ? (
-              <View
-                className={`h-9 w-9 items-center justify-center rounded-full ${focused ? 'bg-danger' : tone.avatar}`}
-              >
-                <Text
-                  maxFontSizeMultiplier={1.2}
-                  className={`font-sans-bold text-sm ${focused ? 'text-on-danger' : tone.avatarText}`}
-                >
-                  {avatar}
-                </Text>
-              </View>
-            ) : (
-              <Icon
-                name={focused ? icon.active : icon.inactive}
-                size={tone.iconSize}
-                color={focused ? tone.activeIcon : tone.inactiveIcon}
-              />
-            )}
+            <Icon
+              name={focused ? icon.active : icon.inactive}
+              size={tone.iconSize}
+              color={focused ? tone.activeIcon : tone.inactiveIcon}
+            />
             {badge === undefined ? null : (
               <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
                 <Text maxFontSizeMultiplier={1.2} className="font-sans-bold text-xs text-on-accent">
