@@ -1,4 +1,4 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { loginSchema } from '@nimzo/shared';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
@@ -133,8 +133,8 @@ export default function LoginScreen() {
               accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               accessibilityState={{ disabled: loading }}
             >
-              <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+              <MaterialIcons
+                name={showPassword ? 'visibility-off' : 'visibility'}
                 size={24}
                 color={colors.muted}
               />
@@ -162,7 +162,7 @@ export default function LoginScreen() {
             accessibilityLiveRegion="assertive"
             className="flex-row items-start gap-3 rounded-lg border-2 border-danger px-4 py-3"
           >
-            <Ionicons name="alert-circle-outline" size={24} color={colors['destructive']} />
+            <MaterialIcons name="error-outline" size={24} color={colors.destructive} />
             <Text className="flex-1 font-sans-medium text-base leading-6 text-destructive">
               {formError}
             </Text>

@@ -8,6 +8,7 @@ export * from './roles';
 export * from './search';
 export * from './service-forms';
 export * from './service-packages';
+export * from './support';
 export * from './systems';
 export * from './users';
 

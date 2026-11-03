@@ -1,4 +1,4 @@
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import {
   Canvas,
   PaintStyle,
@@ -195,8 +195,8 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
             />
 
             {compact ? null : (
-              <View className="flex-row items-center gap-3.5 rounded-[10px] bg-canvas p-4">
-                <Feather name="user" size={22} color={colors['primary-strong']} />
+              <View className="flex-row items-center gap-3.5 rounded-lg bg-canvas p-4">
+                <MaterialIcons name="person-outline" size={22} color={colors['primary-strong']} />
                 <View className="flex-1 gap-0.5">
                   <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
                     {name}
@@ -214,10 +214,10 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                   accessibilityRole="button"
                   accessibilityLabel="Limpiar firma"
                   accessibilityState={{ disabled: clearDisabled }}
-                  className={`min-h-12 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-surface ${clearDisabled ? 'opacity-50' : ''}`}
+                  className={`min-h-14 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-surface ${clearDisabled ? 'opacity-50' : ''}`}
                 >
-                  <MaterialCommunityIcons
-                    name="eraser"
+                  <MaterialIcons
+                    name="cleaning-services"
                     size={20}
                     color={colors['primary-strong']}
                   />
@@ -245,7 +245,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                 )}
                 <View pointerEvents="none" className="absolute inset-x-6 bottom-5 h-px bg-border" />
               </View>
-              <Text className="font-sans text-[13px] text-muted">
+              <Text className="font-sans text-sm text-muted">
                 Revisa el trazo antes de guardarlo.
               </Text>
             </View>

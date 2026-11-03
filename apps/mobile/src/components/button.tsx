@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme';
@@ -47,7 +47,7 @@ type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   variant?: keyof typeof variants;
-  icon?: ComponentProps<typeof Feather>['name'];
+  icon?: ComponentProps<typeof MaterialIcons>['name'];
 };
 
 export function Button({
@@ -73,7 +73,7 @@ export function Button({
         <ActivityIndicator color={style.tint} />
       ) : (
         <View className="flex-row items-center gap-2.5">
-          {icon ? <Feather name={icon} size={20} color={style.tint} /> : null}
+          {icon ? <MaterialIcons name={icon} size={22} color={style.tint} /> : null}
           <Text className={`font-sans-semibold text-lg ${style.text}`}>{label}</Text>
         </View>
       )}

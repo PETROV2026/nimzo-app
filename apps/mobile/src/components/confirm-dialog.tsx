@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
@@ -32,8 +32,8 @@ export function ConfirmDialog({
           <DialogHeader title={title} onClose={onClose} disabled={loading} />
           <Text className="font-sans text-lg text-foreground">{message}</Text>
           {note ? (
-            <View className="flex-row items-start gap-3 rounded-xl bg-canvas p-[18px]">
-              <Feather name="info" size={22} color={colors.muted} />
+            <View className="flex-row items-start gap-3 rounded-xl bg-canvas p-4">
+              <MaterialIcons name="info-outline" size={22} color={colors.muted} />
               <Text className="flex-1 font-sans text-base text-muted">{note}</Text>
             </View>
           ) : null}

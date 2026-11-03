@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { mexicanStateLabels, userRoleLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
 import { useState, type ComponentProps } from 'react';
@@ -13,7 +13,7 @@ import { SupportDialog } from '@/components/support-dialog';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
 
-type IconName = ComponentProps<typeof Feather>['name'];
+type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 const twoColumnWidth = 900;
 const appVersion = Constants.expoConfig?.version;
@@ -50,7 +50,11 @@ export default function ProfileScreen() {
 
   async function handleSignOut() {
     setSigningOut(true);
-    await signOut();
+    try {
+      await signOut();
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   const identity = (
@@ -62,7 +66,7 @@ export default function ProfileScreen() {
         <Text
           accessibilityRole="header"
           numberOfLines={2}
-          className="font-sans-bold text-[28px] text-foreground"
+          className="font-sans-bold text-3xl text-foreground"
         >
           {name}
         </Text>
@@ -85,7 +89,7 @@ export default function ProfileScreen() {
         action={
           <Button
             variant="ghost"
-            icon="edit-2"
+            icon="edit"
             label="Editar"
             onPress={() => setEditing(true)}
             disabled={!canEdit}
@@ -93,10 +97,10 @@ export default function ProfileScreen() {
         }
       />
       {profile ? (
-        <View className="gap-[18px]">
-          <InfoRow icon="mail" label="Correo electrónico" value={email} />
+        <View className="gap-4">
+          <InfoRow icon="mail-outline" label="Correo electrónico" value={email} />
           <InfoRow icon="phone" label="Teléfono" value={profile.phone} />
-          <InfoRow icon="map-pin" label="Ciudad" value={city} />
+          <InfoRow icon="place" label="Ciudad" value={city} />
           <InfoRow icon="map" label="Estado" value={state} />
         </View>
       ) : (
@@ -115,12 +119,12 @@ export default function ProfileScreen() {
       accessibilityHint="Muestra el correo para contactar a soporte"
       className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-surface"
     >
-      <Feather name="headphones" size={22} color={colors.danger} />
+      <MaterialIcons name="support-agent" size={24} color={colors.danger} />
       <View className="flex-1 gap-0.5">
-        <Text className="font-sans-semibold text-[17px] text-foreground">Ayuda y soporte</Text>
+        <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
         <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>
       </View>
-      <Feather name="chevron-right" size={20} color={colors.muted} />
+      <MaterialIcons name="chevron-right" size={24} color={colors.muted} />
     </Pressable>
   );
 
@@ -131,14 +135,13 @@ export default function ProfileScreen() {
       accessibilityLabel="Cerrar sesión"
       className="min-h-16 flex-row items-center gap-3 px-2 active:opacity-70"
     >
-      <Feather name="log-out" size={22} color={colors.danger} />
-      <Text className="font-sans-bold text-[17px] text-danger">Cerrar sesión</Text>
-      <Feather name="chevron-right" size={20} color={colors.danger} />
+      <MaterialIcons name="logout" size={24} color={colors.destructive} />
+      <Text className="font-sans-bold text-lg text-destructive">Cerrar sesión</Text>
     </Pressable>
   );
 
   const version = appVersion ? (
-    <Text className="text-center font-sans text-[13px] text-muted">Versión {appVersion}</Text>
+    <Text className="text-center font-sans text-sm text-muted">Versión {appVersion}</Text>
   ) : null;
 
   const footer = wide ? (
@@ -212,10 +215,10 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
       accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
       className="flex-row items-center gap-3.5"
     >
-      <Feather name={icon} size={22} color={colors.danger} />
+      <MaterialIcons name={icon} size={24} color={colors.danger} />
       <View className="flex-1">
-        <Text className="font-sans text-[13px] text-muted">{label}</Text>
-        <Text numberOfLines={2} className="font-sans-medium text-[17px] text-muted">
+        <Text className="font-sans text-sm text-muted">{label}</Text>
+        <Text numberOfLines={2} className="font-sans-medium text-lg text-foreground">
           {value || 'Sin capturar'}
         </Text>
       </View>

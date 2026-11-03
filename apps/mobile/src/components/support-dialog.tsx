@@ -1,4 +1,5 @@
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { supportEmail } from '@nimzo/shared';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
@@ -6,8 +7,6 @@ import { Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'rea
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { colors } from '@/theme';
-
-const supportEmail = String(Constants.expoConfig?.extra?.supportEmail ?? '');
 
 const appVersion = Constants.expoConfig?.version ?? '';
 
@@ -51,8 +50,12 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
   }
 
   async function handleCopy() {
-    await Clipboard.setStringAsync(supportEmail);
-    setCopied(true);
+    try {
+      await Clipboard.setStringAsync(supportEmail);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
   }
 
   return (
@@ -66,7 +69,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <View className="flex-row items-center gap-4">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger">
-              <Feather name="headphones" size={24} color={colors['on-danger']} />
+              <MaterialIcons name="support-agent" size={26} color={colors['on-danger']} />
             </View>
             <Text className="flex-1 font-sans-bold text-xl text-foreground">¿Necesitas ayuda?</Text>
           </View>
@@ -78,7 +81,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <View className="flex-row items-center gap-4 rounded-xl border border-border p-5">
             <View className="flex-1 gap-2">
-              <Text className="font-sans text-[13px] text-muted">Correo de soporte</Text>
+              <Text className="font-sans text-sm text-muted">Correo de soporte</Text>
               <Text selectable className="font-sans text-lg text-foreground">
                 {supportEmail}
               </Text>
@@ -88,9 +91,13 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               hitSlop={8}
               accessibilityRole="button"
               accessibilityLabel={copied ? 'Correo copiado' : 'Copiar correo'}
-              className="min-h-[52px] flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
+              className="min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
             >
-              <Feather name={copied ? 'check' : 'copy'} size={22} color={colors.muted} />
+              <MaterialIcons
+                name={copied ? 'check' : 'content-copy'}
+                size={22}
+                color={colors.muted}
+              />
               <Text className="font-sans-semibold text-base text-muted">
                 {copied ? 'Copiado' : 'Copiar'}
               </Text>
@@ -102,7 +109,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               accessibilityRole="alert"
               className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
             >
-              <Feather name="info" size={22} color={colors['on-accent']} />
+              <MaterialIcons name="info-outline" size={22} color={colors['on-accent']} />
               <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
                 No encontramos una app de correo en esta tablet. Copia el correo y escríbenos desde
                 tu teléfono o computadora.
@@ -110,10 +117,15 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
             </View>
           ) : null}
 
-          <Button variant="danger" icon="mail" label="Escribir correo" onPress={handleWrite} />
+          <Button
+            variant="danger"
+            icon="mail-outline"
+            label="Escribir correo"
+            onPress={handleWrite}
+          />
 
-          <View className="flex-row items-start gap-3 rounded-[10px] bg-canvas p-4">
-            <Feather name="info" size={20} color={colors['primary-strong']} />
+          <View className="flex-row items-start gap-3 rounded-lg bg-canvas p-4">
+            <MaterialIcons name="info-outline" size={20} color={colors['primary-strong']} />
             <Text className="flex-1 font-sans text-sm leading-5 text-muted">
               Al abrir el correo se incluyen tu cuenta y la versión de la app para ayudarnos a
               revisar el problema. No compartas tu contraseña.

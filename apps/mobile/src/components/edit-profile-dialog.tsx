@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
@@ -194,12 +194,12 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
       <View
         accessible
         accessibilityLabel={`${label}: ${value}`}
-        className="min-h-[54px] flex-row items-center gap-3 rounded-[10px] border border-border bg-canvas px-4"
+        className="min-h-14 flex-row items-center gap-3 rounded-lg border border-border bg-canvas px-4"
       >
         <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
           {value}
         </Text>
-        <Feather name="lock" size={18} color={colors.muted} />
+        <MaterialIcons name="lock-outline" size={20} color={colors.muted} />
       </View>
     </View>
   );

@@ -1,7 +1,7 @@
 import { signatureBucket } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SectionHeader } from '@/components/section-header';
@@ -102,13 +102,7 @@ export function SignatureSection({
             : 'Tu firma se mostrará cuando vuelvas a tener conexión.'}
         </Text>
         {online ? (
-          <Pressable
-            onPress={handleRetry}
-            accessibilityRole="button"
-            className="min-h-12 justify-center px-3 active:opacity-70"
-          >
-            <Text className="font-sans-semibold text-sm text-primary-strong">Reintentar</Text>
-          </Pressable>
+          <Button variant="ghost" icon="refresh" label="Reintentar" onPress={handleRetry} />
         ) : null}
       </View>
     );
@@ -139,13 +133,13 @@ export function SignatureSection({
         <Text numberOfLines={1} className="font-sans-semibold text-base text-muted">
           {name}
         </Text>
-        <Text className="font-sans text-[13px] text-muted">{holder}</Text>
+        <Text className="font-sans text-sm text-muted">{holder}</Text>
       </View>
 
       <View className="mt-auto">
         <Button
           variant={signaturePath ? 'outline' : 'primary'}
-          icon="edit-3"
+          icon="draw"
           label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
           onPress={() => setSigning(true)}
           disabled={disabled}

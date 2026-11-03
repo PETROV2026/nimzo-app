@@ -1,17 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme';
 
-type IconName = ComponentProps<typeof Ionicons>['name'];
+type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
-const icons: Record<string, { active: IconName; inactive: IconName }> = {
-  services: { active: 'clipboard', inactive: 'clipboard-outline' },
-  clients: { active: 'people', inactive: 'people-outline' },
-  notes: { active: 'document-text', inactive: 'document-text-outline' },
-  profile: { active: 'person-circle', inactive: 'person-circle-outline' },
+const icons: Record<string, IconName> = {
+  services: 'assignment',
+  clients: 'people',
+  notes: 'event-note',
+  profile: 'account-circle',
 };
 
 const brandMark = require('@nimzo/brand/logos/icon-color.webp');
@@ -99,7 +99,7 @@ export function NavigationBar({
 
 type NavigationItemProps = {
   label: string;
-  icon: { active: IconName; inactive: IconName };
+  icon: IconName;
   badge: string | number | undefined;
   focused: boolean;
   variant: 'rail' | 'dock';
@@ -117,8 +117,8 @@ function NavigationItem({
   onLongPress,
 }: NavigationItemProps) {
   const rail = variant === 'rail';
-  const iconColor = focused ? colors.danger : rail ? colors.background : colors.muted;
-  const textColor = focused ? 'text-danger' : rail ? 'text-background' : 'text-muted';
+  const iconColor = focused ? colors['primary-strong'] : rail ? colors.background : colors.muted;
+  const textColor = rail ? 'text-background' : focused ? 'text-primary-strong' : 'text-muted';
   return (
     <Pressable
       onPress={onPress}
@@ -128,14 +128,10 @@ function NavigationItem({
       accessibilityState={{ selected: focused }}
       className={`min-h-16 items-center justify-center gap-1 ${rail ? 'w-full' : 'flex-1'}`}
     >
-      <View className="h-9 w-16 items-center justify-center">
-        <View className="font-sans-medium text-muted">
-          <Ionicons
-            name={focused ? icon.active : icon.inactive}
-            size={24}
-            color={focused ? colors.danger : rail ? colors.background : colors.muted}
-          />
-        </View>
+      <View
+        className={`h-9 w-16 items-center justify-center rounded-full ${focused ? 'bg-canvas' : ''}`}
+      >
+        <MaterialIcons name={icon} size={24} color={iconColor} />
         {badge !== undefined ? (
           <View className="absolute -right-1 -top-1 h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1">
             <Text className="font-sans-bold text-xs text-on-accent">{badge}</Text>
