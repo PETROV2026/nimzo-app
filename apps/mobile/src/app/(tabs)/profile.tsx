@@ -3,9 +3,11 @@ import Constants from 'expo-constants';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { Icon, type IconName } from '@/components/icon';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { ConnectionStatus } from '@/components/connection-status';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
 import { SectionHeader } from '@/components/section-header';
 import { SignatureSection } from '@/components/signature-section';
@@ -21,6 +23,7 @@ export default function ProfileScreen() {
   const session = useSession();
   const online = useOnline();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [editing, setEditing] = useState(false);
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -68,6 +71,7 @@ export default function ProfileScreen() {
           </Text>
         ) : null}
       </View>
+      <ConnectionStatus />
     </View>
   );
 
@@ -150,47 +154,50 @@ export default function ProfileScreen() {
   );
 
   return (
-    <ScrollView className="flex-1 bg-canvas" contentContainerClassName="items-center p-7">
-      <View className="w-full max-w-[1120px] gap-6">
-        {identity}
-        <View className={wide ? 'flex-row gap-6' : 'gap-6'}>
-          {contact}
-          <SignatureSection
-            className={wide ? 'w-2/5' : undefined}
-            signaturePath={profile ? profile.signaturePath : undefined}
-            disabled={!canEdit}
-            name={name}
-            role={role}
+    <View className="flex-1 bg-canvas">
+      <View className="bg-muted" style={{ height: insets.top }} />
+      <ScrollView className="flex-1" contentContainerClassName="items-center p-7">
+        <View className="w-full max-w-[1120px] gap-6">
+          {identity}
+          <View className={wide ? 'flex-row gap-6' : 'gap-6'}>
+            {contact}
+            <SignatureSection
+              className={wide ? 'w-2/5' : undefined}
+              signaturePath={profile ? profile.signaturePath : undefined}
+              disabled={!canEdit}
+              name={name}
+              role={role}
+            />
+          </View>
+          {supportRow}
+          <View className="gap-1">
+            <View className="mx-2.5 h-px bg-border" />
+            {footer}
+          </View>
+        </View>
+
+        {editing && profile ? (
+          <EditProfileDialog profile={profile} email={email} onClose={() => setEditing(false)} />
+        ) : null}
+
+        {showingSupport ? (
+          <SupportDialog accountEmail={email} onClose={() => setShowingSupport(false)} />
+        ) : null}
+
+        {confirmingSignOut ? (
+          <ConfirmDialog
+            title="¿Cerrar sesión?"
+            message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
+            note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
+            confirmLabel="Cerrar sesión"
+            tone="destructive"
+            onConfirm={handleSignOut}
+            onClose={() => setConfirmingSignOut(false)}
+            loading={signingOut}
           />
-        </View>
-        {supportRow}
-        <View className="gap-1">
-          <View className="mx-2.5 h-px bg-border" />
-          {footer}
-        </View>
-      </View>
-
-      {editing && profile ? (
-        <EditProfileDialog profile={profile} email={email} onClose={() => setEditing(false)} />
-      ) : null}
-
-      {showingSupport ? (
-        <SupportDialog accountEmail={email} onClose={() => setShowingSupport(false)} />
-      ) : null}
-
-      {confirmingSignOut ? (
-        <ConfirmDialog
-          title="¿Cerrar sesión?"
-          message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
-          note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
-          confirmLabel="Cerrar sesión"
-          tone="destructive"
-          onConfirm={handleSignOut}
-          onClose={() => setConfirmingSignOut(false)}
-          loading={signingOut}
-        />
-      ) : null}
-    </ScrollView>
+        ) : null}
+      </ScrollView>
+    </View>
   );
 }
 
