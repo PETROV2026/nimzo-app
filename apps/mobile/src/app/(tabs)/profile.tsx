@@ -13,6 +13,7 @@ import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { SignatureSection } from '@/components/signature-section';
 import { SupportDialog } from '@/components/support-dialog';
+import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
 import { useNotificationAccess } from '@/notes/reminders';
@@ -32,6 +33,7 @@ export default function ProfileScreen() {
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [showingSupport, setShowingSupport] = useState(false);
+  const [showingPrivacy, setShowingPrivacy] = useState(false);
 
   if (session.status !== 'signed-in') {
     return null;
@@ -207,6 +209,12 @@ export default function ProfileScreen() {
               onPress={() => setShowingSupport(true)}
             />
             <ActionRow
+              icon="document-lock-outline"
+              title="Aviso de privacidad"
+              description="Qué datos usamos y cómo los protegemos."
+              onPress={() => setShowingPrivacy(true)}
+            />
+            <ActionRow
               icon="log-out-outline"
               title="Cerrar sesión"
               tone="destructive"
@@ -234,6 +242,8 @@ export default function ProfileScreen() {
         {showingSupport ? (
           <SupportDialog accountEmail={email} onClose={() => setShowingSupport(false)} />
         ) : null}
+
+        {showingPrivacy ? <PrivacyNoticeDialog onClose={() => setShowingPrivacy(false)} /> : null}
 
         {confirmingSignOut ? (
           <ConfirmDialog
