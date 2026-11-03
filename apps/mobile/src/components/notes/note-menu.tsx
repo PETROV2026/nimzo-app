@@ -1,5 +1,5 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { noteColors } from '@/notes/note-colors';
 import type { NoteColor } from '@/notes/notes-db';
 import { colors } from '@/theme';
@@ -48,7 +48,7 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
                     className={`h-10 w-10 items-center justify-center rounded-full ${option.className} ${selected ? 'border-[3px] border-foreground' : ''}`}
                   >
                     {selected ? (
-                      <MaterialIcons
+                      <Icon
                         name="check"
                         size={20}
                         color={
@@ -73,7 +73,7 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
           accessibilityRole="button"
           className="min-h-16 flex-row items-center gap-3 px-4 active:bg-surface"
         >
-          <MaterialIcons name="delete-outline" size={24} color={colors['danger-strong']} />
+          <Icon name="trash-can-outline" size={24} color={colors['danger-strong']} />
           <Text className="font-sans-semibold text-lg text-danger-strong">Eliminar nota</Text>
         </Pressable>
       </View>

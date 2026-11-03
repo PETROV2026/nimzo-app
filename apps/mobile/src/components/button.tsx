@@ -1,6 +1,5 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Icon, type IconName } from '@/components/icon';
 import { colors } from '@/theme';
 
 const variants = {
@@ -47,7 +46,7 @@ type ButtonProps = {
   loading?: boolean;
   disabled?: boolean;
   variant?: keyof typeof variants;
-  icon?: ComponentProps<typeof MaterialIcons>['name'];
+  icon?: IconName;
 };
 
 export function Button({
@@ -73,7 +72,7 @@ export function Button({
         <ActivityIndicator color={style.tint} />
       ) : (
         <View className="flex-row items-center gap-2.5">
-          {icon ? <MaterialIcons name={icon} size={22} color={style.tint} /> : null}
+          {icon ? <Icon name={icon} size={22} color={style.tint} /> : null}
           <Text className={`font-sans-semibold text-lg ${style.text}`}>{label}</Text>
         </View>
       )}

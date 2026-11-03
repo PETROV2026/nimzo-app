@@ -1,30 +1,35 @@
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { Icon, type IconName } from '@/components/icon';
 import { colors } from '@/theme';
-
-type IconName = ComponentProps<typeof Ionicons>['name'];
 
 type Variant = 'rail' | 'dock';
 
 const icons: Record<string, { active: IconName; inactive: IconName }> = {
-  services: { active: 'clipboard', inactive: 'clipboard-outline' },
-  clients: { active: 'people', inactive: 'people-outline' },
-  notes: { active: 'document-text', inactive: 'document-text-outline' },
-  profile: { active: 'person-circle', inactive: 'person-circle-outline' },
+  services: { active: 'clipboard-text', inactive: 'clipboard-text-outline' },
+  clients: { active: 'account-group', inactive: 'account-group-outline' },
+  notes: { active: 'note-text', inactive: 'note-text-outline' },
+  profile: { active: 'account-circle', inactive: 'account-circle-outline' },
 };
 
 const palette = {
   rail: {
-    pill: 'bg-background',
+    item: 'min-h-20 w-full',
+    pill: 'h-10 w-[72px]',
+    activePill: 'bg-background',
+    iconSize: 28,
+    labelSize: 'text-base',
     activeLabel: 'text-background',
     inactiveLabel: 'text-background',
     inactiveIcon: colors.background,
   },
   dock: {
-    pill: '',
+    item: 'min-h-16 flex-1',
+    pill: 'h-9 w-16',
+    activePill: '',
+    iconSize: 24,
+    labelSize: 'text-sm',
     activeLabel: 'text-danger-strong',
     inactiveLabel: 'text-muted',
     inactiveIcon: colors.muted,
@@ -63,27 +68,32 @@ export function NavigationBar({
         emitter.emit({ type: 'tabLongPress', target: route.key });
       }
 
-      return (
-        <NavigationItem
-          key={route.key}
-          label={label}
-          accessibilityLabel={options.tabBarAccessibilityLabel}
-          testID={options.tabBarButtonTestID}
-          icon={icons[route.name]}
-          badge={options.tabBarBadge}
-          focused={focused}
-          variant={variant}
-          onPress={handlePress}
-          onLongPress={handleLongPress}
-        />
-      );
+      return {
+        name: route.name,
+        element: (
+          <NavigationItem
+            key={route.key}
+            label={label}
+            accessibilityLabel={options.tabBarAccessibilityLabel}
+            testID={options.tabBarButtonTestID}
+            icon={icons[route.name]}
+            badge={options.tabBarBadge}
+            focused={focused}
+            variant={variant}
+            onPress={handlePress}
+            onLongPress={handleLongPress}
+          />
+        ),
+      };
     });
 
   if (variant === 'rail') {
+    const main = items.filter((item) => item.name !== 'profile').map((item) => item.element);
+    const profile = items.find((item) => item.name === 'profile')?.element;
     return (
       <View
         accessibilityRole="tablist"
-        className="w-[104px] items-center bg-muted"
+        className="w-[120px] items-center bg-muted"
         style={{
           paddingTop: insets.top + 20,
           paddingBottom: insets.bottom + 20,
@@ -96,7 +106,8 @@ export function NavigationBar({
           contentFit="contain"
           accessibilityLabel="Nimzo"
         />
-        <View className="mt-10 w-full gap-3">{items}</View>
+        <View className="w-full flex-1 justify-center gap-4">{main}</View>
+        <View className="w-full">{profile}</View>
       </View>
     );
   }
@@ -111,7 +122,7 @@ export function NavigationBar({
         paddingRight: insets.right + 8,
       }}
     >
-      {items}
+      {items.map((item) => item.element)}
     </View>
   );
 }
@@ -149,14 +160,14 @@ function NavigationItem({
       accessibilityRole="tab"
       accessibilityLabel={badge === undefined ? spokenLabel : `${spokenLabel}, ${badge} pendientes`}
       accessibilityState={{ selected: focused }}
-      className={`min-h-16 items-center justify-center gap-1 active:opacity-70 ${variant === 'rail' ? 'w-full' : 'flex-1'}`}
+      className={`items-center justify-center gap-1 active:opacity-70 ${tone.item}`}
     >
       <View
-        className={`h-9 w-16 items-center justify-center rounded-full ${focused ? tone.pill : ''}`}
+        className={`items-center justify-center rounded-full ${tone.pill} ${focused ? tone.activePill : ''}`}
       >
-        <Ionicons
+        <Icon
           name={focused ? icon.active : icon.inactive}
-          size={24}
+          size={tone.iconSize}
           color={focused ? colors.danger : tone.inactiveIcon}
         />
         {badge === undefined ? null : (
@@ -170,7 +181,7 @@ function NavigationItem({
       <Text
         numberOfLines={1}
         maxFontSizeMultiplier={1.3}
-        className={`text-sm ${focused ? `font-sans-bold ${tone.activeLabel}` : `font-sans-medium ${tone.inactiveLabel}`}`}
+        className={`${tone.labelSize} ${focused ? `font-sans-bold ${tone.activeLabel}` : `font-sans-medium ${tone.inactiveLabel}`}`}
       >
         {label}
       </Text>

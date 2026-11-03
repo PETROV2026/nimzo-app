@@ -1,4 +1,3 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Icon } from '@/components/icon';
 import { useSession } from '@/auth/session-provider';
 import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
@@ -89,7 +89,7 @@ export default function NotesScreen() {
       {hasNotes ? (
         <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
           <View className="min-h-14 flex-1 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
-            <MaterialIcons name="search" size={24} color={colors.muted} />
+            <Icon name="magnify" size={24} color={colors.muted} />
             <TextInput
               value={search}
               onChangeText={setSearch}
@@ -106,7 +106,7 @@ export default function NotesScreen() {
                 accessibilityLabel="Borrar búsqueda"
                 className="-mr-2 min-h-14 min-w-14 items-center justify-center"
               >
-                <MaterialIcons name="close" size={22} color={colors.muted} />
+                <Icon name="close" size={22} color={colors.muted} />
               </Pressable>
             ) : null}
           </View>
@@ -143,7 +143,7 @@ export default function NotesScreen() {
         />
       ) : (
         <EmptyState
-          icon="event-note"
+          icon="note-text-outline"
           title="Aún no tienes notas"
           description="Apunta pendientes, material que falta llevar o datos de tus visitas. Toca + para crear la primera; se guarda en esta tablet, aun sin internet."
         />
@@ -155,7 +155,7 @@ export default function NotesScreen() {
         className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 ${split ? 'bottom-5 right-5 h-14 w-14' : 'bottom-6 right-6 h-[72px] w-[72px]'}`}
         style={{ elevation: 6 }}
       >
-        <MaterialIcons name="add" size={split ? 28 : 36} color={colors['on-primary']} />
+        <Icon name="plus" size={split ? 28 : 36} color={colors['on-primary']} />
       </Pressable>
     </View>
   );
@@ -175,7 +175,7 @@ export default function NotesScreen() {
             />
           ) : (
             <View className="flex-1 items-center justify-center gap-3 p-8">
-              <MaterialIcons name="edit-note" size={56} color={colors['border-strong']} />
+              <Icon name="note-edit-outline" size={56} color={colors['border-strong']} />
               <Text className="text-center font-sans text-lg text-muted">
                 Elige una nota de la lista o crea una nueva.
               </Text>

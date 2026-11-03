@@ -1,5 +1,5 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { colors } from '@/theme';
 
 type DialogHeaderProps = {
@@ -24,7 +24,7 @@ export function DialogHeader({ title, description, onClose, disabled }: DialogHe
           accessibilityLabel="Cerrar"
           className={`min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-surface ${disabled ? 'opacity-50' : ''}`}
         >
-          <MaterialIcons name="close" size={24} color={colors.muted} />
+          <Icon name="close" size={24} color={colors.muted} />
           <Text className="font-sans-medium text-base text-muted">Cerrar</Text>
         </Pressable>
       </View>

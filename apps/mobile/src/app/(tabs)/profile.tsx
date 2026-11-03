@@ -1,8 +1,8 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { mexicanStateLabels, userRoleLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
-import { useState, type ComponentProps } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { Icon, type IconName } from '@/components/icon';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
@@ -12,8 +12,6 @@ import { SignatureSection } from '@/components/signature-section';
 import { SupportDialog } from '@/components/support-dialog';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
-
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 const twoColumnWidth = 900;
 const appVersion = Constants.expoConfig?.version;
@@ -89,7 +87,7 @@ export default function ProfileScreen() {
         action={
           <Button
             variant="ghost"
-            icon="edit"
+            icon="pencil-outline"
             label="Editar"
             onPress={() => setEditing(true)}
             disabled={!canEdit}
@@ -98,10 +96,10 @@ export default function ProfileScreen() {
       />
       {profile ? (
         <View className="gap-4">
-          <InfoRow icon="mail-outline" label="Correo electrónico" value={email} />
-          <InfoRow icon="phone" label="Teléfono" value={profile.phone} />
-          <InfoRow icon="place" label="Ciudad" value={city} />
-          <InfoRow icon="map" label="Estado" value={state} />
+          <InfoRow icon="email-outline" label="Correo electrónico" value={email} />
+          <InfoRow icon="phone-outline" label="Teléfono" value={profile.phone} />
+          <InfoRow icon="map-marker-outline" label="Ciudad" value={city} />
+          <InfoRow icon="map-outline" label="Estado" value={state} />
         </View>
       ) : (
         <Text className="font-sans text-base text-foreground">
@@ -119,12 +117,12 @@ export default function ProfileScreen() {
       accessibilityHint="Muestra el correo para contactar a soporte"
       className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-surface"
     >
-      <MaterialIcons name="support-agent" size={24} color={colors.danger} />
+      <Icon name="face-agent" size={24} color={colors.danger} />
       <View className="flex-1 gap-0.5">
         <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
         <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>
       </View>
-      <MaterialIcons name="chevron-right" size={24} color={colors.muted} />
+      <Icon name="chevron-right" size={24} color={colors.muted} />
     </Pressable>
   );
 
@@ -135,7 +133,7 @@ export default function ProfileScreen() {
       accessibilityLabel="Cerrar sesión"
       className="min-h-16 flex-row items-center gap-3 px-2 active:opacity-70"
     >
-      <MaterialIcons name="logout" size={24} color={colors.destructive} />
+      <Icon name="logout" size={24} color={colors.destructive} />
       <Text className="font-sans-bold text-lg text-destructive">Cerrar sesión</Text>
     </Pressable>
   );
@@ -215,7 +213,7 @@ function InfoRow({ icon, label, value }: InfoRowProps) {
       accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
       className="flex-row items-center gap-3.5"
     >
-      <MaterialIcons name={icon} size={24} color={colors.danger} />
+      <Icon name={icon} size={24} color={colors.danger} />
       <View className="flex-1">
         <Text className="font-sans text-sm text-muted">{label}</Text>
         <Text numberOfLines={2} className="font-sans-medium text-lg text-foreground">

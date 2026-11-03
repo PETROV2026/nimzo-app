@@ -1,9 +1,9 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { supportEmail } from '@nimzo/shared';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import { useEffect, useState } from 'react';
 import { Linking, Modal, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { colors } from '@/theme';
@@ -69,7 +69,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <View className="flex-row items-center gap-4">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger">
-              <MaterialIcons name="support-agent" size={26} color={colors['on-danger']} />
+              <Icon name="face-agent" size={26} color={colors['on-danger']} />
             </View>
             <Text className="flex-1 font-sans-bold text-xl text-foreground">¿Necesitas ayuda?</Text>
           </View>
@@ -93,11 +93,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               accessibilityLabel={copied ? 'Correo copiado' : 'Copiar correo'}
               className="min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-surface"
             >
-              <MaterialIcons
-                name={copied ? 'check' : 'content-copy'}
-                size={22}
-                color={colors.muted}
-              />
+              <Icon name={copied ? 'check' : 'content-copy'} size={22} color={colors.muted} />
               <Text className="font-sans-semibold text-base text-muted">
                 {copied ? 'Copiado' : 'Copiar'}
               </Text>
@@ -109,7 +105,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               accessibilityRole="alert"
               className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
             >
-              <MaterialIcons name="info-outline" size={22} color={colors['on-accent']} />
+              <Icon name="information-outline" size={22} color={colors['on-accent']} />
               <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
                 No encontramos una app de correo en esta tablet. Copia el correo y escríbenos desde
                 tu teléfono o computadora.
@@ -119,13 +115,13 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <Button
             variant="danger"
-            icon="mail-outline"
+            icon="email-outline"
             label="Escribir correo"
             onPress={handleWrite}
           />
 
           <View className="flex-row items-start gap-3 rounded-lg bg-canvas p-4">
-            <MaterialIcons name="info-outline" size={20} color={colors['primary-strong']} />
+            <Icon name="information-outline" size={20} color={colors['primary-strong']} />
             <Text className="flex-1 font-sans text-sm leading-5 text-muted">
               Al abrir el correo se incluyen tu cuenta y la versión de la app para ayudarnos a
               revisar el problema. No compartas tu contraseña.

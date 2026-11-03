@@ -1,4 +1,3 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useState } from 'react';
@@ -11,6 +10,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { Icon } from '@/components/icon';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
@@ -199,7 +199,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
         <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
           {value}
         </Text>
-        <MaterialIcons name="lock-outline" size={20} color={colors.muted} />
+        <Icon name="lock-outline" size={20} color={colors.muted} />
       </View>
     </View>
   );

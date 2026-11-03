@@ -1,7 +1,7 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { useEffect, useRef, useState, type ComponentProps } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Icon, type IconName } from '@/components/icon';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ClientPicker } from '@/components/notes/client-picker';
 import { NoteMenu } from '@/components/notes/note-menu';
@@ -18,8 +18,6 @@ import {
 } from '@/notes/notes-db';
 import { cancelReminder, refreshReminder, reminderKey, scheduleReminder } from '@/notes/reminders';
 import { colors } from '@/theme';
-
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 const autosaveMs = 400;
 
@@ -187,18 +185,18 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
             accessibilityLabel="Volver a tus notas"
             className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-surface"
           >
-            <MaterialIcons name="arrow-back" size={24} color={colors.foreground} />
+            <Icon name="arrow-left" size={24} color={colors.foreground} />
             <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
           </Pressable>
         ) : null}
         <View className="flex-1" />
         <ToolbarButton
-          icon="push-pin"
+          icon="pin"
           label={note.pinned ? 'Fijada' : 'Fijar'}
           active={note.pinned}
           onPress={() => update({ pinned: !note.pinned })}
         />
-        <ToolbarButton icon="more-vert" label="Más" onPress={() => setMenuOpen(true)} />
+        <ToolbarButton icon="dots-vertical" label="Más" onPress={() => setMenuOpen(true)} />
       </View>
 
       <View className="flex-1 flex-row">
@@ -261,8 +259,8 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                       accessibilityState={{ checked: item.done }}
                       className="min-h-14 min-w-14 items-center justify-center"
                     >
-                      <MaterialIcons
-                        name={item.done ? 'check-box' : 'check-box-outline-blank'}
+                      <Icon
+                        name={item.done ? 'checkbox-marked' : 'checkbox-blank-outline'}
                         size={28}
                         color={item.done ? colors['primary-strong'] : colors['border-strong']}
                       />
@@ -285,7 +283,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                       accessibilityLabel="Quitar pendiente"
                       className="min-h-14 min-w-14 items-center justify-center"
                     >
-                      <MaterialIcons name="close" size={22} color={colors.muted} />
+                      <Icon name="close" size={22} color={colors.muted} />
                     </Pressable>
                   </View>
                 ))}
@@ -294,7 +292,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                   accessibilityRole="button"
                   className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-surface ${items.length > 0 ? 'border-t border-border' : ''}`}
                 >
-                  <MaterialIcons name="add" size={24} color={colors['primary-strong']} />
+                  <Icon name="plus" size={24} color={colors['primary-strong']} />
                   <Text className="font-sans-semibold text-lg text-primary-strong">
                     Agregar pendiente
                   </Text>
@@ -304,7 +302,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
 
             <View className="overflow-hidden rounded-2xl border border-border">
               <DetailRow
-                icon="business"
+                icon="domain"
                 label="Cliente"
                 value={note.clientName}
                 placeholder="Ligar a un cliente"
@@ -400,7 +398,7 @@ function ToolbarButton({ icon, label, onPress, active }: ToolbarButtonProps) {
       accessibilityState={active === undefined ? undefined : { selected: active }}
       className={`min-h-14 flex-row items-center gap-2 rounded-full px-4 active:bg-surface ${active ? 'bg-canvas' : ''}`}
     >
-      <MaterialIcons name={icon} size={22} color={color} />
+      <Icon name={icon} size={22} color={color} />
       <Text
         className={`font-sans-semibold text-base ${active ? 'text-primary-strong' : 'text-muted'}`}
       >
@@ -438,7 +436,7 @@ function DetailRow({
         className="min-h-16 flex-1 flex-row items-center gap-4 px-4 active:bg-surface"
       >
         <View className="h-10 w-10 items-center justify-center rounded-full bg-canvas">
-          <MaterialIcons
+          <Icon
             name={icon}
             size={22}
             color={tone === 'alert' ? colors['danger-strong'] : colors['primary-strong']}
@@ -461,7 +459,7 @@ function DetailRow({
           accessibilityLabel={`Quitar ${label.toLowerCase()}`}
           className="min-h-16 min-w-16 items-center justify-center"
         >
-          <MaterialIcons name="close" size={22} color={colors.muted} />
+          <Icon name="close" size={22} color={colors.muted} />
         </Pressable>
       ) : null}
     </View>

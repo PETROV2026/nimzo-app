@@ -1,10 +1,10 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
+import { Icon, type IconName } from '@/components/icon';
 import { colors } from '@/theme';
 
 type EmptyStateProps = {
-  icon?: ComponentProps<typeof MaterialIcons>['name'];
+  icon?: IconName;
   title?: string;
   description: string;
   action?: ReactNode;
@@ -13,7 +13,7 @@ type EmptyStateProps = {
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
   return (
     <View className="flex-1 items-center justify-center gap-4 bg-canvas p-8">
-      {icon ? <MaterialIcons name={icon} size={64} color={colors.muted} /> : null}
+      {icon ? <Icon name={icon} size={64} color={colors.muted} /> : null}
       <View className="max-w-md items-center gap-2">
         {title ? (
           <Text className="text-center font-sans-semibold text-xl text-foreground">{title}</Text>
