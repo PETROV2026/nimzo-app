@@ -24,7 +24,10 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
         style={{ elevation: 8 }}
       >
         <View className="gap-2 px-4 pb-3 pt-4">
-          <Text className="font-sans-semibold text-base text-foreground">Color de la nota</Text>
+          <View className="flex-row items-center gap-2">
+            <Icon name="color-palette-outline" size={20} color={colors.muted} />
+            <Text className="font-sans-semibold text-base text-foreground">Color de la nota</Text>
+          </View>
           <View
             accessibilityRole="radiogroup"
             accessibilityLabel="Color de la nota"

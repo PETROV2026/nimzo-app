@@ -81,7 +81,7 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
             accessibilityState={{ selected: item.id === selectedId }}
             className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-border ${item.id === selectedId ? 'bg-canvas' : ''}`}
           >
-            <Icon name="business-outline" size={22} color={colors.muted} />
+            <Icon name="briefcase-outline" size={22} color={colors.muted} />
             <HighlightedText
               text={item.name}
               term={search}

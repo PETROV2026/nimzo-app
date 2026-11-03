@@ -97,9 +97,11 @@ export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
         {note.clientName || items.length > 0 || note.remindAt ? (
           <View className="flex-row flex-wrap gap-2 pt-0.5">
             {note.clientName ? (
-              <Chip icon="business-outline" label={note.clientName} term={search} />
+              <Chip icon="briefcase-outline" label={note.clientName} term={search} />
             ) : null}
-            {items.length > 0 ? <Chip icon="checkbox" label={`${done}/${items.length}`} /> : null}
+            {items.length > 0 ? (
+              <Chip icon="checkmark-done-outline" label={`${done}/${items.length}`} />
+            ) : null}
             {note.remindAt ? (
               <Chip
                 icon={overdue ? 'warning-outline' : 'alarm-outline'}

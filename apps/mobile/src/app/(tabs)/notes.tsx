@@ -106,7 +106,7 @@ export default function NotesScreen() {
                 accessibilityLabel="Borrar búsqueda"
                 className="-mr-2 min-h-14 min-w-14 items-center justify-center"
               >
-                <Icon name="close" size={22} color={colors.muted} />
+                <Icon name="close-circle" size={24} color={colors.muted} />
               </Pressable>
             ) : null}
           </View>

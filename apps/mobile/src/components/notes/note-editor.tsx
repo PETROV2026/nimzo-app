@@ -191,7 +191,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
         ) : null}
         <View className="flex-1" />
         <ToolbarButton
-          icon="pin"
+          icon={note.pinned ? 'pin' : 'pin-outline'}
           label={note.pinned ? 'Fijada' : 'Fijar'}
           active={note.pinned}
           onPress={() => update({ pinned: !note.pinned })}
@@ -283,7 +283,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                       accessibilityLabel="Quitar pendiente"
                       className="min-h-14 min-w-14 items-center justify-center"
                     >
-                      <Icon name="close" size={22} color={colors.muted} />
+                      <Icon name="remove-circle-outline" size={24} color={colors.muted} />
                     </Pressable>
                   </View>
                 ))}
@@ -302,7 +302,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
 
             <View className="overflow-hidden rounded-2xl border border-border">
               <DetailRow
-                icon="business-outline"
+                icon="briefcase-outline"
                 label="Cliente"
                 value={note.clientName}
                 placeholder="Ligar a un cliente"
@@ -459,7 +459,7 @@ function DetailRow({
           accessibilityLabel={`Quitar ${label.toLowerCase()}`}
           className="min-h-16 min-w-16 items-center justify-center"
         >
-          <Icon name="close" size={22} color={colors.muted} />
+          <Icon name="close-circle-outline" size={24} color={colors.muted} />
         </Pressable>
       ) : null}
     </View>
