@@ -2,10 +2,8 @@ import { signatureBucket } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { SectionHeader } from '@/components/section-header';
-import { SignatureDialog } from '@/components/signature-dialog';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 import { colors } from '@/theme';
@@ -41,7 +39,7 @@ type SignatureSectionProps = {
   signaturePath: string | null | undefined;
   disabled: boolean;
   name: string;
-  role: string;
+  onSign: () => void;
   className?: string;
 };
 
@@ -49,12 +47,10 @@ export function SignatureSection({
   signaturePath,
   disabled,
   name,
-  role,
+  onSign,
   className,
 }: SignatureSectionProps) {
-  const { saveSignature } = useSession();
   const online = useOnline();
-  const [signing, setSigning] = useState(false);
   const [resolved, setResolved] = useState<{ path: string; uri: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);
 
@@ -76,7 +72,6 @@ export function SignatureSection({
   }
 
   const current = resolved?.path === signaturePath ? resolved : null;
-  const holder = [role, 'Titular de la firma'].filter(Boolean).join(' · ');
 
   let preview: ReactNode;
   if (signaturePath === undefined) {
@@ -124,16 +119,9 @@ export function SignatureSection({
     <View className={`gap-5 rounded-2xl border border-border bg-background p-6 ${className ?? ''}`}>
       <SectionHeader title="Tu firma" description="Así aparece en cada reporte que envías." />
 
-      <View className="h-[120px] rounded-lg border border-border px-6 pb-5 pt-3">
+      <View className="h-40 rounded-lg border border-border px-6 pb-5 pt-3">
         <View className="flex-1 items-center justify-center">{preview}</View>
         <View className="h-px bg-border" />
-      </View>
-
-      <View className="gap-0.5">
-        <Text numberOfLines={1} className="font-sans-semibold text-base text-muted">
-          {name}
-        </Text>
-        <Text className="font-sans text-sm text-muted">{holder}</Text>
       </View>
 
       <View className="mt-auto">
@@ -141,20 +129,10 @@ export function SignatureSection({
           variant={signaturePath ? 'outline' : 'primary'}
           icon="create-outline"
           label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
-          onPress={() => setSigning(true)}
+          onPress={onSign}
           disabled={disabled}
         />
       </View>
-
-      {signing ? (
-        <SignatureDialog
-          title="Tu firma"
-          name={name}
-          role={role}
-          onSave={saveSignature}
-          onClose={() => setSigning(false)}
-        />
-      ) : null}
     </View>
   );
 }

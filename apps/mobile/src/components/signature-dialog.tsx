@@ -25,7 +25,6 @@ import { colors } from '@/theme';
 type SignatureDialogProps = {
   title: string;
   name: string;
-  role: string;
   onSave: (png: Uint8Array) => Promise<string | null>;
   onClose: () => void;
 };
@@ -70,7 +69,7 @@ function renderSignaturePng(ink: Ink) {
   return surface.makeImageSnapshot().encodeToBytes();
 }
 
-export function SignatureDialog({ title, name, role, onSave, onClose }: SignatureDialogProps) {
+export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialogProps) {
   const { height } = useWindowDimensions();
   const compact = height < 800;
   const inkBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
@@ -86,7 +85,6 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
   const hasInk = ink !== null;
   const canSave = !!ink && ink.width + ink.height >= minimumInkSize;
   const clearDisabled = !hasInk || saving;
-  const holder = [role, 'Firma personal para reportes'].filter(Boolean).join(' · ');
 
   function startStroke() {
     setError(null);
@@ -201,7 +199,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                   <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
                     {name}
                   </Text>
-                  <Text className="font-sans text-sm text-muted">{holder}</Text>
+                  <Text className="font-sans text-sm text-muted">Firma personal para reportes</Text>
                 </View>
               </View>
             )}

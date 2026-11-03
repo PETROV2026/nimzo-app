@@ -1,19 +1,21 @@
-import { mexicanStateLabels, userRoleLabels } from '@nimzo/shared';
+import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
-import { Icon, type IconName } from '@/components/icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ConnectionStatus } from '@/components/connection-status';
 import { EditProfileDialog } from '@/components/edit-profile-dialog';
+import { Icon, type IconName } from '@/components/icon';
 import { SectionHeader } from '@/components/section-header';
+import { SignatureDialog } from '@/components/signature-dialog';
 import { SignatureSection } from '@/components/signature-section';
 import { SupportDialog } from '@/components/support-dialog';
 import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
+import { useNotificationAccess } from '@/notes/reminders';
 import { colors } from '@/theme';
 
 const twoColumnWidth = 900;
@@ -24,7 +26,9 @@ export default function ProfileScreen() {
   const online = useOnline();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const notifications = useNotificationAccess();
   const [editing, setEditing] = useState(false);
+  const [signing, setSigning] = useState(false);
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [showingSupport, setShowingSupport] = useState(false);
@@ -33,15 +37,16 @@ export default function ProfileScreen() {
     return null;
   }
 
-  const { profile, signOut } = session;
+  const { profile, signOut, saveSignature } = session;
   const wide = width >= twoColumnWidth;
   const canEdit = online && profile !== null;
   const email = session.session.user.email ?? null;
   const name = profile?.fullName || email || '';
-  const role = profile ? userRoleLabels[profile.role] : '';
   const city = profile?.city || null;
   const state = profile?.state ? mexicanStateLabels[profile.state] : null;
-  const subtitle = [role, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+  const place = [city, state].filter(Boolean).join(', ');
+  const missingSignature = profile?.signaturePath === null;
+  const edit = canEdit ? () => setEditing(true) : undefined;
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -52,10 +57,32 @@ export default function ProfileScreen() {
     }
   }
 
+  const signatureAlert = missingSignature ? (
+    <View
+      accessibilityRole="alert"
+      className="flex-row items-center gap-4 rounded-2xl bg-accent px-5 py-4"
+    >
+      <Icon name="warning-outline" size={26} color={colors['on-accent']} />
+      <Text className="flex-1 font-sans-medium text-base text-on-accent">
+        Te falta tu firma. La necesitas para enviar reportes.
+      </Text>
+      {canEdit ? (
+        <View className="w-[190px]">
+          <Button
+            variant="secondary"
+            icon="create-outline"
+            label="Crear firma"
+            onPress={() => setSigning(true)}
+          />
+        </View>
+      ) : null}
+    </View>
+  ) : null;
+
   const identity = (
     <View className="flex-row items-center gap-5">
-      <View className="h-20 w-20 items-center justify-center rounded-full bg-danger">
-        <Text className="font-sans-bold text-3xl text-on-danger">{initials(name)}</Text>
+      <View className="h-20 w-20 items-center justify-center rounded-full bg-muted">
+        <Text className="font-sans-bold text-3xl text-background">{initials(name)}</Text>
       </View>
       <View className="flex-1 gap-1">
         <Text
@@ -65,13 +92,27 @@ export default function ProfileScreen() {
         >
           {name}
         </Text>
-        {subtitle ? (
+        {place ? (
           <Text numberOfLines={1} className="font-sans text-base text-muted">
-            {subtitle}
+            {place}
+          </Text>
+        ) : null}
+        {email && email !== name ? (
+          <Text numberOfLines={1} className="font-sans text-base text-muted">
+            {email}
           </Text>
         ) : null}
       </View>
       <ConnectionStatus />
+    </View>
+  );
+
+  const offlineHint = online ? null : (
+    <View className="flex-row items-center gap-3 px-1">
+      <Icon name="cloud-offline-outline" size={22} color={colors.muted} />
+      <Text className="flex-1 font-sans text-base text-muted">
+        Necesitas internet para editar tus datos y tu firma.
+      </Text>
     </View>
   );
 
@@ -81,7 +122,7 @@ export default function ProfileScreen() {
     >
       <SectionHeader
         title="Datos de contacto"
-        description="Así te localizan tus clientes y el equipo de Nimzo."
+        description="Aparecen en cada reporte que envías."
         action={
           <Button
             variant="ghost"
@@ -94,10 +135,27 @@ export default function ProfileScreen() {
       />
       {profile ? (
         <View className="gap-4">
-          <InfoRow icon="mail-outline" label="Correo electrónico" value={email} />
-          <InfoRow icon="call-outline" label="Teléfono" value={profile.phone} />
-          <InfoRow icon="business-outline" label="Ciudad" value={city} />
-          <InfoRow icon="map-outline" label="Estado" value={state} />
+          <InfoRow
+            icon="call-outline"
+            label="Teléfono"
+            value={profile.phone}
+            emptyLabel="Agregar teléfono"
+            onAdd={edit}
+          />
+          <InfoRow
+            icon="business-outline"
+            label="Ciudad"
+            value={city}
+            emptyLabel="Agregar ciudad"
+            onAdd={edit}
+          />
+          <InfoRow
+            icon="map-outline"
+            label="Estado"
+            value={state}
+            emptyLabel="Agregar estado"
+            onAdd={edit}
+          />
         </View>
       ) : (
         <Text className="font-sans text-base text-foreground">
@@ -107,77 +165,70 @@ export default function ProfileScreen() {
     </View>
   );
 
-  const supportRow = (
-    <Pressable
-      onPress={() => setShowingSupport(true)}
-      accessibilityRole="button"
-      accessibilityLabel="Ayuda y soporte"
-      accessibilityHint="Muestra el correo para contactar a soporte"
-      className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-border"
-    >
-      <Icon name="help-buoy-outline" size={24} color={colors.danger} />
-      <View className="flex-1 gap-0.5">
-        <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
-        <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>
-      </View>
-      <Icon name="chevron-forward" size={24} color={colors.muted} />
-    </Pressable>
+  const signature = (
+    <SignatureSection
+      className={wide ? 'w-2/5' : undefined}
+      signaturePath={profile ? profile.signaturePath : undefined}
+      disabled={!canEdit}
+      name={name}
+      onSign={() => setSigning(true)}
+    />
   );
 
-  const signOutRow = (
-    <Pressable
-      onPress={() => setConfirmingSignOut(true)}
-      accessibilityRole="button"
-      accessibilityLabel="Cerrar sesión"
-      className="min-h-16 flex-row items-center gap-3 rounded-xl px-4 active:bg-destructive/10"
-    >
-      <Icon name="log-out-outline" size={24} color={colors.destructive} />
-      <Text className="font-sans-bold text-lg text-destructive">Cerrar sesión</Text>
-    </Pressable>
-  );
-
-  const version = appVersion ? (
-    <Text className="text-center font-sans text-sm text-muted">Versión {appVersion}</Text>
-  ) : null;
-
-  const footer = wide ? (
-    <View className="flex-row items-center">
-      <View className="flex-1" />
-      {version}
-      <View className="flex-1 items-end">{signOutRow}</View>
-    </View>
-  ) : (
-    <View className="gap-1">
-      <View className="items-end">{signOutRow}</View>
-      {version}
-    </View>
-  );
+  const notificationsRow =
+    notifications.access === 'askable' || notifications.access === 'blocked' ? (
+      <ActionRow
+        icon="notifications-off-outline"
+        title="Avisos de recordatorios desactivados"
+        description="Tus recordatorios de Notas no van a sonar. Toca para activarlos."
+        tone="attention"
+        onPress={() => void notifications.enable()}
+      />
+    ) : null;
 
   return (
     <View className="flex-1 bg-canvas">
       <View className="bg-muted" style={{ height: insets.top }} />
       <ScrollView className="flex-1" contentContainerClassName="items-center p-7">
         <View className="w-full max-w-[1120px] gap-6">
+          {signatureAlert}
           {identity}
+          {offlineHint}
           <View className={wide ? 'flex-row gap-6' : 'gap-6'}>
-            {contact}
-            <SignatureSection
-              className={wide ? 'w-2/5' : undefined}
-              signaturePath={profile ? profile.signaturePath : undefined}
-              disabled={!canEdit}
-              name={name}
-              role={role}
+            {wide ? contact : signature}
+            {wide ? signature : contact}
+          </View>
+          <View className="gap-3">
+            {notificationsRow}
+            <ActionRow
+              icon="help-buoy-outline"
+              title="Ayuda y soporte"
+              description="¿Algo no funciona? Escríbenos."
+              onPress={() => setShowingSupport(true)}
+            />
+            <ActionRow
+              icon="log-out-outline"
+              title="Cerrar sesión"
+              tone="destructive"
+              onPress={() => setConfirmingSignOut(true)}
             />
           </View>
-          {supportRow}
-          <View className="gap-1">
-            <View className="mx-2.5 h-px bg-border" />
-            {footer}
-          </View>
+          {appVersion ? (
+            <Text className="px-1 font-sans text-sm text-muted">Versión {appVersion}</Text>
+          ) : null}
         </View>
 
         {editing && profile ? (
           <EditProfileDialog profile={profile} email={email} onClose={() => setEditing(false)} />
+        ) : null}
+
+        {signing ? (
+          <SignatureDialog
+            title="Tu firma"
+            name={name}
+            onSave={saveSignature}
+            onClose={() => setSigning(false)}
+          />
         ) : null}
 
         {showingSupport ? (
@@ -205,22 +256,99 @@ type InfoRowProps = {
   icon: IconName;
   label: string;
   value: string | null;
+  emptyLabel: string;
+  onAdd: (() => void) | undefined;
 };
 
-function InfoRow({ icon, label, value }: InfoRowProps) {
+function InfoRow({ icon, label, value, emptyLabel, onAdd }: InfoRowProps) {
+  const content = (
+    <>
+      <Icon name={icon} size={24} color={colors.danger} />
+      <View className="flex-1">
+        <Text className="font-sans text-sm text-muted">{label}</Text>
+        {value ? (
+          <Text numberOfLines={2} className="font-sans-medium text-lg text-foreground">
+            {value}
+          </Text>
+        ) : (
+          <Text
+            className={`font-sans-semibold text-lg ${onAdd ? 'text-primary-strong' : 'text-muted'}`}
+          >
+            {onAdd ? emptyLabel : 'Sin capturar'}
+          </Text>
+        )}
+      </View>
+    </>
+  );
+
+  if (!value && onAdd) {
+    return (
+      <Pressable
+        onPress={onAdd}
+        accessibilityRole="button"
+        accessibilityLabel={emptyLabel}
+        className="-mx-3 min-h-14 flex-row items-center gap-3.5 rounded-xl px-3 active:bg-primary/10"
+      >
+        {content}
+      </Pressable>
+    );
+  }
+
   return (
     <View
       accessible
       accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
       className="flex-row items-center gap-3.5"
     >
-      <Icon name={icon} size={24} color={colors.danger} />
-      <View className="flex-1">
-        <Text className="font-sans text-sm text-muted">{label}</Text>
-        <Text numberOfLines={2} className="font-sans-medium text-lg text-foreground">
-          {value || 'Sin capturar'}
-        </Text>
-      </View>
+      {content}
     </View>
+  );
+}
+
+const actionTones = {
+  default: {
+    container: 'border border-border bg-background active:bg-border',
+    icon: colors.danger,
+    title: 'text-foreground',
+  },
+  attention: {
+    container: 'border-2 border-accent bg-background active:bg-accent/20',
+    icon: colors.foreground,
+    title: 'text-foreground',
+  },
+  destructive: {
+    container: 'border border-border bg-background active:bg-destructive/10',
+    icon: colors.destructive,
+    title: 'text-destructive',
+  },
+};
+
+type ActionRowProps = {
+  icon: IconName;
+  title: string;
+  description?: string;
+  tone?: keyof typeof actionTones;
+  onPress: () => void;
+};
+
+function ActionRow({ icon, title, description, tone = 'default', onPress }: ActionRowProps) {
+  const style = actionTones[tone];
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityHint={description}
+      className={`min-h-20 flex-row items-center gap-4 rounded-2xl px-5 py-3 ${style.container}`}
+    >
+      <Icon name={icon} size={24} color={style.icon} />
+      <View className="flex-1 gap-0.5">
+        <Text className={`font-sans-semibold text-lg ${style.title}`}>{title}</Text>
+        {description ? <Text className="font-sans text-sm text-muted">{description}</Text> : null}
+      </View>
+      {tone === 'destructive' ? null : (
+        <Icon name="chevron-forward" size={24} color={colors.muted} />
+      )}
+    </Pressable>
   );
 }
