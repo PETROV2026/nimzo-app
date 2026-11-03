@@ -16,7 +16,7 @@ const icons: Record<string, { active: IconName; inactive: IconName }> = {
 const palette = {
   rail: {
     item: 'min-h-20 w-full',
-    pill: 'h-10 w-[72px]',
+    pill: 'h-14 w-14',
     activePill: 'bg-background',
     pressedPill: 'bg-background/20',
     iconSize: 28,
