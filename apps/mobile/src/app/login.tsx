@@ -133,7 +133,11 @@ export default function LoginScreen() {
               accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               accessibilityState={{ disabled: loading }}
             >
-              <Icon name={showPassword ? 'eye-off' : 'eye'} size={24} color={colors.muted} />
+              <Icon
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                size={24}
+                color={colors.muted}
+              />
             </Pressable>
           }
         />
@@ -146,7 +150,7 @@ export default function LoginScreen() {
             accessibilityLiveRegion="polite"
             className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
           >
-            <Icon name="cloud-off-outline" size={24} color={colors['on-accent']} />
+            <Icon name="cloud-offline-outline" size={24} color={colors['on-accent']} />
             <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
               Sin conexión a internet. Necesitas conexión para iniciar sesión.
             </Text>

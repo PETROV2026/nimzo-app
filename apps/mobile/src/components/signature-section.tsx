@@ -139,7 +139,7 @@ export function SignatureSection({
       <View className="mt-auto">
         <Button
           variant={signaturePath ? 'outline' : 'primary'}
-          icon="draw"
+          icon="brush-outline"
           label={signaturePath ? 'Cambiar firma' : 'Crear firma'}
           onPress={() => setSigning(true)}
           disabled={disabled}

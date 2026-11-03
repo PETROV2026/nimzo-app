@@ -33,7 +33,7 @@ export function ConfirmDialog({
           <Text className="font-sans text-lg text-foreground">{message}</Text>
           {note ? (
             <View className="flex-row items-start gap-3 rounded-xl bg-canvas p-4">
-              <Icon name="information-outline" size={22} color={colors.muted} />
+              <Icon name="information-circle-outline" size={22} color={colors.muted} />
               <Text className="flex-1 font-sans text-base text-muted">{note}</Text>
             </View>
           ) : null}

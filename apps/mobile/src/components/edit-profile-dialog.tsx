@@ -199,7 +199,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
         <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
           {value}
         </Text>
-        <Icon name="lock-outline" size={20} color={colors.muted} />
+        <Icon name="lock-closed-outline" size={20} color={colors.muted} />
       </View>
     </View>
   );

@@ -1,6 +1,6 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 
-export const Icon = MaterialCommunityIcons;
+export const Icon = Ionicons;
 
-export type IconName = ComponentProps<typeof MaterialCommunityIcons>['name'];
+export type IconName = ComponentProps<typeof Ionicons>['name'];

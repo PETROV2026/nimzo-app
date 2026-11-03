@@ -185,7 +185,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
             accessibilityLabel="Volver a tus notas"
             className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
           >
-            <Icon name="arrow-left" size={24} color={colors.foreground} />
+            <Icon name="arrow-back" size={24} color={colors.foreground} />
             <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
           </Pressable>
         ) : null}
@@ -196,7 +196,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
           active={note.pinned}
           onPress={() => update({ pinned: !note.pinned })}
         />
-        <ToolbarButton icon="dots-vertical" label="Más" onPress={() => setMenuOpen(true)} />
+        <ToolbarButton icon="ellipsis-vertical" label="Más" onPress={() => setMenuOpen(true)} />
       </View>
 
       <View className="flex-1 flex-row">
@@ -260,7 +260,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                       className="min-h-14 min-w-14 items-center justify-center"
                     >
                       <Icon
-                        name={item.done ? 'checkbox-marked' : 'checkbox-blank-outline'}
+                        name={item.done ? 'checkbox' : 'square-outline'}
                         size={28}
                         color={item.done ? colors['primary-strong'] : colors['border-strong']}
                       />
@@ -292,7 +292,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                   accessibilityRole="button"
                   className={`min-h-14 flex-row items-center gap-3 px-4 active:bg-border ${items.length > 0 ? 'border-t border-border' : ''}`}
                 >
-                  <Icon name="plus" size={24} color={colors['primary-strong']} />
+                  <Icon name="add" size={24} color={colors['primary-strong']} />
                   <Text className="font-sans-semibold text-lg text-primary-strong">
                     Agregar pendiente
                   </Text>
@@ -302,7 +302,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
 
             <View className="overflow-hidden rounded-2xl border border-border">
               <DetailRow
-                icon="domain"
+                icon="business-outline"
                 label="Cliente"
                 value={note.clientName}
                 placeholder="Ligar a un cliente"
@@ -311,7 +311,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
               />
               <View className="h-px bg-border" />
               <DetailRow
-                icon={overdue ? 'alarm-off' : 'alarm'}
+                icon={overdue ? 'warning-outline' : 'alarm-outline'}
                 label="Recordatorio"
                 value={note.remindAt ? formatReminder(note.remindAt) : null}
                 placeholder="Avisarme en una fecha y hora"

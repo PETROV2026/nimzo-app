@@ -96,9 +96,9 @@ export default function ProfileScreen() {
       />
       {profile ? (
         <View className="gap-4">
-          <InfoRow icon="email-outline" label="Correo electrónico" value={email} />
-          <InfoRow icon="phone-outline" label="Teléfono" value={profile.phone} />
-          <InfoRow icon="map-marker-outline" label="Ciudad" value={city} />
+          <InfoRow icon="mail-outline" label="Correo electrónico" value={email} />
+          <InfoRow icon="call-outline" label="Teléfono" value={profile.phone} />
+          <InfoRow icon="location-outline" label="Ciudad" value={city} />
           <InfoRow icon="map-outline" label="Estado" value={state} />
         </View>
       ) : (
@@ -117,12 +117,12 @@ export default function ProfileScreen() {
       accessibilityHint="Muestra el correo para contactar a soporte"
       className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-border"
     >
-      <Icon name="face-agent" size={24} color={colors.danger} />
+      <Icon name="headset-outline" size={24} color={colors.danger} />
       <View className="flex-1 gap-0.5">
         <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
         <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>
       </View>
-      <Icon name="chevron-right" size={24} color={colors.muted} />
+      <Icon name="chevron-forward" size={24} color={colors.muted} />
     </Pressable>
   );
 
@@ -133,7 +133,7 @@ export default function ProfileScreen() {
       accessibilityLabel="Cerrar sesión"
       className="min-h-16 flex-row items-center gap-3 rounded-xl px-4 active:bg-destructive/10"
     >
-      <Icon name="logout" size={24} color={colors.destructive} />
+      <Icon name="log-out-outline" size={24} color={colors.destructive} />
       <Text className="font-sans-bold text-lg text-destructive">Cerrar sesión</Text>
     </Pressable>
   );

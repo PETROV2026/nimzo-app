@@ -7,10 +7,10 @@ import { colors } from '@/theme';
 type Variant = 'rail' | 'dock';
 
 const icons: Record<string, { active: IconName; inactive: IconName }> = {
-  services: { active: 'clipboard-text', inactive: 'clipboard-text-outline' },
-  clients: { active: 'account-group', inactive: 'account-group-outline' },
-  notes: { active: 'note-text', inactive: 'note-text-outline' },
-  profile: { active: 'account-circle', inactive: 'account-circle-outline' },
+  services: { active: 'clipboard', inactive: 'clipboard-outline' },
+  clients: { active: 'people', inactive: 'people-outline' },
+  notes: { active: 'document-text', inactive: 'document-text-outline' },
+  profile: { active: 'person-circle', inactive: 'person-circle-outline' },
 };
 
 const palette = {
