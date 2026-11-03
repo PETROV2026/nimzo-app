@@ -1,5 +1,5 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Modal, Pressable, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { noteColors } from '@/notes/note-colors';
 import type { NoteColor } from '@/notes/notes-db';
 import { colors } from '@/theme';
@@ -24,7 +24,10 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
         style={{ elevation: 8 }}
       >
         <View className="gap-2 px-4 pb-3 pt-4">
-          <Text className="font-sans-semibold text-base text-foreground">Color de la nota</Text>
+          <View className="flex-row items-center gap-2">
+            <Icon name="color-palette-outline" size={20} color={colors.muted} />
+            <Text className="font-sans-semibold text-base text-foreground">Color de la nota</Text>
+          </View>
           <View
             accessibilityRole="radiogroup"
             accessibilityLabel="Color de la nota"
@@ -48,8 +51,8 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
                     className={`h-10 w-10 items-center justify-center rounded-full ${option.className} ${selected ? 'border-[3px] border-foreground' : ''}`}
                   >
                     {selected ? (
-                      <MaterialIcons
-                        name="check"
+                      <Icon
+                        name="checkmark"
                         size={20}
                         color={
                           option.value === 'yellow' || option.value === 'none'
@@ -71,9 +74,9 @@ export function NoteMenu({ color, onColor, onDelete, onClose }: NoteMenuProps) {
             onDelete();
           }}
           accessibilityRole="button"
-          className="min-h-16 flex-row items-center gap-3 px-4 active:bg-surface"
+          className="min-h-16 flex-row items-center gap-3 px-4 active:bg-border"
         >
-          <MaterialIcons name="delete-outline" size={24} color={colors['danger-strong']} />
+          <Icon name="trash-outline" size={24} color={colors['danger-strong']} />
           <Text className="font-sans-semibold text-lg text-danger-strong">Eliminar nota</Text>
         </Pressable>
       </View>

@@ -1,6 +1,6 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { matchesSearch } from '@nimzo/shared';
 import { useEffect, useState } from 'react';
+import { Icon } from '@/components/icon';
 import { HighlightedText } from '@/components/highlighted-text';
 import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { supabase } from '@/lib/supabase';
@@ -79,16 +79,16 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
             onPress={() => onSelect(item)}
             accessibilityRole="button"
             accessibilityState={{ selected: item.id === selectedId }}
-            className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-surface ${item.id === selectedId ? 'bg-canvas' : ''}`}
+            className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-border ${item.id === selectedId ? 'bg-canvas' : ''}`}
           >
-            <MaterialIcons name="business" size={22} color={colors.muted} />
+            <Icon name="briefcase-outline" size={22} color={colors.muted} />
             <HighlightedText
               text={item.name}
               term={search}
               className="flex-1 font-sans text-lg text-foreground"
             />
             {item.id === selectedId ? (
-              <MaterialIcons name="check" size={22} color={colors['primary-strong']} />
+              <Icon name="checkmark" size={22} color={colors['primary-strong']} />
             ) : null}
           </Pressable>
         )}
@@ -115,12 +115,12 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
               accessibilityLabel="Cerrar"
               className="min-h-14 min-w-14 items-center justify-center"
             >
-              <MaterialIcons name="close" size={24} color={colors.muted} />
+              <Icon name="close" size={24} color={colors.muted} />
             </Pressable>
           </View>
           {online && clients && clients.length > 0 ? (
             <View className="mx-6 mb-3 mt-1 flex-row items-center gap-2 rounded-lg border-2 border-border-strong px-3">
-              <MaterialIcons name="search" size={22} color={colors.muted} />
+              <Icon name="search" size={22} color={colors.muted} />
               <TextInput
                 value={search}
                 onChangeText={setSearch}

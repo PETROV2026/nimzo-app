@@ -3,9 +3,9 @@ import { EmptyState } from '@/components/empty-state';
 export default function ServicesScreen() {
   return (
     <EmptyState
-      icon="assignment"
-      title="Aún no tienes servicios asignados"
-      description="Cuando el administrador te asigne una visita, aparecerá aquí con sus formatos."
+      icon="clipboard-outline"
+      title="Aún no tienes servicios"
+      description="Crea un servicio para la sucursal de uno de tus clientes y llena sus formatos aquí, aun sin internet."
     />
   );
 }

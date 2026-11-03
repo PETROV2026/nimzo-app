@@ -20,6 +20,12 @@ const colors = {
   danger: '#E4572E',
   'danger-strong': '#B64524',
   'on-danger': '#FFFFFF',
+
+  success: '#2E7D32',
+  'on-success': '#FFFFFF',
+
+  destructive: '#B43D3D',
+  'on-destructive': '#FFFFFF',
 };
 
 module.exports = { colors };

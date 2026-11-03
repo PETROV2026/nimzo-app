@@ -39,6 +39,7 @@ Al diseñar o modificar cualquier interfaz de usuario, DEBES aplicar estos princ
 **Instrucciones:**
 
 - Haz los botones importantes más grandes (mínimo 44x44px para táctil)
+- **App móvil de técnicos:** se usa en campo y a veces con guantes. Todo lo que se toca mide **mínimo 56 px**; los botones principales y la navegación, **64 px**. Deja al menos 8 px entre elementos tocables
 - Coloca los CTAs primarios cerca del contenido relevante
 - Los elementos de uso frecuente deben ser fácilmente accesibles
 - Aumenta el tamaño del objetivo para acciones críticas

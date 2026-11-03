@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { AndroidImportance } from 'expo-notifications';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { AppState, Linking } from 'react-native';
 import { isOverdue } from '@/notes/format';
 import { notesWithReminders, setNotificationId, type Note } from '@/notes/notes-db';
 
@@ -126,6 +127,48 @@ export function useReminderOwner(technicianId: string | null | undefined) {
     if (technicianId === undefined) return;
     void syncReminders(technicianId);
   }, [technicianId]);
+}
+
+export type NotificationAccess = 'granted' | 'askable' | 'blocked';
+
+function accessFrom(permission: Notifications.NotificationPermissionsStatus): NotificationAccess {
+  if (permission.granted) return 'granted';
+  return permission.canAskAgain ? 'askable' : 'blocked';
+}
+
+export function useNotificationAccess() {
+  const [access, setAccess] = useState<NotificationAccess | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    function check() {
+      Notifications.getPermissionsAsync()
+        .then((permission) => {
+          if (!cancelled) setAccess(accessFrom(permission));
+        })
+        .catch(() => undefined);
+    }
+    check();
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') check();
+    });
+    return () => {
+      cancelled = true;
+      subscription.remove();
+    };
+  }, []);
+
+  async function enable() {
+    if (access === 'askable') {
+      await remindersChannel();
+      const permission = await Notifications.requestPermissionsAsync();
+      setAccess(accessFrom(permission));
+      return;
+    }
+    await Linking.openSettings();
+  }
+
+  return { access, enable };
 }
 
 function openNoteFrom(response: Notifications.NotificationResponse | null) {

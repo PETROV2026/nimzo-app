@@ -57,7 +57,7 @@ export function TextField({
         {rightAccessory}
       </View>
       {error ? (
-        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-danger-strong">
+        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
           {error}
         </Text>
       ) : null}

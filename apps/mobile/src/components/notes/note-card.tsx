@@ -1,14 +1,11 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { excerptAround, findMatches } from '@nimzo/shared';
+import { Icon, type IconName } from '@/components/icon';
 import { HighlightedText } from '@/components/highlighted-text';
 import { formatReminder, formatUpdated, isOverdue } from '@/notes/format';
 import { noteColorClass } from '@/notes/note-colors';
 import type { Note } from '@/notes/notes-db';
 import { colors } from '@/theme';
-
-type IconName = ComponentProps<typeof MaterialIcons>['name'];
 
 function noteHeadline(note: Note) {
   return note.title.trim() || note.body.trim().split('\n')[0] || 'Nota sin título';
@@ -29,7 +26,7 @@ function Chip({
     <View
       className={`flex-row items-center gap-1 rounded-full px-2.5 py-1 ${tone === 'alert' ? 'bg-danger/10' : 'bg-surface'}`}
     >
-      <MaterialIcons
+      <Icon
         name={icon}
         size={16}
         color={tone === 'alert' ? colors['danger-strong'] : colors.muted}
@@ -75,14 +72,12 @@ export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
       accessibilityRole="button"
       accessibilityLabel={`Nota: ${headline}`}
       accessibilityState={{ selected }}
-      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl border-2 bg-background active:bg-surface ${selected ? 'border-primary-strong' : 'border-transparent'}`}
+      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl border-2 bg-background active:bg-border ${selected ? 'border-primary-strong' : 'border-transparent'}`}
     >
       <View className={`w-2 ${noteColorClass(note.color)}`} />
       <View className="flex-1 gap-1.5 px-4 py-3">
         <View className="flex-row items-center gap-2">
-          {note.pinned ? (
-            <MaterialIcons name="push-pin" size={18} color={colors['primary-strong']} />
-          ) : null}
+          {note.pinned ? <Icon name="pin" size={18} color={colors['primary-strong']} /> : null}
           <HighlightedText
             text={headline}
             term={search}
@@ -102,12 +97,14 @@ export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
         {note.clientName || items.length > 0 || note.remindAt ? (
           <View className="flex-row flex-wrap gap-2 pt-0.5">
             {note.clientName ? (
-              <Chip icon="business" label={note.clientName} term={search} />
+              <Chip icon="briefcase-outline" label={note.clientName} term={search} />
             ) : null}
-            {items.length > 0 ? <Chip icon="check-box" label={`${done}/${items.length}`} /> : null}
+            {items.length > 0 ? (
+              <Chip icon="checkmark-done-outline" label={`${done}/${items.length}`} />
+            ) : null}
             {note.remindAt ? (
               <Chip
-                icon={overdue ? 'alarm-off' : 'alarm'}
+                icon={overdue ? 'warning-outline' : 'alarm-outline'}
                 label={formatReminder(note.remindAt)}
                 tone={overdue ? 'alert' : 'default'}
               />
