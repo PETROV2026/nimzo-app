@@ -29,9 +29,10 @@ const stateOptions = mexicanStates.map((code) => ({
 type EditProfileDialogProps = {
   profile: Profile;
   onClose: () => void;
+  onSaved: () => void;
 };
 
-export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
+export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDialogProps) {
   const { height } = useWindowDimensions();
   const compact = height < 800;
   const { updateProfile } = useSession();
@@ -65,6 +66,7 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
       setError(result);
       return;
     }
+    onSaved();
     onClose();
   });
 

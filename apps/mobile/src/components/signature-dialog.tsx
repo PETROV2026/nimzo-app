@@ -27,6 +27,7 @@ type SignatureDialogProps = {
   name: string;
   onSave: (png: Uint8Array) => Promise<string | null>;
   onClose: () => void;
+  onSaved: () => void;
 };
 
 type Ink = { svg: string; x: number; y: number; width: number; height: number };
@@ -69,7 +70,7 @@ function renderSignaturePng(ink: Ink) {
   return surface.makeImageSnapshot().encodeToBytes();
 }
 
-export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialogProps) {
+export function SignatureDialog({ title, name, onSave, onClose, onSaved }: SignatureDialogProps) {
   const { height } = useWindowDimensions();
   const compact = height < 800;
   const inkBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
@@ -174,6 +175,7 @@ export function SignatureDialog({ title, name, onSave, onClose }: SignatureDialo
       setError(result);
       return;
     }
+    onSaved();
     onClose();
   }
 
