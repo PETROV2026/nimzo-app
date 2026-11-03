@@ -196,7 +196,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
 
             {compact ? null : (
               <View className="flex-row items-center gap-3.5 rounded-lg bg-canvas p-4">
-                <Icon name="person-outline" size={22} color={colors['primary-strong']} />
+                <Icon name="id-card-outline" size={22} color={colors['primary-strong']} />
                 <View className="flex-1 gap-0.5">
                   <Text numberOfLines={1} className="font-sans-medium text-base text-foreground">
                     {name}
@@ -216,7 +216,7 @@ export function SignatureDialog({ title, name, role, onSave, onClose }: Signatur
                   accessibilityState={{ disabled: clearDisabled }}
                   className={`min-h-14 flex-row items-center gap-2.5 rounded-lg px-4 active:bg-border ${clearDisabled ? 'opacity-50' : ''}`}
                 >
-                  <Icon name="close-circle-outline" size={20} color={colors['primary-strong']} />
+                  <Icon name="trash-outline" size={20} color={colors['primary-strong']} />
                   <Text className="font-sans-semibold text-base text-primary-strong">Limpiar</Text>
                 </Pressable>
               </View>

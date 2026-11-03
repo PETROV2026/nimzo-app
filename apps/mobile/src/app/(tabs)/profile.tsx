@@ -96,7 +96,7 @@ export default function ProfileScreen() {
         <View className="gap-4">
           <InfoRow icon="mail-outline" label="Correo electrónico" value={email} />
           <InfoRow icon="call-outline" label="Teléfono" value={profile.phone} />
-          <InfoRow icon="location-outline" label="Ciudad" value={city} />
+          <InfoRow icon="business-outline" label="Ciudad" value={city} />
           <InfoRow icon="map-outline" label="Estado" value={state} />
         </View>
       ) : (
@@ -115,7 +115,7 @@ export default function ProfileScreen() {
       accessibilityHint="Muestra el correo para contactar a soporte"
       className="min-h-20 flex-row items-center gap-4 rounded-2xl border border-border bg-background px-5 py-3 active:bg-border"
     >
-      <Icon name="headset-outline" size={24} color={colors.danger} />
+      <Icon name="help-buoy-outline" size={24} color={colors.danger} />
       <View className="flex-1 gap-0.5">
         <Text className="font-sans-semibold text-lg text-foreground">Ayuda y soporte</Text>
         <Text className="font-sans text-sm text-muted">¿Algo no funciona? Escríbenos.</Text>

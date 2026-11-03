@@ -69,7 +69,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <View className="flex-row items-center gap-4">
             <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger">
-              <Icon name="headset-outline" size={26} color={colors['on-danger']} />
+              <Icon name="help-buoy-outline" size={26} color={colors['on-danger']} />
             </View>
             <Text className="flex-1 font-sans-bold text-xl text-foreground">¿Necesitas ayuda?</Text>
           </View>
@@ -105,7 +105,7 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
               accessibilityRole="alert"
               className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
             >
-              <Icon name="information-circle-outline" size={22} color={colors['on-accent']} />
+              <Icon name="warning-outline" size={22} color={colors['on-accent']} />
               <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
                 No encontramos una app de correo en esta tablet. Copia el correo y escríbenos desde
                 tu teléfono o computadora.
@@ -115,13 +115,13 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
 
           <Button
             variant="danger"
-            icon="mail-outline"
+            icon="send-outline"
             label="Escribir correo"
             onPress={handleWrite}
           />
 
           <View className="flex-row items-start gap-3 rounded-lg bg-canvas p-4">
-            <Icon name="information-circle-outline" size={20} color={colors['primary-strong']} />
+            <Icon name="shield-checkmark-outline" size={20} color={colors['primary-strong']} />
             <Text className="flex-1 font-sans text-sm leading-5 text-muted">
               Al abrir el correo se incluyen tu cuenta y la versión de la app para ayudarnos a
               revisar el problema. No compartas tu contraseña.
