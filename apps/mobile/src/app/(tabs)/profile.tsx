@@ -100,11 +100,6 @@ export default function ProfileScreen() {
         >
           {name}
         </Text>
-        {place ? (
-          <Text numberOfLines={1} className="font-sans text-base text-muted">
-            {place}
-          </Text>
-        ) : null}
         {email && email !== name ? (
           <Text numberOfLines={1} className="font-sans text-base text-muted">
             {email}
