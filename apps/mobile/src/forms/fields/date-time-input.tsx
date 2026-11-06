@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Icon } from '@/components/icon';
 import { DateTimePicker } from '@expo/ui/community/datetime-picker';
 import { useState } from 'react';
 import { Pressable, Text } from 'react-native';
@@ -36,8 +36,8 @@ export function DateTimeInput({
         onPress={() => setOpen(true)}
         className="min-h-14 min-w-56 flex-row items-center gap-3 self-start rounded-lg border-2 border-border-strong bg-background px-4"
       >
-        <MaterialIcons
-          name={mode === 'date' ? 'event' : 'schedule'}
+        <Icon
+          name={mode === 'date' ? 'calendar-outline' : 'time-outline'}
           size={24}
           color={colors.muted}
         />

@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Icon } from '@/components/icon';
 import { Pressable, Text, View } from 'react-native';
 import { colors } from '@/theme';
 
@@ -52,7 +52,7 @@ export function OptionButtons<T extends string>({
             onPress={() => onChange(option.value)}
             className={`min-h-14 min-w-24 flex-row items-center justify-center gap-2 rounded-lg border-2 px-4 ${selected ? style.box : 'border-border-strong bg-background'}`}
           >
-            {selected ? <MaterialIcons name="check" size={20} color={style.icon} /> : null}
+            {selected ? <Icon name="checkmark" size={20} color={style.icon} /> : null}
             <Text
               className={`font-sans-semibold text-lg ${selected ? style.text : 'text-foreground'}`}
             >

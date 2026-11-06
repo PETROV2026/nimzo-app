@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { Icon } from '@/components/icon';
 import { Pressable, Text } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import type { CheckboxValue, FieldProps } from '@/forms/types';
@@ -18,8 +18,8 @@ export function CheckboxField({ field, value, onChange, error }: CheckboxFieldPr
         onPress={() => onChange(!checked)}
         className="min-h-12 flex-row items-center gap-3 self-start"
       >
-        <MaterialIcons
-          name={checked ? 'check-box' : 'check-box-outline-blank'}
+        <Icon
+          name={checked ? 'checkbox' : 'square-outline'}
           size={32}
           color={checked ? colors['primary-strong'] : colors['border-strong']}
         />
