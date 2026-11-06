@@ -16,7 +16,7 @@ export function CheckboxField({ field, value, onChange, error }: CheckboxFieldPr
         accessibilityRole="checkbox"
         accessibilityState={{ checked }}
         onPress={() => onChange(!checked)}
-        className="min-h-12 flex-row items-center gap-3 self-start"
+        className="min-h-14 flex-row items-center gap-3 self-start"
       >
         <Icon
           name={checked ? 'checkbox' : 'square-outline'}
