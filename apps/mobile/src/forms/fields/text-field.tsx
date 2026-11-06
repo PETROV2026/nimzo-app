@@ -4,7 +4,7 @@ import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
 import { cleanNumber, toNumber } from '@/forms/to-number';
 import type { FieldProps, TextValue } from '@/forms/types';
-import { FieldLabel } from './field-frame';
+import { FieldFrame } from './field-frame';
 
 type TextFormFieldProps = FieldProps<Extract<FormField, { type: 'text' }>, TextValue>;
 
@@ -15,7 +15,7 @@ export function TextFormField({ field, value, onChange, error }: TextFormFieldPr
   if (numeric ? toNumber(text) !== toNumber(external) : text !== external) setText(external);
 
   return (
-    <FieldLabel field={field} error={error}>
+    <FieldFrame field={field} error={error}>
       <TextField
         accessibilityLabel={field.label}
         inputMode={field.inputMode}
@@ -34,6 +34,6 @@ export function TextFormField({ field, value, onChange, error }: TextFormFieldPr
           ) : null
         }
       />
-    </FieldLabel>
+    </FieldFrame>
   );
 }

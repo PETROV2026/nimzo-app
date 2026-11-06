@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
-import { FieldLabel } from './field-frame';
+import { FieldFrame } from './field-frame';
 import { OptionButtons, type Option } from './option-buttons';
 import { cleanNumber, toNumber } from '@/forms/to-number';
 
@@ -27,7 +27,7 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
 }
 
   return (
-    <FieldLabel field={field} error={error}>
+    <FieldFrame field={field} error={error}>
       <View className="flex-row flex-wrap items-end gap-4">
         <OptionButtons
           label={field.label}
@@ -56,6 +56,6 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
           </View>
         ) : null}
       </View>
-    </FieldLabel>
+    </FieldFrame>
   );
 }

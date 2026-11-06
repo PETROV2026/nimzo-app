@@ -2,7 +2,7 @@ import type { FormField } from '@nimzo/shared';
 import type { FieldProps, TimeValue } from '@/forms/types';
 import { pad } from '@/lib/pad';
 import { DateTimeInput } from './date-time-input';
-import { FieldLabel } from './field-frame';
+import { FieldFrame } from './field-frame';
 
 type TimeFieldProps = FieldProps<Extract<FormField, { type: 'time' }>, TimeValue>;
 
@@ -12,7 +12,7 @@ function toValue(date: Date) {
 
 export function TimeField({ field, value, onChange, error }: TimeFieldProps) {
   return (
-    <FieldLabel field={field} error={error}>
+    <FieldFrame field={field} error={error}>
       <DateTimeInput
         label={field.label}
         mode="time"
@@ -21,6 +21,6 @@ export function TimeField({ field, value, onChange, error }: TimeFieldProps) {
         placeholder="Elegir hora"
         onChange={(date) => onChange(toValue(date))}
       />
-    </FieldLabel>
+    </FieldFrame>
   );
 }

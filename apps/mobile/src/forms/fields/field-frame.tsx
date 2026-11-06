@@ -9,7 +9,7 @@ type FieldLabelProps = {
   children: ReactNode;
 };
 
-export function FieldLabel({ field, error, hideLabel, children }: FieldLabelProps) {
+export function FieldFrame({ field, error, hideLabel, children }: FieldLabelProps) {
   return (
     <View className={`gap-2 rounded-lg ${field.highlight ? 'bg-surface p-3' : ''}`}>
       {hideLabel ? null : (
