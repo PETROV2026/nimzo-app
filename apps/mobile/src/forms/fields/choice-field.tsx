@@ -13,6 +13,7 @@ export function ChoiceField({ field, value, onChange, error }: ChoiceFieldProps)
         options={field.options}
         value={value}
         onChange={onChange}
+        allowDeselect={!field.required}
       />
     </FieldLabel>
   );

@@ -21,8 +21,9 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
   if (toNumber(text) !== toNumber(external)) setText(external);
   const { measurement } = field;
 
-  function changeStatus(status: CheckStatus) {
-  onChange(status === 'na' ? { status } : { ...value, status });
+ function changeStatus(status?: CheckStatus) {
+    if (!status) onChange(undefined);
+    else onChange(status === 'na' ? { status } : { ...value, status });
 }
 
   return (
@@ -33,6 +34,7 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
           options={options}
           value={value?.status}
           onChange={changeStatus}
+          allowDeselect={!field.required}
         />
         {measurement && value && value.status !== 'na' ? (
           <View className="w-56">

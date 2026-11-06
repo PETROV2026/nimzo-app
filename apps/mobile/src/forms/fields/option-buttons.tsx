@@ -8,7 +8,8 @@ type OptionButtonsProps<T extends string> = {
   label: string;
   options: Option<T>[];
   value?: T;
-  onChange: (value: T) => void;
+  allowDeselect?: boolean;
+  onChange: (value: T | undefined) => void;
 };
 
 const selectedStyles = {
@@ -33,6 +34,7 @@ export function OptionButtons<T extends string>({
   label,
   options,
   value,
+  allowDeselect,
   onChange,
 }: OptionButtonsProps<T>) {
   return (
@@ -49,7 +51,7 @@ export function OptionButtons<T extends string>({
             key={option.value}
             accessibilityRole="radio"
             accessibilityState={{ checked: selected }}
-            onPress={() => onChange(option.value)}
+            onPress={() => onChange(selected && allowDeselect ? undefined : option.value)}
             className={`min-h-14 min-w-24 flex-row items-center justify-center gap-2 rounded-lg border-2 px-4 ${selected ? style.box : 'border-border-strong bg-background'}`}
           >
             {selected ? <Icon name="checkmark" size={20} color={style.icon} /> : null}
