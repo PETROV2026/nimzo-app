@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Text } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
-import { toNumber } from '@/forms/to-number';
+import { cleanNumber, toNumber } from '@/forms/to-number';
 import type { FieldProps, TextValue } from '@/forms/types';
 import { FieldLabel } from './field-label';
 
@@ -22,8 +22,9 @@ export function TextFormField({ field, value, onChange, error }: TextFormFieldPr
         textAlignVertical={field.multiline ? 'top' : 'center'}
         value={text}
         onChangeText={(next) => {
-          setText(next);
-          onChange(numeric ? toNumber(next) : next);
+          const clean = numeric ? cleanNumber(next, field.inputMode === 'decimal') : next;
+          setText(clean);
+          onChange(numeric ? toNumber(clean) : clean);
         }}
         rightAccessory={
           field.unit ? (

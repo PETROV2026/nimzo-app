@@ -5,7 +5,7 @@ import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
 import { FieldLabel } from './field-label';
 import { OptionButtons, type Option } from './option-buttons';
-import { toNumber } from '@/forms/to-number';
+import { cleanNumber, toNumber } from '@/forms/to-number';
 
 type CheckFieldProps = FieldProps<Extract<FormField, { type: 'check' }>, CheckValue>;
 
@@ -40,9 +40,10 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
               inputMode={measurement.inputMode}
               value={text}
               onChangeText={(next) => {
-                setText(next);
-                onChange({ status: value.status, value: toNumber(next) });
-              }}
+                const clean = cleanNumber(next, measurement.inputMode === 'decimal');
+                setText(clean);
+                onChange({ status: value.status, value: toNumber(clean) });
+            }}
               rightAccessory={
                 measurement.unit ? (
                   <Text className="px-4 font-sans text-lg text-muted">{measurement.unit}</Text>
