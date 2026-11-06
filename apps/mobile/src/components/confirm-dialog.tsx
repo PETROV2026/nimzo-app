@@ -1,10 +1,15 @@
 import { Modal, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { Button } from '@/components/button';
+import { DialogHeader } from '@/components/dialog-header';
+import { colors } from '@/theme';
 
 type ConfirmDialogProps = {
   title: string;
   message: string;
+  note?: string;
   confirmLabel: string;
+  tone?: 'primary' | 'destructive';
   onConfirm: () => void;
   onClose: () => void;
   loading?: boolean;
@@ -13,7 +18,9 @@ type ConfirmDialogProps = {
 export function ConfirmDialog({
   title,
   message,
+  note,
   confirmLabel,
+  tone = 'primary',
   onConfirm,
   onClose,
   loading,
@@ -21,17 +28,21 @@ export function ConfirmDialog({
   return (
     <Modal transparent animationType="fade" onRequestClose={loading ? undefined : onClose}>
       <View className="flex-1 items-center justify-center bg-foreground/40 p-8">
-        <View className="w-full max-w-[480px] gap-4 rounded-2xl bg-background p-6">
-          <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-            {title}
-          </Text>
-          <Text className="font-sans text-lg text-muted">{message}</Text>
-          <View className="mt-2 flex-row gap-4">
+        <View className="w-full max-w-[560px] gap-6 rounded-3xl bg-background p-8">
+          <DialogHeader title={title} onClose={onClose} disabled={loading} />
+          <Text className="font-sans text-lg text-foreground">{message}</Text>
+          {note ? (
+            <View className="flex-row items-start gap-3 rounded-xl bg-canvas p-4">
+              <Icon name="information-circle-outline" size={22} color={colors.muted} />
+              <Text className="flex-1 font-sans text-base text-muted">{note}</Text>
+            </View>
+          ) : null}
+          <View className="flex-row gap-3">
             <View className="flex-1">
               <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={loading} />
             </View>
             <View className="flex-1">
-              <Button label={confirmLabel} onPress={onConfirm} loading={loading} />
+              <Button variant={tone} label={confirmLabel} onPress={onConfirm} loading={loading} />
             </View>
           </View>
         </View>

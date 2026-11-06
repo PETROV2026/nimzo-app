@@ -1,4 +1,3 @@
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { loginSchema } from '@nimzo/shared';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
@@ -9,12 +8,13 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
+  type TextInputInstance,
   useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
+import { Icon } from '@/components/icon';
 import { useSession } from '@/auth/session-provider';
 import { Button } from '@/components/button';
 import { TextField } from '@/components/text-field';
@@ -29,7 +29,7 @@ const appVersion = Constants.expoConfig?.version;
 const twoColumnMinWidth = 900;
 
 export default function LoginScreen() {
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const [rememberedEmail] = useState(readLastEmail);
   const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState('');
@@ -133,7 +133,7 @@ export default function LoginScreen() {
               accessibilityLabel={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
               accessibilityState={{ disabled: loading }}
             >
-              <Ionicons
+              <Icon
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={24}
                 color={colors.muted}
@@ -150,7 +150,7 @@ export default function LoginScreen() {
             accessibilityLiveRegion="polite"
             className="flex-row items-start gap-3 rounded-lg bg-accent px-4 py-3"
           >
-            <MaterialIcons name="cloud-off" size={24} color={colors['on-accent']} />
+            <Icon name="cloud-offline-outline" size={24} color={colors['on-accent']} />
             <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
               Sin conexión a internet. Necesitas conexión para iniciar sesión.
             </Text>
@@ -162,8 +162,8 @@ export default function LoginScreen() {
             accessibilityLiveRegion="assertive"
             className="flex-row items-start gap-3 rounded-lg border-2 border-danger px-4 py-3"
           >
-            <Ionicons name="alert-circle-outline" size={24} color={colors['danger-strong']} />
-            <Text className="flex-1 font-sans-medium text-base leading-6 text-danger-strong">
+            <Icon name="alert-circle-outline" size={24} color={colors.destructive} />
+            <Text className="flex-1 font-sans-medium text-base leading-6 text-destructive">
               {formError}
             </Text>
           </View>

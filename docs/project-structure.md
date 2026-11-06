@@ -91,29 +91,32 @@ apps/mobile/
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
-  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and destructive actions |
+  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and warnings; `-strong` for orange text and filled buttons |
+  | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm buttons |
+  | `bg-destructive` + `text-on-destructive` | red `#B43D3D` + white | Sign out and discard buttons |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |
+  | `placeholder` (via `placeholderTextColor={colors.placeholder}`) | gray `#6D696D` | Placeholder text in inputs (5.3:1 on white) |
 
-  Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants.
+  Never write hex values or Tailwind's default colors (`neutral-500`, `blue-600`…) in screens. Teal, orange and yellow are too light for small text on white, so text uses the `-strong` variants. Every icon goes through `Icon` (`src/components/icon.tsx`), a single set (Ionicons) with outline/filled pairs; ESLint blocks importing `@expo/vector-icons` anywhere else.
 - **Install packages with `npx expo install <pkg>`** from `apps/mobile`, so versions match the Expo SDK.
 
 #### Navigation
 
-Without a session the app only shows the login. With a session it shows a bottom tab bar with four tabs, in this order. There is no Inicio tab: the app opens on **Servicios**.
+Without a session the app only shows the login. With a session it shows four tabs, in this order. There is no Inicio tab: the app opens on **Servicios**.
 
-| Tab (label) | File | Icon (`MaterialIcons`) | Purpose |
+| Tab (label) | File | Icon (`Icon`, filled when active) | Purpose |
 |---|---|---|---|
-| **Servicios** | `src/app/(tabs)/services.tsx` | `assignment` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
-| **Clientes** | `src/app/(tabs)/clients.tsx` | `people-outline` | Clients, branches and systems of the technician |
-| **Notas** | `src/app/(tabs)/notes.tsx` | `event-note` | The technician's own free notes (to-dos, reminders, field data). Stored on the device; whether they sync is not decided yet, and syncing them needs a table and a new sync path |
-| **Perfil** | `src/app/(tabs)/profile.tsx` | `account-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email; role and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
+| **Servicios** | `src/app/(tabs)/services.tsx` | `clipboard` | Initial tab. The technician's reports in three segments: **Activos** (still being filled in), **Pendientes** (missing a signature) and **Historial** (sent). Service visits and their forms start here |
+| **Clientes** | `src/app/(tabs)/clients.tsx` | `people` | Clients, branches and systems of the technician |
+| **Notas** | `src/app/(tabs)/notes.tsx` | `document-text` | The technician's own notes: title, text, a checklist of to-dos, an optional client, pin and color, and an optional reminder with a local notification (`expo-notifications`; tapping it opens the note). Stored only on the device in SQLite (`src/notes/notes-db.ts`, table `notes`, filtered by technician), they autosave and work offline; they are not synced, so they stay on that tablet. The list is grouped into Fijadas, Hoy, Ayer, Últimos 7 días and Anteriores. Notes save themselves (there is no Save button): the save status ("Guardando…", "Guardada a las…") sits at the top of the content. The editor toolbar has only Fijar and a Más menu (note color and Eliminar), plus a "← Notas" back button in portrait that closes the note. Landscape shows the list and the open note side by side; portrait opens the note full screen |
+| **Perfil** | `src/app/(tabs)/profile.tsx` | `person-circle` | The technician's name, signature, area (state and city), email and phone, editable except the email. The signature comes first, large on its own card ("Tu firma", with Cambiar or Crear firma), and the contact data that appear next to it on every report go in a second card below (phone, city and state in three columns on a tablet, with Editar); a yellow alert while the signature is missing (reports need it), empty fields shown as "Agregar …" that open the edit dialog, a note when there is no internet explaining why editing is off, a row to turn on reminder notifications when they are off, support and sign out (with confirmation). The last downloaded profile is kept on the device (`src/lib/profile-cache.ts`): the app opens with it at once and refreshes it in the background when online and every time the app comes back to the foreground. The signature is shown from the image disk cache first, so Perfil works offline; without internet editing is disabled. The signature pad draws on the UI thread (Skia paths in shared values) and exports a cropped PNG at a fixed scale |
 
 ```
 src/app/
 ├── _layout.tsx        Session provider + protected routes (login without a session, tabs with one)
 ├── login.tsx
 └── (tabs)/
-    ├── _layout.tsx    Tab bar
+    ├── _layout.tsx    Tabs with the adaptive navigation bar (src/components/navigation-bar.tsx)
     ├── index.tsx      Redirects to Servicios (hidden from the tab bar)
     ├── services.tsx   Servicios
     ├── clients.tsx    Clientes
@@ -121,7 +124,7 @@ src/app/
     └── profile.tsx    Perfil
 ```
 
-The header shows a yellow "Sin conexión" pill (`src/components/connection-status.tsx`) only while there is no internet; nothing is shown when online. Labels are in Spanish, file names in English. The active tab uses `primary-strong`, inactive tabs `muted`, and every tab keeps a touch target of at least 48 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
+The header shows a yellow "Sin conexión" pill (`src/components/connection-status.tsx`) only while there is no internet; nothing is shown when online. Labels are in Spanish, file names in English. The navigation is adaptive (`src/components/navigation-bar.tsx`): on a tablet in landscape (at least 900 px wide) it is a vertical rail on the left; otherwise a full-width bar along the bottom edge. The rail uses the brand gray (`muted`), like the header, with a thin white line (20 %) on its right edge that sets it apart from the header, a 52 px bar with the section title centered (Perfil has no header: its own big name heading plays that role, a gray strip keeps the status bar readable and the "Sin conexión" pill moves next to the name): the Nimzo flame sits at the top, Servicios, Clientes and Notas are centered, and Perfil sits at the bottom under a thin divider (80 px tall items, 28 px icons in a 56 px circle). The orange of the flame is the only accent: the active tab gets a filled white icon on an orange (`danger`) circle and a bold white label, inactive tabs show outline icons and labels in white at 70 %, and a press shows a faint white circle. The bottom bar is white with `muted` icons and labels; the active tab has a filled orange icon and a bold `danger-strong` label. `tabBarBadge` shows a yellow count. Every tab keeps a touch target of at least 64 px. Keep the tab bar to these four destinations: new screens go inside a tab (a stack within it), not as extra tabs.
 
 ### `apps/admin` — admin panel
 
@@ -285,6 +288,8 @@ Requires Android Studio (about 10 GB).
    ```
 
 4. Expo starts the bundler (Metro), installs Expo Go in the emulator and opens the app on the login screen.
+
+Expo Go only opens projects of its own SDK, and the project uses **SDK 58**. If Expo Go says the project is incompatible, uninstall Expo Go from the emulator and run `pnpm mobile:android` again: Expo installs the matching version. On a tablet, install the Expo Go for SDK 58 from Google Play or https://expo.dev/go, and turn off automatic updates for Expo Go so a newer SDK doesn't replace it.
 
 ### Option 2 — a real Android tablet
 

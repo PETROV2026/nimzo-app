@@ -1,14 +1,23 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  ScrollView,
+  Text,
+  useWindowDimensions,
+  View,
+  type TextInputInstance,
+} from 'react-native';
+import { Icon } from '@/components/icon';
 import { useSession, type Profile } from '@/auth/session-provider';
 import { Button } from '@/components/button';
+import { DialogHeader } from '@/components/dialog-header';
 import { SelectField } from '@/components/select-field';
 import { TextField } from '@/components/text-field';
-import { colors } from '@/theme/colors';
+import { colors } from '@/theme';
 
 const profileEditSchema = userEditSchema.omit({ role: true });
 
@@ -20,15 +29,21 @@ const stateOptions = mexicanStates.map((code) => ({
 type EditProfileDialogProps = {
   profile: Profile;
   onClose: () => void;
+  onSaved: () => void;
 };
 
-export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) {
+export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDialogProps) {
+  const { height } = useWindowDimensions();
+  const compact = height < 800;
   const { updateProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
+  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
+  const phoneRef = useRef<TextInputInstance>(null);
+  const cityRef = useRef<TextInputInstance>(null);
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting, isDirty },
   } = useForm({
     resolver: zodResolver(profileEditSchema),
     defaultValues: {
@@ -51,36 +66,36 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
       setError(result);
       return;
     }
+    onSaved();
     onClose();
   });
 
+  function handleClose() {
+    if (isSubmitting) return;
+    if (isDirty && !confirmingDiscard) {
+      setConfirmingDiscard(true);
+      return;
+    }
+    onClose();
+  }
+
   return (
-    <Modal transparent animationType="fade" onRequestClose={isSubmitting ? undefined : onClose}>
+    <Modal transparent animationType="fade" onRequestClose={handleClose}>
       <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
         <ScrollView
           className="flex-1"
           contentContainerClassName="grow items-center justify-center p-8"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="w-full max-w-[520px] gap-5 rounded-2xl bg-background p-6">
-            <View className="flex-row items-center justify-between">
-              <Text
-                accessibilityRole="header"
-                className="font-sans-semibold text-xl text-foreground"
-              >
-                Editar tu información
-              </Text>
-              <Pressable
-                onPress={onClose}
-                disabled={isSubmitting}
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel="Cerrar"
-                className={`min-h-12 min-w-12 items-center justify-center ${isSubmitting ? 'opacity-50' : ''}`}
-              >
-                <MaterialIcons name="close" size={24} color={colors.muted} />
-              </Pressable>
-            </View>
+          <View
+            className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}
+          >
+            <DialogHeader
+              title="Editar tus datos"
+              description="Aparecen junto a tu firma en cada reporte que envías."
+              onClose={handleClose}
+              disabled={isSubmitting}
+            />
             <Controller
               control={control}
               name="full_name"
@@ -93,6 +108,9 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
                   error={fieldState.error?.message}
                   autoCapitalize="words"
                   autoComplete="name"
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => phoneRef.current?.focus()}
                   editable={!isSubmitting}
                 />
               )}
@@ -102,7 +120,8 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
               name="phone"
               render={({ field, fieldState }) => (
                 <TextField
-                  label="Teléfono"
+                  ref={phoneRef}
+                  label="Teléfono (opcional)"
                   value={field.value ?? ''}
                   onChangeText={field.onChange}
                   onBlur={field.onBlur}
@@ -110,57 +129,100 @@ export function EditProfileDialog({ profile, onClose }: EditProfileDialogProps) 
                   keyboardType="phone-pad"
                   autoComplete="tel"
                   placeholder="Ej. 686 123 4567"
+                  returnKeyType="next"
+                  submitBehavior="submit"
+                  onSubmitEditing={() => cityRef.current?.focus()}
                   editable={!isSubmitting}
                 />
               )}
             />
-            <Controller
-              control={control}
-              name="state"
-              render={({ field }) => (
-                <SelectField
-                  label="Estado"
-                  value={field.value ?? null}
-                  options={stateOptions}
-                  onChange={field.onChange}
-                  placeholder="Selecciona un estado"
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="city"
-              render={({ field, fieldState }) => (
-                <TextField
-                  label="Ciudad"
-                  value={field.value ?? ''}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  placeholder="Ej. Mexicali"
-                  editable={!isSubmitting}
-                />
-              )}
-            />
-            {error ? (
-              <Text accessibilityRole="alert" className="font-sans text-base text-danger-strong">
-                {error}
-              </Text>
-            ) : null}
-            <View className="flex-row justify-center gap-4">
-              <View className="w-[190px]">
-                <Button
-                  variant="secondary"
-                  label="Cancelar"
-                  onPress={onClose}
-                  disabled={isSubmitting}
+            <View className="flex-row gap-5">
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="city"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      ref={cityRef}
+                      label="Ciudad (opcional)"
+                      value={field.value ?? ''}
+                      onChangeText={field.onChange}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                      autoCapitalize="words"
+                      autoComplete="address-line2"
+                      placeholder="Ej. Mexicali"
+                      returnKeyType="done"
+                      editable={!isSubmitting}
+                    />
+                  )}
                 />
               </View>
-              <View className="w-[190px]">
-                <Button label="Guardar cambios" onPress={onSubmit} loading={isSubmitting} />
+              <View className="flex-1">
+                <Controller
+                  control={control}
+                  name="state"
+                  render={({ field }) => (
+                    <SelectField
+                      label="Estado (opcional)"
+                      value={field.value ?? null}
+                      options={stateOptions}
+                      onChange={field.onChange}
+                      placeholder="Selecciona tu estado"
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
               </View>
             </View>
+            {error ? (
+              <View
+                accessibilityRole="alert"
+                className="flex-row items-start gap-3 rounded-lg border-2 border-destructive px-4 py-3"
+              >
+                <Icon name="alert-circle-outline" size={22} color={colors.destructive} />
+                <Text className="flex-1 font-sans-medium text-base text-destructive">{error}</Text>
+              </View>
+            ) : null}
+            {confirmingDiscard ? (
+              <View className="gap-4">
+                <Text className="font-sans-medium text-lg text-foreground">
+                  ¿Descartar los cambios que hiciste?
+                </Text>
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <Button
+                      variant="secondary"
+                      label="Seguir editando"
+                      onPress={() => setConfirmingDiscard(false)}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button variant="destructive" label="Descartar" onPress={onClose} />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View className="flex-row gap-3">
+                <View className="flex-1">
+                  <Button
+                    variant="secondary"
+                    label="Cancelar"
+                    onPress={handleClose}
+                    disabled={isSubmitting}
+                  />
+                </View>
+                <View className="flex-1">
+                  <Button
+                    label="Guardar cambios"
+                    variant="success"
+                    onPress={onSubmit}
+                    loading={isSubmitting}
+                    disabled={!isDirty}
+                  />
+                </View>
+              </View>
+            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

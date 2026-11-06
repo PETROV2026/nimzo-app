@@ -1,6 +1,6 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Icon } from '@/components/icon';
 import { colors } from '@/theme/colors';
 
 type SelectFieldProps<T extends string> = {
@@ -38,7 +38,7 @@ export function SelectField<T extends string>({
         <Text className={`font-sans text-lg ${selected ? 'text-foreground' : 'text-muted'}`}>
           {selected?.label ?? placeholder}
         </Text>
-        <MaterialIcons name="expand-more" size={24} color={colors.muted} />
+        <Icon name="chevron-down" size={24} color={colors.muted} />
       </Pressable>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -60,7 +60,7 @@ export function SelectField<T extends string>({
                   }}
                   accessibilityRole="button"
                   accessibilityState={{ selected: option.value === value }}
-                  className={`min-h-12 justify-center px-6 ${option.value === value ? 'bg-surface' : ''}`}
+                  className={`min-h-14 justify-center px-6 ${option.value === value ? 'bg-surface' : ''}`}
                 >
                   <Text className="font-sans text-lg text-foreground">{option.label}</Text>
                 </Pressable>

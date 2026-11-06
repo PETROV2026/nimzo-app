@@ -1,12 +1,12 @@
 import { useState, type ReactNode, type Ref } from 'react';
-import { Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Text, TextInput, View, type TextInputInstance, type TextInputProps } from 'react-native';
 import { colors } from '@/theme/colors';
 
 type TextFieldProps = TextInputProps & {
   label?: string;
   error?: string;
   rightAccessory?: ReactNode;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 };
 
 export function TextField({
@@ -38,7 +38,7 @@ export function TextField({
         <TextInput
           ref={ref}
           className={`min-h-14 flex-1 px-4 font-sans text-lg ${disabled ? 'text-muted' : 'text-foreground'}`}
-          placeholderTextColor={colors['border-strong']}
+          placeholderTextColor={colors.placeholder}
           cursorColor={colors['primary-strong']}
           selectionColor={colors.primary}
           accessibilityLabel={label}
@@ -57,7 +57,7 @@ export function TextField({
         {rightAccessory}
       </View>
       {error ? (
-        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-danger-strong">
+        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
           {error}
         </Text>
       ) : null}
