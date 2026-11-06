@@ -13,10 +13,6 @@ type DateTimeInputProps = {
   onChange: (date: Date) => void;
 };
 
-export function pad(number: number) {
-  return String(number).padStart(2, '0');
-}
-
 export function DateTimeInput({
   label,
   mode,

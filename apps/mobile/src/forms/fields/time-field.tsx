@@ -1,6 +1,7 @@
 import type { FormField } from '@nimzo/shared';
 import type { FieldProps, TimeValue } from '@/forms/types';
-import { DateTimeInput, pad } from './date-time-input';
+import { pad } from '@/lib/pad';
+import { DateTimeInput } from './date-time-input';
 import { FieldLabel } from './field-label';
 
 type TimeFieldProps = FieldProps<Extract<FormField, { type: 'time' }>, TimeValue>;
