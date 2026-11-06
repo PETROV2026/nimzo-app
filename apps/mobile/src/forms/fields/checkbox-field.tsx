@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import type { CheckboxValue, FieldProps } from '@/forms/types';
 import { colors } from '@/theme';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 
 type CheckboxFieldProps = FieldProps<Extract<FormField, { type: 'checkbox' }>, CheckboxValue>;
 

@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 import { OptionButtons, type Option } from './option-buttons';
 import { cleanNumber, toNumber } from '@/forms/to-number';
 

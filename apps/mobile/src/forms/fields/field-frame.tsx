@@ -21,7 +21,7 @@ export function FieldLabel({ field, error, hideLabel, children }: FieldLabelProp
       {children}
       {field.help ? <Text className="font-sans text-base text-muted">{field.help}</Text> : null}
       {error ? (
-        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-danger-strong">
+          <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
           {error}
         </Text>
       ) : null}

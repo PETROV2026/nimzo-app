@@ -1,6 +1,6 @@
 import type { FormField } from '@nimzo/shared';
 import type { FieldProps, OptionValue } from '@/forms/types';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 import { OptionButtons } from './option-buttons';
 
 type ChoiceFieldProps = FieldProps<Extract<FormField, { type: 'choice' }>, OptionValue>;

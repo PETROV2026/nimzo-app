@@ -1,6 +1,6 @@
 import type { FormField } from '@nimzo/shared';
 import type { FieldProps, YesNoValue } from '@/forms/types';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 import { OptionButtons, type Option } from './option-buttons';
 
 type YesNoFieldProps = FieldProps<Extract<FormField, { type: 'yes_no' }>, YesNoValue>;

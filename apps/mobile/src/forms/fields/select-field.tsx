@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import type { FieldProps, OptionValue } from '@/forms/types';
 import { fonts } from '@/theme';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 
 type SelectFieldProps = FieldProps<Extract<FormField, { type: 'select' }>, OptionValue>;
 

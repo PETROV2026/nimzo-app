@@ -4,7 +4,7 @@ import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
 import { cleanNumber, toNumber } from '@/forms/to-number';
 import type { FieldProps, TextValue } from '@/forms/types';
-import { FieldLabel } from './field-label';
+import { FieldLabel } from './field-frame';
 
 type TextFormFieldProps = FieldProps<Extract<FormField, { type: 'text' }>, TextValue>;
 
