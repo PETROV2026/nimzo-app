@@ -17,12 +17,13 @@ const options: Option<CheckStatus>[] = [
 
 export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
   const [text, setText] = useState(value?.value?.toString() ?? '');
+  const external = value?.value?.toString() ?? '';
+  if (toNumber(text) !== toNumber(external)) setText(external);
   const { measurement } = field;
 
   function changeStatus(status: CheckStatus) {
-    if (status === 'na') setText('');
-    onChange(status === 'na' ? { status } : { ...value, status });
-  }
+  onChange(status === 'na' ? { status } : { ...value, status });
+}
 
   return (
     <FieldLabel field={field} error={error}>

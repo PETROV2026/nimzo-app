@@ -11,6 +11,8 @@ type TextFormFieldProps = FieldProps<Extract<FormField, { type: 'text' }>, TextV
 export function TextFormField({ field, value, onChange, error }: TextFormFieldProps) {
   const [text, setText] = useState(value?.toString() ?? '');
   const numeric = field.inputMode === 'numeric' || field.inputMode === 'decimal';
+  const external = value?.toString() ?? '';
+  if (numeric ? toNumber(text) !== toNumber(external) : text !== external) setText(external);
 
   return (
     <FieldLabel field={field} error={error}>
