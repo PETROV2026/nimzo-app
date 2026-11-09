@@ -2,14 +2,14 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 
-type FieldLabelProps = {
+type FieldFrameProps = {
   field: Pick<FormField, 'label' | 'help' | 'required' | 'highlight'>;
   error?: string;
   hideLabel?: boolean;
   children: ReactNode;
 };
 
-export function FieldFrame({ field, error, hideLabel, children }: FieldLabelProps) {
+export function FieldFrame({ field, error, hideLabel, children }: FieldFrameProps) {
   return (
     <View className={`gap-2 rounded-lg ${field.highlight ? 'bg-surface p-3' : ''}`}>
       {hideLabel ? null : (
