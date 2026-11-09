@@ -5,7 +5,7 @@ import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
 import { FieldFrame } from './field-frame';
 import { OptionButtons, type Option } from './option-buttons';
-import { cleanNumber, toNumber } from '@/forms/to-number';
+import { cleanNumber, numberError, toNumber } from '@/forms/to-number';
 
 type CheckFieldProps = FieldProps<Extract<FormField, { type: 'check' }>, CheckValue>;
 
@@ -17,14 +17,15 @@ const options: Option<CheckStatus>[] = [
 
 export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
   const [text, setText] = useState(value?.value?.toString() ?? '');
-  const external = value?.value?.toString() ?? '';
-  if (toNumber(text) !== toNumber(external)) setText(external);
   const { measurement } = field;
+  const decimal = measurement?.inputMode === 'decimal';
+  const external = value?.value?.toString() ?? '';
+  if (toNumber(text, decimal) !== toNumber(external, decimal)) setText(external);
 
- function changeStatus(status?: CheckStatus) {
+  function changeStatus(status?: CheckStatus) {
     if (!status) onChange(undefined);
     else onChange(status === 'na' ? { status } : { ...value, status });
-}
+  }
 
   return (
     <FieldFrame field={field} error={error}>
@@ -40,13 +41,14 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
           <View className="w-56">
             <TextField
               label={measurement.label}
+              error={numberError(text, decimal)}
               inputMode={measurement.inputMode}
               value={text}
               onChangeText={(next) => {
-                const clean = cleanNumber(next, measurement.inputMode === 'decimal');
+                const clean = cleanNumber(next);
                 setText(clean);
-                onChange({ status: value.status, value: toNumber(clean) });
-            }}
+                onChange({ status: value.status, value: toNumber(clean, decimal) });
+              }}
               rightAccessory={
                 measurement.unit ? (
                   <Text className="px-4 font-sans text-lg text-muted">{measurement.unit}</Text>
