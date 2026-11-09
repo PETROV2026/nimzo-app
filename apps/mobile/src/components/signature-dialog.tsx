@@ -1,12 +1,10 @@
-import { Canvas, Path } from '@shopify/react-native-skia';
 import { useState } from 'react';
-import { Modal, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Icon } from '@/components/icon';
+import { Modal, Text, useWindowDimensions, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
-import { renderSignaturePng, strokeStyle, useSignatureInk } from '@/lib/signature-ink';
-import { colors } from '@/theme';
+import { SignatureCanvas } from '@/components/signature-canvas';
+import { renderSignaturePng, useSignatureInk } from '@/lib/signature-ink';
 
 type SignatureDialogProps = {
   title: string;
@@ -22,10 +20,11 @@ export function SignatureDialog({ title, name, onSave, onClose, onSaved }: Signa
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
-  const { pan, inkPath, strokePath, ink, drawing, clear, readable } = useSignatureInk({
+  const signature = useSignatureInk({
     enabled: !saving && !confirmingDiscard,
     onStrokeStart: () => setError(null),
   });
+  const { ink, readable } = signature;
   const hasInk = ink !== null;
 
   function handleClose() {
@@ -76,45 +75,12 @@ export function SignatureDialog({ title, name, onSave, onClose, onSaved }: Signa
             />
 
             <View className="gap-2">
-              <View
-                className={`overflow-hidden rounded-xl border-2 ${hasInk ? 'border-border' : 'border-dashed border-border-strong'} ${compact ? 'h-56' : 'h-72'}`}
-              >
-                <GestureDetector gesture={pan}>
-                  <Canvas style={{ flex: 1 }}>
-                    <Path path={inkPath} {...strokeStyle} />
-                    <Path path={strokePath} {...strokeStyle} />
-                  </Canvas>
-                </GestureDetector>
-                {hasInk || drawing ? null : (
-                  <View
-                    pointerEvents="none"
-                    className="absolute inset-x-0 top-0 bottom-10 items-center justify-center gap-2"
-                  >
-                    <Icon name="create-outline" size={28} color={colors['border-strong']} />
-                    <Text className="font-sans text-base text-muted">
-                      Firma aquí con el dedo o con un lápiz
-                    </Text>
-                  </View>
-                )}
-                <View pointerEvents="none" className="absolute inset-x-8 bottom-4 gap-1">
-                  <View className="h-px bg-border-strong" />
-                  <Text numberOfLines={1} className="text-center font-sans text-sm text-muted">
-                    {name}
-                  </Text>
-                </View>
-                {hasInk ? (
-                  <Pressable
-                    onPress={clear}
-                    disabled={saving}
-                    accessibilityRole="button"
-                    accessibilityLabel="Borrar firma y empezar de nuevo"
-                    className="absolute right-2 top-2 min-h-14 flex-row items-center gap-2 rounded-lg bg-background px-4 active:bg-border"
-                  >
-                    <Icon name="trash-outline" size={20} color={colors['primary-strong']} />
-                    <Text className="font-sans-semibold text-base text-primary-strong">Borrar</Text>
-                  </Pressable>
-                ) : null}
-              </View>
+              <SignatureCanvas
+                signature={signature}
+                name={name}
+                disabled={saving}
+                className={compact ? 'h-56' : 'h-72'}
+              />
               <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-muted">
                 {!hasInk
                   ? 'Usa todo el espacio: una firma grande se lee mejor en el reporte.'

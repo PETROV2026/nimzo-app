@@ -143,3 +143,5 @@ export function useSignatureInk({ enabled, onStrokeStart, onStrokeEnd }: Signatu
     readable: ink !== null && ink.width + ink.height >= minimumInkSize,
   };
 }
+
+export type SignatureInk = ReturnType<typeof useSignatureInk>;
