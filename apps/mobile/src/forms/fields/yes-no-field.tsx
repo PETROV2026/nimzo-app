@@ -7,7 +7,7 @@ type YesNoFieldProps = FieldProps<Extract<FormField, { type: 'yes_no' }>, YesNoV
 
 const options: Option<YesNoValue>[] = [
   { value: 'yes', label: 'SÍ' },
-  { value: 'no', label: 'NO' },
+  { value: 'no', label: 'NO', tone: 'danger' },
 ];
 
 export function YesNoField({ field, value, onChange, error }: YesNoFieldProps) {

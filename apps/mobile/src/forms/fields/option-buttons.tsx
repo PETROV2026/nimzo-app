@@ -1,6 +1,4 @@
-import { Icon } from '@/components/icon';
 import { Pressable, Text, View } from 'react-native';
-import { colors } from '@/theme';
 
 export type Option<T extends string> = { value: T; label: string; tone?: 'danger' | 'neutral' };
 
@@ -16,17 +14,14 @@ const selectedStyles = {
   primary: {
     box: 'border-primary-strong bg-primary-strong',
     text: 'text-on-primary',
-    icon: colors['on-primary'],
   },
   danger: {
     box: 'border-danger-strong bg-danger-strong',
     text: 'text-on-danger',
-    icon: colors['on-danger'],
   },
   neutral: {
     box: 'border-muted bg-muted',
     text: 'text-background',
-    icon: colors.background,
   },
 };
 
@@ -54,7 +49,6 @@ export function OptionButtons<T extends string>({
             onPress={() => onChange(selected && allowDeselect ? undefined : option.value)}
             className={`min-h-14 min-w-24 flex-row items-center justify-center gap-2 rounded-lg border-2 px-4 ${selected ? style.box : 'border-border-strong bg-background'}`}
           >
-            {selected ? <Icon name="checkmark" size={20} color={style.icon} /> : null}
             <Text
               className={`font-sans-semibold text-lg ${selected ? style.text : 'text-foreground'}`}
             >
