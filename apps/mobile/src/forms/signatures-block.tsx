@@ -13,8 +13,8 @@ export type SignaturesErrors = Partial<Record<keyof SignaturesValue, string>>;
 export function validateSignatures(value: SignaturesValue): SignaturesErrors {
   return {
     supervisorName: value.supervisorName.trim() ? undefined : 'Escribe el nombre del supervisor.',
-    supervisorSignature: value.supervisorSignature ? undefined : 'Falta la firma del supervisor.',
-    technicianSignature: value.technicianSignature ? undefined : 'Falta la firma del técnico.',
+    supervisorSignature: value.supervisorSignature ? undefined : 'Falta firmar',
+    technicianSignature: value.technicianSignature ? undefined : 'Falta firmar',
   };
 }
 
@@ -27,6 +27,8 @@ type SignaturesBlockProps = {
 const supervisorNameLabel = 'Nombre de quien supervisó y revisó el servicio';
 
 export function SignaturesBlock({ value, onChange, errors }: SignaturesBlockProps) {
+  const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
+
   return (
     <View className="gap-10">
       <View className="gap-5">
@@ -43,7 +45,7 @@ export function SignaturesBlock({ value, onChange, errors }: SignaturesBlockProp
           autoCapitalize="words"
           value={value.supervisorName}
           onChangeText={(supervisorName) => onChange({ ...value, supervisorName })}
-          error={errors?.supervisorName}
+          error={nameError}
         />
       </View>
       <SignaturePad

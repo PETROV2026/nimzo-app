@@ -7,7 +7,6 @@ import { Text, View } from 'react-native';
 import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Button } from '@/components/button';
 import { Icon } from '@/components/icon';
-import { FieldFrame } from '@/forms/fields/field-frame';
 import { renderSignaturePng, strokeStyle, useSignatureInk } from '@/lib/signature-ink';
 import { colors } from '@/theme';
 
@@ -33,6 +32,9 @@ export function SignaturePad({ label, value, onChange, error }: SignaturePadProp
     onStrokeStart: () => setSaveError(null),
   });
   const hasInk = ink !== null;
+  const shownError =
+    saveError ??
+    (value || !error ? undefined : hasInk ? 'Toca "Listo" para guardar la firma' : error);
 
   function handleAccept() {
     const png = ink ? renderSignaturePng(ink) : null;
@@ -64,14 +66,27 @@ export function SignaturePad({ label, value, onChange, error }: SignaturePadProp
         ? 'Revisa que se lea bien antes de tocar "Listo".'
         : 'Haz la firma un poco más grande para poder aceptarla.';
 
+  const borderClass =
+    value || hasInk
+      ? 'border-border'
+      : shownError
+        ? 'border-dashed border-danger'
+        : 'border-dashed border-border-strong';
+
   return (
-    <FieldFrame
-      field={{ label, required: true, highlight: false, help }}
-      error={saveError ?? error}
-    >
-      <View
-        className={`h-56 overflow-hidden rounded-xl border-2 ${value || hasInk ? 'border-border' : 'border-dashed border-border-strong'}`}
-      >
+    <View className="gap-2">
+      <View className="flex-row flex-wrap items-baseline gap-x-3">
+        <Text className="font-sans-medium text-lg text-foreground">
+          {label}
+          <Text className="text-danger-strong"> *</Text>
+        </Text>
+        {shownError ? (
+          <Text accessibilityLiveRegion="polite" className="font-sans text-base text-destructive">
+            {shownError}
+          </Text>
+        ) : null}
+      </View>
+      <View className={`h-56 overflow-hidden rounded-xl border-2 ${borderClass}`}>
         {value ? (
           <Image
             source={{ uri: value }}
@@ -105,6 +120,7 @@ export function SignaturePad({ label, value, onChange, error }: SignaturePadProp
           </GestureHandlerRootView>
         )}
       </View>
+      {help && !shownError ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
       <View className="flex-row justify-end gap-3">
         {value ? (
           <Button variant="secondary" icon="refresh" label="Volver a firmar" onPress={handleRedo} />
@@ -121,6 +137,6 @@ export function SignaturePad({ label, value, onChange, error }: SignaturePadProp
           </>
         )}
       </View>
-    </FieldFrame>
+    </View>
   );
 }
