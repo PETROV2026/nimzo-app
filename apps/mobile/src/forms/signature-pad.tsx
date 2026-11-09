@@ -15,6 +15,7 @@ type SignaturePadProps = {
   value: string | null;
   onChange: (uri: string | null) => void;
   error?: string;
+  onDrawingChange?: (drawing: boolean) => void;
 };
 
 function savePng(png: Uint8Array) {
@@ -25,11 +26,21 @@ function savePng(png: Uint8Array) {
   return file.uri;
 }
 
-export function SignaturePad({ label, value, onChange, error }: SignaturePadProps) {
+export function SignaturePad({
+  label,
+  value,
+  onChange,
+  error,
+  onDrawingChange,
+}: SignaturePadProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const { pan, inkPath, strokePath, ink, drawing, clear, readable } = useSignatureInk({
     enabled: value === null,
-    onStrokeStart: () => setSaveError(null),
+    onStrokeStart: () => {
+      setSaveError(null);
+      onDrawingChange?.(true);
+    },
+    onStrokeEnd: () => onDrawingChange?.(false),
   });
   const hasInk = ink !== null;
   const shownError =

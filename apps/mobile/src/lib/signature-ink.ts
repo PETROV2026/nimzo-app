@@ -55,9 +55,10 @@ export function renderSignaturePng(ink: Ink) {
 type SignatureInkOptions = {
   enabled: boolean;
   onStrokeStart?: () => void;
+  onStrokeEnd?: () => void;
 };
 
-export function useSignatureInk({ enabled, onStrokeStart }: SignatureInkOptions) {
+export function useSignatureInk({ enabled, onStrokeStart, onStrokeEnd }: SignatureInkOptions) {
   const inkBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
   const strokeBuilder = useSharedValue<SkPathBuilder>(Skia.PathBuilder.Make());
   const inkPath = useSharedValue<SkPath>(Skia.Path.Make());
@@ -69,6 +70,10 @@ export function useSignatureInk({ enabled, onStrokeStart }: SignatureInkOptions)
   function startStroke() {
     setDrawing(true);
     onStrokeStart?.();
+  }
+
+  function endStroke() {
+    onStrokeEnd?.();
   }
 
   function clear() {
@@ -109,20 +114,22 @@ export function useSignatureInk({ enabled, onStrokeStart }: SignatureInkOptions)
     onFinalize: () => {
       'worklet';
       const builder = strokeBuilder.get();
-      if (builder.isEmpty()) return;
-      const last = lastPoint.get();
-      const stroke = builder.lineTo(last.x, last.y).detach();
-      const allInk = inkBuilder.get().addPath(stroke).build();
-      inkPath.set(allInk);
-      strokePath.set(Skia.Path.Make());
-      const bounds = allInk.computeTightBounds();
-      scheduleOnRN(setInk, {
-        svg: allInk.toSVGString(),
-        x: bounds.x - strokeWidth,
-        y: bounds.y - strokeWidth,
-        width: bounds.width + strokeWidth * 2,
-        height: bounds.height + strokeWidth * 2,
-      });
+      if (!builder.isEmpty()) {
+        const last = lastPoint.get();
+        const stroke = builder.lineTo(last.x, last.y).detach();
+        const allInk = inkBuilder.get().addPath(stroke).build();
+        inkPath.set(allInk);
+        strokePath.set(Skia.Path.Make());
+        const bounds = allInk.computeTightBounds();
+        scheduleOnRN(setInk, {
+          svg: allInk.toSVGString(),
+          x: bounds.x - strokeWidth,
+          y: bounds.y - strokeWidth,
+          width: bounds.width + strokeWidth * 2,
+          height: bounds.height + strokeWidth * 2,
+        });
+      }
+      scheduleOnRN(endStroke);
     },
   });
 

@@ -22,11 +22,17 @@ type SignaturesBlockProps = {
   value: SignaturesValue;
   onChange: (value: SignaturesValue) => void;
   errors?: SignaturesErrors;
+  onDrawingChange?: (drawing: boolean) => void;
 };
 
 const supervisorNameLabel = 'Nombre de quien supervisó y revisó el servicio';
 
-export function SignaturesBlock({ value, onChange, errors }: SignaturesBlockProps) {
+export function SignaturesBlock({
+  value,
+  onChange,
+  errors,
+  onDrawingChange,
+}: SignaturesBlockProps) {
   const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
 
   return (
@@ -37,6 +43,7 @@ export function SignaturesBlock({ value, onChange, errors }: SignaturesBlockProp
           value={value.supervisorSignature}
           onChange={(supervisorSignature) => onChange({ ...value, supervisorSignature })}
           error={errors?.supervisorSignature}
+          onDrawingChange={onDrawingChange}
         />
         <TextField
           label={`${supervisorNameLabel} *`}
@@ -53,6 +60,7 @@ export function SignaturesBlock({ value, onChange, errors }: SignaturesBlockProp
         value={value.technicianSignature}
         onChange={(technicianSignature) => onChange({ ...value, technicianSignature })}
         error={errors?.technicianSignature}
+        onDrawingChange={onDrawingChange}
       />
     </View>
   );
