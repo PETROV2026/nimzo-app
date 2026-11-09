@@ -1,0 +1,63 @@
+import { useState } from 'react';
+import { Text, View } from 'react-native';
+import type { FormField } from '@nimzo/shared';
+import { TextField } from '@/components/text-field';
+import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
+import { FieldFrame } from './field-frame';
+import { OptionButtons, type Option } from './option-buttons';
+import { cleanNumber, numberError, toNumber } from '@/forms/to-number';
+
+type CheckFieldProps = FieldProps<Extract<FormField, { type: 'check' }>, CheckValue>;
+
+const options: Option<CheckStatus>[] = [
+  { value: 'na', label: 'N/A', tone: 'neutral' },
+  { value: 'x', label: 'X', tone: 'danger' },
+  { value: 'ok', label: 'OK' },
+];
+
+export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
+  const [text, setText] = useState(value?.value?.toString() ?? '');
+  const { measurement } = field;
+  const decimal = measurement?.inputMode === 'decimal';
+  const external = value?.value?.toString() ?? '';
+  if (toNumber(text, decimal) !== toNumber(external, decimal)) setText(external);
+
+  function changeStatus(status?: CheckStatus) {
+    if (!status) onChange(undefined);
+    else onChange(status === 'na' ? { status } : { ...value, status });
+  }
+
+  return (
+    <FieldFrame field={field} error={error}>
+      <View className="flex-row flex-wrap items-end gap-4">
+        <OptionButtons
+          label={field.label}
+          options={options}
+          value={value?.status}
+          onChange={changeStatus}
+          allowDeselect={!field.required}
+        />
+        {measurement && value && value.status !== 'na' ? (
+          <View className="w-56">
+            <TextField
+              label={measurement.label}
+              error={numberError(text, decimal)}
+              inputMode={measurement.inputMode}
+              value={text}
+              onChangeText={(next) => {
+                const clean = cleanNumber(next);
+                setText(clean);
+                onChange({ status: value.status, value: toNumber(clean, decimal) });
+              }}
+              rightAccessory={
+                measurement.unit ? (
+                  <Text className="px-4 font-sans text-lg text-muted">{measurement.unit}</Text>
+                ) : null
+              }
+            />
+          </View>
+        ) : null}
+      </View>
+    </FieldFrame>
+  );
+}

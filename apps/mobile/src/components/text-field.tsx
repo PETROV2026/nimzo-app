@@ -3,7 +3,7 @@ import { Text, TextInput, View, type TextInputInstance, type TextInputProps } fr
 import { colors } from '@/theme/colors';
 
 type TextFieldProps = TextInputProps & {
-  label: string;
+  label?: string;
   error?: string;
   rightAccessory?: ReactNode;
   ref?: Ref<TextInputInstance>;
@@ -20,6 +20,7 @@ export function TextField({
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
   const disabled = inputProps.editable === false;
+  const floating = Boolean(error && label);
 
   const borderClass = error
     ? 'border-danger'
@@ -31,10 +32,17 @@ export function TextField({
 
   return (
     <View className="gap-2">
-      <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
+      {label && !floating ? (
+        <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
+      ) : null}
       <View
         className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : 'bg-background'} ${borderClass}`}
       >
+        {floating ? (
+          <Text className="absolute -top-3.5 left-3 z-10 bg-background px-1 font-sans-medium text-base text-destructive">
+            {label}
+          </Text>
+        ) : null}
         <TextInput
           ref={ref}
           className={`min-h-14 flex-1 px-4 font-sans text-lg ${disabled ? 'text-muted' : 'text-foreground'}`}
