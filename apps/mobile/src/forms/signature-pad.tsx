@@ -1,12 +1,11 @@
 import { Canvas, Path } from '@shopify/react-native-skia';
-import { randomUUID } from 'expo-crypto';
-import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Button } from '@/components/button';
 import { Icon } from '@/components/icon';
+import { deleteSignatureFile, saveSignaturePng } from '@/forms/signature-files';
 import { renderSignaturePng, strokeStyle, useSignatureInk } from '@/lib/signature-ink';
 import { colors } from '@/theme';
 
@@ -16,15 +15,8 @@ type SignaturePadProps = {
   onChange: (uri: string | null) => void;
   error?: string;
   onDrawingChange?: (drawing: boolean) => void;
+  extraAction?: ReactNode;
 };
-
-function savePng(png: Uint8Array) {
-  const directory = new Directory(Paths.document, 'signatures');
-  if (!directory.exists) directory.create();
-  const file = new File(directory, `${randomUUID()}.png`);
-  file.write(png);
-  return file.uri;
-}
 
 export function SignaturePad({
   label,
@@ -32,6 +24,7 @@ export function SignaturePad({
   onChange,
   error,
   onDrawingChange,
+  extraAction,
 }: SignaturePadProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const { pan, inkPath, strokePath, ink, drawing, clear, readable } = useSignatureInk({
@@ -54,7 +47,7 @@ export function SignaturePad({
       return;
     }
     try {
-      onChange(savePng(png));
+      onChange(saveSignaturePng(png));
       clear();
     } catch {
       setSaveError('No se pudo guardar la firma. Intenta de nuevo.');
@@ -62,10 +55,7 @@ export function SignaturePad({
   }
 
   function handleRedo() {
-    if (value) {
-      const file = new File(value);
-      if (file.exists) file.delete();
-    }
+    if (value) deleteSignatureFile(value);
     onChange(null);
   }
 
@@ -132,11 +122,12 @@ export function SignaturePad({
         )}
       </View>
       {help && !shownError ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
-      <View className="flex-row justify-end gap-3">
+      <View className="flex-row flex-wrap items-center justify-end gap-3">
         {value ? (
           <Button variant="secondary" icon="refresh" label="Volver a firmar" onPress={handleRedo} />
         ) : (
           <>
+            {extraAction && !hasInk ? <View className="mr-auto">{extraAction}</View> : null}
             <Button
               variant="secondary"
               icon="trash-outline"

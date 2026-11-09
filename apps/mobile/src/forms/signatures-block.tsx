@@ -1,5 +1,9 @@
+import { useState } from 'react';
 import { View } from 'react-native';
+import { useSession } from '@/auth/session-provider';
+import { Button } from '@/components/button';
 import { TextField } from '@/components/text-field';
+import { copyProfileSignature } from '@/forms/signature-files';
 import { SignaturePad } from '@/forms/signature-pad';
 
 export type SignaturesValue = {
@@ -33,7 +37,25 @@ export function SignaturesBlock({
   errors,
   onDrawingChange,
 }: SignaturesBlockProps) {
+  const session = useSession();
+  const savedSignaturePath = session.status === 'signed-in' ? session.profile?.signaturePath : null;
+  const [copying, setCopying] = useState(false);
+  const [copyError, setCopyError] = useState<string>();
   const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
+
+  async function handleUseSavedSignature() {
+    if (!savedSignaturePath) return;
+    setCopying(true);
+    setCopyError(undefined);
+    try {
+      const technicianSignature = await copyProfileSignature(savedSignaturePath);
+      onChange({ ...value, technicianSignature });
+    } catch {
+      setCopyError('No se pudo usar tu firma guardada. Revisa tu conexión e intenta de nuevo.');
+    } finally {
+      setCopying(false);
+    }
+  }
 
   return (
     <View className="gap-10">
@@ -59,8 +81,19 @@ export function SignaturesBlock({
         label="Firma del técnico"
         value={value.technicianSignature}
         onChange={(technicianSignature) => onChange({ ...value, technicianSignature })}
-        error={errors?.technicianSignature}
+        error={copyError ?? errors?.technicianSignature}
         onDrawingChange={onDrawingChange}
+        extraAction={
+          savedSignaturePath ? (
+            <Button
+              variant="outline"
+              icon="person-outline"
+              label="Usar mi firma guardada"
+              onPress={handleUseSavedSignature}
+              loading={copying}
+            />
+          ) : null
+        }
       />
     </View>
   );
