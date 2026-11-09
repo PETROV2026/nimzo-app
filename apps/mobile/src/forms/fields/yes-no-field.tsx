@@ -13,7 +13,13 @@ const options: Option<YesNoValue>[] = [
 export function YesNoField({ field, value, onChange, error }: YesNoFieldProps) {
   return (
     <FieldFrame field={field} error={error}>
-      <OptionButtons label={field.label} options={options} value={value} onChange={onChange} allowDeselect={!field.required} />
+      <OptionButtons
+        label={field.label}
+        options={options}
+        value={value}
+        onChange={onChange}
+        allowDeselect={!field.required}
+      />
     </FieldFrame>
   );
 }

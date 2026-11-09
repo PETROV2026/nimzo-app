@@ -21,7 +21,7 @@ export function FieldFrame({ field, error, hideLabel, children }: FieldFrameProp
       {children}
       {field.help ? <Text className="font-sans text-base text-muted">{field.help}</Text> : null}
       {error ? (
-          <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
+        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
           {error}
         </Text>
       ) : null}
