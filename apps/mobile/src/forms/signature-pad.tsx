@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { ClearSignatureButton, SignatureCanvas } from '@/components/signature-canvas';
-import { deleteSignatureFile, saveSignaturePng } from '@/forms/signature-files';
+import { saveSignaturePng } from '@/forms/signature-files';
 import { renderSignaturePng, useSignatureInk } from '@/lib/signature-ink';
 
 type SignaturePadProps = {
@@ -53,7 +53,6 @@ export function SignaturePad({
   }
 
   function handleClear() {
-    if (value) deleteSignatureFile(value);
     onChange(null);
   }
 

@@ -15,11 +15,6 @@ export function saveSignaturePng(png: Uint8Array) {
   return file.uri;
 }
 
-export function deleteSignatureFile(uri: string) {
-  const file = new File(uri);
-  if (file.exists) file.delete();
-}
-
 export async function copyProfileSignature(path: string) {
   const { data, error } = await supabase.storage.from(signatureBucket).createSignedUrl(path, 60);
   if (error) throw error;
