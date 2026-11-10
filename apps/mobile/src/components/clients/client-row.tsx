@@ -32,6 +32,7 @@ function subtitle(client: LocalClient, branches: LocalBranch[], search: string) 
 
 export function ClientRow({ client, branches, search, onPress }: ClientRowProps) {
   const branchCount = branches.filter((branch) => branch.isActive).length;
+  const pending = !client.syncedAt || branches.some((branch) => !branch.syncedAt);
   const meta = client.isActive
     ? `${branchCount} ${branchCount === 1 ? 'sucursal' : 'sucursales'}`
     : 'Inactivo';
@@ -40,8 +41,8 @@ export function ClientRow({ client, branches, search, onPress }: ClientRowProps)
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${client.name}, ${meta}`}
-      className={`min-h-[72px] flex-row items-center gap-4 border-b border-border py-3 pl-5 pr-4 active:bg-surface bg-background`}
+      accessibilityLabel={`${client.name}, ${meta}${pending ? ', sin subir a la nube' : ''}`}
+      className={`min-h-[72px] flex-row items-center gap-4 border-b border-border py-3 pl-5 pr-4 bg-background active:bg-surface`}
     >
       <View className="flex-1 gap-0.5">
         <HighlightedText
@@ -57,6 +58,7 @@ export function ClientRow({ client, branches, search, onPress }: ClientRowProps)
           className="font-sans text-base text-muted"
         />
       </View>
+      {pending ? <Icon name="cloud-upload-outline" size={20} color={colors.muted} /> : null}
       <Text className="font-sans text-base text-muted">{meta}</Text>
       <Icon name="chevron-forward" size={20} color={colors['border-strong']} />
     </Pressable>

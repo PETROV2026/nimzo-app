@@ -15,10 +15,13 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 
-export type ClientsSyncStatus =
-  | { state: 'idle'; lastSyncedAt: string | null }
-  | { state: 'syncing'; lastSyncedAt: string | null }
-  | { state: 'failed'; lastSyncedAt: string | null };
+export type UploadCounts = { clients: number; branches: number };
+
+export type ClientsSyncStatus = {
+  state: 'idle' | 'syncing' | 'failed';
+  lastSyncedAt: string | null;
+  uploaded?: UploadCounts;
+};
 
 const retryMs = 30_000;
 
@@ -41,7 +44,7 @@ function subscribeStatus(listener: () => void) {
 
 async function upload(technicianId: string) {
   const pending = pendingClients(technicianId);
-  if (pending.length === 0) return;
+  if (pending.length === 0) return 0;
   const { error } = await supabase.from('clients').upsert(
     pending.map((client) => ({
       id: client.id,
@@ -58,11 +61,12 @@ async function upload(technicianId: string) {
   );
   if (error) throw error;
   markClientsSynced(pending);
+  return pending.length;
 }
 
 async function uploadBranches(technicianId: string) {
   const pending = pendingBranches(technicianId);
-  if (pending.length === 0) return;
+  if (pending.length === 0) return 0;
   const { error } = await supabase.from('branches').upsert(
     pending.map((branch) => ({
       id: branch.id,
@@ -81,6 +85,7 @@ async function uploadBranches(technicianId: string) {
   );
   if (error) throw error;
   markBranchesSynced(pending);
+  return pending.length;
 }
 
 async function downloadBranches(technicianId: string) {
@@ -107,15 +112,16 @@ async function download(technicianId: string) {
 
 async function run(technicianId: string) {
   setStatus({ state: 'syncing', lastSyncedAt: status.lastSyncedAt });
+  const uploaded: UploadCounts = { clients: 0, branches: 0 };
   try {
     do {
       rerun = false;
-      await upload(technicianId);
-      await uploadBranches(technicianId);
+      uploaded.clients += await upload(technicianId);
+      uploaded.branches += await uploadBranches(technicianId);
       await download(technicianId);
       await downloadBranches(technicianId);
     } while (rerun);
-    setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString() });
+    setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
   } catch {
     setStatus({ state: 'failed', lastSyncedAt: status.lastSyncedAt });
   }
@@ -174,4 +180,28 @@ export function useClientsSync(technicianId: string) {
     const timer = setTimeout(() => syncClients(technicianId), retryMs);
     return () => clearTimeout(timer);
   }, [technicianId, online, state]);
+}
+
+const noRows: never[] = [];
+
+export function usePendingUploads(technicianId: string): UploadCounts {
+  const clients = useSyncExternalStore(clientsStore.subscribe, () =>
+    technicianId ? clientsStore.snapshot(technicianId) : noRows,
+  );
+  const branches = useSyncExternalStore(branchesStore.subscribe, () =>
+    technicianId ? branchesStore.snapshot(technicianId) : noRows,
+  );
+  return {
+    clients: clients.filter((client) => !client.syncedAt).length,
+    branches: branches.filter((branch) => !branch.syncedAt).length,
+  };
+}
+
+export function describeUploads({ clients, branches }: UploadCounts) {
+  return [
+    clients ? `${clients} ${clients === 1 ? 'cliente' : 'clientes'}` : null,
+    branches ? `${branches} ${branches === 1 ? 'sucursal' : 'sucursales'}` : null,
+  ]
+    .filter(Boolean)
+    .join(' y ');
 }

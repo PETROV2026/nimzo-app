@@ -6,6 +6,7 @@ import { useSession } from '@/auth/session-provider';
 import { useClientsSync } from '@/clients/clients-sync';
 import { ConnectionStatus } from '@/components/connection-status';
 import { NavigationBar } from '@/components/navigation-bar';
+import { SyncToast } from '@/components/sync-toast';
 import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors, fonts } from '@/theme';
 
@@ -42,6 +43,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="profile" options={{ title: 'Perfil', headerShown: false }} />
         <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
+      <SyncToast />
     </>
   );
 }

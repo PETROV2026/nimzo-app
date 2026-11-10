@@ -108,7 +108,7 @@ export default function ProfileScreen() {
           </Text>
         ) : null}
       </View>
-      <ConnectionStatus />
+      <ConnectionStatus tone="page" />
     </View>
   );
 
