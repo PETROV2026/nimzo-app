@@ -19,13 +19,12 @@ export function validateSignatures(value: SignaturesValue): SignaturesErrors {
   };
 }
 
-export async function createSignatures(
-  profileSignaturePath: string | null,
-): Promise<SignaturesValue> {
-  const technicianSignature = profileSignaturePath
-    ? await copyProfileSignature(profileSignaturePath).catch(() => null)
-    : null;
-  return { supervisorName: '', supervisorSignature: null, technicianSignature };
+export function createSignatures(profileSignaturePath: string | null): SignaturesValue {
+  return {
+    supervisorName: '',
+    supervisorSignature: null,
+    technicianSignature: profileSignaturePath ? copyProfileSignature(profileSignaturePath) : null,
+  };
 }
 
 type SignaturesBlockProps = {

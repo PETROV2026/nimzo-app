@@ -15,10 +15,31 @@ export function saveSignaturePng(png: Uint8Array) {
   return file.uri;
 }
 
-export async function copyProfileSignature(path: string) {
+const profileSignatureDirectory = new Directory(Paths.document, 'profile-signature');
+
+function profileSignatureFile(path: string) {
+  return new File(profileSignatureDirectory, path.replace('/', '-'));
+}
+
+export async function cacheProfileSignature(path: string) {
+  const cached = profileSignatureFile(path);
+  if (cached.exists) return;
   const { data, error } = await supabase.storage.from(signatureBucket).createSignedUrl(path, 60);
   if (error) throw error;
-  const file = await File.downloadFileAsync(data.signedUrl, newSignatureFile());
+  clearProfileSignature();
+  profileSignatureDirectory.create({ idempotent: true });
+  await File.downloadFileAsync(data.signedUrl, cached);
+}
+
+export function clearProfileSignature() {
+  if (profileSignatureDirectory.exists) profileSignatureDirectory.delete();
+}
+
+export function copyProfileSignature(path: string) {
+  const cached = profileSignatureFile(path);
+  if (!cached.exists) return null;
+  const file = newSignatureFile();
+  cached.copy(file);
   return file.uri;
 }
 
