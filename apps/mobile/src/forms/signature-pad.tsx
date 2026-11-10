@@ -32,8 +32,11 @@ export function SignaturePad({
   });
   const { ink, clear, readable } = signature;
   const hasInk = ink !== null;
-  const missing = !value && !hasInk && Boolean(error);
-  const message = saveError ?? (missing ? error : undefined);
+  const missing = !value && Boolean(error);
+  const unsavedMessage = readable
+    ? 'Toca "Listo" para guardar la firma.'
+    : 'Haz la firma un poco más grande para poder aceptarla.';
+  const message = saveError ?? (missing ? (hasInk ? unsavedMessage : error) : undefined);
 
   function handleAccept() {
     const png = ink ? renderSignaturePng(ink) : null;
