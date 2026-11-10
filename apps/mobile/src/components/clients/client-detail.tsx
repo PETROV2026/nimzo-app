@@ -1,16 +1,21 @@
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import type { LocalBranch } from '@/clients/branches-db';
 import type { LocalClient } from '@/clients/clients-db';
 import { Button } from '@/components/button';
+import { ClientBranches } from '@/components/clients/client-branches';
 import { ClientMonogram } from '@/components/clients/client-monogram';
 import { Icon, type IconName } from '@/components/icon';
 import { colors } from '@/theme';
 
 type ClientDetailProps = {
   client: LocalClient;
+  branches: LocalBranch[];
   showBack: boolean;
   onBack: () => void;
   onEdit: () => void;
   onToggleActive: () => void;
+  onAddBranch: () => void;
+  onEditBranch: (branch: LocalBranch) => void;
 };
 
 const dateFormat = new Intl.DateTimeFormat('es-MX', { dateStyle: 'long' });
@@ -59,10 +64,13 @@ function ContactLine({ icon, label, value, missing, action }: ContactLineProps) 
 
 export function ClientDetail({
   client,
+  branches,
   showBack,
   onBack,
   onEdit,
   onToggleActive,
+  onAddBranch,
+  onEditBranch,
 }: ClientDetailProps) {
   const phone = client.contact_phone?.replace(/[^\d+]/g, '');
 
@@ -124,9 +132,17 @@ export function ClientDetail({
         </View>
       )}
 
+      <ClientBranches
+        clientName={client.name}
+        branches={branches}
+        canAdd={client.isActive}
+        onAdd={onAddBranch}
+        onEdit={onEditBranch}
+      />
+
       <View className="gap-3">
         <Text accessibilityRole="header" className="px-1 font-sans-semibold text-lg text-muted">
-          Contacto
+          Contacto de la empresa
         </Text>
         <View className="overflow-hidden rounded-2xl bg-background">
           <ContactLine

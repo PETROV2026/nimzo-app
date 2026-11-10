@@ -14,6 +14,13 @@ const UPSERT = `
     technician_id = excluded.technician_id, name = excluded.name, tax_id = excluded.tax_id,
     is_active = excluded.is_active, created_at = excluded.created_at`;
 
+const BRANCH_UPSERT = `
+  insert into public.branches (id, technician_id, client_id, name, state)
+  values ($1, $2, $3, $4, $5)
+  on conflict (id) do update set
+    technician_id = excluded.technician_id, client_id = excluded.client_id,
+    name = excluded.name, state = excluded.state`;
+
 let db;
 const asTechA = (sql, params) => runAs(db, 'authenticated', TECH_A, sql, params);
 const asTechB = (sql, params) => runAs(db, 'authenticated', TECH_B, sql, params);
@@ -64,5 +71,30 @@ describe('uploading clients created on the tablet', () => {
     assert.ok(result.ok, result.error);
     assert.ok(result.rows.length > 0);
     assert.ok(result.rows.every((row) => row.technician_id === TECH_A));
+  });
+
+  test('a technician uploads a branch of their own client with a device id', async () => {
+    const clientId = randomUUID();
+    const branchId = randomUUID();
+    const client = await asTechA(UPSERT, [clientId, TECH_A, 'Cliente con sucursal', true, new Date().toISOString()]);
+    assert.ok(client.ok, client.error);
+
+    for (const name of ['Sucursal de prueba', 'Sucursal de prueba editada']) {
+      const branch = await asTechA(BRANCH_UPSERT, [branchId, TECH_A, clientId, name, 'NLE']);
+      assert.ok(branch.ok, branch.error);
+    }
+    const row = (await db.query('select name, state, technician_id from public.branches where id = $1', [branchId])).rows[0];
+    assert.equal(row.name, 'Sucursal de prueba editada');
+    assert.equal(row.state, 'NLE');
+    assert.equal(row.technician_id, TECH_A);
+  });
+
+  test("a technician cannot add a branch to another technician's client", async () => {
+    const clientId = randomUUID();
+    const own = await asTechB(UPSERT, [clientId, TECH_B, 'Cliente solo de B', true, new Date().toISOString()]);
+    assert.ok(own.ok, own.error);
+
+    const result = await asTechA(BRANCH_UPSERT, [randomUUID(), TECH_A, clientId, 'Sucursal ajena', null]);
+    assert.equal(result.ok, false);
   });
 });

@@ -7,6 +7,13 @@ import {
   pendingClients,
   subscribeClients,
 } from '@/clients/clients-db';
+import {
+  applyRemoteBranches,
+  branchesSnapshot,
+  markBranchesSynced,
+  pendingBranches,
+  subscribeBranches,
+} from '@/clients/branches-db';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 
@@ -55,6 +62,40 @@ async function upload(technicianId: string) {
   markClientsSynced(pending);
 }
 
+async function uploadBranches(technicianId: string) {
+  const pending = pendingBranches(technicianId);
+  if (pending.length === 0) return;
+  const { error } = await supabase.from('branches').upsert(
+    pending.map((branch) => ({
+      id: branch.id,
+      technician_id: technicianId,
+      client_id: branch.clientId,
+      name: branch.name,
+      address: branch.address,
+      city: branch.city,
+      state: branch.state,
+      contact_name: branch.contact_name,
+      contact_email: branch.contact_email,
+      contact_phone: branch.contact_phone,
+      is_active: branch.isActive,
+      created_at: branch.createdAt,
+    })),
+  );
+  if (error) throw error;
+  markBranchesSynced(pending);
+}
+
+async function downloadBranches(technicianId: string) {
+  const { data, error } = await supabase
+    .from('branches')
+    .select(
+      'id, technician_id, client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active, created_at, updated_at',
+    )
+    .eq('technician_id', technicianId);
+  if (error) throw error;
+  applyRemoteBranches(technicianId, data);
+}
+
 async function download(technicianId: string) {
   const { data, error } = await supabase
     .from('clients')
@@ -72,7 +113,9 @@ async function run(technicianId: string) {
     do {
       rerun = false;
       await upload(technicianId);
+      await uploadBranches(technicianId);
       await download(technicianId);
+      await downloadBranches(technicianId);
     } while (rerun);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString() });
   } catch {
@@ -91,20 +134,26 @@ export function syncClients(technicianId: string) {
   return running;
 }
 
+function pendingKeyOf(rows: { id: string; updatedAt: string; syncedAt: string | null }[]) {
+  return rows
+    .filter((row) => !row.syncedAt)
+    .map((row) => `${row.id}:${row.updatedAt}`)
+    .join(',');
+}
+
 export function useClientsSyncStatus() {
   return useSyncExternalStore(subscribeStatus, () => status);
 }
 
 export function useClientsSync(technicianId: string) {
   const online = useOnline();
-  const pendingKey = useSyncExternalStore(subscribeClients, () =>
-    technicianId
-      ? clientsSnapshot(technicianId)
-          .filter((client) => !client.syncedAt)
-          .map((client) => `${client.id}:${client.updatedAt}`)
-          .join(',')
-      : '',
+  const pendingClientsKey = useSyncExternalStore(subscribeClients, () =>
+    technicianId ? pendingKeyOf(clientsSnapshot(technicianId)) : '',
   );
+  const pendingBranchesKey = useSyncExternalStore(subscribeBranches, () =>
+    technicianId ? pendingKeyOf(branchesSnapshot(technicianId)) : '',
+  );
+  const pendingKey = pendingClientsKey + pendingBranchesKey;
   const { state } = useClientsSyncStatus();
 
   useEffect(() => {

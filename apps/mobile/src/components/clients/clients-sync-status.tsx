@@ -10,7 +10,7 @@ type ClientsSyncStatusProps = {
 };
 
 function pendingLabel(count: number) {
-  return count === 1 ? '1 cliente por subir' : `${count} clientes por subir`;
+  return count === 1 ? '1 cambio por subir' : `${count} cambios por subir`;
 }
 
 export function ClientsSyncStatus({ technicianId, pendingCount }: ClientsSyncStatusProps) {

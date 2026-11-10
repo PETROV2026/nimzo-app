@@ -17,8 +17,16 @@ import {
   type ClientDetails,
   type LocalClient,
 } from '@/clients/clients-db';
-import { useClients } from '@/clients/use-clients';
+import {
+  createBranch,
+  setBranchActive,
+  updateBranch,
+  type BranchDetails,
+  type LocalBranch,
+} from '@/clients/branches-db';
+import { groupByClient, useBranches, useClients } from '@/clients/use-clients';
 import { Button } from '@/components/button';
+import { BranchFormDialog } from '@/components/clients/branch-form-dialog';
 import { ClientDetail } from '@/components/clients/client-detail';
 import { ClientFormDialog } from '@/components/clients/client-form-dialog';
 import { ClientRow } from '@/components/clients/client-row';
@@ -49,6 +57,7 @@ function buildList(clients: LocalClient[]): ListItem[] {
 }
 
 type FormState = { mode: 'create' } | { mode: 'edit'; client: LocalClient } | null;
+type BranchFormState = { mode: 'create' } | { mode: 'edit'; branch: LocalBranch } | null;
 
 export default function ClientsScreen() {
   const session = useSession();
@@ -60,19 +69,25 @@ export default function ClientsScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(null);
   const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
+  const [branchForm, setBranchForm] = useState<BranchFormState>(null);
+  const [deactivatingBranch, setDeactivatingBranch] = useState<LocalBranch | null>(null);
   const [toast, setToast] = useState<{ id: number; title: string; description?: string } | null>(
     null,
   );
   const hideToast = useCallback(() => setToast(null), []);
   const allClients = useClients(technicianId);
   const clients = useClients(technicianId, search);
+  const branchesByClient = groupByClient(useBranches(technicianId));
   const selected = allClients.find((client) => client.id === selectedId) ?? null;
+  const selectedBranches = selected ? (branchesByClient.get(selected.id) ?? []) : [];
 
   if (!technicianId) return null;
 
   const searching = search.trim() !== '';
   const activeCount = allClients.filter((client) => client.isActive).length;
-  const pendingCount = allClients.filter((client) => !client.syncedAt).length;
+  const pendingCount =
+    allClients.filter((client) => !client.syncedAt).length +
+    [...branchesByClient.values()].flat().filter((branch) => !branch.syncedAt).length;
 
   function handleSave(details: ClientDetails) {
     if (form?.mode === 'edit') {
@@ -106,6 +121,43 @@ export default function ClientsScreen() {
     setClientActive(selected.id, technicianId, false);
     setConfirmingDeactivate(false);
     setToast({ id: Date.now(), title: 'Cliente desactivado', description: selected.name });
+  }
+
+  function handleSaveBranch(details: BranchDetails) {
+    if (!selected) return;
+    if (branchForm?.mode === 'edit') {
+      updateBranch(branchForm.branch.id, technicianId, details);
+      setToast({ id: Date.now(), title: 'Sucursal guardada', description: details.name });
+    } else {
+      createBranch(technicianId, selected.id, details);
+      setToast({
+        id: Date.now(),
+        title: 'Sucursal agregada',
+        description: `${details.name} de ${selected.name}`,
+      });
+    }
+    setBranchForm(null);
+  }
+
+  function handleToggleBranch(branch: LocalBranch) {
+    setBranchForm(null);
+    if (branch.isActive) {
+      setDeactivatingBranch(branch);
+      return;
+    }
+    setBranchActive(branch.id, technicianId, true);
+    setToast({ id: Date.now(), title: 'Sucursal reactivada', description: branch.name });
+  }
+
+  function handleDeactivateBranch() {
+    if (!deactivatingBranch) return;
+    setBranchActive(deactivatingBranch.id, technicianId, false);
+    setToast({
+      id: Date.now(),
+      title: 'Sucursal desactivada',
+      description: deactivatingBranch.name,
+    });
+    setDeactivatingBranch(null);
   }
 
   const addButton = (
@@ -189,6 +241,7 @@ export default function ClientsScreen() {
             ) : (
               <ClientRow
                 client={item.client}
+                branches={branchesByClient.get(item.client.id) ?? []}
                 search={search}
                 selected={split && item.client.id === selectedId}
                 showChevron={!split}
@@ -204,10 +257,13 @@ export default function ClientsScreen() {
     <ClientDetail
       key={selected.id}
       client={selected}
+      branches={selectedBranches}
       showBack={!split}
       onBack={() => setSelectedId(null)}
       onEdit={() => setForm({ mode: 'edit', client: selected })}
       onToggleActive={handleToggleActive}
+      onAddBranch={() => setBranchForm({ mode: 'create' })}
+      onEditBranch={(branch) => setBranchForm({ mode: 'edit', branch })}
     />
   ) : null;
 
@@ -231,6 +287,30 @@ export default function ClientsScreen() {
           tone="destructive"
           onConfirm={handleDeactivate}
           onClose={() => setConfirmingDeactivate(false)}
+        />
+      ) : null}
+      {branchForm && selected ? (
+        <BranchFormDialog
+          clientName={selected.name}
+          branch={branchForm.mode === 'edit' ? branchForm.branch : undefined}
+          siblings={selectedBranches.filter(
+            (branch) => branchForm.mode === 'create' || branch.id !== branchForm.branch.id,
+          )}
+          onSave={handleSaveBranch}
+          onToggleActive={
+            branchForm.mode === 'edit' ? () => handleToggleBranch(branchForm.branch) : undefined
+          }
+          onClose={() => setBranchForm(null)}
+        />
+      ) : null}
+      {deactivatingBranch ? (
+        <ConfirmDialog
+          title="¿Desactivar esta sucursal?"
+          message={`${deactivatingBranch.name} quedará como inactiva. Sus datos se conservan y puedes reactivarla cuando quieras.`}
+          confirmLabel="Desactivar"
+          tone="destructive"
+          onConfirm={handleDeactivateBranch}
+          onClose={() => setDeactivatingBranch(null)}
         />
       ) : null}
       {toast ? (
