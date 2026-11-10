@@ -1,14 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from '@/components/icon';
 import { useSession } from '@/auth/session-provider';
@@ -19,8 +11,6 @@ import { dateGroup, dateGroups } from '@/notes/format';
 import { createNote, getNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
 import { colors } from '@/theme';
-
-const splitMinWidth = 900;
 
 type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
@@ -58,9 +48,7 @@ function buildList(notes: Note[]): ListItem[] {
 export default function NotesScreen() {
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
-  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const split = width > height && width >= splitMinWidth;
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { noteId, openedAt } = useLocalSearchParams<{ noteId?: string; openedAt?: string }>();
@@ -135,7 +123,6 @@ export default function NotesScreen() {
               <NoteCard
                 search={search}
                 note={item.note}
-                selected={split && item.note.id === selectedId}
                 onPress={() => setSelectedId(item.note.id)}
               />
             )
@@ -152,39 +139,13 @@ export default function NotesScreen() {
         onPress={handleNew}
         accessibilityRole="button"
         accessibilityLabel="Nueva nota"
-        className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 ${split ? 'bottom-5 right-5 h-14 w-14' : 'bottom-6 right-6 h-[72px] w-[72px]'}`}
+        className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 bottom-6 right-6 h-[72px] w-[72px]`}
         style={{ elevation: 6 }}
       >
-        <Icon name="add" size={split ? 28 : 36} color={colors['on-primary']} />
+        <Icon name="add" size={36} color={colors['on-primary']} />
       </Pressable>
     </View>
   );
-
-  if (split) {
-    return (
-      <View className="flex-1 flex-row bg-canvas">
-        <View className="w-[400px] border-r border-border">{list}</View>
-        <View className="flex-1">
-          {selectedId ? (
-            <NoteEditor
-              key={selectedId}
-              noteId={selectedId}
-              technicianId={technicianId}
-              showBack={false}
-              onClose={() => setSelectedId(null)}
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center gap-3 p-8">
-              <Icon name="create-outline" size={56} color={colors['border-strong']} />
-              <Text className="text-center font-sans text-lg text-muted">
-                Elige una nota de la lista o crea una nueva.
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 bg-canvas">
@@ -204,7 +165,6 @@ export default function NotesScreen() {
               key={selectedId}
               noteId={selectedId}
               technicianId={technicianId}
-              showBack
               onClose={() => setSelectedId(null)}
             />
           </View>

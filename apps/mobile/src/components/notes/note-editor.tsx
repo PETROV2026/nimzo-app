@@ -25,10 +25,9 @@ type NoteEditorProps = {
   noteId: string;
   technicianId: string;
   onClose: () => void;
-  showBack: boolean;
 };
 
-export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEditorProps) {
+export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
   const [note, setNote] = useState<Note | null>(() => getNote(noteId, technicianId));
   const [savedAt, setSavedAt] = useState<string | null>(() => note?.updatedAt ?? null);
   const [pending, setPending] = useState(false);
@@ -178,17 +177,15 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
-        {showBack ? (
-          <Pressable
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Volver a tus notas"
-            className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
-          >
-            <Icon name="arrow-back" size={24} color={colors.foreground} />
-            <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Volver a tus notas"
+          className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
+        >
+          <Icon name="arrow-back" size={24} color={colors.foreground} />
+          <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
+        </Pressable>
         <View className="flex-1" />
         <ToolbarButton
           icon={note.pinned ? 'pin' : 'pin-outline'}
