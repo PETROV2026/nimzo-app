@@ -344,6 +344,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
 
       {pickingClient ? (
         <ClientPicker
+          technicianId={technicianId}
           selectedId={note.clientId}
           onSelect={(client) => {
             update({ clientId: client.id, clientName: client.name });
