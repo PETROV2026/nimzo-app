@@ -2,7 +2,6 @@ import type { ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import type { LocalClient } from '@/clients/clients-db';
-import { Button } from '@/components/button';
 import { ClientBranches } from '@/components/clients/client-branches';
 import { Icon } from '@/components/icon';
 import { colors } from '@/theme';
@@ -91,11 +90,8 @@ export function ClientDetail({
             {client.name}
           </Text>
           <Text className="font-sans text-lg text-muted">
-            {[client.tax_id ? `${client.tax_id}` : '', ...status].join('. ')}
+            {[client.tax_id, ...status].filter(Boolean).join('. ')}
           </Text>
-        </View>
-        <View className="min-w-[160px]">
-          <Button label="Editar" variant="secondary" onPress={onEdit} />
         </View>
       </View>
 
@@ -113,9 +109,20 @@ export function ClientDetail({
       />
 
       <View className="gap-3">
-        <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-          Datos de la empresa
-        </Text>
+        <View className="min-h-14 flex-row items-center justify-between gap-3">
+          <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
+            Datos de la empresa
+          </Text>
+          <Pressable
+            onPress={onEdit}
+            accessibilityRole="button"
+            accessibilityLabel="Editar datos de la empresa"
+            className="min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-primary/10"
+          >
+            <Icon name="create-outline" size={22} color={colors['primary-strong']} />
+            <Text className="font-sans-semibold text-lg text-primary-strong">Editar datos</Text>
+          </Pressable>
+        </View>
         <View className="overflow-hidden rounded-xl border border-border bg-background">
           <Field label="Razón social">
             <Value value={client.name} />
