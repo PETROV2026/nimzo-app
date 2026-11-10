@@ -1,6 +1,6 @@
 import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
@@ -13,7 +13,7 @@ import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { SignaturePreview } from '@/components/signature-preview';
 import { SupportDialog } from '@/components/support-dialog';
-import { Toast } from '@/components/toast';
+import { useToast } from '@/components/toast';
 import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
@@ -35,10 +35,7 @@ export default function ProfileScreen() {
   const [signingOut, setSigningOut] = useState(false);
   const [showingSupport, setShowingSupport] = useState(false);
   const [showingPrivacy, setShowingPrivacy] = useState(false);
-  const [toast, setToast] = useState<{ id: number; title: string; description: string } | null>(
-    null,
-  );
-  const hideToast = useCallback(() => setToast(null), []);
+  const { toast, showToast } = useToast();
 
   if (session.status !== 'signed-in') {
     return null;
@@ -258,11 +255,7 @@ export default function ProfileScreen() {
             profile={profile}
             onClose={() => setEditing(false)}
             onSaved={() =>
-              setToast({
-                id: Date.now(),
-                title: 'Tus datos se guardaron',
-                description: 'Así aparecerán en tus próximos reportes.',
-              })
+              showToast('Tus datos se guardaron', 'Así aparecerán en tus próximos reportes.')
             }
           />
         ) : null}
@@ -273,13 +266,7 @@ export default function ProfileScreen() {
             name={name}
             onSave={saveSignature}
             onClose={() => setSigning(false)}
-            onSaved={() =>
-              setToast({
-                id: Date.now(),
-                title: 'Tu firma se guardó',
-                description: 'Se usará en tus próximos reportes.',
-              })
-            }
+            onSaved={() => showToast('Tu firma se guardó', 'Se usará en tus próximos reportes.')}
           />
         ) : null}
 
@@ -302,14 +289,7 @@ export default function ProfileScreen() {
           />
         ) : null}
       </ScrollView>
-      {toast ? (
-        <Toast
-          key={toast.id}
-          title={toast.title}
-          description={toast.description}
-          onHide={hideToast}
-        />
-      ) : null}
+      {toast}
     </View>
   );
 }

@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { FlatList, Modal, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import {
@@ -17,6 +17,7 @@ import {
   type LocalBranch,
 } from '@/clients/branches-db';
 import { groupByClient, useBranches, useClients } from '@/clients/use-clients';
+import { AddButton } from '@/components/add-button';
 import { Button } from '@/components/button';
 import { BranchFormDialog } from '@/components/clients/branch-form-dialog';
 import { ClientDetail } from '@/components/clients/client-detail';
@@ -25,9 +26,8 @@ import { ClientRow } from '@/components/clients/client-row';
 import { ClientsSyncStatus } from '@/components/clients/clients-sync-status';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
-import { Icon } from '@/components/icon';
-import { Toast } from '@/components/toast';
-import { colors } from '@/theme';
+import { SearchField } from '@/components/search-field';
+import { useToast } from '@/components/toast';
 
 type ListItem =
   | { type: 'header'; key: string; label: string }
@@ -59,10 +59,7 @@ export default function ClientsScreen() {
   const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
   const [branchForm, setBranchForm] = useState<BranchFormState>(null);
   const [deactivatingBranch, setDeactivatingBranch] = useState<LocalBranch | null>(null);
-  const [toast, setToast] = useState<{ id: number; title: string; description?: string } | null>(
-    null,
-  );
-  const hideToast = useCallback(() => setToast(null), []);
+  const { toast, showToast } = useToast();
   const allClients = useClients(technicianId);
   const clients = useClients(technicianId, search);
   const branchesByClient = groupByClient(useBranches(technicianId));
@@ -80,16 +77,15 @@ export default function ClientsScreen() {
   function handleSave(details: ClientDetails) {
     if (form?.mode === 'edit') {
       updateClient(form.client.id, technicianId, details);
-      setToast({ id: Date.now(), title: 'Cambios guardados', description: details.name });
+      showToast('Cambios guardados', details.name);
     } else {
       const client = createClient(technicianId, details);
       setSearch('');
       setSelectedId(client.id);
-      setToast({
-        id: Date.now(),
-        title: 'Cliente agregado',
-        description: 'Guardado en la tablet; se sube a la nube en cuanto haya internet.',
-      });
+      showToast(
+        'Cliente agregado',
+        'Guardado en la tablet; se sube a la nube en cuanto haya internet.',
+      );
     }
     setForm(null);
   }
@@ -101,28 +97,24 @@ export default function ClientsScreen() {
       return;
     }
     setClientActive(selected.id, technicianId, true);
-    setToast({ id: Date.now(), title: 'Cliente reactivado', description: selected.name });
+    showToast('Cliente reactivado', selected.name);
   }
 
   function handleDeactivate() {
     if (!selected) return;
     setClientActive(selected.id, technicianId, false);
     setConfirmingDeactivate(false);
-    setToast({ id: Date.now(), title: 'Cliente desactivado', description: selected.name });
+    showToast('Cliente desactivado', selected.name);
   }
 
   function handleSaveBranch(details: BranchDetails) {
     if (!selected) return;
     if (branchForm?.mode === 'edit') {
       updateBranch(branchForm.branch.id, technicianId, details);
-      setToast({ id: Date.now(), title: 'Sucursal guardada', description: details.name });
+      showToast('Sucursal guardada', details.name);
     } else {
       createBranch(technicianId, selected.id, details);
-      setToast({
-        id: Date.now(),
-        title: 'Sucursal agregada',
-        description: `${details.name} de ${selected.name}`,
-      });
+      showToast('Sucursal agregada', `${details.name} de ${selected.name}`);
     }
     setBranchForm(null);
   }
@@ -134,31 +126,15 @@ export default function ClientsScreen() {
       return;
     }
     setBranchActive(branch.id, technicianId, true);
-    setToast({ id: Date.now(), title: 'Sucursal reactivada', description: branch.name });
+    showToast('Sucursal reactivada', branch.name);
   }
 
   function handleDeactivateBranch() {
     if (!deactivatingBranch) return;
     setBranchActive(deactivatingBranch.id, technicianId, false);
-    setToast({
-      id: Date.now(),
-      title: 'Sucursal desactivada',
-      description: deactivatingBranch.name,
-    });
+    showToast('Sucursal desactivada', deactivatingBranch.name);
     setDeactivatingBranch(null);
   }
-
-  const addButton = (
-    <Pressable
-      onPress={() => setForm({ mode: 'create' })}
-      accessibilityRole="button"
-      accessibilityLabel="Agregar cliente"
-      className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 bottom-6 right-6 h-[72px] w-[72px]`}
-      style={{ elevation: 6 }}
-    >
-      <Icon name="add" size={36} color={colors['on-primary']} />
-    </Pressable>
-  );
 
   const list =
     allClients.length === 0 ? (
@@ -179,28 +155,12 @@ export default function ClientsScreen() {
     ) : (
       <View className="flex-1">
         <View className="gap-3 px-4 pb-3 pt-4">
-          <View className="min-h-14 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
-            <Icon name="search" size={24} color={colors.muted} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Buscar por nombre, RFC o contacto"
-              placeholderTextColor={colors.placeholder}
-              accessibilityLabel="Buscar clientes"
-              returnKeyType="search"
-              className="min-h-14 flex-1 font-sans text-lg text-foreground"
-            />
-            {searching ? (
-              <Pressable
-                onPress={() => setSearch('')}
-                accessibilityRole="button"
-                accessibilityLabel="Borrar búsqueda"
-                className="-mr-2 min-h-14 min-w-14 items-center justify-center"
-              >
-                <Icon name="close-circle" size={24} color={colors.muted} />
-              </Pressable>
-            ) : null}
-          </View>
+          <SearchField
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Buscar por nombre, RFC o contacto"
+            accessibilityLabel="Buscar clientes"
+          />
           <Text accessibilityLiveRegion="polite" className="px-1 font-sans text-base text-muted">
             {searching
               ? `${clients.length} de ${allClients.length} clientes`
@@ -282,9 +242,7 @@ export default function ClientsScreen() {
             (branch) => branchForm.mode === 'create' || branch.id !== branchForm.branch.id,
           )}
           onSave={handleSaveBranch}
-          onToggleActive={
-            branchForm.mode === 'edit' ? () => handleToggleBranch(branchForm.branch) : undefined
-          }
+          onToggleActive={handleToggleBranch}
           onClose={() => setBranchForm(null)}
         />
       ) : null}
@@ -298,21 +256,16 @@ export default function ClientsScreen() {
           onClose={() => setDeactivatingBranch(null)}
         />
       ) : null}
-      {toast ? (
-        <Toast
-          key={toast.id}
-          title={toast.title}
-          description={toast.description}
-          onHide={hideToast}
-        />
-      ) : null}
+      {toast}
     </>
   );
 
   return (
     <View className="flex-1 bg-canvas">
       {list}
-      {allClients.length > 0 ? addButton : null}
+      {allClients.length > 0 ? (
+        <AddButton label="Agregar cliente" onPress={() => setForm({ mode: 'create' })} />
+      ) : null}
       {detail ? (
         <Modal
           animationType="slide"

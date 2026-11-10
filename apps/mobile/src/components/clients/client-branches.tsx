@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import { branchPlace } from '@/clients/use-clients';
 import { Icon } from '@/components/icon';
+import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
 type ClientBranchesProps = {
@@ -81,16 +82,7 @@ export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranch
         <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
           Sucursales
         </Text>
-        {canAdd ? (
-          <Pressable
-            onPress={onAdd}
-            accessibilityRole="button"
-            className="min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-primary/10"
-          >
-            <Icon name="add" size={24} color={colors['primary-strong']} />
-            <Text className="font-sans-semibold text-lg text-primary-strong">Agregar sucursal</Text>
-          </Pressable>
-        ) : null}
+        {canAdd ? <TextAction label="Agregar sucursal" icon="add" onPress={onAdd} /> : null}
       </View>
 
       <View
@@ -132,18 +124,15 @@ export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranch
       </View>
 
       {inactive.length > 0 ? (
-        <Pressable
-          onPress={() => setShowInactive(!showInactive)}
-          accessibilityRole="button"
-          accessibilityState={{ expanded: showInactive }}
-          className="min-h-14 justify-center self-start rounded-lg px-1 active:bg-border"
-        >
-          <Text className="font-sans-medium text-base text-primary-strong">
-            {showInactive
+        <TextAction
+          label={
+            showInactive
               ? 'Ocultar inactivas'
-              : `Mostrar ${inactive.length === 1 ? '1 inactiva' : `${inactive.length} inactivas`}`}
-          </Text>
-        </Pressable>
+              : `Mostrar ${inactive.length === 1 ? '1 inactiva' : `${inactive.length} inactivas`}`
+          }
+          expanded={showInactive}
+          onPress={() => setShowInactive(!showInactive)}
+        />
       ) : null}
     </View>
   );

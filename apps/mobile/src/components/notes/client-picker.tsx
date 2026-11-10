@@ -2,7 +2,8 @@ import { matchesSearch } from '@nimzo/shared';
 import { useState } from 'react';
 import { Icon } from '@/components/icon';
 import { HighlightedText } from '@/components/highlighted-text';
-import { FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { SearchField } from '@/components/search-field';
+import { FlatList, Modal, Pressable, Text, View } from 'react-native';
 import { useClients } from '@/clients/use-clients';
 import { colors } from '@/theme';
 
@@ -43,16 +44,8 @@ export function ClientPicker({ technicianId, selectedId, onSelect, onClose }: Cl
             </Pressable>
           </View>
           {clients.length > 0 ? (
-            <View className="mx-6 mb-3 mt-1 flex-row items-center gap-2 rounded-lg border-2 border-border-strong px-3">
-              <Icon name="search" size={22} color={colors.muted} />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Buscar cliente"
-                placeholderTextColor={colors.placeholder}
-                accessibilityLabel="Buscar cliente"
-                className="min-h-14 flex-1 font-sans text-lg text-foreground"
-              />
+            <View className="mx-6 mb-3 mt-1">
+              <SearchField value={search} onChangeText={setSearch} placeholder="Buscar cliente" />
             </View>
           ) : null}
           <FlatList

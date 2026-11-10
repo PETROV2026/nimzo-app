@@ -5,6 +5,7 @@ import type { LocalClient } from '@/clients/clients-db';
 import { Button } from '@/components/button';
 import { ClientBranches } from '@/components/clients/client-branches';
 import { Icon } from '@/components/icon';
+import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
 type ClientDetailProps = {
@@ -95,11 +96,7 @@ export function ClientDetail({
           </Text>
         </View>
         <View importantForAccessibility="no-hide-descendants" className="pt-1">
-          <Icon
-            name="business-outline"
-            size={48}
-            color={client.isActive ? colors['primary-strong'] : colors['border-strong']}
-          />
+          <Icon name="business-outline" size={48} color={colors['border-strong']} />
         </View>
       </View>
 
@@ -121,20 +118,14 @@ export function ClientDetail({
           <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
             Datos de la empresa
           </Text>
-          <Pressable
-            onPress={onEdit}
-            accessibilityRole="button"
+          <TextAction
+            label="Editar datos"
+            icon="create-outline"
             accessibilityLabel="Editar datos de la empresa"
-            className="min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-primary/10"
-          >
-            <Icon name="create-outline" size={22} color={colors['primary-strong']} />
-            <Text className="font-sans-semibold text-lg text-primary-strong">Editar datos</Text>
-          </Pressable>
+            onPress={onEdit}
+          />
         </View>
         <View className="overflow-hidden rounded-xl border border-border bg-background">
-          <Field label="Razón social">
-            <Value value={client.name} />
-          </Field>
           <Field label="RFC">
             <Value value={client.tax_id} />
           </Field>
