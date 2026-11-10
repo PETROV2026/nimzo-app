@@ -17,9 +17,9 @@ export function ClearSignatureButton({ onPress, disabled }: ClearSignatureButton
       disabled={disabled}
       accessibilityRole="button"
       accessibilityLabel="Borrar firma y empezar de nuevo"
-      className="absolute right-2 top-2 min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-border"
+      className="absolute right-2 top-2 min-h-14 flex-row items-center gap-2 rounded-lg bg-background px-4 active:bg-border"
     >
-      <Icon name="trash-outline" size={20} color={colors['primary-strong']} />
+      <Icon name="sparkles-outline" size={20} color={colors['primary-strong']} />
       <Text className="font-sans-semibold text-base text-primary-strong">Borrar</Text>
     </Pressable>
   );
