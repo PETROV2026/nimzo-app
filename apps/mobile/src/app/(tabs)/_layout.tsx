@@ -2,6 +2,8 @@ import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSession } from '@/auth/session-provider';
+import { useClientsSync } from '@/clients/clients-sync';
 import { ConnectionStatus } from '@/components/connection-status';
 import { NavigationBar } from '@/components/navigation-bar';
 import { useOpenNoteFromNotification } from '@/notes/reminders';
@@ -15,6 +17,8 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const variant = width > height && width >= railMinWidth ? 'rail' : 'dock';
 
+  const session = useSession();
+  useClientsSync(session.status === 'signed-in' ? session.session.user.id : '');
   useOpenNoteFromNotification();
   return (
     <>

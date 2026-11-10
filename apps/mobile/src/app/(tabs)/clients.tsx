@@ -22,6 +22,7 @@ import { Button } from '@/components/button';
 import { ClientDetail } from '@/components/clients/client-detail';
 import { ClientFormDialog } from '@/components/clients/client-form-dialog';
 import { ClientRow } from '@/components/clients/client-row';
+import { ClientsSyncStatus } from '@/components/clients/clients-sync-status';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
@@ -71,6 +72,7 @@ export default function ClientsScreen() {
 
   const searching = search.trim() !== '';
   const activeCount = allClients.filter((client) => client.isActive).length;
+  const pendingCount = allClients.filter((client) => !client.syncedAt).length;
 
   function handleSave(details: ClientDetails) {
     if (form?.mode === 'edit') {
@@ -83,7 +85,7 @@ export default function ClientsScreen() {
       setToast({
         id: Date.now(),
         title: 'Cliente agregado',
-        description: 'Se sincroniza con tu cuenta cuando tengas internet.',
+        description: 'Guardado en la tablet; se sube a la nube en cuanto haya internet.',
       });
     }
     setForm(null);
@@ -164,6 +166,7 @@ export default function ClientsScreen() {
               ? `${clients.length} de ${allClients.length} clientes`
               : `${activeCount} ${activeCount === 1 ? 'cliente activo' : 'clientes activos'}`}
           </Text>
+          <ClientsSyncStatus technicianId={technicianId} pendingCount={pendingCount} />
         </View>
         <FlatList
           data={buildList(clients)}

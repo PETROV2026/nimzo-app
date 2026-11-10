@@ -137,3 +137,68 @@ export function setClientActive(id: string, technicianId: string, active: boolea
   );
   notify();
 }
+
+export function pendingClients(technicianId: string) {
+  return db
+    .getAllSync<ClientRow>(
+      'select * from clients where technician_id = ? and synced_at is null',
+      technicianId,
+    )
+    .map(fromRow);
+}
+
+export function markClientsSynced(clients: LocalClient[]) {
+  const syncedAt = new Date().toISOString();
+  db.withTransactionSync(() => {
+    for (const client of clients) {
+      db.runSync(
+        'update clients set synced_at = ? where id = ? and updated_at = ?',
+        syncedAt,
+        client.id,
+        client.updatedAt,
+      );
+    }
+  });
+  notify();
+}
+
+export type RemoteClient = Omit<ClientRow, 'is_active' | 'synced_at'> & { is_active: boolean };
+
+export function applyRemoteClients(technicianId: string, remote: RemoteClient[]) {
+  const syncedAt = new Date().toISOString();
+  db.withTransactionSync(() => {
+    for (const row of remote) {
+      db.runSync(
+        `insert into clients (id, technician_id, name, tax_id, contact_name, contact_email,
+           contact_phone, notes, is_active, created_at, updated_at, synced_at)
+         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         on conflict (id) do update set
+           name = excluded.name, tax_id = excluded.tax_id, contact_name = excluded.contact_name,
+           contact_email = excluded.contact_email, contact_phone = excluded.contact_phone,
+           notes = excluded.notes, is_active = excluded.is_active,
+           updated_at = excluded.updated_at, synced_at = excluded.synced_at
+         where clients.synced_at is not null`,
+        row.id,
+        technicianId,
+        row.name,
+        row.tax_id,
+        row.contact_name,
+        row.contact_email,
+        row.contact_phone,
+        row.notes,
+        row.is_active ? 1 : 0,
+        row.created_at,
+        row.updated_at,
+        syncedAt,
+      );
+    }
+    const remoteIds = remote.map((row) => row.id);
+    db.runSync(
+      `delete from clients where technician_id = ? and synced_at is not null
+         and id not in (select value from json_each(?))`,
+      technicianId,
+      JSON.stringify(remoteIds),
+    );
+  });
+  notify();
+}

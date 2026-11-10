@@ -99,6 +99,14 @@ export function ClientDetail({
                 <Text className="font-sans-semibold text-sm text-muted">Inactivo</Text>
               </View>
             )}
+            {client.syncedAt ? null : (
+              <View className="flex-row items-center gap-1.5 rounded-full bg-accent/30 px-3 py-1">
+                <Icon name="cloud-upload-outline" size={16} color={colors.foreground} />
+                <Text className="font-sans-semibold text-sm text-foreground">
+                  Pendiente de subir
+                </Text>
+              </View>
+            )}
           </View>
         </View>
         <View className="min-w-[180px]">
