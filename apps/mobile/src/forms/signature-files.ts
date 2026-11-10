@@ -49,8 +49,8 @@ export async function uploadReportSignatures(
 ) {
   const folder = `${technicianId}/${reportId}`;
   const paths = {
-    supervisorSignaturePath: `${folder}/supervisor-signature.png`,
-    technicianSignaturePath: `${folder}/technician-signature.png`,
+    supervisorSignaturePath: `${folder}/${new File(supervisorSignature).name}`,
+    technicianSignaturePath: `${folder}/${new File(technicianSignature).name}`,
   };
   await Promise.all([
     uploadReportFile(paths.supervisorSignaturePath, supervisorSignature),
