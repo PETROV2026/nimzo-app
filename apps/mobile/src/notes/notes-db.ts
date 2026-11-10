@@ -1,5 +1,6 @@
 import { randomUUID } from 'expo-crypto';
 import { db } from '@/db/database';
+import { createTableStore } from '@/db/table-store';
 
 export type NoteColor = 'none' | 'teal' | 'yellow' | 'orange' | 'gray';
 
@@ -37,21 +38,6 @@ type NoteRow = {
   updated_at: string;
 };
 
-const listeners = new Set<() => void>();
-let version = 0;
-
-function notify() {
-  version += 1;
-  for (const listener of listeners) listener();
-}
-
-export function subscribeNotes(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
 function isChecklistItem(value: unknown): value is ChecklistItem {
   if (typeof value !== 'object' || value === null) return false;
   const item = value as Record<string, unknown>;
@@ -87,23 +73,14 @@ function fromRow(row: NoteRow): Note {
   };
 }
 
-export function listNotes(technicianId: string) {
-  return db
+export const notesStore = createTableStore((technicianId) =>
+  db
     .getAllSync<NoteRow>(
       'select * from notes where technician_id = ? order by pinned desc, updated_at desc',
       technicianId,
     )
-    .map(fromRow);
-}
-
-let snapshot: { technicianId: string; version: number; notes: Note[] } | null = null;
-
-export function notesSnapshot(technicianId: string) {
-  if (!snapshot || snapshot.technicianId !== technicianId || snapshot.version !== version) {
-    snapshot = { technicianId, version, notes: listNotes(technicianId) };
-  }
-  return snapshot.notes;
-}
+    .map(fromRow),
+);
 
 export function getNote(id: string, technicianId: string) {
   const row = db.getFirstSync<NoteRow>(
@@ -120,7 +97,7 @@ export function notesWithReminders() {
 
 export function setNotificationId(id: string, notificationId: string | null) {
   db.runSync('update notes set notification_id = ? where id = ?', notificationId, id);
-  notify();
+  notesStore.notify();
 }
 
 export function createNote(technicianId: string): Note {
@@ -147,7 +124,7 @@ export function createNote(technicianId: string): Note {
     now,
     now,
   );
-  notify();
+  notesStore.notify();
   return note;
 }
 
@@ -169,12 +146,12 @@ export function saveNote(note: Note) {
     updatedAt,
     note.id,
   );
-  notify();
+  notesStore.notify();
 }
 
 export function deleteNote(id: string) {
   db.runSync('delete from notes where id = ?', id);
-  notify();
+  notesStore.notify();
 }
 
 export function isEmptyNote(note: Note) {

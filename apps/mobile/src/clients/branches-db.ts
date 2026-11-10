@@ -1,6 +1,7 @@
 import type { BranchFormValues, MexicanState } from '@nimzo/shared';
 import { randomUUID } from 'expo-crypto';
 import { db } from '@/db/database';
+import { createTableStore } from '@/db/table-store';
 
 export type BranchDetails = Omit<BranchFormValues, 'is_active'>;
 
@@ -50,38 +51,14 @@ function fromRow(row: BranchRow): LocalBranch {
   };
 }
 
-const listeners = new Set<() => void>();
-let version = 0;
-
-function notify() {
-  version += 1;
-  for (const listener of listeners) listener();
-}
-
-export function subscribeBranches(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-let snapshot: { technicianId: string; version: number; branches: LocalBranch[] } | null = null;
-
-export function branchesSnapshot(technicianId: string) {
-  if (!snapshot || snapshot.technicianId !== technicianId || snapshot.version !== version) {
-    snapshot = {
+export const branchesStore = createTableStore((technicianId) =>
+  db
+    .getAllSync<BranchRow>(
+      'select * from branches where technician_id = ? order by is_active desc, name collate nocase',
       technicianId,
-      version,
-      branches: db
-        .getAllSync<BranchRow>(
-          'select * from branches where technician_id = ? order by is_active desc, name collate nocase',
-          technicianId,
-        )
-        .map(fromRow),
-    };
-  }
-  return snapshot.branches;
-}
+    )
+    .map(fromRow),
+);
 
 export function createBranch(
   technicianId: string,
@@ -107,7 +84,7 @@ export function createBranch(
     now,
     now,
   );
-  notify();
+  branchesStore.notify();
   return {
     ...details,
     id,
@@ -136,7 +113,7 @@ export function updateBranch(id: string, technicianId: string, details: BranchDe
     id,
     technicianId,
   );
-  notify();
+  branchesStore.notify();
 }
 
 export function setBranchActive(id: string, technicianId: string, active: boolean) {
@@ -148,7 +125,7 @@ export function setBranchActive(id: string, technicianId: string, active: boolea
     id,
     technicianId,
   );
-  notify();
+  branchesStore.notify();
 }
 
 export function pendingBranches(technicianId: string) {
@@ -172,7 +149,7 @@ export function markBranchesSynced(branches: LocalBranch[]) {
       );
     }
   });
-  notify();
+  branchesStore.notify();
 }
 
 export type RemoteBranch = Omit<BranchRow, 'is_active' | 'synced_at'> & { is_active: boolean };
@@ -215,5 +192,5 @@ export function applyRemoteBranches(technicianId: string, remote: RemoteBranch[]
       JSON.stringify(remote.map((row) => row.id)),
     );
   });
-  notify();
+  branchesStore.notify();
 }

@@ -1,5 +1,6 @@
 import { randomUUID } from 'expo-crypto';
 import { db } from '@/db/database';
+import { createTableStore } from '@/db/table-store';
 
 export type ClientDetails = {
   name: string;
@@ -51,38 +52,14 @@ function fromRow(row: ClientRow): LocalClient {
   };
 }
 
-const listeners = new Set<() => void>();
-let version = 0;
-
-function notify() {
-  version += 1;
-  for (const listener of listeners) listener();
-}
-
-export function subscribeClients(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-function listClients(technicianId: string) {
-  return db
+export const clientsStore = createTableStore((technicianId) =>
+  db
     .getAllSync<ClientRow>(
       'select * from clients where technician_id = ? order by is_active desc, name collate nocase',
       technicianId,
     )
-    .map(fromRow);
-}
-
-let snapshot: { technicianId: string; version: number; clients: LocalClient[] } | null = null;
-
-export function clientsSnapshot(technicianId: string) {
-  if (!snapshot || snapshot.technicianId !== technicianId || snapshot.version !== version) {
-    snapshot = { technicianId, version, clients: listClients(technicianId) };
-  }
-  return snapshot.clients;
-}
+    .map(fromRow),
+);
 
 export function createClient(technicianId: string, details: ClientDetails): LocalClient {
   const now = new Date().toISOString();
@@ -102,7 +79,7 @@ export function createClient(technicianId: string, details: ClientDetails): Loca
     now,
     now,
   );
-  notify();
+  clientsStore.notify();
   return {
     ...details,
     id,
@@ -129,7 +106,7 @@ export function updateClient(id: string, technicianId: string, details: ClientDe
     id,
     technicianId,
   );
-  notify();
+  clientsStore.notify();
 }
 
 export function setClientActive(id: string, technicianId: string, active: boolean) {
@@ -141,7 +118,7 @@ export function setClientActive(id: string, technicianId: string, active: boolea
     id,
     technicianId,
   );
-  notify();
+  clientsStore.notify();
 }
 
 export function pendingClients(technicianId: string) {
@@ -165,7 +142,7 @@ export function markClientsSynced(clients: LocalClient[]) {
       );
     }
   });
-  notify();
+  clientsStore.notify();
 }
 
 export type RemoteClient = Omit<ClientRow, 'is_active' | 'synced_at'> & { is_active: boolean };
@@ -206,5 +183,5 @@ export function applyRemoteClients(technicianId: string, remote: RemoteClient[])
       JSON.stringify(remoteIds),
     );
   });
-  notify();
+  clientsStore.notify();
 }

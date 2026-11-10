@@ -2,17 +2,15 @@ import { useEffect, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 import {
   applyRemoteClients,
-  clientsSnapshot,
+  clientsStore,
   markClientsSynced,
   pendingClients,
-  subscribeClients,
 } from '@/clients/clients-db';
 import {
   applyRemoteBranches,
-  branchesSnapshot,
+  branchesStore,
   markBranchesSynced,
   pendingBranches,
-  subscribeBranches,
 } from '@/clients/branches-db';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
@@ -147,11 +145,11 @@ export function useClientsSyncStatus() {
 
 export function useClientsSync(technicianId: string) {
   const online = useOnline();
-  const pendingClientsKey = useSyncExternalStore(subscribeClients, () =>
-    technicianId ? pendingKeyOf(clientsSnapshot(technicianId)) : '',
+  const pendingClientsKey = useSyncExternalStore(clientsStore.subscribe, () =>
+    technicianId ? pendingKeyOf(clientsStore.snapshot(technicianId)) : '',
   );
-  const pendingBranchesKey = useSyncExternalStore(subscribeBranches, () =>
-    technicianId ? pendingKeyOf(branchesSnapshot(technicianId)) : '',
+  const pendingBranchesKey = useSyncExternalStore(branchesStore.subscribe, () =>
+    technicianId ? pendingKeyOf(branchesStore.snapshot(technicianId)) : '',
   );
   const pendingKey = pendingClientsKey + pendingBranchesKey;
   const { state } = useClientsSyncStatus();
