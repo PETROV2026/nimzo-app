@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { requiredEmail, requiredText } from '../src/form-fields.ts';
+import { requiredState } from '../src/mexican-states.ts';
 import { requiredPhone } from '../src/phone.ts';
 
 function messageOf(result: { success: boolean; error?: { issues: { message: string }[] } }) {
@@ -44,4 +45,10 @@ test('saved rows without a value fail with the required message, not a type erro
     messageOf(requiredPhone('Ingresa el teléfono de contacto').safeParse(null)),
     'Ingresa el teléfono de contacto',
   );
+});
+
+test('required state accepts a state code and rejects an empty choice', () => {
+  const schema = requiredState('Elige el estado');
+  assert.equal(schema.parse('NLE'), 'NLE');
+  assert.equal(messageOf(schema.safeParse(null)), 'Elige el estado');
 });

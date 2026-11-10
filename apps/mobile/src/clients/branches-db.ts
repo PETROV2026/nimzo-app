@@ -1,9 +1,17 @@
-import type { BranchFormValues, MexicanState } from '@nimzo/shared';
+import type { MexicanState } from '@nimzo/shared';
 import { randomUUID } from 'expo-crypto';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
 
-export type BranchDetails = Omit<BranchFormValues, 'is_active'>;
+export type BranchDetails = {
+  name: string;
+  address: string | null;
+  city: string | null;
+  state: MexicanState | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+};
 
 export type LocalBranch = BranchDetails & {
   id: string;

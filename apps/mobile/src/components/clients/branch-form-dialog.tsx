@@ -104,7 +104,7 @@ export function BranchFormDialog({
           control={control}
           name="address"
           ref={addressRef}
-          label="Dirección (opcional)"
+          label="Dirección"
           placeholder="Calle, número y colonia"
           autoCapitalize="sentences"
           autoComplete="street-address"
@@ -118,7 +118,7 @@ export function BranchFormDialog({
               control={control}
               name="city"
               ref={cityRef}
-              label="Ciudad (opcional)"
+              label="Ciudad"
               placeholder="Ej. Monterrey"
               autoCapitalize="words"
               returnKeyType="next"
@@ -130,13 +130,14 @@ export function BranchFormDialog({
             <Controller
               control={control}
               name="state"
-              render={({ field }) => (
+              render={({ field, fieldState }) => (
                 <SelectField
-                  label="Estado (opcional)"
+                  label="Estado"
                   value={field.value ?? null}
                   options={stateOptions}
                   onChange={field.onChange}
                   placeholder="Selecciona el estado"
+                  error={fieldState.error?.message}
                 />
               )}
             />
