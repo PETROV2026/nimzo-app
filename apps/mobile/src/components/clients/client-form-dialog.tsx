@@ -16,6 +16,7 @@ import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { Icon } from '@/components/icon';
 import { TextField } from '@/components/text-field';
+import { useKeyboardVisible } from '@/lib/use-keyboard-visible';
 import { colors } from '@/theme';
 
 const clientDetailsSchema = clientFormSchema.omit({ is_active: true });
@@ -41,6 +42,7 @@ function FormGroup({ title, children }: { title: string; children: ReactNode }) 
 export function ClientFormDialog({ client, otherClients, onSave, onClose }: ClientFormDialogProps) {
   const { width, height } = useWindowDimensions();
   const compact = height < 800;
+  const keyboardVisible = useKeyboardVisible();
   const twoColumns = width >= 720;
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const taxIdRef = useRef<TextInputInstance>(null);
@@ -90,7 +92,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
       <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
         <ScrollView
           className="flex-1"
-          contentContainerClassName="grow items-center justify-center p-8"
+          contentContainerClassName={`grow items-center p-8 ${keyboardVisible ? 'justify-start' : 'justify-center'}`}
           keyboardShouldPersistTaps="handled"
         >
           <View

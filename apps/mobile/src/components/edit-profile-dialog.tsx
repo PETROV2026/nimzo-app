@@ -17,6 +17,7 @@ import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { SelectField } from '@/components/select-field';
 import { TextField } from '@/components/text-field';
+import { useKeyboardVisible } from '@/lib/use-keyboard-visible';
 import { colors } from '@/theme';
 
 const profileEditSchema = userEditSchema.omit({ role: true });
@@ -35,6 +36,7 @@ type EditProfileDialogProps = {
 export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDialogProps) {
   const { height } = useWindowDimensions();
   const compact = height < 800;
+  const keyboardVisible = useKeyboardVisible();
   const { updateProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
@@ -84,7 +86,7 @@ export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDial
       <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
         <ScrollView
           className="flex-1"
-          contentContainerClassName="grow items-center justify-center p-8"
+          contentContainerClassName={`grow items-center p-8 ${keyboardVisible ? 'justify-start' : 'justify-center'}`}
           keyboardShouldPersistTaps="handled"
         >
           <View
