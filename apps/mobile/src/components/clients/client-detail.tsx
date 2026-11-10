@@ -93,6 +93,13 @@ export function ClientDetail({
             {[client.tax_id, ...status].filter(Boolean).join('. ')}
           </Text>
         </View>
+        <View importantForAccessibility="no-hide-descendants" className="pt-1">
+          <Icon
+            name="business-outline"
+            size={48}
+            color={client.isActive ? colors['primary-strong'] : colors['border-strong']}
+          />
+        </View>
       </View>
 
       {client.isActive ? null : (
