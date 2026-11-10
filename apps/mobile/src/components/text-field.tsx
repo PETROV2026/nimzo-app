@@ -39,9 +39,12 @@ export function TextField({
         <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
       ) : null}
       <View
-        className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : surfaceClass} ${borderClass}`}>
+        className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : surfaceClass} ${borderClass}`}
+      >
         {floating ? (
-                   <Text className={`absolute -top-3.5 left-3 z-10 px-1 font-sans-medium text-base text-destructive ${surfaceClass}`}>
+          <Text
+            className={`absolute -top-3.5 left-3 z-10 px-1 font-sans-medium text-base text-destructive ${surfaceClass}`}
+          >
             {label}
           </Text>
         ) : null}

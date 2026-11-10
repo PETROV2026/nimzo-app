@@ -14,7 +14,13 @@ type SignaturePadProps = {
   onDrawingChange?: (drawing: boolean) => void;
 };
 
-export function SignaturePad({ label, value, onChange, error, onDrawingChange }: SignaturePadProps) {
+export function SignaturePad({
+  label,
+  value,
+  onChange,
+  error,
+  onDrawingChange,
+}: SignaturePadProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
   const signature = useSignatureInk({
     enabled: value === null,
@@ -63,7 +69,7 @@ export function SignaturePad({ label, value, onChange, error, onDrawingChange }:
           {label}
           <Text className="text-danger-strong"> *</Text>
         </Text>
-            {message ? (
+        {message ? (
           <Text accessibilityLiveRegion="polite" className="font-sans text-base text-destructive">
             {message}
           </Text>
@@ -82,7 +88,7 @@ export function SignaturePad({ label, value, onChange, error, onDrawingChange }:
       ) : (
         <SignatureCanvas signature={signature} invalid={missing} />
       )}
-        {help && !message ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
+      {help && !message ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
       {value ? null : (
         <View className="flex-row justify-end">
           <Button icon="checkmark" label="Listo" onPress={handleAccept} disabled={!readable} />

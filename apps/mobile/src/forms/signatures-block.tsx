@@ -37,7 +37,12 @@ type SignaturesBlockProps = {
 
 const supervisorNameLabel = 'Nombre de quien supervisó y revisó el servicio';
 
-export function SignaturesBlock({ value, onChange, errors, onDrawingChange }: SignaturesBlockProps) {
+export function SignaturesBlock({
+  value,
+  onChange,
+  errors,
+  onDrawingChange,
+}: SignaturesBlockProps) {
   const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
 
   return (
