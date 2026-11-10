@@ -2,23 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { mexicanStateLabels, mexicanStates, userEditSchema } from '@nimzo/shared';
 import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  KeyboardAvoidingView,
-  Modal,
-  ScrollView,
-  Text,
-  useWindowDimensions,
-  View,
-  type TextInputInstance,
-} from 'react-native';
-import { Icon } from '@/components/icon';
+import { View, type TextInputInstance } from 'react-native';
 import { useSession, type Profile } from '@/auth/session-provider';
-import { Button } from '@/components/button';
-import { DialogHeader } from '@/components/dialog-header';
+import { FormDialog } from '@/components/form-dialog';
+import { FormTextField } from '@/components/form-text-field';
 import { SelectField } from '@/components/select-field';
-import { TextField } from '@/components/text-field';
-import { useKeyboardVisible } from '@/lib/use-keyboard-visible';
-import { colors } from '@/theme';
 
 const profileEditSchema = userEditSchema.omit({ role: true });
 
@@ -34,12 +22,8 @@ type EditProfileDialogProps = {
 };
 
 export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDialogProps) {
-  const { height } = useWindowDimensions();
-  const compact = height < 800;
-  const keyboardVisible = useKeyboardVisible();
   const { updateProfile } = useSession();
   const [error, setError] = useState<string | null>(null);
-  const [confirmingDiscard, setConfirmingDiscard] = useState(false);
   const phoneRef = useRef<TextInputInstance>(null);
   const cityRef = useRef<TextInputInstance>(null);
   const {
@@ -72,162 +56,73 @@ export function EditProfileDialog({ profile, onClose, onSaved }: EditProfileDial
     onClose();
   });
 
-  function handleClose() {
-    if (isSubmitting) return;
-    if (isDirty && !confirmingDiscard) {
-      setConfirmingDiscard(true);
-      return;
-    }
-    onClose();
-  }
-
   return (
-    <Modal transparent animationType="fade" onRequestClose={handleClose}>
-      <KeyboardAvoidingView behavior="padding" className="flex-1 bg-foreground/40">
-        <ScrollView
-          className="flex-1"
-          contentContainerClassName={`grow items-center p-8 ${keyboardVisible ? 'justify-start' : 'justify-center'}`}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View
-            className={`w-full max-w-[640px] rounded-3xl bg-background ${compact ? 'gap-4 p-6' : 'gap-6 p-8'}`}
-          >
-            <DialogHeader
-              title="Editar tus datos"
-              description="Aparecen junto a tu firma en cada reporte que envías."
-              onClose={handleClose}
-              disabled={isSubmitting}
-            />
-            <Controller
-              control={control}
-              name="full_name"
-              render={({ field, fieldState }) => (
-                <TextField
-                  label="Nombre completo"
-                  value={field.value ?? ''}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  autoCapitalize="words"
-                  autoComplete="name"
-                  returnKeyType="next"
-                  submitBehavior="submit"
-                  onSubmitEditing={() => phoneRef.current?.focus()}
-                  editable={!isSubmitting}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field, fieldState }) => (
-                <TextField
-                  ref={phoneRef}
-                  label="Teléfono (opcional)"
-                  value={field.value ?? ''}
-                  onChangeText={field.onChange}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  keyboardType="phone-pad"
-                  autoComplete="tel"
-                  placeholder="Ej. 686 123 4567"
-                  returnKeyType="next"
-                  submitBehavior="submit"
-                  onSubmitEditing={() => cityRef.current?.focus()}
-                  editable={!isSubmitting}
-                />
-              )}
-            />
-            <View className="flex-row gap-5">
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name="city"
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      ref={cityRef}
-                      label="Ciudad (opcional)"
-                      value={field.value ?? ''}
-                      onChangeText={field.onChange}
-                      onBlur={field.onBlur}
-                      error={fieldState.error?.message}
-                      autoCapitalize="words"
-                      autoComplete="address-line2"
-                      placeholder="Ej. Mexicali"
-                      returnKeyType="done"
-                      editable={!isSubmitting}
-                    />
-                  )}
-                />
-              </View>
-              <View className="flex-1">
-                <Controller
-                  control={control}
-                  name="state"
-                  render={({ field }) => (
-                    <SelectField
-                      label="Estado (opcional)"
-                      value={field.value ?? null}
-                      options={stateOptions}
-                      onChange={field.onChange}
-                      placeholder="Selecciona tu estado"
-                      disabled={isSubmitting}
-                    />
-                  )}
-                />
-              </View>
-            </View>
-            {error ? (
-              <View
-                accessibilityRole="alert"
-                className="flex-row items-start gap-3 rounded-lg border-2 border-destructive px-4 py-3"
-              >
-                <Icon name="alert-circle-outline" size={22} color={colors.destructive} />
-                <Text className="flex-1 font-sans-medium text-base text-destructive">{error}</Text>
-              </View>
-            ) : null}
-            {confirmingDiscard ? (
-              <View className="gap-4">
-                <Text className="font-sans-medium text-lg text-foreground">
-                  ¿Descartar los cambios que hiciste?
-                </Text>
-                <View className="flex-row gap-3">
-                  <View className="flex-1">
-                    <Button
-                      variant="secondary"
-                      label="Seguir editando"
-                      onPress={() => setConfirmingDiscard(false)}
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <Button variant="destructive" label="Descartar" onPress={onClose} />
-                  </View>
-                </View>
-              </View>
-            ) : (
-              <View className="flex-row gap-3">
-                <View className="flex-1">
-                  <Button
-                    variant="secondary"
-                    label="Cancelar"
-                    onPress={handleClose}
-                    disabled={isSubmitting}
-                  />
-                </View>
-                <View className="flex-1">
-                  <Button
-                    label="Guardar cambios"
-                    variant="success"
-                    onPress={onSubmit}
-                    loading={isSubmitting}
-                    disabled={!isDirty}
-                  />
-                </View>
-              </View>
+    <FormDialog
+      title="Editar tus datos"
+      description="Aparecen junto a tu firma en cada reporte que envías."
+      dirty={isDirty}
+      submitLabel="Guardar cambios"
+      submitDisabled={!isDirty}
+      submitting={isSubmitting}
+      error={error}
+      onSubmit={onSubmit}
+      onClose={onClose}
+    >
+      <FormTextField
+        control={control}
+        name="full_name"
+        label="Nombre completo"
+        autoCapitalize="words"
+        autoComplete="name"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => phoneRef.current?.focus()}
+        editable={!isSubmitting}
+      />
+      <FormTextField
+        control={control}
+        name="phone"
+        ref={phoneRef}
+        label="Teléfono (opcional)"
+        keyboardType="phone-pad"
+        autoComplete="tel"
+        placeholder="Ej. 686 123 4567"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => cityRef.current?.focus()}
+        editable={!isSubmitting}
+      />
+      <View className="flex-row gap-5">
+        <View className="flex-1">
+          <FormTextField
+            control={control}
+            name="city"
+            ref={cityRef}
+            label="Ciudad (opcional)"
+            autoCapitalize="words"
+            autoComplete="address-line2"
+            placeholder="Ej. Mexicali"
+            returnKeyType="done"
+            editable={!isSubmitting}
+          />
+        </View>
+        <View className="flex-1">
+          <Controller
+            control={control}
+            name="state"
+            render={({ field }) => (
+              <SelectField
+                label="Estado (opcional)"
+                value={field.value ?? null}
+                options={stateOptions}
+                onChange={field.onChange}
+                placeholder="Selecciona tu estado"
+                disabled={isSubmitting}
+              />
             )}
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Modal>
+          />
+        </View>
+      </View>
+    </FormDialog>
   );
 }
