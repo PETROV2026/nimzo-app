@@ -1,13 +1,5 @@
 import { useCallback, useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import {
@@ -37,8 +29,6 @@ import { Icon } from '@/components/icon';
 import { Toast } from '@/components/toast';
 import { colors } from '@/theme';
 
-const splitMinWidth = 900;
-
 type ListItem =
   | { type: 'header'; key: string; label: string }
   | { type: 'client'; key: string; client: LocalClient };
@@ -62,9 +52,7 @@ type BranchFormState = { mode: 'create' } | { mode: 'edit'; branch: LocalBranch 
 export default function ClientsScreen() {
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
-  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const split = width > height && width >= splitMinWidth;
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(null);
@@ -165,10 +153,10 @@ export default function ClientsScreen() {
       onPress={() => setForm({ mode: 'create' })}
       accessibilityRole="button"
       accessibilityLabel="Agregar cliente"
-      className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 ${split ? 'bottom-5 right-5 h-14 w-14' : 'bottom-6 right-6 h-[72px] w-[72px]'}`}
+      className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 bottom-6 right-6 h-[72px] w-[72px]`}
       style={{ elevation: 6 }}
     >
-      <Icon name="add" size={split ? 28 : 36} color={colors['on-primary']} />
+      <Icon name="add" size={36} color={colors['on-primary']} />
     </Pressable>
   );
 
@@ -243,8 +231,6 @@ export default function ClientsScreen() {
                 client={item.client}
                 branches={branchesByClient.get(item.client.id) ?? []}
                 search={search}
-                selected={split && item.client.id === selectedId}
-                showChevron={!split}
                 onPress={() => setSelectedId(item.client.id)}
               />
             )
@@ -258,7 +244,6 @@ export default function ClientsScreen() {
       key={selected.id}
       client={selected}
       branches={selectedBranches}
-      showBack={!split}
       onBack={() => setSelectedId(null)}
       onEdit={() => setForm({ mode: 'edit', client: selected })}
       onToggleActive={handleToggleActive}
@@ -323,29 +308,6 @@ export default function ClientsScreen() {
       ) : null}
     </>
   );
-
-  if (split) {
-    return (
-      <View className="flex-1 flex-row bg-canvas">
-        <View className="w-[420px] border-r border-border">
-          {list}
-          {allClients.length > 0 ? addButton : null}
-        </View>
-        <View className="flex-1">
-          {detail ?? (
-            <View className="flex-1 items-center justify-center gap-3 p-8">
-              <Text className="text-center font-sans text-lg text-muted">
-                {allClients.length === 0
-                  ? 'Aquí verás los datos del cliente que elijas.'
-                  : 'Elige un cliente de la lista para ver sus datos.'}
-              </Text>
-            </View>
-          )}
-        </View>
-        {overlays}
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 bg-canvas">

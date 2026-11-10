@@ -11,8 +11,6 @@ type ClientRowProps = {
   client: LocalClient;
   branches: LocalBranch[];
   search: string;
-  selected: boolean;
-  showChevron: boolean;
   onPress: () => void;
 };
 
@@ -32,14 +30,7 @@ function subtitle(client: LocalClient, branches: LocalBranch[], search: string) 
   return client.tax_id ?? client.contact_name ?? 'Sin RFC';
 }
 
-export function ClientRow({
-  client,
-  branches,
-  search,
-  selected,
-  showChevron,
-  onPress,
-}: ClientRowProps) {
+export function ClientRow({ client, branches, search, onPress }: ClientRowProps) {
   const branchCount = branches.filter((branch) => branch.isActive).length;
   const meta = client.isActive
     ? `${branchCount} ${branchCount === 1 ? 'sucursal' : 'sucursales'}`
@@ -49,11 +40,9 @@ export function ClientRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityState={{ selected }}
       accessibilityLabel={`${client.name}, ${meta}`}
-      className={`min-h-[72px] flex-row items-center gap-4 border-b border-border py-3 pl-5 pr-4 active:bg-surface ${selected ? 'bg-surface' : 'bg-background'}`}
+      className={`min-h-[72px] flex-row items-center gap-4 border-b border-border py-3 pl-5 pr-4 active:bg-surface bg-background`}
     >
-      {selected ? <View className="absolute bottom-0 left-0 top-0 w-1 bg-primary-strong" /> : null}
       <View className="flex-1 gap-0.5">
         <HighlightedText
           text={client.name}
@@ -69,9 +58,7 @@ export function ClientRow({
         />
       </View>
       <Text className="font-sans text-base text-muted">{meta}</Text>
-      {showChevron ? (
-        <Icon name="chevron-forward" size={20} color={colors['border-strong']} />
-      ) : null}
+      <Icon name="chevron-forward" size={20} color={colors['border-strong']} />
     </Pressable>
   );
 }

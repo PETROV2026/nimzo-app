@@ -10,7 +10,6 @@ import { colors } from '@/theme';
 type ClientDetailProps = {
   client: LocalClient;
   branches: LocalBranch[];
-  showBack: boolean;
   onBack: () => void;
   onEdit: () => void;
   onToggleActive: () => void;
@@ -58,7 +57,6 @@ function LinkValue({ value, url, label }: { value: string | null; url: string; l
 export function ClientDetail({
   client,
   branches,
-  showBack,
   onBack,
   onEdit,
   onToggleActive,
@@ -73,17 +71,15 @@ export function ClientDetail({
 
   return (
     <ScrollView className="flex-1 bg-canvas" contentContainerClassName="gap-8 p-6 pb-10">
-      {showBack ? (
-        <Pressable
-          onPress={onBack}
-          accessibilityRole="button"
-          accessibilityLabel="Volver a tus clientes"
-          className="-mb-4 -ml-2 min-h-14 flex-row items-center gap-2 self-start rounded-lg px-2 active:bg-border"
-        >
-          <Icon name="arrow-back" size={24} color={colors.foreground} />
-          <Text className="font-sans-medium text-lg text-foreground">Clientes</Text>
-        </Pressable>
-      ) : null}
+      <Pressable
+        onPress={onBack}
+        accessibilityRole="button"
+        accessibilityLabel="Volver a tus clientes"
+        className="-mb-4 -ml-2 min-h-14 flex-row items-center gap-2 self-start rounded-lg px-2 active:bg-border"
+      >
+        <Icon name="arrow-back" size={24} color={colors.foreground} />
+        <Text className="font-sans-medium text-lg text-foreground">Clientes</Text>
+      </Pressable>
 
       <View className="flex-row flex-wrap items-start justify-between gap-4">
         <View className="min-w-[260px] flex-1 gap-1">
