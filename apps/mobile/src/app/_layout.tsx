@@ -10,15 +10,18 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SessionProvider, useSession } from '@/auth/session-provider';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   return (
-    <SessionProvider>
-      <RootNavigator />
-      <StatusBar style="dark" />
-    </SessionProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SessionProvider>
+        <RootNavigator />
+        <StatusBar style="dark" />
+      </SessionProvider>
+    </GestureHandlerRootView>
   );
 }
 
