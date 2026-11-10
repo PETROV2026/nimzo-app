@@ -1,13 +1,10 @@
-import { Canvas, Path } from '@shopify/react-native-skia';
 import { Image } from 'expo-image';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Button } from '@/components/button';
-import { Icon } from '@/components/icon';
+import { ClearSignatureButton, SignatureCanvas } from '@/components/signature-canvas';
 import { deleteSignatureFile, saveSignaturePng } from '@/forms/signature-files';
-import { renderSignaturePng, strokeStyle, useSignatureInk } from '@/lib/signature-ink';
-import { colors } from '@/theme';
+import { renderSignaturePng, useSignatureInk } from '@/lib/signature-ink';
 
 type SignaturePadProps = {
   label: string;
@@ -15,19 +12,11 @@ type SignaturePadProps = {
   onChange: (uri: string | null) => void;
   error?: string;
   onDrawingChange?: (drawing: boolean) => void;
-  extraAction?: ReactNode;
 };
 
-export function SignaturePad({
-  label,
-  value,
-  onChange,
-  error,
-  onDrawingChange,
-  extraAction,
-}: SignaturePadProps) {
+export function SignaturePad({ label, value, onChange, error, onDrawingChange }: SignaturePadProps) {
   const [saveError, setSaveError] = useState<string | null>(null);
-  const { pan, inkPath, strokePath, ink, drawing, clear, readable } = useSignatureInk({
+  const signature = useSignatureInk({
     enabled: value === null,
     onStrokeStart: () => {
       setSaveError(null);
@@ -35,10 +24,10 @@ export function SignaturePad({
     },
     onStrokeEnd: () => onDrawingChange?.(false),
   });
+  const { ink, clear, readable } = signature;
   const hasInk = ink !== null;
-  const shownError =
-    saveError ??
-    (value || !error ? undefined : hasInk ? 'Toca "Listo" para guardar la firma' : error);
+  const missing = !value && !hasInk && Boolean(error);
+  const message = saveError ?? (missing ? error : undefined);
 
   function handleAccept() {
     const png = ink ? renderSignaturePng(ink) : null;
@@ -54,7 +43,7 @@ export function SignaturePad({
     }
   }
 
-  function handleRedo() {
+  function handleClear() {
     if (value) deleteSignatureFile(value);
     onChange(null);
   }
@@ -67,13 +56,6 @@ export function SignaturePad({
         ? 'Revisa que se lea bien antes de tocar "Listo".'
         : 'Haz la firma un poco más grande para poder aceptarla.';
 
-  const borderClass =
-    value || hasInk
-      ? 'border-border'
-      : shownError
-        ? 'border-dashed border-danger'
-        : 'border-dashed border-border-strong';
-
   return (
     <View className="gap-2">
       <View className="flex-row flex-wrap items-baseline gap-x-3">
@@ -81,64 +63,31 @@ export function SignaturePad({
           {label}
           <Text className="text-danger-strong"> *</Text>
         </Text>
-        {shownError ? (
+            {message ? (
           <Text accessibilityLiveRegion="polite" className="font-sans text-base text-destructive">
-            {shownError}
+            {message}
           </Text>
         ) : null}
       </View>
-      <View className={`h-56 overflow-hidden rounded-xl border-2 ${borderClass}`}>
-        {value ? (
+      {value ? (
+        <View className="h-56 overflow-hidden rounded-xl border-2 border-border">
           <Image
             source={{ uri: value }}
             contentFit="contain"
             style={{ flex: 1 }}
             accessibilityLabel={label}
           />
-        ) : (
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <GestureDetector gesture={pan}>
-              <Canvas style={{ flex: 1 }}>
-                <Path path={inkPath} {...strokeStyle} />
-                <Path path={strokePath} {...strokeStyle} />
-              </Canvas>
-            </GestureDetector>
-            {hasInk || drawing ? null : (
-              <View
-                pointerEvents="none"
-                className="absolute inset-x-0 top-0 bottom-10 items-center justify-center gap-2"
-              >
-                <Icon name="create-outline" size={28} color={colors['border-strong']} />
-                <Text className="font-sans text-base text-muted">
-                  Firma aquí con el dedo o con un lápiz
-                </Text>
-              </View>
-            )}
-            <View pointerEvents="none" className="absolute inset-x-8 bottom-6 gap-1">
-              <Icon name="close" size={18} color={colors['border-strong']} />
-              <View className="h-px bg-border-strong" />
-            </View>
-          </GestureHandlerRootView>
-        )}
-      </View>
-      {help && !shownError ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
-      <View className="flex-row flex-wrap items-center justify-end gap-3">
-        {value ? (
-          <Button variant="secondary" icon="refresh" label="Volver a firmar" onPress={handleRedo} />
-        ) : (
-          <>
-            {extraAction && !hasInk ? <View className="mr-auto">{extraAction}</View> : null}
-            <Button
-              variant="secondary"
-              icon="trash-outline"
-              label="Borrar"
-              onPress={clear}
-              disabled={!hasInk}
-            />
-            <Button icon="checkmark" label="Listo" onPress={handleAccept} disabled={!readable} />
-          </>
-        )}
-      </View>
+          <ClearSignatureButton onPress={handleClear} />
+        </View>
+      ) : (
+        <SignatureCanvas signature={signature} invalid={missing} />
+      )}
+        {help && !message ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
+      {value ? null : (
+        <View className="flex-row justify-end">
+          <Button icon="checkmark" label="Listo" onPress={handleAccept} disabled={!readable} />
+        </View>
+      )}
     </View>
   );
 }

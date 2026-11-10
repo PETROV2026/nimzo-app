@@ -6,6 +6,7 @@ type TextFieldProps = TextInputProps & {
   label?: string;
   error?: string;
   rightAccessory?: ReactNode;
+  surface?: 'background' | 'canvas';
   ref?: Ref<TextInputInstance>;
 };
 
@@ -13,6 +14,7 @@ export function TextField({
   label,
   error,
   rightAccessory,
+  surface = 'background',
   ref,
   onFocus,
   onBlur,
@@ -21,6 +23,7 @@ export function TextField({
   const [focused, setFocused] = useState(false);
   const disabled = inputProps.editable === false;
   const floating = Boolean(error && label);
+  const surfaceClass = surface === 'canvas' ? 'bg-canvas' : 'bg-background';
 
   const borderClass = error
     ? 'border-danger'
@@ -36,10 +39,9 @@ export function TextField({
         <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
       ) : null}
       <View
-        className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : 'bg-background'} ${borderClass}`}
-      >
+        className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : surfaceClass} ${borderClass}`}>
         {floating ? (
-          <Text className="absolute -top-3.5 left-3 z-10 bg-background px-1 font-sans-medium text-base text-destructive">
+                   <Text className={`absolute -top-3.5 left-3 z-10 px-1 font-sans-medium text-base text-destructive ${surfaceClass}`}>
             {label}
           </Text>
         ) : null}

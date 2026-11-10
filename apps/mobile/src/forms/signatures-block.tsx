@@ -1,7 +1,4 @@
-import { useState } from 'react';
 import { View } from 'react-native';
-import { useSession } from '@/auth/session-provider';
-import { Button } from '@/components/button';
 import { TextField } from '@/components/text-field';
 import { copyProfileSignature } from '@/forms/signature-files';
 import { SignaturePad } from '@/forms/signature-pad';
@@ -22,6 +19,15 @@ export function validateSignatures(value: SignaturesValue): SignaturesErrors {
   };
 }
 
+export async function createSignatures(
+  profileSignaturePath: string | null,
+): Promise<SignaturesValue> {
+  const technicianSignature = profileSignaturePath
+    ? await copyProfileSignature(profileSignaturePath).catch(() => null)
+    : null;
+  return { supervisorName: '', supervisorSignature: null, technicianSignature };
+}
+
 type SignaturesBlockProps = {
   value: SignaturesValue;
   onChange: (value: SignaturesValue) => void;
@@ -31,35 +37,22 @@ type SignaturesBlockProps = {
 
 const supervisorNameLabel = 'Nombre de quien supervisó y revisó el servicio';
 
-export function SignaturesBlock({
-  value,
-  onChange,
-  errors,
-  onDrawingChange,
-}: SignaturesBlockProps) {
-  const session = useSession();
-  const savedSignaturePath = session.status === 'signed-in' ? session.profile?.signaturePath : null;
-  const [copying, setCopying] = useState(false);
-  const [copyError, setCopyError] = useState<string>();
+export function SignaturesBlock({ value, onChange, errors, onDrawingChange }: SignaturesBlockProps) {
   const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
-
-  async function handleUseSavedSignature() {
-    if (!savedSignaturePath) return;
-    setCopying(true);
-    setCopyError(undefined);
-    try {
-      const technicianSignature = await copyProfileSignature(savedSignaturePath);
-      onChange({ ...value, technicianSignature });
-    } catch {
-      setCopyError('No se pudo usar tu firma guardada. Revisa tu conexión e intenta de nuevo.');
-    } finally {
-      setCopying(false);
-    }
-  }
 
   return (
     <View className="gap-10">
       <View className="gap-5">
+        <TextField
+          label={`${supervisorNameLabel} *`}
+          accessibilityLabel={supervisorNameLabel}
+          placeholder="Escribe el nombre completo"
+          autoCapitalize="words"
+          surface="canvas"
+          value={value.supervisorName}
+          onChangeText={(supervisorName) => onChange({ ...value, supervisorName })}
+          error={nameError}
+        />
         <SignaturePad
           label="Firma del supervisor"
           value={value.supervisorSignature}
@@ -67,33 +60,13 @@ export function SignaturesBlock({
           error={errors?.supervisorSignature}
           onDrawingChange={onDrawingChange}
         />
-        <TextField
-          label={`${supervisorNameLabel} *`}
-          accessibilityLabel={supervisorNameLabel}
-          placeholder="Escribe el nombre completo"
-          autoCapitalize="words"
-          value={value.supervisorName}
-          onChangeText={(supervisorName) => onChange({ ...value, supervisorName })}
-          error={nameError}
-        />
       </View>
       <SignaturePad
         label="Firma del técnico"
         value={value.technicianSignature}
         onChange={(technicianSignature) => onChange({ ...value, technicianSignature })}
-        error={copyError ?? errors?.technicianSignature}
+        error={errors?.technicianSignature}
         onDrawingChange={onDrawingChange}
-        extraAction={
-          savedSignaturePath ? (
-            <Button
-              variant="outline"
-              icon="person-outline"
-              label="Usar mi firma guardada"
-              onPress={handleUseSavedSignature}
-              loading={copying}
-            />
-          ) : null
-        }
       />
     </View>
   );
