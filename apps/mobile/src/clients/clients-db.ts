@@ -1,8 +1,14 @@
-import type { ClientFormValues } from '@nimzo/shared';
 import { randomUUID } from 'expo-crypto';
 import { db } from '@/db/database';
 
-export type ClientDetails = Omit<ClientFormValues, 'is_active'>;
+export type ClientDetails = {
+  name: string;
+  tax_id: string | null;
+  contact_name: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  notes: string | null;
+};
 
 export type LocalClient = ClientDetails & {
   id: string;

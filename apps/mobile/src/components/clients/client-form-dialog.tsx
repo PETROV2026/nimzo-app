@@ -171,7 +171,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
                 render={({ field, fieldState }) => (
                   <TextField
                     ref={contactNameRef}
-                    label="Persona de contacto (opcional)"
+                    label="Persona de contacto"
                     value={field.value ?? ''}
                     onChangeText={field.onChange}
                     onBlur={field.onBlur}
@@ -193,7 +193,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
                     render={({ field, fieldState }) => (
                       <TextField
                         ref={phoneRef}
-                        label="Teléfono (opcional)"
+                        label="Teléfono"
                         value={field.value ?? ''}
                         onChangeText={field.onChange}
                         onBlur={field.onBlur}
@@ -215,7 +215,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
                     render={({ field, fieldState }) => (
                       <TextField
                         ref={emailRef}
-                        label="Correo (opcional)"
+                        label="Correo"
                         value={field.value ?? ''}
                         onChangeText={field.onChange}
                         onBlur={field.onBlur}

@@ -80,9 +80,6 @@ export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranch
       <View className="min-h-14 flex-row items-center justify-between gap-3">
         <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
           Sucursales
-          <Text className="font-sans text-xl text-muted">
-            {active.length > 0 ? `  ${active.length}` : ''}
-          </Text>
         </Text>
         {canAdd ? (
           <Pressable

@@ -91,7 +91,7 @@ export function ClientDetail({
             {client.name}
           </Text>
           <Text className="font-sans text-lg text-muted">
-            {[client.tax_id ? `RFC ${client.tax_id}` : 'Sin RFC', ...status].join('. ')}
+            {[client.tax_id ? `${client.tax_id}` : '', ...status].join('. ')}
           </Text>
         </View>
         <View className="min-w-[160px]">
