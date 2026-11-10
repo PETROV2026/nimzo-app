@@ -24,6 +24,7 @@ export function TextField({
   const disabled = inputProps.editable === false;
   const floating = Boolean(error && label);
   const surfaceClass = surface === 'canvas' ? 'bg-canvas' : 'bg-background';
+  const backgroundClass = disabled ? 'bg-surface' : surfaceClass;
 
   const borderClass = error
     ? 'border-danger'
@@ -39,11 +40,11 @@ export function TextField({
         <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
       ) : null}
       <View
-        className={`flex-row items-center rounded-lg border-2 ${disabled ? 'bg-surface' : surfaceClass} ${borderClass}`}
+        className={`flex-row items-center rounded-lg border-2 ${backgroundClass} ${borderClass}`}
       >
         {floating ? (
           <Text
-            className={`absolute -top-3.5 left-3 z-10 px-1 font-sans-medium text-base text-destructive ${surfaceClass}`}
+            className={`absolute -top-3.5 left-3 z-10 px-1 font-sans-medium text-base text-destructive ${backgroundClass}`}
           >
             {label}
           </Text>
