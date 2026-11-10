@@ -17,6 +17,7 @@ import {
   type LocalBranch,
 } from '@/clients/branches-db';
 import { groupByClient, useBranches, useClients } from '@/clients/use-clients';
+import { AddButton } from '@/components/add-button';
 import { Button } from '@/components/button';
 import { BranchFormDialog } from '@/components/clients/branch-form-dialog';
 import { ClientDetail } from '@/components/clients/client-detail';
@@ -269,14 +270,7 @@ export default function ClientsScreen() {
     <View className="flex-1 bg-canvas">
       {list}
       {allClients.length > 0 ? (
-        <View className="absolute bottom-6 right-6 min-w-[240px]" style={{ elevation: 6 }}>
-          <Button
-            label="Agregar cliente"
-            icon="add"
-            variant="danger"
-            onPress={() => setForm({ mode: 'create' })}
-          />
-        </View>
+        <AddButton label="Agregar cliente" onPress={() => setForm({ mode: 'create' })} />
       ) : null}
       {detail ? (
         <Modal
