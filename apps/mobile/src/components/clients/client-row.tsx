@@ -3,7 +3,6 @@ import { Pressable, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import type { LocalClient } from '@/clients/clients-db';
 import { branchPlace, branchSearchText } from '@/clients/use-clients';
-import { ClientMonogram } from '@/components/clients/client-monogram';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Icon } from '@/components/icon';
 import { colors } from '@/theme';
@@ -30,7 +29,7 @@ function subtitle(client: LocalClient, branches: LocalBranch[], search: string) 
     const place = branchPlace(branch);
     return `Sucursal ${branch.name}${place ? `, ${place}` : ''}`;
   }
-  return client.contact_name ?? client.tax_id ?? 'Sin datos de contacto';
+  return client.tax_id ?? client.contact_name ?? 'Sin RFC';
 }
 
 export function ClientRow({
@@ -42,15 +41,19 @@ export function ClientRow({
   onPress,
 }: ClientRowProps) {
   const branchCount = branches.filter((branch) => branch.isActive).length;
+  const meta = client.isActive
+    ? `${branchCount} ${branchCount === 1 ? 'sucursal' : 'sucursales'}`
+    : 'Inactivo';
+
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       accessibilityState={{ selected }}
-      accessibilityLabel={client.isActive ? client.name : `${client.name}, inactivo`}
-      className={`min-h-20 flex-row items-center gap-4 rounded-2xl border-2 px-4 py-3 active:bg-surface ${selected ? 'border-primary-strong bg-background' : 'border-transparent bg-background'}`}
+      accessibilityLabel={`${client.name}, ${meta}`}
+      className={`min-h-[72px] flex-row items-center gap-4 border-b border-border py-3 pl-5 pr-4 active:bg-surface ${selected ? 'bg-surface' : 'bg-background'}`}
     >
-      <ClientMonogram name={client.name} active={client.isActive} />
+      {selected ? <View className="absolute bottom-0 left-0 top-0 w-1 bg-primary-strong" /> : null}
       <View className="flex-1 gap-0.5">
         <HighlightedText
           text={client.name}
@@ -65,20 +68,9 @@ export function ClientRow({
           className="font-sans text-base text-muted"
         />
       </View>
-      {client.isActive ? (
-        <View className="items-end">
-          <Text className="font-sans-bold text-lg text-foreground">{branchCount}</Text>
-          <Text className="font-sans text-sm text-muted">
-            {branchCount === 1 ? 'sucursal' : 'sucursales'}
-          </Text>
-        </View>
-      ) : (
-        <View className="rounded-full bg-border px-3 py-1">
-          <Text className="font-sans-medium text-sm text-muted">Inactivo</Text>
-        </View>
-      )}
+      <Text className="font-sans text-base text-muted">{meta}</Text>
       {showChevron ? (
-        <Icon name="chevron-forward" size={22} color={colors['border-strong']} />
+        <Icon name="chevron-forward" size={20} color={colors['border-strong']} />
       ) : null}
     </Pressable>
   );

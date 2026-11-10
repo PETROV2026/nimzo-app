@@ -1,196 +1,152 @@
 import { useState } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import { branchPlace } from '@/clients/use-clients';
-import { Button } from '@/components/button';
 import { Icon } from '@/components/icon';
 import { colors } from '@/theme';
 
 type ClientBranchesProps = {
-  clientName: string;
   branches: LocalBranch[];
   canAdd: boolean;
   onAdd: () => void;
   onEdit: (branch: LocalBranch) => void;
 };
 
-function BranchCard({ branch, onPress }: { branch: LocalBranch; onPress: () => void }) {
+function statusText(branch: LocalBranch) {
+  if (!branch.isActive) return 'Inactiva';
+  if (!branch.syncedAt) return 'Sin subir';
+  return null;
+}
+
+function BranchRow({
+  branch,
+  wide,
+  last,
+  onPress,
+}: {
+  branch: LocalBranch;
+  wide: boolean;
+  last: boolean;
+  onPress: () => void;
+}) {
   const place = branchPlace(branch);
-  const phone = branch.contact_phone?.replace(/[^\d+]/g, '');
   const contact = [branch.contact_name, branch.contact_phone].filter(Boolean).join(', ');
+  const status = statusText(branch);
 
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${branch.name}${place ? `, ${place}` : ''}${branch.isActive ? '' : ', inactiva'}`}
+      accessibilityLabel={[branch.name, place, status].filter(Boolean).join(', ')}
       accessibilityHint="Abre la sucursal para editarla"
-      className="min-w-[300px] flex-1 basis-[300px] gap-3 rounded-2xl border-2 border-border bg-background p-4 active:border-border-strong"
+      className={`min-h-[72px] flex-row items-center gap-4 px-5 py-3 active:bg-surface ${last ? '' : 'border-b border-border'}`}
     >
-      <View className="flex-row items-start gap-3">
-        <View
-          className={`h-12 w-12 items-center justify-center rounded-xl ${branch.isActive ? 'bg-primary/15' : 'bg-border'}`}
+      <View className={`gap-0.5 ${wide ? 'w-[38%]' : 'flex-1'}`}>
+        <Text
+          numberOfLines={1}
+          className={`font-sans-semibold text-lg ${branch.isActive ? 'text-foreground' : 'text-muted'}`}
         >
-          <Icon
-            name="location"
-            size={24}
-            color={branch.isActive ? colors['primary-strong'] : colors.muted}
-          />
-        </View>
-        <View className="flex-1 gap-0.5">
-          <Text
-            numberOfLines={2}
-            className={`font-sans-semibold text-lg ${branch.isActive ? 'text-foreground' : 'text-muted'}`}
-          >
-            {branch.name}
-          </Text>
-          <Text numberOfLines={1} className="font-sans text-base text-muted">
-            {place || 'Sin ciudad registrada'}
-          </Text>
-        </View>
-        <Icon name="create-outline" size={22} color={colors['border-strong']} />
-      </View>
-
-      {branch.address ? (
-        <Text numberOfLines={2} className="font-sans text-base text-foreground">
-          {branch.address}
+          {branch.name}
         </Text>
+        <Text numberOfLines={1} className="font-sans text-base text-muted">
+          {[place || 'Sin ciudad', status].filter(Boolean).join('. ')}
+        </Text>
+      </View>
+      {wide ? (
+        <>
+          <Text numberOfLines={2} className="flex-1 font-sans text-base text-foreground">
+            {branch.address ?? '—'}
+          </Text>
+          <Text numberOfLines={2} className="w-[24%] font-sans text-base text-foreground">
+            {contact || '—'}
+          </Text>
+        </>
       ) : null}
-
-      {contact || !branch.isActive || !branch.syncedAt ? (
-        <View className="flex-row flex-wrap items-center gap-2 border-t border-border pt-3">
-          {contact ? (
-            <View className="min-w-0 flex-1 flex-row items-center gap-2">
-              <Icon name="person-outline" size={18} color={colors.muted} />
-              <Text numberOfLines={1} className="flex-1 font-sans text-base text-muted">
-                {contact}
-              </Text>
-            </View>
-          ) : (
-            <View className="flex-1" />
-          )}
-          {!branch.isActive ? (
-            <View className="rounded-full bg-border px-3 py-1">
-              <Text className="font-sans-semibold text-sm text-muted">Inactiva</Text>
-            </View>
-          ) : null}
-          {!branch.syncedAt ? (
-            <View className="flex-row items-center gap-1.5 rounded-full bg-accent/30 px-3 py-1">
-              <Icon name="cloud-upload-outline" size={16} color={colors.foreground} />
-              <Text className="font-sans-semibold text-sm text-foreground">Por subir</Text>
-            </View>
-          ) : null}
-          {phone && branch.isActive ? (
-            <Pressable
-              onPress={() => Linking.openURL(`tel:${phone}`)}
-              accessibilityRole="link"
-              accessibilityLabel={`Llamar a ${branch.name}`}
-              className="min-h-14 min-w-14 flex-row items-center justify-center gap-1.5 rounded-lg px-3 active:bg-primary/10"
-            >
-              <Icon name="call-outline" size={20} color={colors['primary-strong']} />
-              <Text className="font-sans-semibold text-base text-primary-strong">Llamar</Text>
-            </Pressable>
-          ) : null}
-        </View>
-      ) : null}
+      <Icon name="chevron-forward" size={20} color={colors['border-strong']} />
     </Pressable>
   );
 }
 
-export function ClientBranches({
-  clientName,
-  branches,
-  canAdd,
-  onAdd,
-  onEdit,
-}: ClientBranchesProps) {
+export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranchesProps) {
+  const [panelWidth, setPanelWidth] = useState(0);
+  const wide = panelWidth >= 760;
   const [showInactive, setShowInactive] = useState(false);
   const active = branches.filter((branch) => branch.isActive);
   const inactive = branches.filter((branch) => !branch.isActive);
+  const visible = showInactive ? [...active, ...inactive] : active;
 
   return (
-    <View className="gap-4">
-      <View className="flex-row flex-wrap items-center justify-between gap-3">
-        <View className="flex-row items-center gap-3">
-          <Text accessibilityRole="header" className="font-sans-bold text-xl text-foreground">
-            Sucursales
+    <View className="gap-3">
+      <View className="min-h-14 flex-row items-center justify-between gap-3">
+        <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
+          Sucursales
+          <Text className="font-sans text-xl text-muted">
+            {active.length > 0 ? `  ${active.length}` : ''}
           </Text>
-          {active.length > 0 ? (
-            <View className="min-w-8 items-center rounded-full bg-primary/15 px-2.5 py-0.5">
-              <Text className="font-sans-bold text-base text-primary-strong">{active.length}</Text>
-            </View>
-          ) : null}
-        </View>
-        {canAdd && branches.length > 0 ? (
+        </Text>
+        {canAdd ? (
           <Pressable
             onPress={onAdd}
             accessibilityRole="button"
-            className="min-h-14 flex-row items-center gap-2 rounded-lg px-4 active:bg-primary/10"
+            className="min-h-14 flex-row items-center gap-2 rounded-lg px-3 active:bg-primary/10"
           >
-            <Icon name="add-circle-outline" size={24} color={colors['primary-strong']} />
+            <Icon name="add" size={24} color={colors['primary-strong']} />
             <Text className="font-sans-semibold text-lg text-primary-strong">Agregar sucursal</Text>
           </Pressable>
         ) : null}
       </View>
 
-      {branches.length === 0 ? (
-        <View className="items-center gap-4 rounded-2xl border-2 border-dashed border-border-strong px-6 py-8">
-          <Icon name="business-outline" size={44} color={colors['border-strong']} />
-          <View className="max-w-md items-center gap-1">
-            <Text className="text-center font-sans-semibold text-lg text-foreground">
-              {clientName} aún no tiene sucursales
-            </Text>
-            <Text className="text-center font-sans text-base text-muted">
-              Agrega cada planta, tienda u oficina donde le das servicio. Ahí registrarás sus
-              sistemas y los reportes.
-            </Text>
+      <View
+        onLayout={(event) => setPanelWidth(event.nativeEvent.layout.width)}
+        className="overflow-hidden rounded-xl border border-border bg-background"
+      >
+        {wide && visible.length > 0 ? (
+          <View className="flex-row gap-4 border-b border-border bg-surface px-5 py-2.5">
+            <Text className="w-[38%] font-sans-medium text-sm text-muted">Sucursal</Text>
+            <Text className="flex-1 font-sans-medium text-sm text-muted">Dirección</Text>
+            <Text className="w-[24%] font-sans-medium text-sm text-muted">Contacto</Text>
+            <View className="w-5" />
           </View>
-          {canAdd ? (
-            <View className="min-w-[260px]">
-              <Button label="Agregar sucursal" icon="add" onPress={onAdd} />
-            </View>
-          ) : null}
-        </View>
-      ) : (
-        <View className="flex-row flex-wrap gap-3">
-          {active.map((branch) => (
-            <BranchCard key={branch.id} branch={branch} onPress={() => onEdit(branch)} />
-          ))}
-          {active.length === 0 ? (
-            <Text className="w-full font-sans text-base text-muted">
-              Todas las sucursales de este cliente están inactivas.
+        ) : null}
+        {visible.length === 0 ? (
+          <View className="gap-1 px-5 py-5">
+            <Text className="font-sans-medium text-lg text-foreground">
+              {branches.length === 0
+                ? 'Este cliente aún no tiene sucursales.'
+                : 'Todas sus sucursales están inactivas.'}
             </Text>
-          ) : null}
-        </View>
-      )}
+            {branches.length === 0 ? (
+              <Text className="font-sans text-base text-muted">
+                Registra cada planta, tienda u oficina donde le das servicio.
+              </Text>
+            ) : null}
+          </View>
+        ) : (
+          visible.map((branch, index) => (
+            <BranchRow
+              key={branch.id}
+              branch={branch}
+              wide={wide}
+              last={index === visible.length - 1}
+              onPress={() => onEdit(branch)}
+            />
+          ))
+        )}
+      </View>
 
       {inactive.length > 0 ? (
-        <View className="gap-3">
-          <Pressable
-            onPress={() => setShowInactive(!showInactive)}
-            accessibilityRole="button"
-            accessibilityState={{ expanded: showInactive }}
-            className="min-h-14 flex-row items-center gap-2 self-start rounded-lg px-2 active:bg-border"
-          >
-            <Icon
-              name={showInactive ? 'chevron-up' : 'chevron-down'}
-              size={22}
-              color={colors.muted}
-            />
-            <Text className="font-sans-semibold text-base text-muted">
-              {showInactive
-                ? 'Ocultar sucursales inactivas'
-                : `Ver ${inactive.length === 1 ? '1 sucursal inactiva' : `${inactive.length} sucursales inactivas`}`}
-            </Text>
-          </Pressable>
-          {showInactive ? (
-            <View className="flex-row flex-wrap gap-3">
-              {inactive.map((branch) => (
-                <BranchCard key={branch.id} branch={branch} onPress={() => onEdit(branch)} />
-              ))}
-            </View>
-          ) : null}
-        </View>
+        <Pressable
+          onPress={() => setShowInactive(!showInactive)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: showInactive }}
+          className="min-h-14 justify-center self-start rounded-lg px-1 active:bg-border"
+        >
+          <Text className="font-sans-medium text-base text-primary-strong">
+            {showInactive
+              ? 'Ocultar inactivas'
+              : `Mostrar ${inactive.length === 1 ? '1 inactiva' : `${inactive.length} inactivas`}`}
+          </Text>
+        </Pressable>
       ) : null}
     </View>
   );

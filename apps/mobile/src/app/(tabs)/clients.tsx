@@ -224,7 +224,7 @@ export default function ClientsScreen() {
           data={buildList(clients)}
           keyExtractor={(item) => item.key}
           keyboardShouldPersistTaps="handled"
-          contentContainerClassName="gap-2 px-4 pb-28"
+          contentContainerClassName="border-t border-border pb-28"
           ListEmptyComponent={
             <Text className="px-2 py-10 text-center font-sans text-base text-muted">
               Ningún cliente coincide con “{search.trim()}”.
@@ -234,7 +234,7 @@ export default function ClientsScreen() {
             item.type === 'header' ? (
               <Text
                 accessibilityRole="header"
-                className="px-1 pb-1 pt-4 font-sans-semibold text-base text-muted"
+                className="border-b border-border px-5 pb-2 pt-6 font-sans-semibold text-base text-muted"
               >
                 {item.label}
               </Text>
@@ -334,7 +334,6 @@ export default function ClientsScreen() {
         <View className="flex-1">
           {detail ?? (
             <View className="flex-1 items-center justify-center gap-3 p-8">
-              <Icon name="business-outline" size={56} color={colors['border-strong']} />
               <Text className="text-center font-sans text-lg text-muted">
                 {allClients.length === 0
                   ? 'Aquí verás los datos del cliente que elijas.'
