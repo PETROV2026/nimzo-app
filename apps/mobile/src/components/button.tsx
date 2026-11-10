@@ -45,6 +45,12 @@ const variants = {
     text: 'text-on-destructive',
     tint: colors['on-destructive'],
   },
+  'destructive-outline': {
+    pressed: 'bg-destructive/10',
+    container: 'border-2 border-destructive bg-background',
+    text: 'text-destructive',
+    tint: colors.destructive,
+  },
 };
 
 type ButtonProps = {

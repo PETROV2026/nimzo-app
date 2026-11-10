@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import type { LocalClient } from '@/clients/clients-db';
+import { Button } from '@/components/button';
 import { ClientBranches } from '@/components/clients/client-branches';
 import { Icon } from '@/components/icon';
 import { colors } from '@/theme';
@@ -160,17 +161,14 @@ export function ClientDetail({
         <Text className="font-sans text-base text-muted">
           Agregado el {dateFormat.format(new Date(client.createdAt))}
         </Text>
-        <Pressable
-          onPress={onToggleActive}
-          accessibilityRole="button"
-          className="min-h-14 justify-center rounded-lg px-3 active:bg-border"
-        >
-          <Text
-            className={`font-sans-semibold text-base ${client.isActive ? 'text-destructive' : 'text-primary-strong'}`}
-          >
-            {client.isActive ? 'Desactivar cliente' : 'Reactivar cliente'}
-          </Text>
-        </Pressable>
+        <View className="min-w-[240px]">
+          <Button
+            label={client.isActive ? 'Desactivar cliente' : 'Reactivar cliente'}
+            icon={client.isActive ? 'archive-outline' : 'refresh-outline'}
+            variant={client.isActive ? 'destructive-outline' : 'secondary'}
+            onPress={onToggleActive}
+          />
+        </View>
       </View>
     </ScrollView>
   );
