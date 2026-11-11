@@ -1,4 +1,4 @@
-import { loginSchema } from '@nimzo/shared';
+import { loginSchema, supportEmail } from '@nimzo/shared';
 import Constants from 'expo-constants';
 import { Image } from 'expo-image';
 import { useRef, useState } from 'react';
@@ -88,7 +88,7 @@ export default function LoginScreen() {
           Inicia sesión
         </Text>
         <Text className="font-sans text-base leading-6 text-muted">
-          Usa el correo y la contraseña que te dio tu administrador.
+          Usa el correo y la contraseña de tu cuenta Nimzo.
         </Text>
       </View>
 
@@ -175,7 +175,8 @@ export default function LoginScreen() {
           disabled={!online}
         />
         <Text className="font-sans text-sm leading-5 text-muted">
-          ¿No puedes acceder? Tu administrador puede restablecer tu contraseña.
+          ¿No puedes acceder? Escribe al soporte de Nimzo, {supportEmail}, para restablecer tu
+          contraseña.
         </Text>
       </View>
     </View>

@@ -2,6 +2,7 @@ import {
   mexicanStateSchema,
   signatureBucket,
   signatureMaxBytes,
+  supportEmail,
   type MexicanState,
   type UserRole,
 } from '@nimzo/shared';
@@ -95,7 +96,7 @@ function signInErrorMessage(error: { code?: string; name: string; status?: numbe
     return 'El correo o la contraseña no son correctos.';
   }
   if (error.code === 'user_banned') {
-    return 'Tu cuenta está desactivada. Contacta a tu administrador.';
+    return `Tu cuenta está desactivada. Escribe al soporte de Nimzo: ${supportEmail}.`;
   }
   if (error.code === 'over_request_rate_limit' || error.status === 429) {
     return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
