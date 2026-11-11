@@ -147,11 +147,11 @@ export function useSignatureInk({ enabled, onStrokeStart, onStrokeEnd }: Signatu
 export type SignatureInk = ReturnType<typeof useSignatureInk>;
 
 export function signatureHint(hasInk: boolean, readable: boolean, action: 'save' | 'accept') {
-  if (!hasInk) return 'Usa todo el espacio: una firma grande se lee mejor en el reporte.';
+  if (!hasInk) return 'Usa todo el recuadro: una firma grande se lee mejor en el reporte.';
   if (!readable) {
     return `Haz la firma un poco más grande para poder ${action === 'save' ? 'guardarla' : 'aceptarla'}.`;
   }
   return action === 'save'
-    ? 'Revisa que se lea bien antes de guardarla.'
-    : 'Revisa que se lea bien antes de tocar "Listo".';
+    ? 'Verifica que la firma sea legible antes de guardarla.'
+    : 'Verifica que la firma sea legible antes de tocar "Listo".';
 }

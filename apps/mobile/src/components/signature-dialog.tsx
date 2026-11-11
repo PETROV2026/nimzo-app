@@ -69,7 +69,7 @@ export function SignatureDialog({ title, name, onSave, onClose, onSaved }: Signa
           >
             <DialogHeader
               title={title}
-              description="Se incluirá en cada reporte que envíes."
+              description="Se incluirá en todos los reportes que envíes."
               onClose={handleClose}
               disabled={saving}
             />

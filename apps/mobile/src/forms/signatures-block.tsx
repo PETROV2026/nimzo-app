@@ -13,9 +13,9 @@ export type SignaturesErrors = Partial<Record<keyof SignaturesValue, string>>;
 
 export function validateSignatures(value: SignaturesValue): SignaturesErrors {
   return {
-    supervisorName: value.supervisorName.trim() ? undefined : 'Escribe el nombre del supervisor.',
-    supervisorSignature: value.supervisorSignature ? undefined : 'Falta firmar',
-    technicianSignature: value.technicianSignature ? undefined : 'Falta firmar',
+    supervisorName: value.supervisorName.trim() ? undefined : 'Ingresa el nombre del supervisor.',
+    supervisorSignature: value.supervisorSignature ? undefined : 'Falta la firma del supervisor.',
+    technicianSignature: value.technicianSignature ? undefined : 'Falta la firma del técnico.',
   };
 }
 
@@ -34,7 +34,7 @@ type SignaturesBlockProps = {
   onDrawingChange?: (drawing: boolean) => void;
 };
 
-const supervisorNameLabel = 'Nombre de quien supervisó y revisó el servicio';
+const supervisorNameLabel = 'Nombre del supervisor que revisó el servicio';
 
 export function SignaturesBlock({
   value,
