@@ -106,13 +106,6 @@ export function ClientDetail({
         </Text>
       )}
 
-      <ClientBranches
-        branches={branches}
-        canAdd={client.isActive}
-        onAdd={onAddBranch}
-        onEdit={onEditBranch}
-      />
-
       <View className="gap-3">
         <View className="min-h-14 flex-row items-center justify-between gap-3">
           <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
@@ -147,6 +140,13 @@ export function ClientDetail({
           </Field>
         </View>
       </View>
+
+      <ClientBranches
+        branches={branches}
+        canAdd={client.isActive}
+        onAdd={onAddBranch}
+        onEdit={onEditBranch}
+      />
 
       <View className="flex-row flex-wrap items-center justify-between gap-4">
         <Text className="font-sans text-base text-muted">
