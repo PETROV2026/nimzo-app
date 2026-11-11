@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Linking, Text, View } from 'react-native';
+import { Alert, Linking, Text, View } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,6 +8,7 @@ import type { FormField } from '@nimzo/shared';
 import { Button } from '@/components/button';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { FieldFrame } from './field-frame';
+import { Image } from 'expo-image';
 
 type PhotosFieldProps = FieldProps<Extract<FormField, { type: 'photos' }>, PhotosValue>;
 type Asset = ImagePicker.ImagePickerAsset;
@@ -116,9 +117,44 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
     await add(result, async (asset) => exifCoords(asset.exif));
   }
 
+  function remove(uri: string) {
+    const file = new File(uri);
+    if (file.exists) file.delete();
+    const next = value.filter((photo) => photo.uri !== uri);
+    onChange(next.length ? next : undefined);
+  }
+
+  function confirmRemove(uri: string) {
+    Alert.alert('¿Quitar esta foto?', 'La foto se borrará del reporte.', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Quitar', style: 'destructive', onPress: () => remove(uri) },
+    ]);
+  }
+
   return (
     <FieldFrame field={field} error={error ?? problem}>
-      <View className="flex-row flex-wrap gap-4">
+      {value.length ? (
+        <View className="flex-row flex-wrap gap-4">
+          {value.map((photo) => (
+            <View key={photo.uri} className="w-48 gap-2">
+              <View className="size-48 overflow-hidden rounded-lg bg-surface">
+                <Image
+                  source={photo.uri}
+                  contentFit="cover"
+                  style={{ flex: 1 }}
+                  accessibilityLabel="Foto de evidencia"
+                />
+              </View>
+              <Button label="Quitar" variant="secondary" onPress={() => confirmRemove(photo.uri)} />
+            </View>
+          ))}
+        </View>
+      ) : (
+        <Text className="font-sans text-base text-muted">
+          Aún no hay fotos. Toma una foto o elige de la galería.
+        </Text>
+      )}
+      <View className="flex-row flex-wrap items-center gap-4">
         <Button label="Tomar foto" onPress={takePhoto} loading={saving} disabled={blocked} />
         <Button
           label="Elegir de la galería"
@@ -126,6 +162,9 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
           onPress={pickPhotos}
           disabled={blocked}
         />
+        {remaining === 0 ? (
+          <Text className="font-sans-medium text-base text-muted">Máximo {field.count} fotos</Text>
+        ) : null}
       </View>
       {permission?.status === 'denied' ? (
         <View className="items-start gap-3 rounded-lg bg-surface p-4">
