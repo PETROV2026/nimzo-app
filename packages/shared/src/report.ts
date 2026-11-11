@@ -17,3 +17,5 @@ export type Report = Tables<'reports'>;
 export function formatFolio(folio: number): string {
   return String(folio).padStart(6, '0');
 }
+
+export const reportFilesBucket = 'report-files';
