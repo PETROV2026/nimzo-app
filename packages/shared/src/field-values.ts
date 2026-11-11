@@ -26,6 +26,7 @@ export type PhotosValue = z.infer<typeof photosValueSchema>;
 export const photoValueSchema = z.object({
   uri: z.string(),
   takenAt: z.iso.datetime(),
+  source: z.enum(['camera', 'library']),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
 });

@@ -13,6 +13,7 @@ import { Image } from 'expo-image';
 type PhotosFieldProps = FieldProps<Extract<FormField, { type: 'photos' }>, PhotosValue>;
 type Asset = ImagePicker.ImagePickerAsset;
 type Coords = { latitude?: number; longitude?: number };
+type Source = PhotosValue[number]['source'];
 
 const maxSide = 1600;
 const maxBytes = 1024 * 1024;
@@ -81,6 +82,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
 
   async function add(
     result: ImagePicker.ImagePickerResult,
+    source: Source,
     coordsOf: (asset: Asset) => Promise<Coords>,
   ) {
     if (result.canceled) return;
@@ -89,6 +91,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
       result.assets.slice(0, remaining).map(async (asset) => ({
         uri: await savePhoto(asset),
         takenAt: exifDate(asset.exif) ?? new Date().toISOString(),
+        source,
         ...(await coordsOf(asset)),
       })),
     );
@@ -104,7 +107,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
 
   async function takePhoto() {
     const { granted } = permission?.granted ? permission : await requestPermission();
-    if (granted) await add(await ImagePicker.launchCameraAsync(), currentCoords);
+    if (granted) await add(await ImagePicker.launchCameraAsync(), 'camera', currentCoords);
   }
 
   async function pickPhotos() {
@@ -114,7 +117,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
       selectionLimit: remaining,
       exif: true,
     });
-    await add(result, async (asset) => exifCoords(asset.exif));
+    await add(result, 'library', async (asset) => exifCoords(asset.exif));
   }
 
   function remove(uri: string) {
