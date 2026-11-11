@@ -7,6 +7,7 @@ export type {
   TimeValue,
   OptionValue,
   CheckboxValue,
+  PhotosValue,
 } from '@nimzo/shared';
 
 export type FieldProps<F, V> = {

@@ -20,3 +20,13 @@ export type DateValue = z.infer<typeof dateValueSchema>;
 export type TimeValue = z.infer<typeof timeValueSchema>;
 export type OptionValue = z.infer<typeof optionValueSchema>;
 export type CheckboxValue = z.infer<typeof checkboxValueSchema>;
+export type PhotoValue = z.infer<typeof photoValueSchema>;
+export type PhotosValue = z.infer<typeof photosValueSchema>;
+
+export const photoValueSchema = z.object({
+  uri: z.string(),
+  takenAt: z.iso.datetime(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+});
+export const photosValueSchema = z.array(photoValueSchema);
