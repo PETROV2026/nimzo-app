@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Linking, Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
@@ -9,6 +9,7 @@ import { Button } from '@/components/button';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { FieldFrame } from './field-frame';
 import { Image } from 'expo-image';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 
 type PhotosFieldProps = FieldProps<Extract<FormField, { type: 'photos' }>, PhotosValue>;
 type Asset = ImagePicker.ImagePickerAsset;
@@ -77,6 +78,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const [saving, setSaving] = useState(false);
   const [problem, setProblem] = useState<string>();
+  const [removing, setRemoving] = useState<string>();
   const remaining = field.count - value.length;
   const blocked = remaining === 0 || saving;
 
@@ -125,13 +127,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
     if (file.exists) file.delete();
     const next = value.filter((photo) => photo.uri !== uri);
     onChange(next.length ? next : undefined);
-  }
-
-  function confirmRemove(uri: string) {
-    Alert.alert('¿Quitar esta foto?', 'La foto se borrará del reporte.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Quitar', style: 'destructive', onPress: () => remove(uri) },
-    ]);
+    setRemoving(undefined);
   }
 
   return (
@@ -148,7 +144,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
                   accessibilityLabel="Foto de evidencia"
                 />
               </View>
-              <Button label="Quitar" variant="secondary" onPress={() => confirmRemove(photo.uri)} />
+              <Button label="Quitar" variant="secondary" onPress={() => setRemoving(photo.uri)} />
             </View>
           ))}
         </View>
@@ -177,6 +173,16 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
           </Text>
           <Button label="Abrir ajustes" variant="outline" onPress={Linking.openSettings} />
         </View>
+      ) : null}
+      {removing ? (
+        <ConfirmDialog
+          title="¿Quitar esta foto?"
+          message="La foto se borrará de este reporte y de la tablet."
+          confirmLabel="Quitar foto"
+          tone="destructive"
+          onConfirm={() => remove(removing)}
+          onClose={() => setRemoving(undefined)}
+        />
       ) : null}
     </FieldFrame>
   );
