@@ -69,7 +69,7 @@ export default function ProfileScreen() {
     >
       <Icon name="warning-outline" size={26} color={colors['on-accent']} />
       <Text className="flex-1 font-sans-medium text-base text-on-accent">
-        Te falta tu firma. La necesitas para enviar reportes.
+        Registra tu firma. Es necesaria para enviar reportes.
       </Text>
       {canEdit ? (
         <View className="w-[190px]">
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
     <View className="flex-row items-center gap-3 px-1">
       <Icon name="cloud-offline-outline" size={22} color={colors.muted} />
       <Text className="flex-1 font-sans text-base text-muted">
-        Necesitas internet para editar tus datos y tu firma.
+        Se requiere conexión para editar tus datos y tu firma.
       </Text>
     </View>
   );
@@ -134,7 +134,7 @@ export default function ProfileScreen() {
 
   const profileMissing = (
     <Text className="font-sans text-base text-foreground">
-      No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
+      No se pudo cargar tu perfil. Se cargará automáticamente cuando haya conexión.
     </Text>
   );
 
@@ -208,8 +208,8 @@ export default function ProfileScreen() {
     notifications.access === 'askable' || notifications.access === 'blocked' ? (
       <ActionRow
         icon="notifications-off-outline"
-        title="Avisos de recordatorios desactivados"
-        description="Tus recordatorios de Notas no van a sonar. Toca para activarlos."
+        title="Notificaciones desactivadas"
+        description="No recibirás los recordatorios de tus notas. Toca para activar las notificaciones."
         tone="attention"
         onPress={() => void notifications.enable()}
       />
@@ -229,13 +229,13 @@ export default function ProfileScreen() {
             <ActionRow
               icon="help-buoy-outline"
               title="Ayuda y soporte"
-              description="¿Algo no funciona? Escríbenos."
+              description="Reporta un problema o solicita ayuda."
               onPress={() => setShowingSupport(true)}
             />
             <ActionRow
               icon="document-lock-outline"
               title="Aviso de privacidad"
-              description="Qué datos usamos y cómo los protegemos."
+              description="Cómo usamos y protegemos tus datos."
               onPress={() => setShowingPrivacy(true)}
             />
             <ActionRow
@@ -279,8 +279,8 @@ export default function ProfileScreen() {
         {confirmingSignOut ? (
           <ConfirmDialog
             title="¿Cerrar sesión?"
-            message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
-            note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
+            message={`Se cerrará la sesión de ${name} en este dispositivo.`}
+            note="Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet."
             confirmLabel="Cerrar sesión"
             tone="destructive"
             onConfirm={handleSignOut}
@@ -316,7 +316,7 @@ function InfoRow({ icon, label, value, emptyLabel, onAdd }: InfoRowProps) {
           <Text
             className={`font-sans-semibold text-lg ${onAdd ? 'text-primary-strong' : 'text-muted'}`}
           >
-            {onAdd ? emptyLabel : 'Sin capturar'}
+            {onAdd ? emptyLabel : 'No registrado'}
           </Text>
         )}
       </View>
@@ -339,7 +339,7 @@ function InfoRow({ icon, label, value, emptyLabel, onAdd }: InfoRowProps) {
   return (
     <View
       accessible
-      accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
+      accessibilityLabel={`${label}: ${value || 'no registrado'}`}
       className="flex-row items-center gap-3.5"
     >
       {content}

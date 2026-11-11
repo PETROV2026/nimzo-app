@@ -150,7 +150,7 @@ export function BranchFormDialog({
           name="contact_name"
           ref={contactNameRef}
           label="Persona de contacto (opcional)"
-          placeholder="Quién te recibe en esta sucursal"
+          placeholder="Ej. responsable de mantenimiento"
           autoCapitalize="words"
           autoComplete="name"
           returnKeyType="next"
@@ -188,7 +188,7 @@ export function BranchFormDialog({
           </View>
         </View>
         <Text className="font-sans text-base text-muted">
-          A este correo se enviarán los reportes de los servicios en esta sucursal.
+          Los reportes de esta sucursal se enviarán a este correo.
         </Text>
       </FormGroup>
     </FormDialog>

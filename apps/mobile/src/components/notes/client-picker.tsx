@@ -32,7 +32,7 @@ export function ClientPicker({ technicianId, selectedId, onSelect, onClose }: Cl
         <View className="max-h-[560px] w-full max-w-[480px] overflow-hidden rounded-2xl bg-background">
           <View className="flex-row items-center justify-between pl-6 pr-2 pt-2">
             <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-              Ligar a un cliente
+              Vincular a un cliente
             </Text>
             <Pressable
               onPress={onClose}

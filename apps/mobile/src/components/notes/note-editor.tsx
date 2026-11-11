@@ -121,7 +121,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
     if (!result.ok) {
       setReminderError(
         result.reason === 'permission'
-          ? 'Para recibir el aviso, permite las notificaciones de Nimzo en los ajustes de la tablet.'
+          ? 'Para recibir el recordatorio, permite las notificaciones de Nimzo en los ajustes del dispositivo.'
           : 'No se pudo programar el recordatorio. Intenta de nuevo.',
       );
       return;
@@ -167,7 +167,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
   const overdue = isOverdue(note.remindAt);
   const empty = isEmptyNote(note);
   const status = empty
-    ? 'Se guarda sola en cuanto escribas.'
+    ? 'Se guarda automáticamente mientras escribes.'
     : pending
       ? 'Guardando…'
       : savedAt
@@ -302,7 +302,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
                 icon="briefcase-outline"
                 label="Cliente"
                 value={note.clientName}
-                placeholder="Ligar a un cliente"
+                placeholder="Vincular a un cliente"
                 onPress={() => setPickingClient(true)}
                 onClear={() => update({ clientId: null, clientName: null })}
               />
@@ -311,7 +311,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
                 icon={overdue ? 'warning-outline' : 'alarm-outline'}
                 label="Recordatorio"
                 value={note.remindAt ? formatReminder(note.remindAt) : null}
-                placeholder="Avisarme en una fecha y hora"
+                placeholder="Programar un recordatorio"
                 tone={overdue ? 'alert' : 'default'}
                 onPress={pickReminder}
                 onClear={() => void applyReminder(null)}
@@ -324,7 +324,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
             ) : null}
 
             <Text className="font-sans text-sm text-muted">
-              La nota se guarda sola mientras escribes y se queda solo en esta tablet.
+              La nota se guarda automáticamente y solo en este dispositivo.
             </Text>
           </View>
         </ScrollView>
@@ -354,7 +354,7 @@ export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
       {confirmingDelete ? (
         <ConfirmDialog
           title="¿Eliminar esta nota?"
-          message="Se borra de la tablet y no se puede recuperar."
+          message="Se eliminará de este dispositivo y no podrá recuperarse."
           confirmLabel="Eliminar"
           tone="destructive"
           onConfirm={() => void handleDelete()}

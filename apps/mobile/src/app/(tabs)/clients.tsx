@@ -71,10 +71,7 @@ export default function ClientsScreen() {
       const client = createClient(technicianId, details);
       setSearch('');
       setSelectedId(client.id);
-      showToast(
-        'Cliente agregado',
-        'Guardado en la tablet; se sube a la nube en cuanto haya internet.',
-      );
+      showToast('Cliente agregado', 'Se sincronizará con tu cuenta cuando haya conexión.');
     }
     setForm(null);
   }
@@ -130,7 +127,7 @@ export default function ClientsScreen() {
       <EmptyState
         icon="people-outline"
         title="Aún no tienes clientes"
-        description="Agrega las empresas a las que das servicio. Se guardan en esta tablet, aun sin internet, y después podrás sumar sus sucursales y sistemas."
+        description="Registra las empresas a las que das servicio. Después podrás agregar sus sucursales y sistemas. Funciona incluso sin conexión."
         action={
           <View className="min-w-[260px]">
             <Button
@@ -235,7 +232,7 @@ export default function ClientsScreen() {
       {confirmingDeactivate && selected ? (
         <ConfirmDialog
           title="¿Desactivar este cliente?"
-          message={`${selected.name} dejará de aparecer al ligar notas. Sus datos se conservan y puedes reactivarlo cuando quieras.`}
+          message={`${selected.name} ya no aparecerá al vincular notas. Su información se conserva y puedes reactivarlo en cualquier momento.`}
           confirmLabel="Desactivar"
           tone="destructive"
           onConfirm={handleDeactivate}
@@ -255,7 +252,7 @@ export default function ClientsScreen() {
       {deactivatingBranch ? (
         <ConfirmDialog
           title="¿Desactivar esta sucursal?"
-          message={`${deactivatingBranch.name} quedará como inactiva. Sus datos se conservan y puedes reactivarla cuando quieras.`}
+          message={`${deactivatingBranch.name} quedará inactiva. Su información se conserva y puedes reactivarla en cualquier momento.`}
           confirmLabel="Desactivar"
           tone="destructive"
           onConfirm={handleDeactivateBranch}

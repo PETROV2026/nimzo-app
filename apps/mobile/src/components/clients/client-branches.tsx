@@ -15,7 +15,7 @@ type ClientBranchesProps = {
 
 function statusText(branch: LocalBranch) {
   if (!branch.isActive) return 'Inactiva';
-  if (!branch.syncedAt) return 'Sin subir';
+  if (!branch.syncedAt) return 'Pendiente de sincronizar';
   return null;
 }
 
@@ -106,7 +106,7 @@ export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranch
             </Text>
             {branches.length === 0 ? (
               <Text className="font-sans text-base text-muted">
-                Registra cada planta, tienda u oficina donde le das servicio.
+                Registra cada planta, tienda u oficina donde das servicio a este cliente.
               </Text>
             ) : null}
           </View>

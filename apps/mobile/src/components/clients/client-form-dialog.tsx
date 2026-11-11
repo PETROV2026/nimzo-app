@@ -51,9 +51,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
       wide
       title={client ? 'Editar cliente' : 'Nuevo cliente'}
       description={
-        client
-          ? undefined
-          : 'Se guarda en esta tablet; después podrás agregar sus sucursales y sistemas.'
+        client ? undefined : 'Después de guardarlo podrás agregar sus sucursales y sistemas.'
       }
       dirty={isDirty}
       discardQuestion={client ? undefined : '¿Descartar este cliente?'}
@@ -97,7 +95,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
         </View>
         {duplicate ? (
           <Notice
-            message={`Ya tienes un cliente llamado “${duplicate.name}”. Revisa que no lo estés agregando dos veces.`}
+            message={`Ya existe un cliente llamado “${duplicate.name}”. Verifica que no sea un duplicado.`}
           />
         ) : null}
       </FormGroup>
@@ -107,7 +105,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
           name="contact_name"
           ref={contactNameRef}
           label="Persona de contacto"
-          placeholder="Quién te recibe en las visitas"
+          placeholder="Ej. Juan Pérez, jefe de mantenimiento"
           autoCapitalize="words"
           autoComplete="name"
           returnKeyType="next"
@@ -152,7 +150,7 @@ export function ClientFormDialog({ client, otherClients, onSave, onClose }: Clie
         name="notes"
         ref={notesRef}
         label="Notas (opcional)"
-        placeholder="Horarios de acceso, a quién preguntar, dónde estacionarse…"
+        placeholder="Ej. horario de acceso, requisitos de ingreso, estacionamiento"
         multiline
         numberOfLines={3}
         textAlignVertical="top"

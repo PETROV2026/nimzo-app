@@ -67,7 +67,7 @@ export function ClientDetail({
   const phone = client.contact_phone?.replace(/[^\d+]/g, '') ?? '';
   const status = [
     client.isActive ? null : 'Inactivo',
-    client.syncedAt ? null : 'Sin subir a la nube',
+    client.syncedAt ? null : 'Pendiente de sincronizar',
   ].filter(Boolean);
 
   return (
@@ -102,7 +102,7 @@ export function ClientDetail({
 
       {client.isActive ? null : (
         <Text className="-mt-4 font-sans text-base text-foreground">
-          Este cliente está inactivo y ya no aparece al ligar notas. Sus datos se conservan.
+          Este cliente está inactivo y no aparece al vincular notas. Su información se conserva.
         </Text>
       )}
 

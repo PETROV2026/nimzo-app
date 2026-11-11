@@ -117,7 +117,7 @@ export default function NotesScreen() {
         <EmptyState
           icon="document-text-outline"
           title="Aún no tienes notas"
-          description="Apunta pendientes, material que falta llevar o datos de tus visitas. Toca + para crear la primera; se guarda en esta tablet, aun sin internet."
+          description="Registra pendientes, material por llevar o datos de tus visitas. Toca + para crear la primera nota; funciona incluso sin conexión."
         />
       )}
       <AddButton label="Nueva nota" onPress={handleNew} />

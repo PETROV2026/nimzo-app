@@ -37,7 +37,7 @@ export function ClientCard({
       <Pressable
         onPress={onOpenClient}
         accessibilityRole="button"
-        accessibilityLabel={`${client.name}${client.isActive ? '' : ', inactivo'}${pending ? ', sin subir a la nube' : ''}`}
+        accessibilityLabel={`${client.name}${client.isActive ? '' : ', inactivo'}${pending ? ', pendiente de sincronizar' : ''}`}
         accessibilityHint="Abre los datos del cliente"
         className="-mx-2 min-h-14 flex-row items-center gap-2 rounded-lg px-2 active:bg-surface"
       >

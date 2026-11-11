@@ -11,7 +11,7 @@ export function SyncToast() {
     if (!lastSyncedAt || lastSyncedAt === announced.current) return;
     announced.current = lastSyncedAt;
     const text = uploaded ? describeUploads(uploaded) : '';
-    if (text) showToast('Todo sincronizado', `Se subieron a la nube ${text}.`);
+    if (text) showToast('Todo sincronizado', `Se sincronizaron ${text}.`);
   }, [lastSyncedAt, uploaded, showToast]);
 
   return toast;

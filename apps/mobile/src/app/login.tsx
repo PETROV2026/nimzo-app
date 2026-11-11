@@ -152,7 +152,7 @@ export default function LoginScreen() {
           >
             <Icon name="cloud-offline-outline" size={24} color={colors['on-accent']} />
             <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
-              Sin conexión a internet. Necesitas conexión para iniciar sesión.
+              Sin conexión. Conéctate a internet para iniciar sesión.
             </Text>
           </View>
         )}
@@ -175,7 +175,7 @@ export default function LoginScreen() {
           disabled={!online}
         />
         <Text className="font-sans text-sm leading-5 text-muted">
-          ¿No puedes entrar? Tu administrador puede restablecer tu contraseña.
+          ¿No puedes acceder? Tu administrador puede restablecer tu contraseña.
         </Text>
       </View>
     </View>

@@ -33,10 +33,10 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
   if (settledOnline && pendingTotal === 0) return null;
 
   const label = syncing
-    ? 'Subiendo…'
+    ? 'Sincronizando…'
     : pendingTotal > 0
-      ? `${pendingTotal} por subir`
-      : 'Sin internet';
+      ? `${pendingTotal} por sincronizar`
+      : 'Sin conexión';
   const tint = tone === 'header' ? `${colors.background}B3` : colors.muted;
   const text = tone === 'header' ? 'text-background/70' : 'text-muted';
   const pendingText = describeUploads(pending);
@@ -46,8 +46,8 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
       <Pressable
         onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={settledOnline ? label : `Sin internet. ${label}`}
-        accessibilityHint="Muestra qué está guardado en la tablet y qué falta subir"
+        accessibilityLabel={settledOnline ? label : `Sin conexión. ${label}`}
+        accessibilityHint="Muestra qué está guardado en el dispositivo y qué falta sincronizar"
         hitSlop={tone === 'header' ? 8 : undefined}
         className={`flex-row items-center gap-2 rounded-lg px-3 ${tone === 'header' ? 'mr-2 min-h-11 active:bg-background/10' : 'min-h-14 active:bg-border'}`}
       >
@@ -67,17 +67,17 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
           <View className="flex-1 items-center justify-center bg-foreground/40 p-8">
             <View className="w-full max-w-[520px] gap-6 rounded-3xl bg-background p-8">
               <DialogHeader
-                title={online ? 'Sincronización' : 'Sin internet'}
+                title={online ? 'Sincronización' : 'Sin conexión'}
                 onClose={() => setOpen(false)}
               />
               <View className="gap-3">
                 <Text className="font-sans text-lg text-foreground">
-                  Todo lo que haces se guarda en esta tablet, aunque no haya señal.
+                  Toda tu información se guarda en este dispositivo, incluso sin conexión.
                 </Text>
                 <Text className="font-sans text-lg text-foreground">
                   {pendingText
-                    ? `Falta subir a la nube: ${pendingText}. ${!online ? 'Se subirán solos en cuanto haya internet.' : state === 'failed' ? 'No se pudieron subir; se volverá a intentar en unos segundos.' : 'Se están subiendo ahora.'}`
-                    : 'No hay nada pendiente de subir.'}
+                    ? `Pendiente de sincronizar: ${pendingText}. ${!online ? 'Se sincronizará automáticamente cuando haya conexión.' : state === 'failed' ? 'No se pudo sincronizar; se reintentará en unos segundos.' : 'Sincronizando ahora.'}`
+                    : 'No hay cambios pendientes de sincronizar.'}
                 </Text>
                 <Text className="font-sans text-base text-muted">
                   {lastSyncedAt
