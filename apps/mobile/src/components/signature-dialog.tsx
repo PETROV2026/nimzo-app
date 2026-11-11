@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
 import { SignatureCanvas } from '@/components/signature-canvas';
-import { renderSignaturePng, useSignatureInk } from '@/lib/signature-ink';
+import { renderSignaturePng, signatureHint, useSignatureInk } from '@/lib/signature-ink';
 
 type SignatureDialogProps = {
   title: string;
@@ -82,11 +82,7 @@ export function SignatureDialog({ title, name, onSave, onClose, onSaved }: Signa
                 className={compact ? 'h-56' : 'h-72'}
               />
               <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-muted">
-                {!hasInk
-                  ? 'Usa todo el espacio: una firma grande se lee mejor en el reporte.'
-                  : readable
-                    ? 'Revisa que se lea bien antes de guardarla.'
-                    : 'Haz la firma un poco más grande para poder guardarla.'}
+                {signatureHint(hasInk, readable, 'save')}
               </Text>
             </View>
 

@@ -8,9 +8,9 @@ import {
 import { isAuthRetryableFetchError, type Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
-import { cacheProfileSignature, clearProfileSignature } from '@/forms/signature-files';
 import { writeLastEmail } from '@/lib/last-email';
 import { clearCachedProfile, readCachedProfile, writeCachedProfile } from '@/lib/profile-cache';
+import { cacheProfileSignature, clearProfileSignature } from '@/lib/profile-signature';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 import { useReminderOwner } from '@/notes/reminders';

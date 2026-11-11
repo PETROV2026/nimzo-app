@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { ClearSignatureButton, SignatureCanvas } from '@/components/signature-canvas';
 import { saveSignaturePng } from '@/forms/signature-files';
-import { renderSignaturePng, useSignatureInk } from '@/lib/signature-ink';
+import { renderSignaturePng, signatureHint, useSignatureInk } from '@/lib/signature-ink';
 
 type SignaturePadProps = {
   label: string;
@@ -35,7 +35,7 @@ export function SignaturePad({
   const missing = !value && Boolean(error);
   const unsavedMessage = readable
     ? 'Toca "Listo" para guardar la firma.'
-    : 'Haz la firma un poco más grande para poder aceptarla.';
+    : signatureHint(true, false, 'accept');
   const message = saveError ?? (missing ? (hasInk ? unsavedMessage : error) : undefined);
 
   function handleAccept() {
@@ -56,13 +56,7 @@ export function SignaturePad({
     onChange(null);
   }
 
-  const help = value
-    ? undefined
-    : !hasInk
-      ? 'Usa todo el espacio: una firma grande se lee mejor en el reporte.'
-      : readable
-        ? 'Revisa que se lea bien antes de tocar "Listo".'
-        : 'Haz la firma un poco más grande para poder aceptarla.';
+  const help = value ? undefined : signatureHint(hasInk, readable, 'accept');
 
   return (
     <View className="gap-2">
