@@ -10,6 +10,7 @@ import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import { AppState } from 'react-native';
 import { writeLastEmail } from '@/lib/last-email';
 import { clearCachedProfile, readCachedProfile, writeCachedProfile } from '@/lib/profile-cache';
+import { cacheProfileSignature, clearProfileSignature } from '@/lib/profile-signature';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 import { useReminderOwner } from '@/notes/reminders';
@@ -143,6 +144,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         if (!nextProfile) {
           clearCachedProfile(userId);
+          clearProfileSignature();
           setAccessError(noAccessMessage);
           await supabase.auth.signOut();
           return;
@@ -162,6 +164,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, [userId, online, refreshKey]);
 
+  const profileSignaturePath = currentProfile?.signaturePath ?? null;
+  useEffect(() => {
+    if (!profileSignaturePath || !online) return;
+    cacheProfileSignature(profileSignaturePath).catch((error) =>
+      console.warn('Could not cache the profile signature.', error),
+    );
+  }, [profileSignaturePath, online]);
+
   async function signIn(email: string, password: string) {
     setAccessError(null);
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -180,6 +190,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
+    clearProfileSignature();
     if (userId) clearCachedProfile(userId);
     setAccessError(null);
     setProfile(undefined);
