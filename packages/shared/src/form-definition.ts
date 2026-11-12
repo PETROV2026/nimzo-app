@@ -67,7 +67,7 @@ export const checkboxFieldSchema = z.object({ ...fieldBase, type: z.literal('che
 export const photosFieldSchema = z.object({
   ...fieldBase,
   type: z.literal('photos'),
-  count: z.number().int().min(1).max(12),
+  count: z.number().int().min(1).max(4),
 });
 
 export const calcFieldSchema = z.object({
