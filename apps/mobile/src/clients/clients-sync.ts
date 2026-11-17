@@ -1,3 +1,4 @@
+import type { PostgrestError } from '@supabase/supabase-js';
 import { useEffect, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 import {
@@ -30,11 +31,12 @@ export type ClientsSyncStatus = {
 };
 
 const retryMs = 30_000;
+const pageSize = 1000;
 
 let status: ClientsSyncStatus = { state: 'idle', lastSyncedAt: null };
 const listeners = new Set<() => void>();
 let running: Promise<void> | null = null;
-let rerun = false;
+let rerun: string | null = null;
 
 function setStatus(next: ClientsSyncStatus) {
   status = next;
@@ -115,37 +117,69 @@ async function uploadSystems(technicianId: string) {
   return pending.length;
 }
 
-async function downloadSystems(technicianId: string) {
-  const { data, error } = await supabase
-    .from('systems')
-    .select(
-      'id, technician_id, branch_id, system_type, name, location, notes, is_active, created_at, updated_at',
-    )
-    .eq('technician_id', technicianId);
-  if (error) throw error;
-  applyRemoteSystems(technicianId, data);
+async function fetchAll<T>(
+  page: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{ data: T[] | null; error: PostgrestError | null }>,
+) {
+  const rows: T[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await page(from, from + pageSize - 1);
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < pageSize) return rows;
+  }
 }
 
-async function downloadBranches(technicianId: string) {
-  const { data, error } = await supabase
-    .from('branches')
-    .select(
-      'id, technician_id, client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active, created_at, updated_at',
-    )
-    .eq('technician_id', technicianId);
-  if (error) throw error;
-  applyRemoteBranches(technicianId, data);
+async function ensureSignedInAs(technicianId: string) {
+  const { data } = await supabase.auth.getSession();
+  if (data.session?.user.id !== technicianId) throw new Error('The session changed during sync');
 }
 
 async function download(technicianId: string) {
-  const { data, error } = await supabase
-    .from('clients')
-    .select(
-      'id, technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active, created_at, updated_at',
-    )
-    .eq('technician_id', technicianId);
-  if (error) throw error;
-  applyRemoteClients(technicianId, data);
+  const rows = await fetchAll((from, to) =>
+    supabase
+      .from('clients')
+      .select(
+        'id, technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active, created_at, updated_at',
+      )
+      .eq('technician_id', technicianId)
+      .order('id')
+      .range(from, to),
+  );
+  await ensureSignedInAs(technicianId);
+  applyRemoteClients(technicianId, rows);
+}
+
+async function downloadBranches(technicianId: string) {
+  const rows = await fetchAll((from, to) =>
+    supabase
+      .from('branches')
+      .select(
+        'id, technician_id, client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active, created_at, updated_at',
+      )
+      .eq('technician_id', technicianId)
+      .order('id')
+      .range(from, to),
+  );
+  await ensureSignedInAs(technicianId);
+  applyRemoteBranches(technicianId, rows);
+}
+
+async function downloadSystems(technicianId: string) {
+  const rows = await fetchAll((from, to) =>
+    supabase
+      .from('systems')
+      .select(
+        'id, technician_id, branch_id, system_type, name, location, notes, is_active, created_at, updated_at',
+      )
+      .eq('technician_id', technicianId)
+      .order('id')
+      .range(from, to),
+  );
+  await ensureSignedInAs(technicianId);
+  applyRemoteSystems(technicianId, rows);
 }
 
 async function run(technicianId: string) {
@@ -153,27 +187,30 @@ async function run(technicianId: string) {
   const uploaded: UploadCounts = { clients: 0, branches: 0, systems: 0 };
   try {
     do {
-      rerun = false;
+      rerun = null;
       uploaded.clients += await upload(technicianId);
       uploaded.branches += await uploadBranches(technicianId);
       uploaded.systems += await uploadSystems(technicianId);
       await download(technicianId);
       await downloadBranches(technicianId);
       await downloadSystems(technicianId);
-    } while (rerun);
+    } while (rerun === technicianId);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
   } catch {
     setStatus({ state: 'failed', lastSyncedAt: status.lastSyncedAt });
   }
 }
 
-export function syncClients(technicianId: string) {
+export function syncClients(technicianId: string): Promise<void> {
   if (running) {
-    rerun = true;
+    rerun = technicianId;
     return running;
   }
   running = run(technicianId).finally(() => {
     running = null;
+    const next = rerun;
+    rerun = null;
+    if (next && next !== technicianId) void syncClients(next);
   });
   return running;
 }

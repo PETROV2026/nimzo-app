@@ -1,3 +1,4 @@
+import { matchesSearch } from '@nimzo/shared';
 import { Pressable, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import type { LocalClient } from '@/clients/clients-db';
@@ -8,11 +9,38 @@ import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
+function branchLine(branch: LocalBranch) {
+  return branch.address ?? (branchPlace(branch) || 'Sin dirección');
+}
+
+function hiddenMatch(client: LocalClient, branches: LocalBranch[], search: string) {
+  if (!search.trim()) return null;
+  const active = branches.filter((branch) => branch.isActive);
+  const shown = [client.name, ...active.flatMap((branch) => [branch.name, branchLine(branch)])];
+  if (shown.some((text) => matchesSearch(text, search))) return null;
+  const candidates: [string, string | null][] = [
+    ['RFC', client.tax_id],
+    ['Contacto', client.contact_name],
+    ['Teléfono', client.contact_phone],
+    ['Correo', client.contact_email],
+    ...active.map((branch): [string, string] => [branch.name, branchPlace(branch)]),
+    ...branches
+      .filter((branch) => !branch.isActive)
+      .map((branch): [string, string] => [
+        'Sucursal inactiva',
+        [branch.name, branch.address, branchPlace(branch)].filter(Boolean).join(', '),
+      ]),
+  ];
+  const found = candidates.find(([, value]) => value && matchesSearch(value, search));
+  return found?.[1] ? { label: found[0], value: found[1] } : null;
+}
+
 type ClientCardProps = {
   client: LocalClient;
   branches: LocalBranch[];
   search: string;
   width: number;
+  pendingSystems: boolean;
   onOpenClient: () => void;
   onOpenBranch: (branch: LocalBranch) => void;
   onAddBranch: () => void;
@@ -23,12 +51,14 @@ export function ClientCard({
   branches,
   search,
   width,
+  pendingSystems,
   onOpenClient,
   onOpenBranch,
   onAddBranch,
 }: ClientCardProps) {
   const active = branches.filter((branch) => branch.isActive);
-  const pending = !client.syncedAt || branches.some((branch) => !branch.syncedAt);
+  const pending = !client.syncedAt || pendingSystems || branches.some((branch) => !branch.syncedAt);
+  const match = hiddenMatch(client, branches, search);
 
   return (
     <View
@@ -52,6 +82,18 @@ export function ClientCard({
         {client.isActive ? null : <InactiveBadge />}
         <Icon name="information-circle-outline" size={20} color={colors['border-strong']} />
       </Pressable>
+
+      {match ? (
+        <View className="-mt-1 flex-row gap-2 pb-2">
+          <Text className="font-sans-medium text-sm text-muted">{match.label}:</Text>
+          <HighlightedText
+            text={match.value}
+            term={search}
+            numberOfLines={1}
+            className="flex-1 font-sans text-sm text-foreground"
+          />
+        </View>
+      ) : null}
 
       {active.length === 0 ? (
         <View className="items-start gap-1 border-t border-border pt-3">
@@ -78,7 +120,7 @@ export function ClientCard({
                 className="font-sans-bold text-base text-foreground"
               />
               <HighlightedText
-                text={branch.address ?? (branchPlace(branch) || 'Sin dirección')}
+                text={branchLine(branch)}
                 term={search}
                 numberOfLines={1}
                 className="font-sans text-sm text-muted"

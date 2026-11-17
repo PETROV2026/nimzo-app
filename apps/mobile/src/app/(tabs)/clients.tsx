@@ -67,6 +67,9 @@ export default function ClientsScreen() {
   const allBranches = useBranches(technicianId);
   const branchesByClient = groupByClient(allBranches);
   const allSystems = useSystems(technicianId);
+  const branchesWithPendingSystems = new Set(
+    allSystems.filter((system) => !system.syncedAt).map((system) => system.branchId),
+  );
   const selected = allClients.find((client) => client.id === selectedId) ?? null;
   const selectedBranches = selected ? (branchesByClient.get(selected.id) ?? []) : [];
   const formBranches = branchForm ? (branchesByClient.get(branchForm.client.id) ?? []) : [];
@@ -246,6 +249,9 @@ export default function ClientsScreen() {
                           branches={branchesByClient.get(client.id) ?? []}
                           search={search}
                           width={cardWidth}
+                          pendingSystems={(branchesByClient.get(client.id) ?? []).some((branch) =>
+                            branchesWithPendingSystems.has(branch.id),
+                          )}
                           onOpenClient={() => setSelectedId(client.id)}
                           onOpenBranch={(branch) => setOpenBranchId(branch.id)}
                           onAddBranch={() => setBranchForm({ client })}
