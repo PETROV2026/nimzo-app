@@ -12,10 +12,16 @@ import {
   markBranchesSynced,
   pendingBranches,
 } from '@/clients/branches-db';
+import {
+  applyRemoteSystems,
+  markSystemsSynced,
+  pendingSystems,
+  systemsStore,
+} from '@/clients/systems-db';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 
-export type UploadCounts = { clients: number; branches: number };
+export type UploadCounts = { clients: number; branches: number; systems: number };
 
 export type ClientsSyncStatus = {
   state: 'idle' | 'syncing' | 'failed';
@@ -88,6 +94,38 @@ async function uploadBranches(technicianId: string) {
   return pending.length;
 }
 
+async function uploadSystems(technicianId: string) {
+  const pending = pendingSystems(technicianId);
+  if (pending.length === 0) return 0;
+  const { error } = await supabase.from('systems').upsert(
+    pending.map((system) => ({
+      id: system.id,
+      technician_id: technicianId,
+      branch_id: system.branchId,
+      system_type: system.system_type,
+      name: system.name,
+      location: system.location,
+      notes: system.notes,
+      is_active: system.isActive,
+      created_at: system.createdAt,
+    })),
+  );
+  if (error) throw error;
+  markSystemsSynced(pending);
+  return pending.length;
+}
+
+async function downloadSystems(technicianId: string) {
+  const { data, error } = await supabase
+    .from('systems')
+    .select(
+      'id, technician_id, branch_id, system_type, name, location, notes, is_active, created_at, updated_at',
+    )
+    .eq('technician_id', technicianId);
+  if (error) throw error;
+  applyRemoteSystems(technicianId, data);
+}
+
 async function downloadBranches(technicianId: string) {
   const { data, error } = await supabase
     .from('branches')
@@ -112,14 +150,16 @@ async function download(technicianId: string) {
 
 async function run(technicianId: string) {
   setStatus({ state: 'syncing', lastSyncedAt: status.lastSyncedAt });
-  const uploaded: UploadCounts = { clients: 0, branches: 0 };
+  const uploaded: UploadCounts = { clients: 0, branches: 0, systems: 0 };
   try {
     do {
       rerun = false;
       uploaded.clients += await upload(technicianId);
       uploaded.branches += await uploadBranches(technicianId);
+      uploaded.systems += await uploadSystems(technicianId);
       await download(technicianId);
       await downloadBranches(technicianId);
+      await downloadSystems(technicianId);
     } while (rerun);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
   } catch {
@@ -157,7 +197,10 @@ export function useClientsSync(technicianId: string) {
   const pendingBranchesKey = useSyncExternalStore(branchesStore.subscribe, () =>
     technicianId ? pendingKeyOf(branchesStore.snapshot(technicianId)) : '',
   );
-  const pendingKey = pendingClientsKey + pendingBranchesKey;
+  const pendingSystemsKey = useSyncExternalStore(systemsStore.subscribe, () =>
+    technicianId ? pendingKeyOf(systemsStore.snapshot(technicianId)) : '',
+  );
+  const pendingKey = pendingClientsKey + pendingBranchesKey + pendingSystemsKey;
   const { state } = useClientsSyncStatus();
 
   useEffect(() => {
@@ -191,17 +234,21 @@ export function usePendingUploads(technicianId: string): UploadCounts {
   const branches = useSyncExternalStore(branchesStore.subscribe, () =>
     technicianId ? branchesStore.snapshot(technicianId) : noRows,
   );
+  const systems = useSyncExternalStore(systemsStore.subscribe, () =>
+    technicianId ? systemsStore.snapshot(technicianId) : noRows,
+  );
   return {
     clients: clients.filter((client) => !client.syncedAt).length,
     branches: branches.filter((branch) => !branch.syncedAt).length,
+    systems: systems.filter((system) => !system.syncedAt).length,
   };
 }
 
-export function describeUploads({ clients, branches }: UploadCounts) {
-  return [
+export function describeUploads({ clients, branches, systems }: UploadCounts) {
+  const parts = [
     clients ? `${clients} ${clients === 1 ? 'cliente' : 'clientes'}` : null,
     branches ? `${branches} ${branches === 1 ? 'sucursal' : 'sucursales'}` : null,
-  ]
-    .filter(Boolean)
-    .join(' y ');
+    systems ? `${systems} ${systems === 1 ? 'sistema' : 'sistemas'}` : null,
+  ].filter((part): part is string => part !== null);
+  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts.at(-1)}` : (parts[0] ?? '');
 }

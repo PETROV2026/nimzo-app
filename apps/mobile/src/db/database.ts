@@ -55,6 +55,22 @@ const migrations = [
   );
   create index if not exists branches_client_idx on branches (client_id, is_active, name);
   `,
+  `
+  create table if not exists systems (
+    id text primary key not null,
+    technician_id text not null,
+    branch_id text not null references branches (id),
+    system_type text not null,
+    name text not null,
+    location text,
+    notes text,
+    is_active integer not null default 1,
+    created_at text not null,
+    updated_at text not null,
+    synced_at text
+  );
+  create index if not exists systems_branch_idx on systems (branch_id, is_active, name);
+  `,
 ];
 
 export const db = openDatabaseSync('nimzo.db');

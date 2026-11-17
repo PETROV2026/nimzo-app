@@ -21,6 +21,14 @@ const BRANCH_UPSERT = `
     technician_id = excluded.technician_id, client_id = excluded.client_id,
     name = excluded.name, state = excluded.state`;
 
+const SYSTEM_UPSERT = `
+  insert into public.systems (id, technician_id, branch_id, system_type, name, location, is_active)
+  values ($1, $2, $3, $4, $5, $6, $7)
+  on conflict (id) do update set
+    technician_id = excluded.technician_id, branch_id = excluded.branch_id,
+    system_type = excluded.system_type, name = excluded.name, location = excluded.location,
+    is_active = excluded.is_active`;
+
 let db;
 const asTechA = (sql, params) => runAs(db, 'authenticated', TECH_A, sql, params);
 const asTechB = (sql, params) => runAs(db, 'authenticated', TECH_B, sql, params);
@@ -87,6 +95,35 @@ describe('uploading clients created on the tablet', () => {
     assert.equal(row.name, 'Sucursal de prueba editada');
     assert.equal(row.state, 'NLE');
     assert.equal(row.technician_id, TECH_A);
+  });
+
+  test('a technician uploads a system of their own branch and then its changes', async () => {
+    const clientId = randomUUID();
+    const branchId = randomUUID();
+    const systemId = randomUUID();
+    assert.ok((await asTechA(UPSERT, [clientId, TECH_A, 'Cliente con sistema', true, new Date().toISOString()])).ok);
+    assert.ok((await asTechA(BRANCH_UPSERT, [branchId, TECH_A, clientId, 'Sucursal con sistema', null])).ok);
+
+    const created = await asTechA(SYSTEM_UPSERT, [systemId, TECH_A, branchId, 'fire_pump', 'Bomba de prueba', null, true]);
+    assert.ok(created.ok, created.error);
+    const updated = await asTechA(SYSTEM_UPSERT, [systemId, TECH_A, branchId, 'fire_pump', 'Bomba de prueba editada', 'Cuarto de bombas', false]);
+    assert.ok(updated.ok, updated.error);
+
+    const row = (await db.query('select name, location, is_active, technician_id from public.systems where id = $1', [systemId])).rows[0];
+    assert.equal(row.name, 'Bomba de prueba editada');
+    assert.equal(row.location, 'Cuarto de bombas');
+    assert.equal(row.is_active, false);
+    assert.equal(row.technician_id, TECH_A);
+  });
+
+  test("a technician cannot add a system to another technician's branch", async () => {
+    const clientId = randomUUID();
+    const branchId = randomUUID();
+    assert.ok((await asTechB(UPSERT, [clientId, TECH_B, 'Cliente de B con sucursal', true, new Date().toISOString()])).ok);
+    assert.ok((await asTechB(BRANCH_UPSERT, [branchId, TECH_B, clientId, 'Sucursal de B', null])).ok);
+
+    const result = await asTechA(SYSTEM_UPSERT, [randomUUID(), TECH_A, branchId, 'hydrant', 'Sistema ajeno', null, true]);
+    assert.equal(result.ok, false);
   });
 
   test("a technician cannot add a branch to another technician's client", async () => {

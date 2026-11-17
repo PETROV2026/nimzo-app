@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 import type { LocalBranch } from '@/clients/branches-db';
 import { branchPlace } from '@/clients/use-clients';
 import { Icon } from '@/components/icon';
+import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
@@ -10,13 +11,11 @@ type ClientBranchesProps = {
   branches: LocalBranch[];
   canAdd: boolean;
   onAdd: () => void;
-  onEdit: (branch: LocalBranch) => void;
+  onOpen: (branch: LocalBranch) => void;
 };
 
 function statusText(branch: LocalBranch) {
-  if (!branch.isActive) return 'Inactiva';
-  if (!branch.syncedAt) return 'Pendiente de sincronizar';
-  return null;
+  return branch.isActive && !branch.syncedAt ? 'Pendiente de sincronizar' : null;
 }
 
 function BranchRow({
@@ -38,27 +37,41 @@ function BranchRow({
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={[branch.name, place, status].filter(Boolean).join(', ')}
-      accessibilityHint="Abre la sucursal para editarla"
-      className={`min-h-[72px] flex-row items-center gap-4 px-5 py-3 active:bg-surface ${last ? '' : 'border-b border-border'}`}
+      accessibilityLabel={[branch.name, branch.isActive ? null : 'inactiva', place, status]
+        .filter(Boolean)
+        .join(', ')}
+      accessibilityHint="Abre la sucursal con sus reportes y sistemas"
+      className={`min-h-[72px] flex-row items-center gap-4 px-5 py-3 ${branch.isActive ? 'active:bg-surface' : 'bg-surface active:bg-border'} ${last ? '' : 'border-b border-border'}`}
     >
       <View className={`gap-0.5 ${wide ? 'w-[38%]' : 'flex-1'}`}>
+        <View className="flex-row items-center gap-3">
+          <Text
+            numberOfLines={1}
+            className={`shrink font-sans-semibold text-lg ${branch.isActive ? 'text-foreground' : 'text-muted'}`}
+          >
+            {branch.name}
+          </Text>
+          {branch.isActive ? null : <InactiveBadge label="Inactiva" />}
+        </View>
         <Text
           numberOfLines={1}
-          className={`font-sans-semibold text-lg ${branch.isActive ? 'text-foreground' : 'text-muted'}`}
+          className={`font-sans text-base ${branch.isActive ? 'text-muted' : 'text-placeholder'}`}
         >
-          {branch.name}
-        </Text>
-        <Text numberOfLines={1} className="font-sans text-base text-muted">
           {[place || 'Sin ciudad', status].filter(Boolean).join('. ')}
         </Text>
       </View>
       {wide ? (
         <>
-          <Text numberOfLines={2} className="flex-1 font-sans text-base text-foreground">
+          <Text
+            numberOfLines={2}
+            className={`flex-1 font-sans text-base ${branch.isActive ? 'text-foreground' : 'text-placeholder'}`}
+          >
             {branch.address ?? '—'}
           </Text>
-          <Text numberOfLines={2} className="w-[24%] font-sans text-base text-foreground">
+          <Text
+            numberOfLines={2}
+            className={`w-[24%] font-sans text-base ${branch.isActive ? 'text-foreground' : 'text-placeholder'}`}
+          >
             {contact || '—'}
           </Text>
         </>
@@ -68,7 +81,7 @@ function BranchRow({
   );
 }
 
-export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranchesProps) {
+export function ClientBranches({ branches, canAdd, onAdd, onOpen }: ClientBranchesProps) {
   const [panelWidth, setPanelWidth] = useState(0);
   const wide = panelWidth >= 760;
   const [showInactive, setShowInactive] = useState(false);
@@ -117,7 +130,7 @@ export function ClientBranches({ branches, canAdd, onAdd, onEdit }: ClientBranch
               branch={branch}
               wide={wide}
               last={index === visible.length - 1}
-              onPress={() => onEdit(branch)}
+              onPress={() => onOpen(branch)}
             />
           ))
         )}

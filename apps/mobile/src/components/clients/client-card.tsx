@@ -4,6 +4,7 @@ import type { LocalClient } from '@/clients/clients-db';
 import { branchPlace } from '@/clients/use-clients';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Icon } from '@/components/icon';
+import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
@@ -31,8 +32,8 @@ export function ClientCard({
 
   return (
     <View
-      style={{ width, elevation: 2 }}
-      className="overflow-hidden rounded-2xl bg-background px-5 pb-3 pt-2"
+      style={{ width, elevation: client.isActive ? 2 : 0 }}
+      className={`overflow-hidden rounded-2xl px-5 pb-3 pt-2 ${client.isActive ? 'bg-background' : 'border border-border bg-surface'}`}
     >
       <Pressable
         onPress={onOpenClient}
@@ -48,9 +49,7 @@ export function ClientCard({
           className={`flex-1 font-sans-semibold text-base ${client.isActive ? 'text-primary-strong' : 'text-muted'}`}
         />
         {pending ? <Icon name="cloud-upload-outline" size={18} color={colors.muted} /> : null}
-        {client.isActive ? null : (
-          <Text className="font-sans-medium text-sm text-muted">Inactivo</Text>
-        )}
+        {client.isActive ? null : <InactiveBadge />}
         <Icon name="information-circle-outline" size={20} color={colors['border-strong']} />
       </Pressable>
 
@@ -68,6 +67,7 @@ export function ClientCard({
             onPress={() => onOpenBranch(branch)}
             accessibilityRole="button"
             accessibilityLabel={`Sucursal ${branch.name}`}
+            accessibilityHint="Abre la sucursal con sus reportes y sistemas"
             className="-mx-2 min-h-16 flex-row items-center gap-3 border-t border-border px-2 py-2.5 active:bg-surface"
           >
             <View className="flex-1 gap-0.5">

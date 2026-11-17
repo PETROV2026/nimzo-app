@@ -26,7 +26,7 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
   const online = useOnline();
   const { state, lastSyncedAt } = useClientsSyncStatus();
   const pending = usePendingUploads(technicianId);
-  const pendingTotal = pending.clients + pending.branches;
+  const pendingTotal = pending.clients + pending.branches + pending.systems;
   const [open, setOpen] = useState(false);
 
   const syncing = state === 'syncing' && pendingTotal > 0;

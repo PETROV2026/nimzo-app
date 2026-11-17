@@ -16,13 +16,22 @@ import {
   type BranchDetails,
   type LocalBranch,
 } from '@/clients/branches-db';
-import { groupByClient, useBranches, useClients } from '@/clients/use-clients';
+import {
+  createSystem,
+  setSystemActive,
+  updateSystem,
+  type LocalSystem,
+  type SystemDetails,
+} from '@/clients/systems-db';
+import { groupByClient, useBranches, useClients, useSystems } from '@/clients/use-clients';
 import { AddButton } from '@/components/add-button';
 import { Button } from '@/components/button';
+import { BranchDetail } from '@/components/clients/branch-detail';
 import { BranchFormDialog } from '@/components/clients/branch-form-dialog';
 import { ClientDetail } from '@/components/clients/client-detail';
 import { ClientFormDialog } from '@/components/clients/client-form-dialog';
 import { ClientCard } from '@/components/clients/client-card';
+import { SystemFormDialog } from '@/components/clients/system-form-dialog';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { SearchField } from '@/components/search-field';
@@ -36,6 +45,7 @@ function columnsFor(width: number) {
 
 type FormState = { mode: 'create' } | { mode: 'edit'; client: LocalClient } | null;
 type BranchFormState = { client: LocalClient; branch?: LocalBranch } | null;
+type SystemFormState = { branch: LocalBranch; system?: LocalSystem } | null;
 
 export default function ClientsScreen() {
   const session = useSession();
@@ -48,13 +58,25 @@ export default function ClientsScreen() {
   const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
   const [branchForm, setBranchForm] = useState<BranchFormState>(null);
   const [deactivatingBranch, setDeactivatingBranch] = useState<LocalBranch | null>(null);
+  const [openBranchId, setOpenBranchId] = useState<string | null>(null);
+  const [systemForm, setSystemForm] = useState<SystemFormState>(null);
+  const [deactivatingSystem, setDeactivatingSystem] = useState<LocalSystem | null>(null);
   const { toast, showToast } = useToast();
   const allClients = useClients(technicianId);
   const clients = useClients(technicianId, search);
-  const branchesByClient = groupByClient(useBranches(technicianId));
+  const allBranches = useBranches(technicianId);
+  const branchesByClient = groupByClient(allBranches);
+  const allSystems = useSystems(technicianId);
   const selected = allClients.find((client) => client.id === selectedId) ?? null;
   const selectedBranches = selected ? (branchesByClient.get(selected.id) ?? []) : [];
   const formBranches = branchForm ? (branchesByClient.get(branchForm.client.id) ?? []) : [];
+  const openBranch = allBranches.find((branch) => branch.id === openBranchId) ?? null;
+  const openBranchClient = openBranch
+    ? (allClients.find((client) => client.id === openBranch.clientId) ?? null)
+    : null;
+  const openBranchSystems = openBranch
+    ? allSystems.filter((system) => system.branchId === openBranch.id)
+    : [];
 
   if (!technicianId) return null;
 
@@ -120,6 +142,40 @@ export default function ClientsScreen() {
     setBranchActive(deactivatingBranch.id, technicianId, false);
     showToast('Sucursal desactivada', deactivatingBranch.name);
     setDeactivatingBranch(null);
+  }
+
+  function handleSaveSystem(details: SystemDetails) {
+    if (!systemForm) return;
+    if (systemForm.system) {
+      updateSystem(systemForm.system.id, technicianId, details);
+      showToast('Sistema guardado', details.name);
+    } else {
+      createSystem(technicianId, systemForm.branch.id, details);
+      showToast('Sistema agregado', `${details.name} en ${systemForm.branch.name}`);
+    }
+    setSystemForm(null);
+  }
+
+  function handleToggleSystem(system: LocalSystem) {
+    setSystemForm(null);
+    if (system.isActive) {
+      setDeactivatingSystem(system);
+      return;
+    }
+    setSystemActive(system.id, technicianId, true);
+    showToast('Sistema reactivado', system.name);
+  }
+
+  function handleDeactivateSystem() {
+    if (!deactivatingSystem) return;
+    setSystemActive(deactivatingSystem.id, technicianId, false);
+    showToast('Sistema desactivado', deactivatingSystem.name);
+    setDeactivatingSystem(null);
+  }
+
+  function closeDetail() {
+    if (openBranchId) setOpenBranchId(null);
+    else setSelectedId(null);
   }
 
   const list =
@@ -191,7 +247,7 @@ export default function ClientsScreen() {
                           search={search}
                           width={cardWidth}
                           onOpenClient={() => setSelectedId(client.id)}
-                          onOpenBranch={(branch) => setBranchForm({ client, branch })}
+                          onOpenBranch={(branch) => setOpenBranchId(branch.id)}
                           onAddBranch={() => setBranchForm({ client })}
                         />
                       ))}
@@ -204,18 +260,31 @@ export default function ClientsScreen() {
       </View>
     );
 
-  const detail = selected ? (
-    <ClientDetail
-      key={selected.id}
-      client={selected}
-      branches={selectedBranches}
-      onBack={() => setSelectedId(null)}
-      onEdit={() => setForm({ mode: 'edit', client: selected })}
-      onToggleActive={handleToggleActive}
-      onAddBranch={() => setBranchForm({ client: selected })}
-      onEditBranch={(branch) => setBranchForm({ client: selected, branch })}
-    />
-  ) : null;
+  const detail =
+    openBranch && openBranchClient ? (
+      <BranchDetail
+        key={openBranch.id}
+        branch={openBranch}
+        clientName={openBranchClient.name}
+        backLabel={selected ? selected.name : 'Clientes'}
+        systems={openBranchSystems}
+        onBack={() => setOpenBranchId(null)}
+        onEdit={() => setBranchForm({ client: openBranchClient, branch: openBranch })}
+        onAddSystem={() => setSystemForm({ branch: openBranch })}
+        onEditSystem={(system) => setSystemForm({ branch: openBranch, system })}
+      />
+    ) : selected ? (
+      <ClientDetail
+        key={selected.id}
+        client={selected}
+        branches={selectedBranches}
+        onBack={() => setSelectedId(null)}
+        onEdit={() => setForm({ mode: 'edit', client: selected })}
+        onToggleActive={handleToggleActive}
+        onAddBranch={() => setBranchForm({ client: selected })}
+        onOpenBranch={(branch) => setOpenBranchId(branch.id)}
+      />
+    ) : null;
 
   const overlays = (
     <>
@@ -249,6 +318,29 @@ export default function ClientsScreen() {
           onClose={() => setBranchForm(null)}
         />
       ) : null}
+      {systemForm ? (
+        <SystemFormDialog
+          branchName={systemForm.branch.name}
+          system={systemForm.system}
+          siblings={allSystems.filter(
+            (system) =>
+              system.branchId === systemForm.branch.id && system.id !== systemForm.system?.id,
+          )}
+          onSave={handleSaveSystem}
+          onToggleActive={handleToggleSystem}
+          onClose={() => setSystemForm(null)}
+        />
+      ) : null}
+      {deactivatingSystem ? (
+        <ConfirmDialog
+          title="¿Desactivar este sistema?"
+          message={`${deactivatingSystem.name} quedará inactivo y ya no se podrá vincular a reportes nuevos. Su información se conserva y puedes reactivarlo en cualquier momento.`}
+          confirmLabel="Desactivar"
+          tone="destructive"
+          onConfirm={handleDeactivateSystem}
+          onClose={() => setDeactivatingSystem(null)}
+        />
+      ) : null}
       {deactivatingBranch ? (
         <ConfirmDialog
           title="¿Desactivar esta sucursal?"
@@ -274,7 +366,7 @@ export default function ClientsScreen() {
           animationType="slide"
           statusBarTranslucent
           navigationBarTranslucent
-          onRequestClose={() => setSelectedId(null)}
+          onRequestClose={closeDetail}
         >
           <View
             className="flex-1 bg-canvas"

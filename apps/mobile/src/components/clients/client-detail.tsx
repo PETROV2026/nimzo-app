@@ -5,6 +5,7 @@ import type { LocalClient } from '@/clients/clients-db';
 import { Button } from '@/components/button';
 import { ClientBranches } from '@/components/clients/client-branches';
 import { Icon } from '@/components/icon';
+import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
 
@@ -15,7 +16,7 @@ type ClientDetailProps = {
   onEdit: () => void;
   onToggleActive: () => void;
   onAddBranch: () => void;
-  onEditBranch: (branch: LocalBranch) => void;
+  onOpenBranch: (branch: LocalBranch) => void;
 };
 
 const dateFormat = new Intl.DateTimeFormat('es-MX', { dateStyle: 'long' });
@@ -62,13 +63,10 @@ export function ClientDetail({
   onEdit,
   onToggleActive,
   onAddBranch,
-  onEditBranch,
+  onOpenBranch,
 }: ClientDetailProps) {
   const phone = client.contact_phone?.replace(/[^\d+]/g, '') ?? '';
-  const status = [
-    client.isActive ? null : 'Inactivo',
-    client.syncedAt ? null : 'Pendiente de sincronizar',
-  ].filter(Boolean);
+  const status = [client.syncedAt ? null : 'Pendiente de sincronizar'].filter(Boolean);
 
   return (
     <ScrollView className="flex-1 bg-canvas" contentContainerClassName="gap-8 p-6 pb-10">
@@ -94,6 +92,11 @@ export function ClientDetail({
           <Text className="font-sans text-lg text-muted">
             {[client.tax_id, ...status].filter(Boolean).join('. ')}
           </Text>
+          {client.isActive ? null : (
+            <View className="pt-1">
+              <InactiveBadge />
+            </View>
+          )}
         </View>
         <View importantForAccessibility="no-hide-descendants" className="pt-1">
           <Icon name="business-outline" size={48} color={colors['border-strong']} />
@@ -145,7 +148,7 @@ export function ClientDetail({
         branches={branches}
         canAdd={client.isActive}
         onAdd={onAddBranch}
-        onEdit={onEditBranch}
+        onOpen={onOpenBranch}
       />
 
       <View className="flex-row flex-wrap items-center justify-between gap-4">

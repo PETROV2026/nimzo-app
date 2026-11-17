@@ -2,6 +2,7 @@ import { matchesSearch, mexicanStateLabels } from '@nimzo/shared';
 import { useSyncExternalStore } from 'react';
 import { branchesStore, type LocalBranch } from '@/clients/branches-db';
 import { clientsStore, type LocalClient } from '@/clients/clients-db';
+import { systemsStore } from '@/clients/systems-db';
 
 export function branchPlace(branch: LocalBranch) {
   return [branch.city, branch.state ? mexicanStateLabels[branch.state] : null]
@@ -34,6 +35,10 @@ export function groupByClient(branches: LocalBranch[]) {
 
 export function useBranches(technicianId: string) {
   return useSyncExternalStore(branchesStore.subscribe, () => branchesStore.snapshot(technicianId));
+}
+
+export function useSystems(technicianId: string) {
+  return useSyncExternalStore(systemsStore.subscribe, () => systemsStore.snapshot(technicianId));
 }
 
 export function useClients(technicianId: string, search = '') {
