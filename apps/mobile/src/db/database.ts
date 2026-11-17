@@ -71,6 +71,11 @@ const migrations = [
   );
   create index if not exists systems_branch_idx on systems (branch_id, is_active, name);
   `,
+  `
+  alter table clients add column sync_error text;
+  alter table branches add column sync_error text;
+  alter table systems add column sync_error text;
+  `,
 ];
 
 export const db = openDatabaseSync('nimzo.db');

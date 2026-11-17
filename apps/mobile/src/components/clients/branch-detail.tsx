@@ -8,6 +8,7 @@ import { Icon, type IconName } from '@/components/icon';
 import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
+import { syncLabel } from '@/clients/clients-sync';
 
 type BranchTab = 'pending' | 'sent' | 'systems';
 
@@ -43,7 +44,7 @@ function TabEmpty({
 }
 
 function systemStatus(system: LocalSystem) {
-  return system.isActive && !system.syncedAt ? 'Pendiente de sincronizar' : null;
+  return system.isActive ? syncLabel(system) : null;
 }
 
 function SystemRow({ system, onPress }: { system: LocalSystem; onPress: () => void }) {
@@ -152,7 +153,7 @@ export function BranchDetail({
   const [tab, setTab] = useState<BranchTab>('sent');
   const activeSystems = systems.filter((system) => system.isActive).length;
   const location = [branch.address, branchPlace(branch)].filter(Boolean).join(', ');
-  const status = [branch.syncedAt ? null : 'Pendiente de sincronizar'].filter(Boolean);
+  const status = [syncLabel(branch)].filter(Boolean);
   const tabs: { key: BranchTab; label: string; icon: IconName; count?: number }[] = [
     { key: 'sent', label: 'Enviados', icon: 'paper-plane-outline' },
     { key: 'pending', label: 'Pendientes', icon: 'time-outline' },

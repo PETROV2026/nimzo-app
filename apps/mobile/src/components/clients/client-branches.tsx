@@ -6,6 +6,7 @@ import { Icon } from '@/components/icon';
 import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
+import { syncLabel } from '@/clients/clients-sync';
 
 type ClientBranchesProps = {
   branches: LocalBranch[];
@@ -15,7 +16,7 @@ type ClientBranchesProps = {
 };
 
 function statusText(branch: LocalBranch) {
-  return branch.isActive && !branch.syncedAt ? 'Pendiente de sincronizar' : null;
+  return branch.isActive ? syncLabel(branch) : null;
 }
 
 function BranchRow({
