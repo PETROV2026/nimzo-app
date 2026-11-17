@@ -121,7 +121,7 @@ export default function ClientsScreen() {
   function handleSaveBranch(details: BranchDetails) {
     if (!branchForm) return;
     if (branchForm.branch) {
-      updateBranch(branchForm.branch.id, technicianId, details);
+      updateBranch(branchForm.branch.id, technicianId, branchForm.client.id, details);
       showToast('Sucursal guardada', details.name);
     } else {
       createBranch(technicianId, branchForm.client.id, details);
@@ -150,7 +150,7 @@ export default function ClientsScreen() {
   function handleSaveSystem(details: SystemDetails) {
     if (!systemForm) return;
     if (systemForm.system) {
-      updateSystem(systemForm.system.id, technicianId, details);
+      updateSystem(systemForm.system.id, technicianId, systemForm.branch.id, details);
       showToast('Sistema guardado', details.name);
     } else {
       createSystem(technicianId, systemForm.branch.id, details);

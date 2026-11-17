@@ -3,9 +3,9 @@ import { ActivityIndicator, Modal, Pressable, Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import {
   describeUploads,
-  syncClients,
+  retryRejected,
   useClientsSyncStatus,
-  usePendingUploads,
+  useUploadCounts,
 } from '@/clients/clients-sync';
 import { Button } from '@/components/button';
 import { DialogHeader } from '@/components/dialog-header';
@@ -25,21 +25,25 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
   const settledOnline = useSettledOnline();
   const online = useOnline();
   const { state, lastSyncedAt } = useClientsSyncStatus();
-  const pending = usePendingUploads(technicianId);
+  const { pending, rejected } = useUploadCounts(technicianId);
   const pendingTotal = pending.clients + pending.branches + pending.systems;
+  const rejectedTotal = rejected.clients + rejected.branches + rejected.systems;
   const [open, setOpen] = useState(false);
 
   const syncing = state === 'syncing' && pendingTotal > 0;
-  if (settledOnline && pendingTotal === 0) return null;
+  if (settledOnline && pendingTotal === 0 && rejectedTotal === 0) return null;
 
   const label = syncing
     ? 'Sincronizando…'
     : pendingTotal > 0
       ? `${pendingTotal} por sincronizar`
-      : 'Sin conexión';
+      : rejectedTotal > 0
+        ? `${rejectedTotal} sin sincronizar`
+        : 'Sin conexión';
   const tint = tone === 'header' ? `${colors.background}B3` : colors.muted;
   const text = tone === 'header' ? 'text-background/70' : 'text-muted';
   const pendingText = describeUploads(pending);
+  const rejectedText = describeUploads(rejected);
 
   return (
     <>
@@ -55,7 +59,13 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
           <ActivityIndicator size="small" color={tint} />
         ) : (
           <Icon
-            name={settledOnline ? 'cloud-upload-outline' : 'cloud-offline-outline'}
+            name={
+              !settledOnline
+                ? 'cloud-offline-outline'
+                : pendingTotal === 0 && rejectedTotal > 0
+                  ? 'alert-circle-outline'
+                  : 'cloud-upload-outline'
+            }
             size={22}
             color={tint}
           />
@@ -79,18 +89,23 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
                     ? `Pendiente de sincronizar: ${pendingText}. ${!online ? 'Se sincronizará automáticamente cuando haya conexión.' : state === 'failed' ? 'No se pudo sincronizar; se reintentará en unos segundos.' : 'Sincronizando ahora.'}`
                     : 'No hay cambios pendientes de sincronizar.'}
                 </Text>
+                {rejectedText ? (
+                  <Text className="font-sans text-lg text-foreground">
+                    {`No se pudo sincronizar: ${rejectedText}. El servidor rechazó estos cambios. Revisa sus datos y vuelve a intentarlo; si el problema continúa, escribe al soporte de Nimzo.`}
+                  </Text>
+                ) : null}
                 <Text className="font-sans text-base text-muted">
                   {lastSyncedAt
                     ? `Última sincronización: ${timeFormat.format(new Date(lastSyncedAt))}`
                     : 'Aún no se ha sincronizado en esta sesión.'}
                 </Text>
               </View>
-              {online && pendingTotal > 0 && technicianId ? (
+              {online && pendingTotal + rejectedTotal > 0 && technicianId ? (
                 <Button
-                  label="Sincronizar ahora"
+                  label={pendingTotal > 0 ? 'Sincronizar ahora' : 'Volver a intentar'}
                   icon="sync-outline"
                   loading={state === 'syncing'}
-                  onPress={() => syncClients(technicianId)}
+                  onPress={() => retryRejected(technicianId)}
                 />
               ) : null}
             </View>

@@ -8,6 +8,7 @@ import { Icon } from '@/components/icon';
 import { InactiveBadge } from '@/components/inactive-badge';
 import { TextAction } from '@/components/text-action';
 import { colors } from '@/theme';
+import { syncLabel } from '@/clients/clients-sync';
 
 type ClientDetailProps = {
   client: LocalClient;
@@ -66,7 +67,7 @@ export function ClientDetail({
   onOpenBranch,
 }: ClientDetailProps) {
   const phone = client.contact_phone?.replace(/[^\d+]/g, '') ?? '';
-  const status = [client.syncedAt ? null : 'Pendiente de sincronizar'].filter(Boolean);
+  const status = [syncLabel(client)].filter(Boolean);
 
   return (
     <ScrollView className="flex-1 bg-canvas" contentContainerClassName="gap-8 p-6 pb-10">

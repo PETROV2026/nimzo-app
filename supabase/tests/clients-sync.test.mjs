@@ -126,6 +126,20 @@ describe('uploading clients created on the tablet', () => {
     assert.equal(result.ok, false);
   });
 
+  test('rows the server rejects fail with a constraint or permission code, which the app sets aside', async () => {
+    const rejected = /^(2[23]|42501$|P0001$)/;
+    const orphan = await asTechA(BRANCH_UPSERT, [randomUUID(), TECH_A, randomUUID(), 'Sucursal sin cliente', null]);
+    assert.equal(orphan.ok, false);
+    assert.match(orphan.code, rejected);
+
+    const clientId = randomUUID();
+    const own = await asTechB(UPSERT, [clientId, TECH_B, 'Cliente de B para rechazo', true, new Date().toISOString()]);
+    assert.ok(own.ok, own.error);
+    const foreign = await asTechA(BRANCH_UPSERT, [randomUUID(), TECH_A, clientId, 'Sucursal ajena', null]);
+    assert.equal(foreign.ok, false);
+    assert.match(foreign.code, rejected);
+  });
+
   test("a technician cannot add a branch to another technician's client", async () => {
     const clientId = randomUUID();
     const own = await asTechB(UPSERT, [clientId, TECH_B, 'Cliente solo de B', true, new Date().toISOString()]);

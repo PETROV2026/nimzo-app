@@ -1,24 +1,11 @@
+import type { TablesInsert } from '@nimzo/shared';
 import type { PostgrestError } from '@supabase/supabase-js';
 import { useEffect, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
-import {
-  applyRemoteClients,
-  clientsStore,
-  markClientsSynced,
-  pendingClients,
-} from '@/clients/clients-db';
-import {
-  applyRemoteBranches,
-  branchesStore,
-  markBranchesSynced,
-  pendingBranches,
-} from '@/clients/branches-db';
-import {
-  applyRemoteSystems,
-  markSystemsSynced,
-  pendingSystems,
-  systemsStore,
-} from '@/clients/systems-db';
+import { branchesTable } from '@/clients/branches-db';
+import { clientsTable } from '@/clients/clients-db';
+import { systemsTable } from '@/clients/systems-db';
+import type { SyncedMeta } from '@/db/synced-table';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
 
@@ -29,6 +16,60 @@ export type ClientsSyncStatus = {
   lastSyncedAt: string | null;
   uploaded?: UploadCounts;
 };
+
+type Page = PromiseLike<{ data: Record<string, unknown>[] | null; error: PostgrestError | null }>;
+
+type SyncEntry = {
+  key: keyof UploadCounts;
+  local: typeof clientsTable | typeof branchesTable | typeof systemsTable;
+  upsert: (rows: object[]) => PromiseLike<{ error: PostgrestError | null }>;
+  page: (technicianId: string, from: number, to: number) => Page;
+};
+
+const entries: SyncEntry[] = [
+  {
+    key: 'clients',
+    local: clientsTable,
+    upsert: (rows) => supabase.from('clients').upsert(rows as TablesInsert<'clients'>[]),
+    page: (technicianId, from, to) =>
+      supabase
+        .from('clients')
+        .select(
+          'id, technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active, created_at, updated_at',
+        )
+        .eq('technician_id', technicianId)
+        .order('id')
+        .range(from, to),
+  },
+  {
+    key: 'branches',
+    local: branchesTable,
+    upsert: (rows) => supabase.from('branches').upsert(rows as TablesInsert<'branches'>[]),
+    page: (technicianId, from, to) =>
+      supabase
+        .from('branches')
+        .select(
+          'id, technician_id, client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active, created_at, updated_at',
+        )
+        .eq('technician_id', technicianId)
+        .order('id')
+        .range(from, to),
+  },
+  {
+    key: 'systems',
+    local: systemsTable,
+    upsert: (rows) => supabase.from('systems').upsert(rows as TablesInsert<'systems'>[]),
+    page: (technicianId, from, to) =>
+      supabase
+        .from('systems')
+        .select(
+          'id, technician_id, branch_id, system_type, name, location, notes, is_active, created_at, updated_at',
+        )
+        .eq('technician_id', technicianId)
+        .order('id')
+        .range(from, to),
+  },
+];
 
 const retryMs = 30_000;
 const pageSize = 1000;
@@ -50,86 +91,32 @@ function subscribeStatus(listener: () => void) {
   };
 }
 
-async function upload(technicianId: string) {
-  const pending = pendingClients(technicianId);
-  if (pending.length === 0) return 0;
-  const { error } = await supabase.from('clients').upsert(
-    pending.map((client) => ({
-      id: client.id,
-      technician_id: technicianId,
-      name: client.name,
-      tax_id: client.tax_id,
-      contact_name: client.contact_name,
-      contact_email: client.contact_email,
-      contact_phone: client.contact_phone,
-      notes: client.notes,
-      is_active: client.isActive,
-      created_at: client.createdAt,
-    })),
-  );
-  if (error) throw error;
-  markClientsSynced(pending);
-  return pending.length;
+function isRejection(error: PostgrestError) {
+  return /^2[23]/.test(error.code) || error.code === '42501' || error.code === 'P0001';
 }
 
-async function uploadBranches(technicianId: string) {
-  const pending = pendingBranches(technicianId);
-  if (pending.length === 0) return 0;
-  const { error } = await supabase.from('branches').upsert(
-    pending.map((branch) => ({
-      id: branch.id,
-      technician_id: technicianId,
-      client_id: branch.clientId,
-      name: branch.name,
-      address: branch.address,
-      city: branch.city,
-      state: branch.state,
-      contact_name: branch.contact_name,
-      contact_email: branch.contact_email,
-      contact_phone: branch.contact_phone,
-      is_active: branch.isActive,
-      created_at: branch.createdAt,
-    })),
-  );
-  if (error) throw error;
-  markBranchesSynced(pending);
-  return pending.length;
-}
-
-async function uploadSystems(technicianId: string) {
-  const pending = pendingSystems(technicianId);
-  if (pending.length === 0) return 0;
-  const { error } = await supabase.from('systems').upsert(
-    pending.map((system) => ({
-      id: system.id,
-      technician_id: technicianId,
-      branch_id: system.branchId,
-      system_type: system.system_type,
-      name: system.name,
-      location: system.location,
-      notes: system.notes,
-      is_active: system.isActive,
-      created_at: system.createdAt,
-    })),
-  );
-  if (error) throw error;
-  markSystemsSynced(pending);
-  return pending.length;
-}
-
-async function fetchAll<T>(
-  page: (
-    from: number,
-    to: number,
-  ) => PromiseLike<{ data: T[] | null; error: PostgrestError | null }>,
-) {
-  const rows: T[] = [];
-  for (let from = 0; ; from += pageSize) {
-    const { data, error } = await page(from, from + pageSize - 1);
-    if (error) throw error;
-    rows.push(...(data ?? []));
-    if (!data || data.length < pageSize) return rows;
+async function upload({ local, upsert }: SyncEntry, technicianId: string) {
+  const rows = local.pending(technicianId);
+  if (rows.length === 0) return 0;
+  const { error } = await upsert(rows.map(local.payload));
+  if (!error) {
+    local.markSynced(rows);
+    return rows.length;
   }
+  if (!isRejection(error)) throw error;
+  let uploaded = 0;
+  for (const row of rows) {
+    const result = await upsert([local.payload(row)]);
+    if (!result.error) {
+      local.markSynced([row]);
+      uploaded += 1;
+    } else if (isRejection(result.error)) {
+      local.markRejected(row, result.error.code);
+    } else {
+      throw result.error;
+    }
+  }
+  return uploaded;
 }
 
 async function ensureSignedInAs(technicianId: string) {
@@ -137,49 +124,16 @@ async function ensureSignedInAs(technicianId: string) {
   if (data.session?.user.id !== technicianId) throw new Error('The session changed during sync');
 }
 
-async function download(technicianId: string) {
-  const rows = await fetchAll((from, to) =>
-    supabase
-      .from('clients')
-      .select(
-        'id, technician_id, name, tax_id, contact_name, contact_email, contact_phone, notes, is_active, created_at, updated_at',
-      )
-      .eq('technician_id', technicianId)
-      .order('id')
-      .range(from, to),
-  );
+async function download({ local, page }: SyncEntry, technicianId: string) {
+  const rows: Record<string, unknown>[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await page(technicianId, from, from + pageSize - 1);
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
   await ensureSignedInAs(technicianId);
-  applyRemoteClients(technicianId, rows);
-}
-
-async function downloadBranches(technicianId: string) {
-  const rows = await fetchAll((from, to) =>
-    supabase
-      .from('branches')
-      .select(
-        'id, technician_id, client_id, name, address, city, state, contact_name, contact_email, contact_phone, is_active, created_at, updated_at',
-      )
-      .eq('technician_id', technicianId)
-      .order('id')
-      .range(from, to),
-  );
-  await ensureSignedInAs(technicianId);
-  applyRemoteBranches(technicianId, rows);
-}
-
-async function downloadSystems(technicianId: string) {
-  const rows = await fetchAll((from, to) =>
-    supabase
-      .from('systems')
-      .select(
-        'id, technician_id, branch_id, system_type, name, location, notes, is_active, created_at, updated_at',
-      )
-      .eq('technician_id', technicianId)
-      .order('id')
-      .range(from, to),
-  );
-  await ensureSignedInAs(technicianId);
-  applyRemoteSystems(technicianId, rows);
+  local.applyRemote(technicianId, rows);
 }
 
 async function run(technicianId: string) {
@@ -188,12 +142,8 @@ async function run(technicianId: string) {
   try {
     do {
       rerun = null;
-      uploaded.clients += await upload(technicianId);
-      uploaded.branches += await uploadBranches(technicianId);
-      uploaded.systems += await uploadSystems(technicianId);
-      await download(technicianId);
-      await downloadBranches(technicianId);
-      await downloadSystems(technicianId);
+      for (const entry of entries) uploaded[entry.key] += await upload(entry, technicianId);
+      for (const entry of entries) await download(entry, technicianId);
     } while (rerun === technicianId);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
   } catch {
@@ -215,29 +165,57 @@ export function syncClients(technicianId: string): Promise<void> {
   return running;
 }
 
-function pendingKeyOf(rows: { id: string; updatedAt: string; syncedAt: string | null }[]) {
-  return rows
-    .filter((row) => !row.syncedAt)
-    .map((row) => `${row.id}:${row.updatedAt}`)
-    .join(',');
+export function retryRejected(technicianId: string) {
+  for (const { local } of entries) local.clearRejected(technicianId);
+  return syncClients(technicianId);
 }
 
 export function useClientsSyncStatus() {
   return useSyncExternalStore(subscribeStatus, () => status);
 }
 
+const noRows: never[] = [];
+
+function useRows(technicianId: string): Record<keyof UploadCounts, SyncedMeta[]> {
+  return {
+    clients: useSyncExternalStore(clientsTable.store.subscribe, () =>
+      technicianId ? clientsTable.store.snapshot(technicianId) : noRows,
+    ),
+    branches: useSyncExternalStore(branchesTable.store.subscribe, () =>
+      technicianId ? branchesTable.store.snapshot(technicianId) : noRows,
+    ),
+    systems: useSyncExternalStore(systemsTable.store.subscribe, () =>
+      technicianId ? systemsTable.store.snapshot(technicianId) : noRows,
+    ),
+  };
+}
+
+function isPending(row: SyncedMeta) {
+  return !row.syncedAt && !row.syncError;
+}
+
+function isRejected(row: SyncedMeta) {
+  return !row.syncedAt && Boolean(row.syncError);
+}
+
+function countRows(
+  rows: Record<keyof UploadCounts, SyncedMeta[]>,
+  keep: (row: SyncedMeta) => boolean,
+): UploadCounts {
+  return {
+    clients: rows.clients.filter(keep).length,
+    branches: rows.branches.filter(keep).length,
+    systems: rows.systems.filter(keep).length,
+  };
+}
+
 export function useClientsSync(technicianId: string) {
   const online = useOnline();
-  const pendingClientsKey = useSyncExternalStore(clientsStore.subscribe, () =>
-    technicianId ? pendingKeyOf(clientsStore.snapshot(technicianId)) : '',
-  );
-  const pendingBranchesKey = useSyncExternalStore(branchesStore.subscribe, () =>
-    technicianId ? pendingKeyOf(branchesStore.snapshot(technicianId)) : '',
-  );
-  const pendingSystemsKey = useSyncExternalStore(systemsStore.subscribe, () =>
-    technicianId ? pendingKeyOf(systemsStore.snapshot(technicianId)) : '',
-  );
-  const pendingKey = pendingClientsKey + pendingBranchesKey + pendingSystemsKey;
+  const rows = useRows(technicianId);
+  const pendingKey = [...rows.clients, ...rows.branches, ...rows.systems]
+    .filter(isPending)
+    .map((row) => `${row.id}:${row.updatedAt}`)
+    .join(',');
   const { state } = useClientsSyncStatus();
 
   useEffect(() => {
@@ -262,23 +240,14 @@ export function useClientsSync(technicianId: string) {
   }, [technicianId, online, state]);
 }
 
-const noRows: never[] = [];
+export function useUploadCounts(technicianId: string) {
+  const rows = useRows(technicianId);
+  return { pending: countRows(rows, isPending), rejected: countRows(rows, isRejected) };
+}
 
-export function usePendingUploads(technicianId: string): UploadCounts {
-  const clients = useSyncExternalStore(clientsStore.subscribe, () =>
-    technicianId ? clientsStore.snapshot(technicianId) : noRows,
-  );
-  const branches = useSyncExternalStore(branchesStore.subscribe, () =>
-    technicianId ? branchesStore.snapshot(technicianId) : noRows,
-  );
-  const systems = useSyncExternalStore(systemsStore.subscribe, () =>
-    technicianId ? systemsStore.snapshot(technicianId) : noRows,
-  );
-  return {
-    clients: clients.filter((client) => !client.syncedAt).length,
-    branches: branches.filter((branch) => !branch.syncedAt).length,
-    systems: systems.filter((system) => !system.syncedAt).length,
-  };
+export function syncLabel(row: SyncedMeta) {
+  if (row.syncedAt) return null;
+  return row.syncError ? 'No se pudo sincronizar' : 'Pendiente de sincronizar';
 }
 
 export function describeUploads({ clients, branches, systems }: UploadCounts) {
