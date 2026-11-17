@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
+import { ServiceFormCard } from '@/components/service-forms/service-form-card';
+import { mockServiceForms } from '@/service-forms/mock-service-forms';
 
 type Section = 'new' | 'active' | 'pending' | 'history';
 
@@ -47,11 +49,21 @@ export default function ServicesScreen() {
         <Text className="font-sans text-base text-muted">{section.description}</Text>
       </View>
       <SegmentedControl segments={sections} value={current} onChange={setCurrent} />
-      <EmptyState
-        icon="clipboard-outline"
-        title="Aún no tienes servicios"
-        description="Crea un servicio para la sucursal de uno de tus clientes y llena sus formatos aquí, aun sin internet."
-      />
+      {current === 'new' ? (
+        <View className="-m-2 flex-row flex-wrap">
+          {mockServiceForms.map((form) => (
+            <View key={form.code} className="w-1/2 p-2">
+              <ServiceFormCard form={form} />
+            </View>
+          ))}
+        </View>
+      ) : (
+        <EmptyState
+          icon="clipboard-outline"
+          title="Aún no tienes servicios"
+          description="Crea un servicio para la sucursal de uno de tus clientes y llena sus formatos aquí, aun sin internet."
+        />
+      )}
     </ScrollView>
   );
 }
