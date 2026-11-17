@@ -3,13 +3,15 @@ import { Pressable, Text, View } from 'react-native';
 import { Icon } from '@/components/icon';
 import type { ServiceFormSummary } from '@/service-forms/mock-service-forms';
 import { colors } from '@/theme';
+import { HighlightedText } from '@/components/highlighted-text';
 
 type ServiceFormCardProps = {
   form: ServiceFormSummary;
+  search?: string;
   onPress?: () => void;
 };
 
-export function ServiceFormCard({ form, onPress }: ServiceFormCardProps) {
+export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -21,9 +23,17 @@ export function ServiceFormCard({ form, onPress }: ServiceFormCardProps) {
         <Icon name="document-text" size={30} color={colors['on-danger']} />
       </View>
       <View className="flex-1 gap-0.5">
-        <Text className="font-sans-bold text-lg text-foreground">{form.name}</Text>
+        <HighlightedText
+          text={form.name}
+          term={search}
+          className="font-sans-bold text-lg text-foreground"
+        />
         {form.subtitle ? (
-          <Text className="font-sans text-sm text-muted">{form.subtitle}</Text>
+          <HighlightedText
+            text={form.subtitle}
+            term={search}
+            className="font-sans text-sm text-muted"
+          />
         ) : null}
       </View>
       <Icon name="arrow-forward" size={24} color={colors.foreground} />
