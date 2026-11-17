@@ -107,8 +107,8 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
             >
               <Icon name="warning-outline" size={22} color={colors['on-accent']} />
               <Text className="flex-1 font-sans-medium text-base leading-6 text-on-accent">
-                No encontramos una app de correo en esta tablet. Copia el correo y escríbenos desde
-                tu teléfono o computadora.
+                No se encontró una app de correo en este dispositivo. Copia la dirección y
+                escríbenos desde tu teléfono o computadora.
               </Text>
             </View>
           ) : null}

@@ -1,6 +1,6 @@
 import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
@@ -13,7 +13,7 @@ import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { SignaturePreview } from '@/components/signature-preview';
 import { SupportDialog } from '@/components/support-dialog';
-import { Toast } from '@/components/toast';
+import { useToast } from '@/components/toast';
 import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
@@ -35,10 +35,7 @@ export default function ProfileScreen() {
   const [signingOut, setSigningOut] = useState(false);
   const [showingSupport, setShowingSupport] = useState(false);
   const [showingPrivacy, setShowingPrivacy] = useState(false);
-  const [toast, setToast] = useState<{ id: number; title: string; description: string } | null>(
-    null,
-  );
-  const hideToast = useCallback(() => setToast(null), []);
+  const { toast, showToast } = useToast();
 
   if (session.status !== 'signed-in') {
     return null;
@@ -72,7 +69,7 @@ export default function ProfileScreen() {
     >
       <Icon name="warning-outline" size={26} color={colors['on-accent']} />
       <Text className="flex-1 font-sans-medium text-base text-on-accent">
-        Te falta tu firma. La necesitas para enviar reportes.
+        Registra tu firma. Es necesaria para enviar reportes.
       </Text>
       {canEdit ? (
         <View className="w-[190px]">
@@ -111,7 +108,7 @@ export default function ProfileScreen() {
           </Text>
         ) : null}
       </View>
-      <ConnectionStatus />
+      <ConnectionStatus tone="page" />
     </View>
   );
 
@@ -119,7 +116,7 @@ export default function ProfileScreen() {
     <View className="flex-row items-center gap-3 px-1">
       <Icon name="cloud-offline-outline" size={22} color={colors.muted} />
       <Text className="flex-1 font-sans text-base text-muted">
-        Necesitas internet para editar tus datos y tu firma.
+        Se requiere conexión para editar tus datos y tu firma.
       </Text>
     </View>
   );
@@ -137,7 +134,7 @@ export default function ProfileScreen() {
 
   const profileMissing = (
     <Text className="font-sans text-base text-foreground">
-      No se pudo cargar tu perfil. Se cargará solo en cuanto tengas conexión.
+      No se pudo cargar tu perfil. Se cargará automáticamente cuando haya conexión.
     </Text>
   );
 
@@ -211,8 +208,8 @@ export default function ProfileScreen() {
     notifications.access === 'askable' || notifications.access === 'blocked' ? (
       <ActionRow
         icon="notifications-off-outline"
-        title="Avisos de recordatorios desactivados"
-        description="Tus recordatorios de Notas no van a sonar. Toca para activarlos."
+        title="Notificaciones desactivadas"
+        description="No recibirás los recordatorios de tus notas. Toca para activar las notificaciones."
         tone="attention"
         onPress={() => void notifications.enable()}
       />
@@ -232,13 +229,13 @@ export default function ProfileScreen() {
             <ActionRow
               icon="help-buoy-outline"
               title="Ayuda y soporte"
-              description="¿Algo no funciona? Escríbenos."
+              description="Reporta un problema o solicita ayuda."
               onPress={() => setShowingSupport(true)}
             />
             <ActionRow
               icon="document-lock-outline"
               title="Aviso de privacidad"
-              description="Qué datos usamos y cómo los protegemos."
+              description="Cómo usamos y protegemos tus datos."
               onPress={() => setShowingPrivacy(true)}
             />
             <ActionRow
@@ -258,11 +255,7 @@ export default function ProfileScreen() {
             profile={profile}
             onClose={() => setEditing(false)}
             onSaved={() =>
-              setToast({
-                id: Date.now(),
-                title: 'Tus datos se guardaron',
-                description: 'Así aparecerán en tus próximos reportes.',
-              })
+              showToast('Tus datos se guardaron', 'Así aparecerán en tus próximos reportes.')
             }
           />
         ) : null}
@@ -273,13 +266,7 @@ export default function ProfileScreen() {
             name={name}
             onSave={saveSignature}
             onClose={() => setSigning(false)}
-            onSaved={() =>
-              setToast({
-                id: Date.now(),
-                title: 'Tu firma se guardó',
-                description: 'Se usará en tus próximos reportes.',
-              })
-            }
+            onSaved={() => showToast('Tu firma se guardó', 'Se usará en tus próximos reportes.')}
           />
         ) : null}
 
@@ -292,8 +279,8 @@ export default function ProfileScreen() {
         {confirmingSignOut ? (
           <ConfirmDialog
             title="¿Cerrar sesión?"
-            message={`Vas a cerrar la sesión de ${name} en este dispositivo.`}
-            note="Para volver a entrar necesitarás tu correo, tu contraseña y conexión a internet."
+            message={`Se cerrará la sesión de ${name} en este dispositivo.`}
+            note="Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet."
             confirmLabel="Cerrar sesión"
             tone="destructive"
             onConfirm={handleSignOut}
@@ -302,14 +289,7 @@ export default function ProfileScreen() {
           />
         ) : null}
       </ScrollView>
-      {toast ? (
-        <Toast
-          key={toast.id}
-          title={toast.title}
-          description={toast.description}
-          onHide={hideToast}
-        />
-      ) : null}
+      {toast}
     </View>
   );
 }
@@ -336,7 +316,7 @@ function InfoRow({ icon, label, value, emptyLabel, onAdd }: InfoRowProps) {
           <Text
             className={`font-sans-semibold text-lg ${onAdd ? 'text-primary-strong' : 'text-muted'}`}
           >
-            {onAdd ? emptyLabel : 'Sin capturar'}
+            {onAdd ? emptyLabel : 'No registrado'}
           </Text>
         )}
       </View>
@@ -359,7 +339,7 @@ function InfoRow({ icon, label, value, emptyLabel, onAdd }: InfoRowProps) {
   return (
     <View
       accessible
-      accessibilityLabel={`${label}: ${value || 'sin capturar'}`}
+      accessibilityLabel={`${label}: ${value || 'no registrado'}`}
       className="flex-row items-center gap-3.5"
     >
       {content}

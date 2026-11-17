@@ -2,8 +2,11 @@ import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSession } from '@/auth/session-provider';
+import { useClientsSync } from '@/clients/clients-sync';
 import { ConnectionStatus } from '@/components/connection-status';
 import { NavigationBar } from '@/components/navigation-bar';
+import { SyncToast } from '@/components/sync-toast';
 import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors, fonts } from '@/theme';
 
@@ -15,6 +18,8 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const variant = width > height && width >= railMinWidth ? 'rail' : 'dock';
 
+  const session = useSession();
+  useClientsSync(session.status === 'signed-in' ? session.session.user.id : '');
   useOpenNoteFromNotification();
   return (
     <>
@@ -38,6 +43,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="profile" options={{ title: 'Perfil', headerShown: false }} />
         <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
+      <SyncToast />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown, ReduceMotion } from 'react-native-reanimated';
 import { Icon } from '@/components/icon';
@@ -46,4 +46,18 @@ export function Toast({ title, description, onHide }: ToastProps) {
       </Animated.View>
     </View>
   );
+}
+
+type ToastMessage = { id: number; title: string; description?: string };
+
+export function useToast() {
+  const [message, setMessage] = useState<ToastMessage | null>(null);
+  const hide = useCallback(() => setMessage(null), []);
+  const showToast = useCallback((title: string, description?: string) => {
+    setMessage({ id: Date.now(), title, description });
+  }, []);
+  const toast = message ? (
+    <Toast key={message.id} title={message.title} description={message.description} onHide={hide} />
+  ) : null;
+  return { toast, showToast };
 }

@@ -1,100 +1,25 @@
 import { matchesSearch } from '@nimzo/shared';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '@/components/icon';
 import { HighlightedText } from '@/components/highlighted-text';
-import { ActivityIndicator, FlatList, Modal, Pressable, Text, TextInput, View } from 'react-native';
-import { supabase } from '@/lib/supabase';
-import { useOnline } from '@/lib/use-online';
+import { SearchField } from '@/components/search-field';
+import { FlatList, Modal, Pressable, Text, View } from 'react-native';
+import { useClients } from '@/clients/use-clients';
 import { colors } from '@/theme';
 
 type ClientOption = { id: string; name: string };
 
 type ClientPickerProps = {
+  technicianId: string;
   selectedId: string | null;
   onSelect: (client: ClientOption) => void;
   onClose: () => void;
 };
 
-export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProps) {
-  const online = useOnline();
-  const [clients, setClients] = useState<ClientOption[] | null>(null);
-  const [failed, setFailed] = useState(false);
+export function ClientPicker({ technicianId, selectedId, onSelect, onClose }: ClientPickerProps) {
   const [search, setSearch] = useState('');
-
-  useEffect(() => {
-    if (!online) return;
-    let cancelled = false;
-    supabase
-      .from('clients')
-      .select('id, name')
-      .eq('is_active', true)
-      .order('name')
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        setFailed(!!error);
-        setClients(data ?? []);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [online]);
-
-  const visible = (clients ?? []).filter((client) => matchesSearch(client.name, search));
-
-  let content;
-  if (!online) {
-    content = (
-      <Text className="px-6 py-8 text-center font-sans text-base text-muted">
-        Necesitas conexión para elegir un cliente. Puedes ligarlo después.
-      </Text>
-    );
-  } else if (clients === null) {
-    content = (
-      <View className="items-center gap-3 py-10">
-        <ActivityIndicator color={colors.muted} />
-        <Text className="font-sans text-base text-muted">Cargando tus clientes…</Text>
-      </View>
-    );
-  } else if (failed) {
-    content = (
-      <Text className="px-6 py-8 text-center font-sans text-base text-muted">
-        No se pudieron cargar tus clientes. Intenta de nuevo en un momento.
-      </Text>
-    );
-  } else {
-    content = (
-      <FlatList
-        data={visible}
-        keyExtractor={(client) => client.id}
-        keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={
-          <Text className="px-6 py-8 text-center font-sans text-base text-muted">
-            {clients.length === 0
-              ? 'Aún no tienes clientes. Agrégalos en la pestaña Clientes.'
-              : 'Ningún cliente coincide con tu búsqueda.'}
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => onSelect(item)}
-            accessibilityRole="button"
-            accessibilityState={{ selected: item.id === selectedId }}
-            className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-border ${item.id === selectedId ? 'bg-canvas' : ''}`}
-          >
-            <Icon name="briefcase-outline" size={22} color={colors.muted} />
-            <HighlightedText
-              text={item.name}
-              term={search}
-              className="flex-1 font-sans text-lg text-foreground"
-            />
-            {item.id === selectedId ? (
-              <Icon name="checkmark" size={22} color={colors['primary-strong']} />
-            ) : null}
-          </Pressable>
-        )}
-      />
-    );
-  }
+  const clients = useClients(technicianId).filter((client) => client.isActive);
+  const visible = clients.filter((client) => matchesSearch(client.name, search));
 
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
@@ -107,7 +32,7 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
         <View className="max-h-[560px] w-full max-w-[480px] overflow-hidden rounded-2xl bg-background">
           <View className="flex-row items-center justify-between pl-6 pr-2 pt-2">
             <Text accessibilityRole="header" className="font-sans-semibold text-xl text-foreground">
-              Ligar a un cliente
+              Vincular a un cliente
             </Text>
             <Pressable
               onPress={onClose}
@@ -118,20 +43,41 @@ export function ClientPicker({ selectedId, onSelect, onClose }: ClientPickerProp
               <Icon name="close" size={24} color={colors.muted} />
             </Pressable>
           </View>
-          {online && clients && clients.length > 0 ? (
-            <View className="mx-6 mb-3 mt-1 flex-row items-center gap-2 rounded-lg border-2 border-border-strong px-3">
-              <Icon name="search" size={22} color={colors.muted} />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Buscar cliente"
-                placeholderTextColor={colors.placeholder}
-                accessibilityLabel="Buscar cliente"
-                className="min-h-14 flex-1 font-sans text-lg text-foreground"
-              />
+          {clients.length > 0 ? (
+            <View className="mx-6 mb-3 mt-1">
+              <SearchField value={search} onChangeText={setSearch} placeholder="Buscar cliente" />
             </View>
           ) : null}
-          {content}
+          <FlatList
+            data={visible}
+            keyExtractor={(client) => client.id}
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={
+              <Text className="px-6 py-8 text-center font-sans text-base text-muted">
+                {clients.length === 0
+                  ? 'Aún no tienes clientes. Agrégalos en la pestaña Clientes.'
+                  : 'Ningún cliente coincide con tu búsqueda.'}
+              </Text>
+            }
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => onSelect(item)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: item.id === selectedId }}
+                className={`min-h-14 flex-row items-center gap-3 px-6 active:bg-border ${item.id === selectedId ? 'bg-canvas' : ''}`}
+              >
+                <Icon name="briefcase-outline" size={22} color={colors.muted} />
+                <HighlightedText
+                  text={item.name}
+                  term={search}
+                  className="flex-1 font-sans text-lg text-foreground"
+                />
+                {item.id === selectedId ? (
+                  <Icon name="checkmark" size={22} color={colors['primary-strong']} />
+                ) : null}
+              </Pressable>
+            )}
+          />
         </View>
       </View>
     </Modal>

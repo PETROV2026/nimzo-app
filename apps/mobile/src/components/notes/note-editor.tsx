@@ -25,10 +25,9 @@ type NoteEditorProps = {
   noteId: string;
   technicianId: string;
   onClose: () => void;
-  showBack: boolean;
 };
 
-export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEditorProps) {
+export function NoteEditor({ noteId, technicianId, onClose }: NoteEditorProps) {
   const [note, setNote] = useState<Note | null>(() => getNote(noteId, technicianId));
   const [savedAt, setSavedAt] = useState<string | null>(() => note?.updatedAt ?? null);
   const [pending, setPending] = useState(false);
@@ -122,7 +121,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
     if (!result.ok) {
       setReminderError(
         result.reason === 'permission'
-          ? 'Para recibir el aviso, permite las notificaciones de Nimzo en los ajustes de la tablet.'
+          ? 'Para recibir el recordatorio, permite las notificaciones de Nimzo en los ajustes del dispositivo.'
           : 'No se pudo programar el recordatorio. Intenta de nuevo.',
       );
       return;
@@ -168,7 +167,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
   const overdue = isOverdue(note.remindAt);
   const empty = isEmptyNote(note);
   const status = empty
-    ? 'Se guarda sola en cuanto escribas.'
+    ? 'Se guarda automáticamente mientras escribes.'
     : pending
       ? 'Guardando…'
       : savedAt
@@ -178,17 +177,15 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
   return (
     <View className="flex-1 bg-background">
       <View className="flex-row items-center gap-2 border-b border-border px-3 py-2">
-        {showBack ? (
-          <Pressable
-            onPress={onClose}
-            accessibilityRole="button"
-            accessibilityLabel="Volver a tus notas"
-            className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
-          >
-            <Icon name="arrow-back" size={24} color={colors.foreground} />
-            <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
-          </Pressable>
-        ) : null}
+        <Pressable
+          onPress={onClose}
+          accessibilityRole="button"
+          accessibilityLabel="Volver a tus notas"
+          className="min-h-14 flex-row items-center gap-2 rounded-full px-3 active:bg-border"
+        >
+          <Icon name="arrow-back" size={24} color={colors.foreground} />
+          <Text className="font-sans-semibold text-lg text-foreground">Notas</Text>
+        </Pressable>
         <View className="flex-1" />
         <ToolbarButton
           icon={note.pinned ? 'pin' : 'pin-outline'}
@@ -305,7 +302,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                 icon="briefcase-outline"
                 label="Cliente"
                 value={note.clientName}
-                placeholder="Ligar a un cliente"
+                placeholder="Vincular a un cliente"
                 onPress={() => setPickingClient(true)}
                 onClear={() => update({ clientId: null, clientName: null })}
               />
@@ -314,7 +311,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
                 icon={overdue ? 'warning-outline' : 'alarm-outline'}
                 label="Recordatorio"
                 value={note.remindAt ? formatReminder(note.remindAt) : null}
-                placeholder="Avisarme en una fecha y hora"
+                placeholder="Programar un recordatorio"
                 tone={overdue ? 'alert' : 'default'}
                 onPress={pickReminder}
                 onClear={() => void applyReminder(null)}
@@ -327,7 +324,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
             ) : null}
 
             <Text className="font-sans text-sm text-muted">
-              La nota se guarda sola mientras escribes y se queda solo en esta tablet.
+              La nota se guarda automáticamente y solo en este dispositivo.
             </Text>
           </View>
         </ScrollView>
@@ -344,6 +341,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
 
       {pickingClient ? (
         <ClientPicker
+          technicianId={technicianId}
           selectedId={note.clientId}
           onSelect={(client) => {
             update({ clientId: client.id, clientName: client.name });
@@ -356,7 +354,7 @@ export function NoteEditor({ noteId, technicianId, onClose, showBack }: NoteEdit
       {confirmingDelete ? (
         <ConfirmDialog
           title="¿Eliminar esta nota?"
-          message="Se borra de la tablet y no se puede recuperar."
+          message="Se eliminará de este dispositivo y no podrá recuperarse."
           confirmLabel="Eliminar"
           tone="destructive"
           onConfirm={() => void handleDelete()}

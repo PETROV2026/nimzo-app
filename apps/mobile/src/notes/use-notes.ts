@@ -1,6 +1,6 @@
 import { matchesSearch } from '@nimzo/shared';
 import { useSyncExternalStore } from 'react';
-import { notesSnapshot, subscribeNotes, type Note } from '@/notes/notes-db';
+import { notesStore, type Note } from '@/notes/notes-db';
 
 function searchableText(note: Note) {
   return [
@@ -12,7 +12,7 @@ function searchableText(note: Note) {
 }
 
 export function useNotes(technicianId: string, search: string) {
-  const notes = useSyncExternalStore(subscribeNotes, () => notesSnapshot(technicianId));
+  const notes = useSyncExternalStore(notesStore.subscribe, () => notesStore.snapshot(technicianId));
   return search.trim()
     ? notes.filter((note) => matchesSearch(searchableText(note), search))
     : notes;

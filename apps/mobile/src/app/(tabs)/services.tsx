@@ -5,7 +5,7 @@ export default function ServicesScreen() {
     <EmptyState
       icon="clipboard-outline"
       title="Aún no tienes servicios"
-      description="Crea un servicio para la sucursal de uno de tus clientes y llena sus formatos aquí, aun sin internet."
+      description="Crea un servicio para una sucursal de tus clientes y llena sus formatos, incluso sin conexión."
     />
   );
 }
