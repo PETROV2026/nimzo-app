@@ -14,7 +14,8 @@ pnpm env:setup                      # create .env files from the linked Supabase
 pnpm dev                            # all apps via Turborepo
 pnpm mobile | pnpm mobile:android | pnpm mobile:ios   # Expo dev server / Android emulator / iPad simulator (UI preview only)
 pnpm admin                          # admin panel (localhost:5173)
-pnpm check                          # everything CI runs: format:check, lint, typecheck, build, test:db, test:forms
+pnpm check                          # everything CI runs: format:check, audit:deps, lint, typecheck, build, test:db, test:forms
+pnpm audit:deps                     # fail on high or critical advisories in production dependencies
 pnpm lint | pnpm typecheck | pnpm build | pnpm format
 pnpm test:db                        # apply all migrations to in-memory Postgres (PGlite) and run RLS tests
 pnpm test:forms                     # validate every form definition in packages/shared/formatos/
@@ -29,7 +30,7 @@ Setup once per clone: `pnpm supabase login` and `pnpm supabase link --project-re
 CI runs the same checks as `pnpm check`. Run it before declaring work done.
 
 - pnpm is pinned in `package.json` (`packageManager`). If `pnpm` isn't on PATH, use `corepack pnpm`.
-- pnpm blocks dependency install scripts and very new releases (supply-chain protection). Approved build scripts live under `allowBuilds` in `pnpm-workspace.yaml`; add new ones with `pnpm approve-builds <pkg>` only when a package really needs it.
+- pnpm blocks dependency install scripts and very new releases (supply-chain protection). Approved build scripts live under `allowBuilds` in `pnpm-workspace.yaml`; add new ones with `pnpm approve-builds <pkg>` only when a package really needs it. When `pnpm audit:deps` flags a transitive dependency its parent has not fixed yet, pin the patched version under `overrides` in `pnpm-workspace.yaml` (currently `node-forge`, pulled in by `@expo/cli`) and remove the entry once the parent ships the fix.
 - In `apps/mobile`, install packages with `npx expo install <pkg>` so versions match the Expo SDK. See `apps/mobile/CLAUDE.md`.
 
 **There is a single Supabase cloud project, shared by development and production. No local Supabase or Docker is used.** This is a deliberate, temporary choice while there are no real customers; a separate dev project must be created before launch. Consequences:
