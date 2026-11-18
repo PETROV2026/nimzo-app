@@ -3,7 +3,6 @@ import { formIconBucket, formIconMaxBytes, formIconTypes } from '@nimzo/shared';
 import { supabase } from '@/lib/supabase';
 
 const extensions: Record<(typeof formIconTypes)[number], string> = {
-  'image/svg+xml': 'svg',
   'image/png': 'png',
   'image/webp': 'webp',
 };
@@ -15,10 +14,10 @@ export function formIconUrl(path: string | null | undefined) {
 
 export function validateFormIcon(file: File) {
   if (!(formIconTypes as readonly string[]).includes(file.type)) {
-    return 'Usa un archivo SVG, PNG o WebP.';
+    return 'Usa un archivo PNG o WebP.';
   }
   if (file.size > formIconMaxBytes) {
-    return 'El icono pesa más de 512 KB. Usa un SVG o reduce la imagen.';
+    return 'El icono pesa más de 512 KB. Reduce la imagen.';
   }
   return null;
 }
