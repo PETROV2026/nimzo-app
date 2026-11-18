@@ -50,3 +50,5 @@ jobs:
 
       - name: Form definition tests
         run: pnpm test:forms
+      - name: Mobile unit tests
+        run: pnpm test:mobile
