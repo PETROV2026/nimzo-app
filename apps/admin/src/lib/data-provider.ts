@@ -1,3 +1,4 @@
+import { describeDatabaseError } from '@nimzo/shared';
 import type { DataProvider, HttpError } from '@refinedev/core';
 import { dataProvider as supabaseDataProvider } from '@refinedev/supabase';
 import { FunctionsHttpError } from '@supabase/supabase-js';
@@ -8,7 +9,37 @@ type RpcName = Parameters<typeof supabase.rpc>[0];
 
 const FUNCTION_PREFIX = 'functions/';
 
-const base = supabaseDataProvider(supabase);
+function friendlyError(error: unknown): HttpError {
+  const failure = (error ?? {}) as { code?: string; message?: string };
+  const code = failure.code ?? '';
+  const statusCode = code.startsWith('PGRST3')
+    ? 401
+    : code === '42501'
+      ? 403
+      : code === '23505'
+        ? 409
+        : code.startsWith('22') || code.startsWith('23') || code === 'P0001'
+          ? 422
+          : 500;
+  return { message: describeDatabaseError(failure), statusCode, code };
+}
+
+function withFriendlyErrors(provider: DataProvider): DataProvider {
+  const wrapped: Record<string, unknown> = { ...provider };
+  for (const [name, method] of Object.entries(provider)) {
+    if (typeof method !== 'function' || name === 'getApiUrl') continue;
+    wrapped[name] = async (...args: unknown[]) => {
+      try {
+        return await (method as (...params: unknown[]) => Promise<unknown>)(...args);
+      } catch (error) {
+        throw friendlyError(error);
+      }
+    };
+  }
+  return wrapped as DataProvider;
+}
+
+const base = withFriendlyErrors(supabaseDataProvider(supabase));
 
 async function invokeFunction(name: string, payload: unknown) {
   const { data, error } = await supabase.functions.invoke(name, { body: payload as object });
@@ -39,13 +70,7 @@ export const dataProvider: DataProvider = {
     }
 
     const { data, error } = await supabase.rpc(url as RpcName, payload as never);
-    if (error) {
-      const httpError: HttpError = {
-        message: error.message,
-        statusCode: error.code === '42501' ? 403 : 500,
-      };
-      throw httpError;
-    }
+    if (error) throw friendlyError(error);
     return { data } as never;
   },
 };
