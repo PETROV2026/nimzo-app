@@ -76,6 +76,16 @@ const migrations = [
   alter table branches add column sync_error text;
   alter table systems add column sync_error text;
   `,
+
+  `
+  create table if not exists service_forms (
+    code text primary key not null,
+    name text not null,
+    subtitle text,
+    icon_path text,
+    updated_at text not null
+  );
+  `,
 ];
 
 export const db = openDatabaseSync('nimzo.db');
