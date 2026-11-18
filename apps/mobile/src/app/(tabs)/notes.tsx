@@ -1,26 +1,16 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  FlatList,
-  Modal,
-  Pressable,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { FlatList, Modal, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Icon } from '@/components/icon';
 import { useSession } from '@/auth/session-provider';
+import { AddButton } from '@/components/add-button';
 import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
 import { NoteEditor } from '@/components/notes/note-editor';
+import { SearchField } from '@/components/search-field';
 import { dateGroup, dateGroups } from '@/notes/format';
 import { createNote, getNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
-import { colors } from '@/theme';
-
-const splitMinWidth = 900;
 
 type ListItem =
   { type: 'header'; key: string; label: string } | { type: 'note'; key: string; note: Note };
@@ -58,9 +48,7 @@ function buildList(notes: Note[]): ListItem[] {
 export default function NotesScreen() {
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
-  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const split = width > height && width >= splitMinWidth;
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { noteId, openedAt } = useLocalSearchParams<{ noteId?: string; openedAt?: string }>();
@@ -88,27 +76,12 @@ export default function NotesScreen() {
     <View className="flex-1">
       {hasNotes ? (
         <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
-          <View className="min-h-14 flex-1 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
-            <Icon name="search" size={24} color={colors.muted} />
-            <TextInput
+          <View className="flex-1">
+            <SearchField
               value={search}
               onChangeText={setSearch}
               placeholder="Buscar en tus notas"
-              placeholderTextColor={colors.placeholder}
-              accessibilityLabel="Buscar en tus notas"
-              returnKeyType="search"
-              className="min-h-14 flex-1 font-sans text-lg text-foreground"
             />
-            {searching ? (
-              <Pressable
-                onPress={() => setSearch('')}
-                accessibilityRole="button"
-                accessibilityLabel="Borrar búsqueda"
-                className="-mr-2 min-h-14 min-w-14 items-center justify-center"
-              >
-                <Icon name="close-circle" size={24} color={colors.muted} />
-              </Pressable>
-            ) : null}
           </View>
         </View>
       ) : null}
@@ -135,7 +108,6 @@ export default function NotesScreen() {
               <NoteCard
                 search={search}
                 note={item.note}
-                selected={split && item.note.id === selectedId}
                 onPress={() => setSelectedId(item.note.id)}
               />
             )
@@ -145,46 +117,12 @@ export default function NotesScreen() {
         <EmptyState
           icon="document-text-outline"
           title="Aún no tienes notas"
-          description="Apunta pendientes, material que falta llevar o datos de tus visitas. Toca + para crear la primera; se guarda en esta tablet, aun sin internet."
+          description="Registra pendientes, material por llevar o datos de tus visitas. Toca + para crear la primera nota; funciona incluso sin conexión."
         />
       )}
-      <Pressable
-        onPress={handleNew}
-        accessibilityRole="button"
-        accessibilityLabel="Nueva nota"
-        className={`absolute items-center justify-center rounded-full bg-primary-strong active:opacity-80 ${split ? 'bottom-5 right-5 h-14 w-14' : 'bottom-6 right-6 h-[72px] w-[72px]'}`}
-        style={{ elevation: 6 }}
-      >
-        <Icon name="add" size={split ? 28 : 36} color={colors['on-primary']} />
-      </Pressable>
+      <AddButton label="Nueva nota" onPress={handleNew} />
     </View>
   );
-
-  if (split) {
-    return (
-      <View className="flex-1 flex-row bg-canvas">
-        <View className="w-[400px] border-r border-border">{list}</View>
-        <View className="flex-1">
-          {selectedId ? (
-            <NoteEditor
-              key={selectedId}
-              noteId={selectedId}
-              technicianId={technicianId}
-              showBack={false}
-              onClose={() => setSelectedId(null)}
-            />
-          ) : (
-            <View className="flex-1 items-center justify-center gap-3 p-8">
-              <Icon name="create-outline" size={56} color={colors['border-strong']} />
-              <Text className="text-center font-sans text-lg text-muted">
-                Elige una nota de la lista o crea una nueva.
-              </Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1 bg-canvas">
@@ -204,7 +142,6 @@ export default function NotesScreen() {
               key={selectedId}
               noteId={selectedId}
               technicianId={technicianId}
-              showBack
               onClose={() => setSelectedId(null)}
             />
           </View>

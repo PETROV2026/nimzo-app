@@ -50,12 +50,11 @@ function searchSnippet(note: Note, snippet: string, term: string) {
 
 type NoteCardProps = {
   note: Note;
-  selected: boolean;
   search: string;
   onPress: () => void;
 };
 
-export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
+export function NoteCard({ note, search, onPress }: NoteCardProps) {
   const headline = noteHeadline(note);
   const snippet = searchSnippet(
     note,
@@ -71,8 +70,7 @@ export function NoteCard({ note, selected, search, onPress }: NoteCardProps) {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Nota: ${headline}`}
-      accessibilityState={{ selected }}
-      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl border-2 bg-background active:bg-border ${selected ? 'border-primary-strong' : 'border-transparent'}`}
+      className={`min-h-[88px] flex-row overflow-hidden rounded-2xl bg-background active:bg-border`}
     >
       <View className={`w-2 ${noteColorClass(note.color)}`} />
       <View className="flex-1 gap-1.5 px-4 py-3">

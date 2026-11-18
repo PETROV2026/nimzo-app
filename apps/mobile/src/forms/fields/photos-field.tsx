@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { Directory, File, Paths } from 'expo-file-system';
+import { Image } from 'expo-image';
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import type { FormField } from '@nimzo/shared';
 import { Button } from '@/components/button';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { FieldFrame } from './field-frame';
-import { Image } from 'expo-image';
-import { ConfirmDialog } from '@/components/confirm-dialog';
 
 type PhotosFieldProps = FieldProps<Extract<FormField, { type: 'photos' }>, PhotosValue>;
 type Asset = ImagePicker.ImagePickerAsset;
@@ -18,40 +18,38 @@ type Source = PhotosValue[number]['source'];
 
 const maxSide = 1600;
 const maxBytes = 1024 * 1024;
+const locationTimeout = 10_000;
 const folder = new Directory(Paths.document, 'photos');
+
+async function currentPosition() {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), locationTimeout);
+  });
+  return Promise.race([Location.getCurrentPositionAsync(), timeout]).finally(() =>
+    clearTimeout(timer),
+  );
+}
 
 async function currentCoords(): Promise<Coords> {
   try {
     const { granted } = await Location.requestForegroundPermissionsAsync();
     if (!granted) return {};
     const position =
-      (await Location.getLastKnownPositionAsync({ maxAge: 120_000 })) ??
-      (await Location.getCurrentPositionAsync());
-    return { latitude: position.coords.latitude, longitude: position.coords.longitude };
+      (await Location.getLastKnownPositionAsync({ maxAge: 120_000 })) ?? (await currentPosition());
+    return position
+      ? { latitude: position.coords.latitude, longitude: position.coords.longitude }
+      : {};
   } catch {
     return {};
   }
-}
-
-function exifCoords(exif: Asset['exif']): Coords {
-  const {
-    GPSLatitude: latitude,
-    GPSLongitude: longitude,
-    GPSLatitudeRef,
-    GPSLongitudeRef,
-  } = exif ?? {};
-  if (typeof latitude !== 'number' || typeof longitude !== 'number' || (!latitude && !longitude))
-    return {};
-  return {
-    latitude: GPSLatitudeRef === 'S' ? -Math.abs(latitude) : latitude,
-    longitude: GPSLongitudeRef === 'W' ? -Math.abs(longitude) : longitude,
-  };
 }
 
 function exifDate(exif: Asset['exif']) {
   const value = exif?.DateTimeOriginal;
   if (typeof value !== 'string') return undefined;
   const [year, month, day, hour, minute, second] = value.split(/[: ]/).map(Number);
+  if (!year) return undefined;
   const date = new Date(year, month - 1, day, hour, minute, second);
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
@@ -63,68 +61,84 @@ async function savePhoto({ uri, width, height }: Asset) {
       width >= height ? { width: maxSide, height: null } : { width: null, height: maxSide },
     );
   }
-  const image = await context.renderAsync();
-  const file = new File((await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.7 })).uri);
+  const image = await context.renderAsync().finally(() => context.release());
+  const saved = await image
+    .saveAsync({ format: SaveFormat.JPEG, compress: 0.7 })
+    .finally(() => image.release());
+  const file = new File(saved.uri);
   if (file.size > maxBytes) {
     file.delete();
     throw new Error('Photo is larger than 1 MB');
   }
   folder.create({ idempotent: true });
-  await file.move(folder);
+  file.moveSync(folder);
   return file.uri;
 }
 
 export function PhotosField({ field, value = [], onChange, error }: PhotosFieldProps) {
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
-  const [saving, setSaving] = useState(false);
+  const running = useRef(false);
+  const [busy, setBusy] = useState<Source>();
   const [problem, setProblem] = useState<string>();
   const [removing, setRemoving] = useState<string>();
   const remaining = field.count - value.length;
-  const blocked = remaining === 0 || saving;
+  const full = remaining <= 0;
 
-  async function add(
-    result: ImagePicker.ImagePickerResult,
-    source: Source,
-    coordsOf: (asset: Asset) => Promise<Coords>,
-  ) {
-    if (result.canceled) return;
-    setSaving(true);
-    const results = await Promise.allSettled(
-      result.assets.slice(0, remaining).map(async (asset) => ({
-        uri: await savePhoto(asset),
-        takenAt: exifDate(asset.exif) ?? new Date().toISOString(),
-        source,
-        ...(await coordsOf(asset)),
-      })),
-    );
-    const photos = results.flatMap((item) => (item.status === 'fulfilled' ? [item.value] : []));
-    setProblem(
-      photos.length < results.length
-        ? 'Una o más fotos no se pudieron guardar. Intenta con otra.'
-        : undefined,
-    );
-    onChange([...value, ...photos]);
-    setSaving(false);
+  async function add(source: Source, pick: () => Promise<ImagePicker.ImagePickerResult | null>) {
+    if (running.current) return;
+    running.current = true;
+    setBusy(source);
+    setProblem(undefined);
+    try {
+      const result = await pick();
+      if (!result || result.canceled) return;
+      const coords = source === 'camera' ? currentCoords() : Promise.resolve<Coords>({});
+      const photos: PhotosValue = [];
+      for (const asset of result.assets.slice(0, remaining)) {
+        try {
+          const uri = await savePhoto(asset);
+          photos.push({
+            uri,
+            takenAt: exifDate(asset.exif) ?? new Date().toISOString(),
+            source,
+            ...(await coords),
+          });
+        } catch {
+          setProblem('Una o más fotos no se pudieron guardar. Intenta con otra.');
+        }
+      }
+      if (photos.length) onChange([...value, ...photos]);
+    } catch {
+      setProblem(
+        source === 'camera'
+          ? 'No se pudo abrir la cámara. Intenta de nuevo.'
+          : 'No se pudo abrir la galería. Intenta de nuevo.',
+      );
+    } finally {
+      running.current = false;
+      setBusy(undefined);
+    }
   }
 
-  async function takePhoto() {
-    const { granted } = permission?.granted ? permission : await requestPermission();
-    if (granted) await add(await ImagePicker.launchCameraAsync(), 'camera', currentCoords);
-  }
-
-  async function pickPhotos() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: 'images',
-      allowsMultipleSelection: true,
-      selectionLimit: remaining,
-      exif: true,
+  function takePhoto() {
+    return add('camera', async () => {
+      const { granted } = permission?.granted ? permission : await requestPermission();
+      return granted ? ImagePicker.launchCameraAsync() : null;
     });
-    await add(result, 'library', async (asset) => exifCoords(asset.exif));
+  }
+
+  function pickPhotos() {
+    return add('library', () =>
+      ImagePicker.launchImageLibraryAsync({
+        mediaTypes: 'images',
+        allowsMultipleSelection: true,
+        selectionLimit: remaining,
+        exif: true,
+      }),
+    );
   }
 
   function remove(uri: string) {
-    const file = new File(uri);
-    if (file.exists) file.delete();
     const next = value.filter((photo) => photo.uri !== uri);
     onChange(next.length ? next : undefined);
     setRemoving(undefined);
@@ -144,7 +158,12 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
                   accessibilityLabel="Foto de evidencia"
                 />
               </View>
-              <Button label="Quitar" variant="secondary" onPress={() => setRemoving(photo.uri)} />
+              <Button
+                label="Quitar"
+                variant="secondary"
+                onPress={() => setRemoving(photo.uri)}
+                disabled={Boolean(busy)}
+              />
             </View>
           ))}
         </View>
@@ -154,14 +173,20 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
         </Text>
       )}
       <View className="flex-row flex-wrap items-center gap-4">
-        <Button label="Tomar foto" onPress={takePhoto} loading={saving} disabled={blocked} />
+        <Button
+          label="Tomar foto"
+          onPress={takePhoto}
+          loading={busy === 'camera'}
+          disabled={full || Boolean(busy)}
+        />
         <Button
           label="Elegir de la galería"
           variant="secondary"
           onPress={pickPhotos}
-          disabled={blocked}
+          loading={busy === 'library'}
+          disabled={full || Boolean(busy)}
         />
-        {remaining === 0 ? (
+        {full ? (
           <Text className="font-sans-medium text-base text-muted">Máximo {field.count} fotos</Text>
         ) : null}
       </View>
@@ -177,7 +202,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
       {removing ? (
         <ConfirmDialog
           title="¿Quitar esta foto?"
-          message="La foto se borrará de este reporte y de la tablet."
+          message="La foto se quitará de este reporte."
           confirmLabel="Quitar foto"
           tone="destructive"
           onConfirm={() => remove(removing)}

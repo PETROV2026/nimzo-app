@@ -171,7 +171,7 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
                 <Grid container spacing={2}>
                   <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">
-                      Persona con la que se coordinan las visitas. Todos los campos son opcionales.
+                      Persona con la que se coordinan las visitas.
                     </Typography>
                   </Grid>
                   <Grid size={12}>
@@ -179,6 +179,7 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
                       control={control}
                       name="contact_name"
                       label="Nombre del contacto"
+                      required
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -186,6 +187,7 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
                       control={control}
                       name="contact_email"
                       label="Correo"
+                      required
                       type="email"
                       autoComplete="off"
                     />
@@ -195,6 +197,7 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
                       control={control}
                       name="contact_phone"
                       label="Teléfono"
+                      required
                       type="tel"
                     />
                   </Grid>

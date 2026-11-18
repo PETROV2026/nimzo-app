@@ -172,12 +172,13 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                     <FormTextField
                       control={control}
                       name="address"
-                      label="Dirección (opcional)"
+                      label="Dirección"
+                      required
                       helperText="Calle, número y colonia."
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
-                    <FormTextField control={control} name="city" label="Ciudad (opcional)" />
+                    <FormTextField control={control} name="city" label="Ciudad" required />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
                     <Controller
@@ -195,7 +196,8 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
                             <TextField
                               {...params}
                               inputRef={field.ref}
-                              label="Estado (opcional)"
+                              label="Estado"
+                              required
                               error={!!fieldState.error}
                               helperText={fieldState.error?.message}
                             />

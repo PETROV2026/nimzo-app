@@ -10,6 +10,7 @@ type SelectFieldProps<T extends string> = {
   onChange: (value: T) => void;
   placeholder?: string;
   disabled?: boolean;
+  error?: string;
 };
 
 export function SelectField<T extends string>({
@@ -19,6 +20,7 @@ export function SelectField<T extends string>({
   onChange,
   placeholder = 'Selecciona una opción',
   disabled,
+  error,
 }: SelectFieldProps<T>) {
   const [open, setOpen] = useState(false);
   const selected = options.find((option) => option.value === value);
@@ -32,14 +34,20 @@ export function SelectField<T extends string>({
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityValue={{ text: selected?.label ?? placeholder }}
+        accessibilityHint={error}
         accessibilityState={{ disabled }}
-        className={`min-h-14 flex-row items-center justify-between rounded-lg border-2 border-border-strong bg-background px-4 ${disabled ? 'opacity-50' : ''}`}
+        className={`min-h-14 flex-row items-center justify-between rounded-lg border-2 ${error ? 'border-danger' : 'border-border-strong'} bg-background px-4 ${disabled ? 'opacity-50' : ''}`}
       >
         <Text className={`font-sans text-lg ${selected ? 'text-foreground' : 'text-muted'}`}>
           {selected?.label ?? placeholder}
         </Text>
         <Icon name="chevron-down" size={24} color={colors.muted} />
       </Pressable>
+      {error ? (
+        <Text accessibilityLiveRegion="polite" className="font-sans text-sm text-destructive">
+          {error}
+        </Text>
+      ) : null}
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View className="flex-1 items-center justify-center p-8">

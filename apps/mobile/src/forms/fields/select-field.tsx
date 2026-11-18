@@ -23,13 +23,13 @@ export function SelectField({ field, value, onChange, error }: SelectFieldProps)
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={field.label}
-          accessibilityValue={{ text: selected?.label ?? 'Sin elegir' }}
+          accessibilityValue={{ text: selected?.label ?? 'Sin selección' }}
           accessibilityState={{ expanded: open }}
           onPress={() => setOpen(!open)}
           className="min-h-14 flex-row items-center justify-between gap-3 rounded-lg bg-muted px-4"
         >
           <Text className="font-sans text-lg text-background">
-            {selected?.label ?? 'Elegir una opción'}
+            {selected?.label ?? 'Selecciona una opción'}
           </Text>
           <Icon name={open ? 'chevron-up' : 'chevron-down'} size={24} color={colors.background} />
         </Pressable>

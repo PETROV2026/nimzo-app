@@ -4,12 +4,19 @@ import { colors } from '@/theme';
 
 type SearchFieldProps = {
   value: string;
-  onChangeText: (text: string) => void;
+  onChangeText: (value: string) => void;
   placeholder: string;
+  accessibilityLabel?: string;
   autoFocus?: boolean;
 };
 
-export function SearchField({ value, onChangeText, placeholder, autoFocus }: SearchFieldProps) {
+export function SearchField({
+  value,
+  onChangeText,
+  placeholder,
+  accessibilityLabel = placeholder,
+  autoFocus,
+}: SearchFieldProps) {
   return (
     <View className="min-h-14 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
       <Icon name="search" size={24} color={colors.muted} />
@@ -18,7 +25,7 @@ export function SearchField({ value, onChangeText, placeholder, autoFocus }: Sea
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={colors.placeholder}
-        accessibilityLabel={placeholder}
+        accessibilityLabel={accessibilityLabel}
         returnKeyType="search"
         autoFocus={autoFocus}
         disableFullscreenUI

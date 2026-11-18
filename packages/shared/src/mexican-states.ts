@@ -44,3 +44,7 @@ export const mexicanStateSchema = z.enum(
 export const mexicanStates = (Object.keys(mexicanStateLabels) as MexicanState[]).sort((a, b) =>
   mexicanStateLabels[a].localeCompare(mexicanStateLabels[b], 'es'),
 );
+
+export function requiredState(message: string) {
+  return mexicanStateSchema.nullable().refine((value) => value !== null, message);
+}

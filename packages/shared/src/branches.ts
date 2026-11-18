@@ -1,16 +1,16 @@
 import { z } from 'zod';
 
 import type { Tables } from './database.types';
-import { optionalText } from './form-fields';
-import { mexicanStateSchema } from './mexican-states';
+import { optionalText, requiredText } from './form-fields';
+import { requiredState } from './mexican-states';
 
 export type Branch = Tables<'branches'>;
 
 export const branchFormSchema = z.object({
   name: z.string().trim().min(1, 'Ingresa el nombre de la sucursal'),
-  address: optionalText,
-  city: optionalText,
-  state: mexicanStateSchema.nullable(),
+  address: requiredText('Ingresa la dirección'),
+  city: requiredText('Ingresa la ciudad'),
+  state: requiredState('Elige el estado'),
   contact_name: optionalText,
   contact_email: optionalText.refine(
     (value) => value === null || z.email().safeParse(value).success,

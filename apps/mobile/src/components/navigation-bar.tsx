@@ -97,7 +97,7 @@ export function NavigationBar({
     return (
       <View
         accessibilityRole="tablist"
-        className="w-[120px] items-center border-r border-background/20 bg-muted"
+        className="w-[120px] items-center bg-muted"
         style={{
           paddingTop: insets.top + 16,
           paddingBottom: insets.bottom + 16,

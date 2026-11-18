@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 import type { Tables } from './database.types';
-import { optionalText } from './form-fields';
+import { optionalText, requiredEmail, requiredText } from './form-fields';
+import { requiredPhone } from './phone';
 
 export type Client = Tables<'clients'>;
 
@@ -13,12 +14,9 @@ export const clientFormSchema = z.object({
       'Ingresa un RFC válido (12 o 13 caracteres)',
     )
     .transform((value) => value?.toUpperCase() ?? null),
-  contact_name: optionalText,
-  contact_email: optionalText.refine(
-    (value) => value === null || z.email().safeParse(value).success,
-    'Ingresa un correo válido',
-  ),
-  contact_phone: optionalText,
+  contact_name: requiredText('Ingresa la persona de contacto'),
+  contact_email: requiredEmail('Ingresa el correo de contacto'),
+  contact_phone: requiredPhone('Ingresa el teléfono de contacto'),
   notes: optionalText,
   is_active: z.boolean(),
 });

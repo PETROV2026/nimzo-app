@@ -107,7 +107,7 @@ export async function runAs(db, role, userId, sql, params = []) {
     const result = await db.query(sql, params);
     return { ok: true, rows: result.rows, affected: result.affectedRows };
   } catch (error) {
-    return { ok: false, error: error.message };
+    return { ok: false, error: error.message, code: error.code };
   } finally {
     await db.exec('reset role');
     await db.query(`select set_config('request.jwt.claim.sub', '', false)`);
