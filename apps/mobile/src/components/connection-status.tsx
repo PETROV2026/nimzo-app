@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
+import Animated, {
+  cubicBezier,
+  Easing,
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  ReduceMotion,
+  useReducedMotion,
+} from 'react-native-reanimated';
 import { useSession } from '@/auth/session-provider';
 import {
   describeUploads,
@@ -15,8 +24,98 @@ import { colors } from '@/theme';
 
 const timeFormat = new Intl.DateTimeFormat('es-MX', { timeStyle: 'short' });
 
+const easeOut = cubicBezier(0.23, 1, 0.32, 1);
+const pillEntering = FadeIn.duration(200).reduceMotion(ReduceMotion.System);
+const pillExiting = FadeOut.duration(150).reduceMotion(ReduceMotion.System);
+const pillLayout = LinearTransition.duration(200)
+  .easing(Easing.bezier(0.23, 1, 0.32, 1))
+  .reduceMotion(ReduceMotion.System);
+
+const spin = {
+  from: { transform: [{ rotate: '0deg' }] },
+  to: { transform: [{ rotate: '360deg' }] },
+};
+
+const ripple = {
+  from: { opacity: 0.6, transform: [{ scale: 1 }] },
+  to: { opacity: 0, transform: [{ scale: 2.4 }] },
+};
+
+type StatusKind = 'syncing' | 'offline' | 'pending' | 'rejected';
+type Tone = 'header' | 'page';
+
+const tones = {
+  header: {
+    pill: 'border-background/20',
+    idle: 'bg-background/10',
+    pressed: 'bg-background/20',
+    text: 'text-background',
+    icon: colors.background,
+    alert: colors.accent,
+  },
+  page: {
+    pill: 'border-border',
+    idle: 'bg-surface',
+    pressed: 'bg-border',
+    text: 'text-foreground',
+    icon: colors.muted,
+    alert: colors.danger,
+  },
+};
+
+function StatusMark({ kind, tone }: { kind: StatusKind; tone: Tone }) {
+  const reduced = useReducedMotion();
+  if (kind === 'syncing') {
+    return (
+      <Animated.View
+        style={
+          reduced
+            ? undefined
+            : {
+                animationName: spin,
+                animationDuration: 1000,
+                animationIterationCount: 'infinite',
+                animationTimingFunction: 'linear',
+              }
+        }
+      >
+        <Icon
+          name="sync-outline"
+          size={22}
+          color={tone === 'header' ? colors.background : colors.primary}
+        />
+      </Animated.View>
+    );
+  }
+  if (kind === 'pending') {
+    return (
+      <View className="h-6 w-6 items-center justify-center">
+        {reduced ? null : (
+          <Animated.View
+            className="absolute h-3 w-3 rounded-full bg-accent"
+            style={{
+              animationName: ripple,
+              animationDuration: 1600,
+              animationIterationCount: 'infinite',
+              animationTimingFunction: 'ease-out',
+            }}
+          />
+        )}
+        <View className="h-3 w-3 rounded-full bg-accent" />
+      </View>
+    );
+  }
+  return (
+    <Icon
+      name={kind === 'offline' ? 'cloud-offline-outline' : 'alert-circle-outline'}
+      size={22}
+      color={kind === 'offline' ? tones[tone].icon : tones[tone].alert}
+    />
+  );
+}
+
 type ConnectionStatusProps = {
-  tone?: 'header' | 'page';
+  tone?: Tone;
 };
 
 export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
@@ -40,38 +139,43 @@ export function ConnectionStatus({ tone = 'header' }: ConnectionStatusProps) {
       : rejectedTotal > 0
         ? `${rejectedTotal} sin sincronizar`
         : 'Sin conexión';
-  const tint = tone === 'header' ? `${colors.background}B3` : colors.muted;
-  const text = tone === 'header' ? 'text-background/70' : 'text-muted';
+  const look = tones[tone];
   const pendingText = describeUploads(pending);
   const rejectedText = describeUploads(rejected);
+  const kind: StatusKind = syncing
+    ? 'syncing'
+    : !settledOnline
+      ? 'offline'
+      : pendingTotal > 0
+        ? 'pending'
+        : 'rejected';
 
   return (
     <>
-      <Pressable
-        onPress={() => setOpen(true)}
-        accessibilityRole="button"
-        accessibilityLabel={settledOnline ? label : `Sin conexión. ${label}`}
-        accessibilityHint="Muestra qué está guardado en el dispositivo y qué falta sincronizar"
-        hitSlop={tone === 'header' ? 8 : undefined}
-        className={`flex-row items-center gap-2 rounded-lg px-3 ${tone === 'header' ? 'mr-2 min-h-11 active:bg-background/10' : 'min-h-14 active:bg-border'}`}
-      >
-        {syncing ? (
-          <ActivityIndicator size="small" color={tint} />
-        ) : (
-          <Icon
-            name={
-              !settledOnline
-                ? 'cloud-offline-outline'
-                : pendingTotal === 0 && rejectedTotal > 0
-                  ? 'alert-circle-outline'
-                  : 'cloud-upload-outline'
-            }
-            size={22}
-            color={tint}
-          />
-        )}
-        <Text className={`font-sans-medium text-base ${text}`}>{label}</Text>
-      </Pressable>
+      <Animated.View entering={pillEntering} exiting={pillExiting} layout={pillLayout}>
+        <Pressable
+          onPress={() => setOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel={settledOnline ? label : `Sin conexión. ${label}`}
+          accessibilityHint="Muestra qué está guardado en el dispositivo y qué falta sincronizar"
+          pressRetentionOffset={16}
+        >
+          {({ pressed }) => (
+            <Animated.View
+              className={`min-h-14 flex-row items-center gap-3 rounded-full border pl-4 pr-5 ${look.pill} ${pressed ? look.pressed : look.idle}`}
+              style={{
+                transform: [{ scale: pressed ? 0.97 : 1 }],
+                transitionProperty: 'transform',
+                transitionDuration: 120,
+                transitionTimingFunction: easeOut,
+              }}
+            >
+              <StatusMark kind={kind} tone={tone} />
+              <Text className={`font-sans-medium text-base ${look.text}`}>{label}</Text>
+            </Animated.View>
+          )}
+        </Pressable>
+      </Animated.View>
       {open ? (
         <Modal transparent animationType="fade" onRequestClose={() => setOpen(false)}>
           <View className="flex-1 items-center justify-center bg-foreground/40 p-8">
