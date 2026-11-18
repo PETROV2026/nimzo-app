@@ -4,6 +4,8 @@ import { Icon } from '@/components/icon';
 import type { LocalServiceForm } from '@/service-forms/service-forms-db';
 import { colors } from '@/theme';
 import { HighlightedText } from '@/components/highlighted-text';
+import { Image } from 'expo-image';
+import { formIconUrl } from '@/service-forms/form-icon-url';
 
 type ServiceFormCardProps = {
   form: LocalServiceForm;
@@ -12,6 +14,7 @@ type ServiceFormCardProps = {
 };
 
 export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps) {
+  const iconUrl = formIconUrl(form);
   return (
     <Pressable
       accessibilityRole="button"
@@ -20,7 +23,17 @@ export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps)
       className="min-h-20 flex-row items-center gap-4 rounded-2xl bg-background p-3 shadow-sm active:bg-border"
     >
       <View className="size-14 items-center justify-center rounded-xl bg-danger">
-        <Icon name="document-text" size={30} color={colors['on-danger']} />
+        {iconUrl ? (
+          <Image
+            source={iconUrl}
+            style={{ width: 30, height: 30 }}
+            contentFit="contain"
+            cachePolicy="disk"
+            accessible={false}
+          />
+        ) : (
+          <Icon name="document-text" size={30} color={colors['on-danger']} />
+        )}
       </View>
       <View className="flex-1 gap-0.5">
         <HighlightedText

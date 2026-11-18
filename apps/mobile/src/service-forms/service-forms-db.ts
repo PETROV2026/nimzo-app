@@ -3,9 +3,10 @@ import type { ServiceForm } from '@nimzo/shared';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
 
-export type LocalServiceForm = Pick<ServiceForm, 'code' | 'name' | 'subtitle' | 'icon_path'>;
-
-export type RemoteServiceForm = LocalServiceForm & Pick<ServiceForm, 'updated_at'>;
+export type LocalServiceForm = Pick<
+  ServiceForm,
+  'code' | 'name' | 'subtitle' | 'icon_path' | 'updated_at'
+>;
 
 const catalogKey = 'catalog';
 const frequencyOrder = ['Semanal', 'Mensual', 'Trimestral', 'Semestral y anual', 'Anual'];
@@ -19,7 +20,7 @@ function byNameAndFrequency(a: LocalServiceForm, b: LocalServiceForm) {
 
 const serviceFormsStore = createTableStore(() =>
   db
-    .getAllSync<LocalServiceForm>('select code, name, subtitle, icon_path from service_forms')
+    .getAllSync<LocalServiceForm>('select code, name, subtitle, icon_path, updated_at from service_forms')
     .sort(byNameAndFrequency),
 );
 
@@ -29,7 +30,7 @@ export function useServiceForms() {
   );
 }
 
-export function replaceServiceForms(forms: readonly RemoteServiceForm[]) {
+export function replaceServiceForms(forms: readonly LocalServiceForm[]) {
   db.withTransactionSync(() => {
     db.runSync('delete from service_forms');
     for (const form of forms) {
