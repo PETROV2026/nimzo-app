@@ -18,30 +18,31 @@ function today() {
 
 type AppHeaderProps = {
   title: string;
-  showBrand: boolean;
+  variant: 'rail' | 'dock';
 };
 
-export function AppHeader({ title, showBrand }: AppHeaderProps) {
+export function AppHeader({ title, variant }: AppHeaderProps) {
+  const compact = variant === 'rail';
   const insets = useSafeAreaInsets();
   return (
     <View className="bg-muted" style={{ paddingTop: insets.top }}>
       <View
-        className="min-h-24 flex-row items-center gap-4 py-3 pl-8"
+        className={`flex-row items-center gap-4 ${compact ? 'min-h-16 py-1 pl-6' : 'min-h-24 py-3 pl-8'}`}
         style={{ paddingRight: insets.right + 24 }}
       >
-        {showBrand ? (
+        {compact ? null : (
           <Image
             source={brandMark}
             style={{ width: 34, height: 44 }}
             contentFit="contain"
             accessibilityLabel="Nimzo"
           />
-        ) : null}
-        <View className="flex-1 gap-0.5">
+        )}
+        <View className={compact ? 'flex-1 flex-row items-baseline gap-4' : 'flex-1 gap-0.5'}>
           <Text
             accessibilityRole="header"
             numberOfLines={1}
-            className="font-sans-bold text-3xl text-background"
+            className={`font-sans-bold text-background ${compact ? 'text-2xl' : 'text-3xl'}`}
           >
             {title}
           </Text>
