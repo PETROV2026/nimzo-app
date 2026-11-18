@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './branches';
 export * from './clients';
+export * from './database-errors';
 export * from './field-values';
 export * from './form-definition';
 export * from './mexican-states';

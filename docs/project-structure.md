@@ -139,6 +139,7 @@ apps/admin/
 │   ├── theme.ts              The only MUI theme (Spanish locale included)
 │   ├── pages/                One folder per resource (home.tsx today)
 │   └── lib/
+│       ├── data-provider.ts  Refine data provider: Supabase CRUD, RPCs and Edge Functions; database errors become Spanish messages (`describeDatabaseError` in @nimzo/shared), never raw Postgres text
 │       └── supabase.ts       Supabase client (public anon key only)
 └── vite.config.ts            Vite config (`@/` alias → src/)
 ```
