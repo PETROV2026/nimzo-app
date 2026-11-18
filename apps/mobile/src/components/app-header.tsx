@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConnectionStatus } from '@/components/connection-status';
@@ -19,9 +20,10 @@ function today() {
 type AppHeaderProps = {
   title: string;
   showBrand: boolean;
+  actions?: ReactNode;
 };
 
-export function AppHeader({ title, showBrand }: AppHeaderProps) {
+export function AppHeader({ title, showBrand, actions }: AppHeaderProps) {
   const insets = useSafeAreaInsets();
   return (
     <View className="bg-muted" style={{ paddingTop: insets.top }}>
@@ -50,6 +52,7 @@ export function AppHeader({ title, showBrand }: AppHeaderProps) {
           </Text>
         </View>
         <ConnectionStatus />
+        {actions}
       </View>
     </View>
   );

@@ -2,7 +2,6 @@ import { formTitle, matchesSearch } from '@nimzo/shared';
 import { Tabs } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { ConnectionStatus } from '@/components/connection-status';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { SearchField } from '@/components/search-field';
@@ -79,18 +78,14 @@ export default function ServicesScreen() {
     <>
       <Tabs.Screen
         options={{
-          headerRight: () => (
-            <View className="flex-row items-center">
-              <ConnectionStatus />
-              {current === 'new' ? (
-                <HeaderIconButton
-                  icon={searchOpen ? 'close' : 'search'}
-                  label={searchOpen ? 'Cerrar búsqueda' : 'Buscar formato'}
-                  onPress={toggleSearch}
-                />
-              ) : null}
-            </View>
-          ),
+          headerRight: () =>
+            current === 'new' ? (
+              <HeaderIconButton
+                icon={searchOpen ? 'close' : 'search'}
+                label={searchOpen ? 'Cerrar búsqueda' : 'Buscar formato'}
+                onPress={toggleSearch}
+              />
+            ) : null,
         }}
       />
       <ScrollView
