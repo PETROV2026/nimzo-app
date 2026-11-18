@@ -46,6 +46,8 @@ La función debe estar publicada antes que el panel nuevo; si no, nadie puede en
 
 **Settings → Domains → Add** y sigue las instrucciones del registro DNS (en GoDaddy: **Mis dominios → DNS**, agrega el registro `CNAME` o `A` que indique Vercel).
 
+Las funciones `admin-login` y `admin-users` solo aceptan llamadas del navegador desde los dominios permitidos. Sin configurar nada, son `https://nimzo-app-web.vercel.app` y `http://localhost:5173`. Al agregar un dominio propio, guarda la lista completa (separada por comas) en el secreto `ALLOWED_ORIGINS` de Supabase (**Edge Functions → Secrets**, o `pnpm supabase secrets set ALLOWED_ORIGINS=https://nimzo-app-web.vercel.app,https://panel.tudominio.com,http://localhost:5173`). La lista reemplaza a la predeterminada, así que incluye todos los dominios que se usen. Agrega el mismo dominio a los **Hostnames** del widget de Turnstile.
+
 ## Si algo falla
 
 | Síntoma | Causa probable |
@@ -55,5 +57,6 @@ La función debe estar publicada antes que el panel nuevo; si no, nadie puede en
 | 404 al recargar `/clients` u otra dirección | El **Root Directory** no es `apps/admin`, así que Vercel no lee `vercel.json` |
 | No puedes iniciar sesión | Solo entran usuarios `admin` activos; revisa el usuario en Supabase |
 | "Falta configurar la verificación de seguridad" | Falta `VITE_TURNSTILE_SITE_KEY`; agrégala y vuelve a publicar |
+| "Origen no permitido" al iniciar sesión o administrar usuarios | El dominio desde el que abres el panel no está en `ALLOWED_ORIGINS` (ver **Dominio propio**) |
 | "La verificación de seguridad falló" en todos los intentos | La Secret Key en Supabase no corresponde a la Site Key, o el dominio no está en los Hostnames del widget |
 | "No se pudo iniciar sesión" siempre, con datos correctos | La función `admin-login` no está publicada o falta `TURNSTILE_SECRET_KEY` |

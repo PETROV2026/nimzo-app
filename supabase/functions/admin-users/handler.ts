@@ -1,3 +1,5 @@
+import { createCors, type CorsOptions } from '../_shared/cors.ts';
+
 export type Role = 'technician' | 'admin';
 
 export type ProfileSummary = { role: Role; is_active: boolean };
@@ -23,16 +25,10 @@ export class UserError extends Error {
 
 const roles: Role[] = ['technician', 'admin'];
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-function json(status: number, body: unknown) {
+function json(status: number, body: unknown, headers: Record<string, string>) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...headers, 'Content-Type': 'application/json' },
   });
 }
 
@@ -66,7 +62,9 @@ function userId(value: unknown) {
   return value;
 }
 
-export function createHandler(backend: UsersBackend) {
+export function createHandler(backend: UsersBackend, options: CorsOptions = {}) {
+  const cors = createCors(options);
+
   async function requireTarget(id: string) {
     const target = await backend.getProfile(id);
     if (!target) throw new UserError(404, 'No se encontró el usuario.');
@@ -80,8 +78,11 @@ export function createHandler(backend: UsersBackend) {
   }
 
   return async function handle(request: Request): Promise<Response> {
-    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders });
-    if (request.method !== 'POST') return json(405, { error: 'Método no permitido.' });
+    const headers = cors.headersFor(request);
+    const reply = (status: number, body: unknown) => json(status, body, headers);
+    if (cors.rejects(request)) return reply(403, { error: 'Origen no permitido.' });
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
+    if (request.method !== 'POST') return reply(405, { error: 'Método no permitido.' });
 
     try {
       const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
@@ -108,7 +109,7 @@ export function createHandler(backend: UsersBackend) {
             role: role(body.role),
             password: password(body.password),
           });
-          return json(201, { id: created.id });
+          return reply(201, { id: created.id });
         }
 
         case 'update': {
@@ -121,7 +122,7 @@ export function createHandler(backend: UsersBackend) {
             await ensureAnotherActiveAdmin(target);
           }
           await backend.updateProfile(id, { fullName, role: newRole });
-          return json(200, { id });
+          return reply(200, { id });
         }
 
         case 'set_active': {
@@ -133,7 +134,7 @@ export function createHandler(backend: UsersBackend) {
             await ensureAnotherActiveAdmin(target);
           }
           await backend.setActive(id, body.active);
-          return json(200, { id, active: body.active });
+          return reply(200, { id, active: body.active });
         }
 
         case 'reset_password': {
@@ -141,16 +142,16 @@ export function createHandler(backend: UsersBackend) {
           const newPassword = password(body.password);
           await requireTarget(id);
           await backend.updatePassword(id, newPassword);
-          return json(200, { id });
+          return reply(200, { id });
         }
 
         default:
           throw new UserError(400, 'Acción desconocida.');
       }
     } catch (error) {
-      if (error instanceof UserError) return json(error.status, { error: error.message });
+      if (error instanceof UserError) return reply(error.status, { error: error.message });
       console.error(error);
-      return json(500, { error: 'No se pudo completar la acción. Intenta de nuevo.' });
+      return reply(500, { error: 'No se pudo completar la acción. Intenta de nuevo.' });
     }
   };
 }

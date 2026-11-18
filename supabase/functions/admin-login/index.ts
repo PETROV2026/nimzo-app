@@ -1,6 +1,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 import { createHandler, type LoginBackend } from './handler.ts';
+import { parseAllowedOrigins } from '../_shared/cors.ts';
 
 const url = Deno.env.get('SUPABASE_URL')!;
 const clientOptions = { auth: { persistSession: false, autoRefreshToken: false } };
@@ -56,4 +57,6 @@ const backend: LoginBackend = {
   },
 };
 
-Deno.serve(createHandler(backend));
+Deno.serve(
+  createHandler(backend, { allowedOrigins: parseAllowedOrigins(Deno.env.get('ALLOWED_ORIGINS')) }),
+);
