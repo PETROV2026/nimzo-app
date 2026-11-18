@@ -1,12 +1,12 @@
 import { formTitle } from '@nimzo/shared';
 import { Pressable, Text, View } from 'react-native';
 import { Icon } from '@/components/icon';
-import type { ServiceFormSummary } from '@/service-forms/mock-service-forms';
+import type { LocalServiceForm } from '@/service-forms/service-forms-db';
 import { colors } from '@/theme';
 import { HighlightedText } from '@/components/highlighted-text';
 
 type ServiceFormCardProps = {
-  form: ServiceFormSummary;
+  form: LocalServiceForm;
   search?: string;
   onPress?: () => void;
 };

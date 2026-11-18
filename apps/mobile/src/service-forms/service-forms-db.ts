@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import type { ServiceForm } from '@nimzo/shared';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
@@ -16,14 +17,16 @@ function byNameAndFrequency(a: LocalServiceForm, b: LocalServiceForm) {
   );
 }
 
-export const serviceFormsStore = createTableStore(() =>
+const serviceFormsStore = createTableStore(() =>
   db
     .getAllSync<LocalServiceForm>('select code, name, subtitle, icon_path from service_forms')
     .sort(byNameAndFrequency),
 );
 
-export function serviceFormsSnapshot() {
-  return serviceFormsStore.snapshot(catalogKey);
+export function useServiceForms() {
+  return useSyncExternalStore(serviceFormsStore.subscribe, () =>
+    serviceFormsStore.snapshot(catalogKey),
+  );
 }
 
 export function replaceServiceForms(forms: readonly RemoteServiceForm[]) {
