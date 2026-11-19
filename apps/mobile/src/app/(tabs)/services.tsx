@@ -1,10 +1,8 @@
 import { formTitle, matchesSearch } from '@nimzo/shared';
-import { Tabs } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
-import { HeaderIconButton } from '@/components/header-icon-button';
-import { SearchField } from '@/components/search-field';
+import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
@@ -76,29 +74,16 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
 
 export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const headerSearch = useHeaderSearch();
   const section = sections.find((item) => item.value === current) ?? sections[0];
   const catalog = useServiceForms();
 
-  function toggleSearch() {
-    setSearchOpen((open) => !open);
-    setSearch('');
-  }
-
   return (
     <>
-      <Tabs.Screen
-        options={{
-          headerRight: () =>
-            current === 'new' ? (
-              <HeaderIconButton
-                icon={searchOpen ? 'close' : 'search'}
-                label={searchOpen ? 'Cerrar búsqueda' : 'Buscar formato'}
-                onPress={toggleSearch}
-              />
-            ) : null,
-        }}
+      <HeaderSearchButton
+        search={headerSearch}
+        label="Buscar formato"
+        available={current === 'new'}
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
@@ -108,18 +93,18 @@ export default function ServicesScreen() {
           <Text className="font-sans-bold text-2xl text-foreground">{section.title}</Text>
           <Text className="font-sans text-base text-muted">{section.description}</Text>
         </View>
-        <SegmentedControl segments={sections} value={current} onChange={setCurrent} />
+        <SegmentedControl
+          segments={sections}
+          value={current}
+          onChange={(next) => {
+            setCurrent(next);
+            headerSearch.close();
+          }}
+        />
         {current === 'new' ? (
           <>
-            {searchOpen ? (
-              <SearchField
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Buscar formato"
-                autoFocus
-              />
-            ) : null}
-            <ServiceFormGrid catalog={catalog} search={search} />
+            <HeaderSearchField search={headerSearch} placeholder="Buscar formato" />
+            <ServiceFormGrid catalog={catalog} search={headerSearch.term} />
           </>
         ) : (
           <EmptyState

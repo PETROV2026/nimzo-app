@@ -34,7 +34,7 @@ import { ClientCard } from '@/components/clients/client-card';
 import { SystemFormDialog } from '@/components/clients/system-form-dialog';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
-import { SearchField } from '@/components/search-field';
+import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
 import { useToast } from '@/components/toast';
 
 const gap = 16;
@@ -51,7 +51,8 @@ export default function ClientsScreen() {
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
   const insets = useSafeAreaInsets();
-  const [search, setSearch] = useState('');
+  const headerSearch = useHeaderSearch();
+  const search = headerSearch.term;
   const [gridWidth, setGridWidth] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(null);
@@ -94,7 +95,7 @@ export default function ClientsScreen() {
       showToast('Cambios guardados', details.name);
     } else {
       const client = createClient(technicianId, details);
-      setSearch('');
+      headerSearch.close();
       setSelectedId(client.id);
       showToast('Cliente agregado', 'Se sincronizará con tu cuenta cuando haya conexión.');
     }
@@ -200,9 +201,8 @@ export default function ClientsScreen() {
     ) : (
       <View className="flex-1">
         <View className="gap-3 px-4 pb-3 pt-4">
-          <SearchField
-            value={search}
-            onChangeText={setSearch}
+          <HeaderSearchField
+            search={headerSearch}
             placeholder="Buscar cliente o sucursal"
             accessibilityLabel="Buscar clientes"
           />
@@ -363,6 +363,11 @@ export default function ClientsScreen() {
 
   return (
     <View className="flex-1 bg-canvas">
+      <HeaderSearchButton
+        search={headerSearch}
+        label="Buscar clientes"
+        available={allClients.length > 0}
+      />
       {list}
       {allClients.length > 0 ? (
         <AddButton label="Agregar cliente" onPress={() => setForm({ mode: 'create' })} />

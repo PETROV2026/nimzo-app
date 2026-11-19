@@ -7,7 +7,7 @@ import { AddButton } from '@/components/add-button';
 import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
 import { NoteEditor } from '@/components/notes/note-editor';
-import { SearchField } from '@/components/search-field';
+import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
 import { dateGroup, dateGroups } from '@/notes/format';
 import { createNote, getNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
@@ -49,7 +49,8 @@ export default function NotesScreen() {
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
   const insets = useSafeAreaInsets();
-  const [search, setSearch] = useState('');
+  const headerSearch = useHeaderSearch();
+  const search = headerSearch.term;
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const { noteId, openedAt } = useLocalSearchParams<{ noteId?: string; openedAt?: string }>();
   const notes = useNotes(technicianId, search);
@@ -65,7 +66,7 @@ export default function NotesScreen() {
 
   function handleNew() {
     const note = createNote(technicianId);
-    setSearch('');
+    headerSearch.close();
     setSelectedId(note.id);
   }
 
@@ -74,15 +75,9 @@ export default function NotesScreen() {
 
   const list = (
     <View className="flex-1">
-      {hasNotes ? (
-        <View className="flex-row items-center gap-3 px-4 pb-3 pt-4">
-          <View className="flex-1">
-            <SearchField
-              value={search}
-              onChangeText={setSearch}
-              placeholder="Buscar en tus notas"
-            />
-          </View>
+      {headerSearch.open ? (
+        <View className="px-4 pb-3 pt-4">
+          <HeaderSearchField search={headerSearch} placeholder="Buscar en tus notas" />
         </View>
       ) : null}
       {hasNotes ? (
@@ -126,6 +121,7 @@ export default function NotesScreen() {
 
   return (
     <View className="flex-1 bg-canvas">
+      <HeaderSearchButton search={headerSearch} label="Buscar en tus notas" available={hasNotes} />
       {list}
       {selectedId ? (
         <Modal
