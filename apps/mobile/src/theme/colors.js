@@ -20,7 +20,7 @@ const colors = {
   danger: '#E4572E',
   'danger-strong': '#C94D27',
   'danger-light': '#E4862E',
-  'on-danger-light': '#000000',
+  'on-danger-light': '#FFFFFF',
   'on-danger': '#FFFFFF',
 
   success: '#2E7D32',
