@@ -32,7 +32,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { PageHeader } from '@/components/page-header';
 import { Postbox } from '@/components/postbox';
 import { StatusChip } from '@/components/status-chip';
-import { generatePassword } from '@/lib/password';
+import { generatePassword } from '@nimzo/shared';
 import type { Identity } from '@/providers/auth-provider';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
@@ -111,7 +111,10 @@ function ResetPasswordDialog({ user, onClose }: { user: Profile; onClose: () => 
                 required
                 autoFocus
                 error={!!fieldState.error}
-                helperText={fieldState.error?.message ?? 'Mínimo 8 caracteres.'}
+                helperText={
+                  fieldState.error?.message ??
+                  'Mínimo 8 caracteres, con mayúsculas, minúsculas y números.'
+                }
               />
             )}
           />

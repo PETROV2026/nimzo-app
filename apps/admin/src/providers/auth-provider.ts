@@ -50,6 +50,11 @@ function clearProfileCache() {
   profileCache = null;
 }
 
+async function hasSecondFactor() {
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  return data?.currentLevel === 'aal2';
+}
+
 function loginError(message: string) {
   return { success: false, error: { name: 'Error', message } };
 }
@@ -89,7 +94,7 @@ export const authProvider: AuthProvider = {
       return loginError(NO_ACCESS_MESSAGE);
     }
 
-    return { success: true, redirectTo: '/' };
+    return { success: true, redirectTo: (await hasSecondFactor()) ? '/' : '/two-factor' };
   },
 
   logout: async () => {
@@ -109,6 +114,9 @@ export const authProvider: AuthProvider = {
     if (!(await getAdminProfile(user.id))) {
       await supabase.auth.signOut();
       return { authenticated: false, logout: true, redirectTo: '/login' };
+    }
+    if (!(await hasSecondFactor())) {
+      return { authenticated: false, redirectTo: '/two-factor' };
     }
     return { authenticated: true };
   },

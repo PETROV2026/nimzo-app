@@ -5,7 +5,7 @@ export type Role = 'technician' | 'admin';
 export type ProfileSummary = { role: Role; is_active: boolean };
 
 export type UsersBackend = {
-  getCallerId(token: string): Promise<string | null>;
+  getCaller(token: string): Promise<{ id: string; aal: string } | null>;
   getProfile(userId: string): Promise<ProfileSummary | null>;
   countActiveAdmins(): Promise<number>;
   createUser(input: { email: string; password: string; fullName: string; role: Role }): Promise<{ id: string }>;
@@ -45,6 +45,9 @@ function role(value: unknown) {
 function password(value: unknown) {
   if (typeof value !== 'string' || value.length < 8 || value.length > 72) {
     throw new UserError(400, 'La contraseña debe tener entre 8 y 72 caracteres.');
+  }
+  if (!/[a-z]/.test(value) || !/[A-Z]/.test(value) || !/[0-9]/.test(value)) {
+    throw new UserError(400, 'La contraseña debe tener mayúsculas, minúsculas y números.');
   }
   return value;
 }
@@ -86,12 +89,19 @@ export function createHandler(backend: UsersBackend, options: CorsOptions = {}) 
 
     try {
       const token = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-      const callerId = token ? await backend.getCallerId(token) : null;
-      if (!callerId) throw new UserError(401, 'Tu sesión expiró. Vuelve a iniciar sesión.');
+      const session = token ? await backend.getCaller(token) : null;
+      if (!session) throw new UserError(401, 'Tu sesión expiró. Vuelve a iniciar sesión.');
+      const callerId = session.id;
 
       const caller = await backend.getProfile(callerId);
       if (!caller || caller.role !== 'admin' || !caller.is_active) {
         throw new UserError(403, 'Solo un administrador activo puede administrar usuarios.');
+      }
+      if (session.aal !== 'aal2') {
+        throw new UserError(
+          403,
+          'Verifica tu sesión con el código de tu app de autenticación para administrar usuarios.',
+        );
       }
 
       let body: Record<string, unknown>;

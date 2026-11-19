@@ -56,7 +56,9 @@ const supabaseStub = `
   create function auth.uid() returns uuid language sql stable as $$
     select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
   $$;
-  create function auth.jwt() returns jsonb language sql stable as $$ select '{}'::jsonb $$;
+  create function auth.jwt() returns jsonb language sql stable as $$
+    select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
+  $$;
   grant execute on function auth.uid(), auth.jwt() to anon, authenticated, service_role;
 `;
 
@@ -100,8 +102,11 @@ export async function createUser(db, id, { fullName = '', role } = {}) {
   );
 }
 
-export async function runAs(db, role, userId, sql, params = []) {
+export async function runAs(db, role, userId, sql, params = [], { aal = 'aal2' } = {}) {
   await db.query(`select set_config('request.jwt.claim.sub', $1, false)`, [userId ?? '']);
+  await db.query(`select set_config('request.jwt.claims', $1, false)`, [
+    userId ? JSON.stringify({ sub: userId, role, aal }) : '',
+  ]);
   await db.exec(`set role ${role}`);
   try {
     const result = await db.query(sql, params);
@@ -111,6 +116,7 @@ export async function runAs(db, role, userId, sql, params = []) {
   } finally {
     await db.exec('reset role');
     await db.query(`select set_config('request.jwt.claim.sub', '', false)`);
+    await db.query(`select set_config('request.jwt.claims', '', false)`);
   }
 }
 

@@ -14,9 +14,10 @@ function fail(error: { message: string } | null) {
 }
 
 const backend: UsersBackend = {
-  async getCallerId(token) {
-    const { data, error } = await admin.auth.getUser(token);
-    return error ? null : (data.user?.id ?? null);
+  async getCaller(token) {
+    const { data, error } = await admin.auth.getClaims(token);
+    if (error || !data?.claims.sub) return null;
+    return { id: data.claims.sub, aal: String(data.claims.aal ?? '') };
   },
 
   async getProfile(userId) {
