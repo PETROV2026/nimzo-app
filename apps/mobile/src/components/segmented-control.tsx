@@ -33,7 +33,7 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(segment.value)}
-            className={`min-h-14 grow flex-row items-center justify-center gap-2 rounded-full px-3 ${selected ? 'bg-danger' : 'active:bg-foreground/10'}`}
+            className={`min-h-16 grow flex-row items-center justify-center gap-2 rounded-full px-3 ${selected ? 'bg-danger-strong' : 'active:bg-foreground/10'}`}
           >
             <Icon
               name={segment.icon}
