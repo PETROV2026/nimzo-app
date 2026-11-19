@@ -3,24 +3,35 @@ import { AppState } from 'react-native';
 import { reportError } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
-import { replaceServiceForms } from '@/service-forms/service-forms-db';
+import { isDownloadDue, isServerError } from '@/service-forms/catalog-sync-rules';
+import { saveServiceForms } from '@/service-forms/service-forms-db';
+
+const requestTimeoutMs = 15_000;
 
 let running: Promise<void | null> | null = null;
-
-function isServerError(error: unknown): error is { code: string; message: string } {
-  return typeof error === 'object' && error !== null && 'code' in error && Boolean(error.code);
-}
+let lastDownloadAt: number | null = null;
 
 async function download() {
-  const { data, error } = await supabase
-    .from('service_forms')
-    .select('code, name, subtitle, icon_path, updated_at')
-    .eq('is_active', true);
-  if (error) throw error;
-  replaceServiceForms(data);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), requestTimeoutMs);
+  try {
+    const { data, error } = await supabase
+      .from('service_forms')
+      .select('code, name, subtitle, icon_path, updated_at')
+      .eq('is_active', true)
+      .abortSignal(controller.signal);
+    if (error) throw error;
+    saveServiceForms(data);
+    lastDownloadAt = Date.now();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-export function syncServiceForms() {
+export function syncServiceForms({ force = false }: { force?: boolean } = {}) {
+  if (!running && !isDownloadDue(lastDownloadAt, Date.now(), { force })) {
+    return Promise.resolve(null);
+  }
   running ??= download()
     .catch((error: unknown) => {
       if (error instanceof Error) {
@@ -41,7 +52,7 @@ export function useServiceFormsSync(technicianId: string) {
 
   useEffect(() => {
     if (!technicianId || !online) return;
-    syncServiceForms();
+    syncServiceForms({ force: true });
     const subscription = AppState.addEventListener('change', (state) => {
       if (state === 'active') syncServiceForms();
     });

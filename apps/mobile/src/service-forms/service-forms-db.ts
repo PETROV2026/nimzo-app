@@ -3,6 +3,7 @@ import type { ServiceForm } from '@nimzo/shared';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
 import { compareCatalogForms } from '@/service-forms/catalog-order';
+import { shouldReplaceCatalog } from '@/service-forms/catalog-sync-rules';
 
 export type LocalServiceForm = Pick<
   ServiceForm,
@@ -25,19 +26,25 @@ export function useServiceForms() {
   );
 }
 
-export function replaceServiceForms(forms: readonly LocalServiceForm[]) {
+export function saveServiceForms(forms: readonly LocalServiceForm[]) {
+  const saved = db.getAllSync<{ code: string; updated_at: string }>(
+    'select code, updated_at from service_forms',
+  );
+  if (!shouldReplaceCatalog(saved, forms)) return false;
+
   db.withTransactionSync(() => {
     db.runSync('delete from service_forms');
-    for (const form of forms) {
-      db.runSync(
-        'insert into service_forms (code, name, subtitle, icon_path, updated_at) values (?, ?, ?, ?, ?)',
-        form.code,
-        form.name,
-        form.subtitle,
-        form.icon_path,
-        form.updated_at,
-      );
+    const insert = db.prepareSync(
+      'insert into service_forms (code, name, subtitle, icon_path, updated_at) values (?, ?, ?, ?, ?)',
+    );
+    try {
+      for (const form of forms) {
+        insert.executeSync(form.code, form.name, form.subtitle, form.icon_path, form.updated_at);
+      }
+    } finally {
+      insert.finalizeSync();
     }
   });
   serviceFormsStore.notify();
+  return true;
 }
