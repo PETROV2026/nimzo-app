@@ -22,4 +22,8 @@ export function setMonitoringUser(userId: string | null) {
   Sentry.setUser(userId ? { id: userId } : null);
 }
 
+export function reportError(error: unknown) {
+  Sentry.captureException(error);
+}
+
 export const wrapRoot = Sentry.wrap;

@@ -7,7 +7,7 @@ import { HeaderIconButton } from '@/components/header-icon-button';
 import { SearchField } from '@/components/search-field';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
-import { mockServiceForms, type ServiceFormSummary } from '@/service-forms/mock-service-forms';
+import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
 type Section = 'new' | 'active' | 'pending' | 'history';
 
@@ -42,7 +42,19 @@ const sections: (Segment<Section> & { title: string; description: string })[] = 
   },
 ];
 
-function ServiceFormGrid({ forms, search }: { forms: ServiceFormSummary[]; search: string }) {
+function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; search: string }) {
+  if (catalog.length === 0) {
+    return (
+      <EmptyState
+        icon="cloud-download-outline"
+        title="Aún no hay formatos en este dispositivo"
+        description="Conéctate a internet para descargarlos. Después podrás usarlos sin conexión."
+      />
+    );
+  }
+
+  const forms = catalog.filter((form) => matchesSearch(formTitle(form), search));
+
   if (forms.length === 0) {
     return (
       <Text className="py-10 text-center font-sans text-base text-muted">
@@ -67,7 +79,7 @@ export default function ServicesScreen() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
   const section = sections.find((item) => item.value === current) ?? sections[0];
-  const forms = mockServiceForms.filter((form) => matchesSearch(formTitle(form), search));
+  const catalog = useServiceForms();
 
   function toggleSearch() {
     setSearchOpen((open) => !open);
@@ -107,7 +119,7 @@ export default function ServicesScreen() {
                 autoFocus
               />
             ) : null}
-            <ServiceFormGrid forms={forms} search={search} />
+            <ServiceFormGrid catalog={catalog} search={search} />
           </>
         ) : (
           <EmptyState

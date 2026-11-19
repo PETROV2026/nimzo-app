@@ -8,6 +8,7 @@ import { NavigationBar } from '@/components/navigation-bar';
 import { SyncToast } from '@/components/sync-toast';
 import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors } from '@/theme';
+import { useServiceFormsSync } from '@/service-forms/service-forms-sync';
 
 const railMinWidth = 900;
 
@@ -16,7 +17,9 @@ export default function TabsLayout() {
   const variant = width > height && width >= railMinWidth ? 'rail' : 'dock';
 
   const session = useSession();
-  useClientsSync(session.status === 'signed-in' ? session.session.user.id : '');
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  useClientsSync(technicianId);
+  useServiceFormsSync(technicianId);
   useOpenNoteFromNotification();
   return (
     <>
