@@ -2,6 +2,7 @@ import type { UserRole } from '@nimzo/shared';
 import type { AuthProvider } from '@refinedev/core';
 import { FunctionsHttpError } from '@supabase/supabase-js';
 
+import { setMonitoringUser } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
 
 export type Identity = {
@@ -49,6 +50,11 @@ function clearProfileCache() {
   profileCache = null;
 }
 
+async function hasSecondFactor() {
+  const { data } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  return data?.currentLevel === 'aal2';
+}
+
 function loginError(message: string) {
   return { success: false, error: { name: 'Error', message } };
 }
@@ -88,11 +94,12 @@ export const authProvider: AuthProvider = {
       return loginError(NO_ACCESS_MESSAGE);
     }
 
-    return { success: true, redirectTo: '/' };
+    return { success: true, redirectTo: (await hasSecondFactor()) ? '/' : '/two-factor' };
   },
 
   logout: async () => {
     clearProfileCache();
+    setMonitoringUser(null);
     await supabase.auth.signOut();
     return { success: true, redirectTo: '/login' };
   },
@@ -107,6 +114,9 @@ export const authProvider: AuthProvider = {
     if (!(await getAdminProfile(user.id))) {
       await supabase.auth.signOut();
       return { authenticated: false, logout: true, redirectTo: '/login' };
+    }
+    if (!(await hasSecondFactor())) {
+      return { authenticated: false, redirectTo: '/two-factor' };
     }
     return { authenticated: true };
   },
@@ -125,6 +135,7 @@ export const authProvider: AuthProvider = {
 
     const profile = await getAdminProfile(user.id);
     if (!profile) return null;
+    setMonitoringUser(user.id);
 
     return {
       id: user.id,

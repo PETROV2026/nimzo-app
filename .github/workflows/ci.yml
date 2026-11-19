@@ -30,6 +30,8 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+      - name: Dependency audit
+        run: pnpm audit:deps
 
       - name: Format
         run: pnpm format:check
@@ -48,3 +50,5 @@ jobs:
 
       - name: Form definition tests
         run: pnpm test:forms
+      - name: Mobile unit tests
+        run: pnpm test:mobile

@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import path from 'node:path';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -20,8 +21,21 @@ const migrations = readdirSync(path.resolve(import.meta.dirname, '../../supabase
   .map((file) => file.replace(/\.sql$/, ''))
   .sort();
 
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    sentryVitePlugin({
+      org: 'nimzo',
+      project: 'nimzo-admin',
+      authToken: sentryAuthToken,
+      disable: !sentryAuthToken,
+      telemetry: false,
+      release: { name: `nimzo-admin@${gitCommit()}` },
+      sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
+    }),
+  ],
   define: {
     __APP_COMMIT__: JSON.stringify(gitCommit()),
     __APP_BUILT_AT__: JSON.stringify(new Date().toISOString()),
@@ -33,6 +47,7 @@ export default defineConfig({
     },
   },
   build: {
+    sourcemap: sentryAuthToken ? 'hidden' : false,
     rolldownOptions: {
       output: {
         codeSplitting: {

@@ -57,7 +57,7 @@ export function IconBox({ value, onChange, disabled }: IconBoxProps) {
         ref={inputRef}
         id={inputId}
         type="file"
-        accept="image/svg+xml,image/png,image/webp"
+        accept="image/png,image/webp"
         className="visually-hidden"
         disabled={disabled || uploading}
         onChange={(event) => void handleFile(event.currentTarget.files?.[0])}
@@ -126,8 +126,8 @@ export function IconBox({ value, onChange, disabled }: IconBoxProps) {
         </Alert>
       )}
       <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5 }}>
-        SVG, PNG o WebP de hasta 512 KB. Se recomienda un SVG de un solo color sobre fondo
-        transparente, cuadrado, como los de la app.
+        PNG o WebP de hasta 512 KB. Se recomienda una imagen cuadrada de un solo color sobre fondo
+        transparente, como los de la app.
       </Typography>
     </Postbox>
   );

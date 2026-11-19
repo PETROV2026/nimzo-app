@@ -13,8 +13,14 @@ let activeAdminsOverride;
 
 function fakeBackend() {
   return {
-    async getCallerId(token) {
-      return { 'admin-token': ADMIN, 'tech-token': TECH }[token] ?? null;
+    async getCaller(token) {
+      return (
+        {
+          'admin-token': { id: ADMIN, aal: 'aal2' },
+          'admin-without-2fa-token': { id: ADMIN, aal: 'aal1' },
+          'tech-token': { id: TECH, aal: 'aal1' },
+        }[token] ?? null
+      );
     },
     async getProfile(id) {
       return profiles[id] ? { ...profiles[id] } : null;
@@ -68,6 +74,13 @@ describe('admin-users function: who can call it', () => {
     assert.equal(result.status, 204);
   });
 
+  test('rejects an admin whose session was not verified with 2FA', async () => {
+    const result = await call({ action: 'create' }, { token: 'admin-without-2fa-token' });
+    assert.equal(result.status, 403);
+    assert.equal(result.body.error, 'Verifica tu sesión con el código de tu app de autenticación para administrar usuarios.');
+    assert.deepEqual(calls, []);
+  });
+
   test('rejects requests without a session', async () => {
     const result = await call({ action: 'create' }, { token: null });
     assert.equal(result.status, 401);
@@ -107,6 +120,8 @@ describe('admin-users function: create', () => {
     ['role', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'tecnico', password: 'Temporal123' }],
     ['supervisor role', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'supervisor', password: 'Temporal123' }],
     ['password', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'technician', password: 'corta' }],
+    ['password without upper case', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'technician', password: 'temporal123' }],
+    ['password without digits', { full_name: 'Ana', email: 'a@ejemplo.com', role: 'technician', password: 'TemporalTemporal' }],
   ]) {
     test(`rejects an invalid ${field}`, async () => {
       const result = await call({ action: 'create', ...body });

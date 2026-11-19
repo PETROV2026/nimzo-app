@@ -59,7 +59,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
         description: response?.data ? formTitle(response.data) : undefined,
       }),
       errorNotification: (error) =>
-        error?.message?.includes('duplicate') || error?.message?.includes('unique')
+        error?.code === '23505'
           ? false
           : {
               type: 'error',
@@ -86,8 +86,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
       await onFinish(values);
       if (savedIconPath && savedIconPath !== values.icon_path) void removeFormIcon(savedIconPath);
     } catch (error) {
-      const message = (error as HttpError)?.message ?? '';
-      if (message.includes('duplicate') || message.includes('unique')) {
+      if ((error as HttpError)?.code === '23505') {
         setError('code', { message: 'Ya existe un formato con esta clave.' });
       }
     }

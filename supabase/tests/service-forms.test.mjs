@@ -68,22 +68,22 @@ describe('service forms catalog', () => {
 });
 
 describe('form-icons bucket', () => {
-  test('is public and only accepts small images', async () => {
+  test('is public and only accepts small PNG or WebP images, never SVG', async () => {
     const { rows } = await db.query(`select public, file_size_limit, allowed_mime_types from storage.buckets where id = 'form-icons'`);
     assert.equal(rows[0].public, true);
     assert.equal(Number(rows[0].file_size_limit), 524288);
-    assert.deepEqual(rows[0].allowed_mime_types, ['image/svg+xml', 'image/png', 'image/webp']);
+    assert.deepEqual(rows[0].allowed_mime_types, ['image/png', 'image/webp']);
   });
 
   test('admins can upload, replace and remove icons', async () => {
-    const insert = await asAdmin(`insert into storage.objects (bucket_id, name) values ('form-icons', 'icons/b.svg') returning id`);
+    const insert = await asAdmin(`insert into storage.objects (bucket_id, name) values ('form-icons', 'icons/b.png') returning id`);
     assert.ok(insert.ok, insert.error);
-    assert.equal((await asAdmin(`update storage.objects set name = 'icons/c.svg' where name = 'icons/b.svg'`)).affected, 1);
-    assert.equal((await asAdmin(`delete from storage.objects where name = 'icons/c.svg'`)).affected, 1);
+    assert.equal((await asAdmin(`update storage.objects set name = 'icons/c.png' where name = 'icons/b.png'`)).affected, 1);
+    assert.equal((await asAdmin(`delete from storage.objects where name = 'icons/c.png'`)).affected, 1);
   });
 
   test('technicians cannot upload icons', async () => {
-    const result = await asTech(`insert into storage.objects (bucket_id, name) values ('form-icons', 'icons/d.svg')`);
+    const result = await asTech(`insert into storage.objects (bucket_id, name) values ('form-icons', 'icons/d.png')`);
     assert.equal(result.ok, false);
   });
 });

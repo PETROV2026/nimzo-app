@@ -13,7 +13,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import { Authenticated, Refine } from '@refinedev/core';
 import routerProvider, {
-  CatchAllNavigate,
   DocumentTitleHandler,
   NavigateToResource,
   UnsavedChangesNotifier,
@@ -28,7 +27,9 @@ import { SnackbarProvider } from '@/components/snackbar-provider';
 import { dataProvider } from '@/lib/data-provider';
 import { supabase } from '@/lib/supabase';
 import { DashboardPage } from '@/pages/dashboard';
+import { SignInRedirect } from '@/components/sign-in-redirect';
 import { LoginPage } from '@/pages/login';
+import { TwoFactorPage } from '@/pages/two-factor';
 import { NotFoundPage } from '@/pages/not-found';
 import { authProvider } from '@/providers/auth-provider';
 import { i18nProvider } from '@/providers/i18n-provider';
@@ -255,7 +256,7 @@ export default function App() {
             <Routes>
               <Route
                 element={
-                  <Authenticated key="protected" fallback={<CatchAllNavigate to="/login" />}>
+                  <Authenticated key="protected" fallback={<SignInRedirect />}>
                     <Outlet />
                   </Authenticated>
                 }
@@ -358,6 +359,7 @@ export default function App() {
                 }
               >
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/two-factor" element={<TwoFactorPage />} />
               </Route>
             </Routes>
             <UnsavedChangesNotifier />
