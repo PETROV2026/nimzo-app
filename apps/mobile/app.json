@@ -42,7 +42,11 @@
           "color": "#19827E"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@sentry/react-native/expo",
+        { "url": "https://sentry.io/", "organization": "nimzo", "project": "nimzo-mobile" }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
