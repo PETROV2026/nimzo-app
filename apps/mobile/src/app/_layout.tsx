@@ -1,4 +1,5 @@
 import '../global.css';
+import { setMonitoringUser, wrapRoot } from '@/lib/monitoring';
 
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
@@ -14,7 +15,7 @@ import { SessionProvider, useSession } from '@/auth/session-provider';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SessionProvider>
@@ -25,8 +26,17 @@ export default function RootLayout() {
   );
 }
 
+export default wrapRoot(RootLayout);
+
 function RootNavigator() {
-  const { status } = useSession();
+  const session = useSession();
+  const { status } = session;
+  const userId = session.status === 'signed-in' ? session.session.user.id : null;
+
+  useEffect(() => {
+    setMonitoringUser(userId);
+  }, [userId]);
+
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,

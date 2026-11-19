@@ -126,7 +126,7 @@ export function UserCreate() {
                       error={!!fieldState.error}
                       helperText={
                         fieldState.error?.message ??
-                        'Mínimo 8 caracteres. Usa «Generar» para crear una segura y entrégala a la persona.'
+                        'Mínimo 8 caracteres, con mayúsculas, minúsculas y números. Usa «Generar» para crear una segura y entrégala a la persona.'
                       }
                     />
                   )}

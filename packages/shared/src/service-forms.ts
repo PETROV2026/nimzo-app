@@ -30,4 +30,4 @@ export function formTitle(form: Pick<ServiceForm, 'name' | 'subtitle'>): string 
 
 export const formIconBucket = 'form-icons';
 export const formIconMaxBytes = 524288;
-export const formIconTypes = ['image/svg+xml', 'image/png', 'image/webp'] as const;
+export const formIconTypes = ['image/png', 'image/webp'] as const;

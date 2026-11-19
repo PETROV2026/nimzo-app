@@ -1,6 +1,7 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 import { createHandler, UserError, type Role, type UsersBackend } from './handler.ts';
+import { parseAllowedOrigins } from '../_shared/cors.ts';
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -13,9 +14,10 @@ function fail(error: { message: string } | null) {
 }
 
 const backend: UsersBackend = {
-  async getCallerId(token) {
-    const { data, error } = await admin.auth.getUser(token);
-    return error ? null : (data.user?.id ?? null);
+  async getCaller(token) {
+    const { data, error } = await admin.auth.getClaims(token);
+    if (error || !data?.claims.sub) return null;
+    return { id: data.claims.sub, aal: String(data.claims.aal ?? '') };
   },
 
   async getProfile(userId) {
@@ -83,4 +85,6 @@ const backend: UsersBackend = {
   },
 };
 
-Deno.serve(createHandler(backend));
+Deno.serve(
+  createHandler(backend, { allowedOrigins: parseAllowedOrigins(Deno.env.get('ALLOWED_ORIGINS')) }),
+);

@@ -16,8 +16,8 @@ const sections: (Segment<Section> & { title: string; description: string })[] = 
     value: 'new',
     label: 'Nuevo servicio',
     icon: 'add-circle',
-    title: '¿En qué podemos ayudarte hoy?',
-    description: 'Elige el servicio que necesitas.',
+    title: '¿Qué servicio vas a realizar?',
+    description: 'Elige el formato que vas a llenar.',
   },
   {
     value: 'active',

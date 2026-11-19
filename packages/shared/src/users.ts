@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { Tables } from './database.types';
 import { optionalText } from './form-fields';
+import { passwordProblem } from './password';
 import { mexicanStateSchema } from './mexican-states';
 import { isValidPhone } from './phone';
 import { userRoleSchema } from './roles';
@@ -12,10 +13,10 @@ const roleField = z.enum(userRoleSchema.options, { error: 'Elige el rol' });
 
 const fullNameField = z.string().trim().min(1, 'Ingresa el nombre completo');
 
-export const passwordField = z
-  .string()
-  .min(8, 'La contraseña debe tener al menos 8 caracteres')
-  .max(72, 'La contraseña no puede tener más de 72 caracteres');
+export const passwordField = z.string().superRefine((value, context) => {
+  const problem = passwordProblem(value);
+  if (problem) context.addIssue({ code: 'custom', message: problem });
+});
 
 export const userCreateSchema = z.object({
   full_name: fullNameField,
