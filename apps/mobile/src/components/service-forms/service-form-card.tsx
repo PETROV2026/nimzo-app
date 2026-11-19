@@ -22,7 +22,7 @@ export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps)
       onPress={onPress}
       className="min-h-20 flex-row items-center gap-4 rounded-2xl bg-background p-3 shadow-sm active:bg-border"
     >
-      <View className="size-14 items-center justify-center rounded-xl bg-danger">
+      <View className="size-14 items-center justify-center rounded-xl bg-danger-light">
         {iconUrl ? (
           <Image
             source={iconUrl}
@@ -32,7 +32,7 @@ export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps)
             accessible={false}
           />
         ) : (
-          <Icon name="document-text" size={30} color={colors['on-danger']} />
+          <Icon name="document-text" size={30} color={colors['on-danger-light']} />
         )}
       </View>
       <View className="flex-1 gap-0.5">

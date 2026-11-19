@@ -68,8 +68,8 @@ export function SupportDialog({ accountEmail, onClose }: SupportDialogProps) {
           <DialogHeader title="Ayuda y soporte" onClose={onClose} />
 
           <View className="flex-row items-center gap-4">
-            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger">
-              <Icon name="help-buoy-outline" size={26} color={colors['on-danger']} />
+            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-danger-light">
+              <Icon name="help-buoy-outline" size={26} color={colors['on-danger-light']} />
             </View>
             <Text className="flex-1 font-sans-bold text-xl text-foreground">¿Necesitas ayuda?</Text>
           </View>

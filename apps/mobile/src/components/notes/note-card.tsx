@@ -24,7 +24,7 @@ function Chip({
 }) {
   return (
     <View
-      className={`flex-row items-center gap-1 rounded-full px-2.5 py-1 ${tone === 'alert' ? 'bg-danger/10' : 'bg-surface'}`}
+      className={`flex-row items-center gap-1 rounded-full px-2.5 py-1 ${tone === 'alert' ? 'bg-danger-light/15' : 'bg-surface'}`}
     >
       <Icon
         name={icon}
