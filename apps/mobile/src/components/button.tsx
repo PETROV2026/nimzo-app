@@ -29,9 +29,9 @@ const variants = {
   },
   danger: {
     pressed: 'bg-foreground/20',
-    container: 'bg-danger-light',
-    text: 'text-on-danger-light',
-    tint: colors['on-danger-light'],
+    container: 'bg-danger-strong',
+    text: 'text-on-danger',
+    tint: colors['on-danger'],
   },
   success: {
     pressed: 'bg-foreground/20',

@@ -33,15 +33,15 @@ export function SegmentedControl<T extends string>({
             accessibilityRole="tab"
             accessibilityState={{ selected }}
             onPress={() => onChange(segment.value)}
-            className={`min-h-16 grow flex-row items-center justify-center gap-2 rounded-full px-3 ${selected ? 'bg-danger-light' : 'active:bg-foreground/10'}`}
+            className={`min-h-16 grow flex-row items-center justify-center gap-2 rounded-full px-3 ${selected ? 'bg-danger-strong' : 'active:bg-foreground/10'}`}
           >
             <Icon
               name={segment.icon}
               size={22}
-              color={selected ? colors['on-danger-light'] : colors.muted}
+              color={selected ? colors['on-danger'] : colors.muted}
             />
             <Text
-              className={`font-sans-semibold text-base ${selected ? 'text-on-danger-light' : 'text-muted'}`}
+              className={`font-sans-semibold text-base ${selected ? 'text-on-danger' : 'text-muted'}`}
             >
               {segment.label}
             </Text>

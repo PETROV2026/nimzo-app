@@ -92,8 +92,7 @@ apps/mobile/
   | `text-muted` | gray `#484349` | Subtitles and secondary text |
   | `bg-primary` / `text-primary-strong` | teal `#20A39E` / `#19827E` | Main actions; `-strong` for teal text on white |
   | `bg-accent` + `text-on-accent` | yellow `#FFBA49` + black | Highlights, "needs attention" |
-  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#C94D27` | Error borders and orange icons on white / orange text on white (4.6:1) |
-  | `bg-danger-light` + `text-on-danger-light` | light orange `#E4862E` + white | Every orange fill: selected tabs and options, the active rail item, the orange button, icon tiles, the orange note color. White on it is 2.7:1, below WCAG AA (a design decision): keep text on it semibold or bold and at least 16 px |
+  | `bg-danger` / `text-danger-strong` | orange `#E4572E` / `#B64524` | Errors and warnings; `-strong` for orange text and filled buttons |
   | `bg-success` + `text-on-success` | green `#2E7D32` + white | Save and confirm buttons |
   | `bg-destructive` + `text-on-destructive` | red `#B43D3D` + white | Sign out and discard buttons |
   | `border-border` / `border-border-strong` | light / medium gray | Dividers / input outlines |

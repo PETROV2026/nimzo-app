@@ -236,7 +236,7 @@ export function BranchDetail({
                   ) : null}
                 </View>
                 {selected ? (
-                  <View className="absolute bottom-0 left-6 right-6 h-1 rounded-t-full bg-danger-light" />
+                  <View className="absolute bottom-0 left-6 right-6 h-1 rounded-t-full bg-danger" />
                 ) : null}
               </Pressable>
             );

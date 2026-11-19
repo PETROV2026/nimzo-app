@@ -16,8 +16,8 @@ const selectedStyles = {
     text: 'text-on-primary',
   },
   danger: {
-    box: 'border-danger-light bg-danger-light',
-    text: 'text-on-danger-light',
+    box: 'border-danger-strong bg-danger-strong',
+    text: 'text-on-danger',
   },
   neutral: {
     box: 'border-muted bg-muted',

@@ -18,9 +18,7 @@ const colors = {
   'on-accent': '#000000',
 
   danger: '#E4572E',
-  'danger-strong': '#C94D27',
-  'danger-light': '#E4862E',
-  'on-danger-light': '#FFFFFF',
+  'danger-strong': '#B64524',
   'on-danger': '#FFFFFF',
 
   success: '#2E7D32',

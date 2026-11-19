@@ -17,10 +17,10 @@ const palette = {
   rail: {
     item: 'min-h-20 w-full',
     mark: 'h-14 w-14',
-    activeMark: 'bg-danger-light',
+    activeMark: 'bg-danger',
     pressedMark: 'bg-background/20',
     iconSize: 28,
-    activeIcon: colors['on-danger-light'],
+    activeIcon: colors['on-danger'],
     inactiveIcon: `${colors.background}B3`,
     labelSize: 'text-base',
     activeLabel: 'text-background',
