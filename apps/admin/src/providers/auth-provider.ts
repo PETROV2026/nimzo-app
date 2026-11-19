@@ -2,6 +2,7 @@ import type { UserRole } from '@nimzo/shared';
 import type { AuthProvider } from '@refinedev/core';
 import { FunctionsHttpError } from '@supabase/supabase-js';
 
+import { setMonitoringUser } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
 
 export type Identity = {
@@ -93,6 +94,7 @@ export const authProvider: AuthProvider = {
 
   logout: async () => {
     clearProfileCache();
+    setMonitoringUser(null);
     await supabase.auth.signOut();
     return { success: true, redirectTo: '/login' };
   },
@@ -125,6 +127,7 @@ export const authProvider: AuthProvider = {
 
     const profile = await getAdminProfile(user.id);
     if (!profile) return null;
+    setMonitoringUser(user.id);
 
     return {
       id: user.id,

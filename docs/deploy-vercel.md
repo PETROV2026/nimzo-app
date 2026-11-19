@@ -13,9 +13,11 @@ Vercel compila el panel directamente desde GitHub: cada push genera una vista pr
    | `VITE_SUPABASE_URL` | URL del proyecto de Supabase |
    | `VITE_SUPABASE_ANON_KEY` | clave pública (anon) |
    | `VITE_TURNSTILE_SITE_KEY` | Site Key del widget de Cloudflare Turnstile (ver abajo) |
+   | `VITE_SENTRY_DSN` | DSN del proyecto `nimzo-admin` en Sentry (**Settings → Projects → nimzo-admin → Client Keys**) |
    | `ENABLE_EXPERIMENTAL_COREPACK` | `1` (usa la versión de pnpm fijada en `package.json`) |
+   | `SENTRY_AUTH_TOKEN` | token de organización de Sentry (**Settings → Auth Tokens**). Es **secreto**: márcalo como *Sensitive* |
 
-   Son públicas (van dentro del panel). Nunca pongas aquí la `service_role` de Supabase.
+   Todas, menos `SENTRY_AUTH_TOKEN`, son públicas (van dentro del panel). Nunca pongas aquí la `service_role` de Supabase. `SENTRY_AUTH_TOKEN` solo se usa al compilar: sube los source maps a Sentry para que los errores muestren la línea del código fuente, y después se borran del build, así que nunca se publican. Sin el token, el panel funciona igual y los errores llegan, pero con el código compilado.
 
 4. **Deploy**. Al terminar, Vercel da una dirección `*.vercel.app`.
 5. En **Settings → Git → Production Branch** elige `main`. Los PRs y las demás ramas quedan como vistas previas.
