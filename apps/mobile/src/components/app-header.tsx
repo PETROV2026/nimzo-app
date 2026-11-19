@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConnectionStatus } from '@/components/connection-status';
@@ -19,9 +20,10 @@ function today() {
 type AppHeaderProps = {
   title: string;
   variant: 'rail' | 'dock';
+  actions?: ReactNode;
 };
 
-export function AppHeader({ title, variant }: AppHeaderProps) {
+export function AppHeader({ title, variant, actions }: AppHeaderProps) {
   const compact = variant === 'rail';
   const insets = useSafeAreaInsets();
   return (
@@ -51,6 +53,7 @@ export function AppHeader({ title, variant }: AppHeaderProps) {
           </Text>
         </View>
         <ConnectionStatus />
+        {actions}
       </View>
     </View>
   );

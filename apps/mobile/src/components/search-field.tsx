@@ -7,6 +7,7 @@ type SearchFieldProps = {
   onChangeText: (value: string) => void;
   placeholder: string;
   accessibilityLabel?: string;
+  autoFocus?: boolean;
 };
 
 export function SearchField({
@@ -14,6 +15,7 @@ export function SearchField({
   onChangeText,
   placeholder,
   accessibilityLabel = placeholder,
+  autoFocus,
 }: SearchFieldProps) {
   return (
     <View className="min-h-14 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
@@ -25,6 +27,8 @@ export function SearchField({
         placeholderTextColor={colors.placeholder}
         accessibilityLabel={accessibilityLabel}
         returnKeyType="search"
+        autoFocus={autoFocus}
+        disableFullscreenUI
         className="min-h-14 flex-1 font-sans text-lg text-foreground"
       />
       {value ? (

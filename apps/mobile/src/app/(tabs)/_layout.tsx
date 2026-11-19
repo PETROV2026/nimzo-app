@@ -36,6 +36,7 @@ export default function TabsLayout() {
             <AppHeader
               title={typeof options.title === 'string' ? options.title : route.name}
               variant={variant}
+              actions={options.headerRight?.({ canGoBack: false })}
             />
           ),
           sceneStyle: { backgroundColor: colors.muted },
