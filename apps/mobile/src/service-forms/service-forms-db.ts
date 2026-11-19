@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import type { ServiceForm } from '@nimzo/shared';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
+import { compareCatalogForms } from '@/service-forms/catalog-order';
 
 export type LocalServiceForm = Pick<
   ServiceForm,
@@ -9,19 +10,13 @@ export type LocalServiceForm = Pick<
 >;
 
 const catalogKey = 'catalog';
-const frequencyOrder = ['Semanal', 'Mensual', 'Trimestral', 'Semestral y anual', 'Anual'];
-
-function byNameAndFrequency(a: LocalServiceForm, b: LocalServiceForm) {
-  return (
-    a.name.localeCompare(b.name, 'es') ||
-    frequencyOrder.indexOf(a.subtitle ?? '') - frequencyOrder.indexOf(b.subtitle ?? '')
-  );
-}
 
 const serviceFormsStore = createTableStore(() =>
   db
-    .getAllSync<LocalServiceForm>('select code, name, subtitle, icon_path, updated_at from service_forms')
-    .sort(byNameAndFrequency),
+    .getAllSync<LocalServiceForm>(
+      'select code, name, subtitle, icon_path, updated_at from service_forms',
+    )
+    .sort(compareCatalogForms),
 );
 
 export function useServiceForms() {

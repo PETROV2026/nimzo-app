@@ -1,11 +1,11 @@
 import { formTitle } from '@nimzo/shared';
-import { Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, View } from 'react-native';
+import { HighlightedText } from '@/components/highlighted-text';
 import { Icon } from '@/components/icon';
+import { formIconUrl } from '@/service-forms/form-icon-url';
 import type { LocalServiceForm } from '@/service-forms/service-forms-db';
 import { colors } from '@/theme';
-import { HighlightedText } from '@/components/highlighted-text';
-import { Image } from 'expo-image';
-import { formIconUrl } from '@/service-forms/form-icon-url';
 
 type ServiceFormCardProps = {
   form: LocalServiceForm;
