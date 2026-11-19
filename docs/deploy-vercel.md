@@ -44,6 +44,25 @@ El login del panel pide un captcha. El panel manda correo, contraseña y captcha
 
 La función debe estar publicada antes que el panel nuevo; si no, nadie puede entrar al panel.
 
+## Verificación en dos pasos de los administradores
+
+Cada administrador confirma su identidad con un código de 6 dígitos de una app de autenticación (Google Authenticator, Microsoft Authenticator o similar). La primera vez, después del correo, la contraseña y el captcha, el panel muestra un código QR para registrar la app; después solo pide el código. La base de datos también lo exige: una sesión de administrador sin el código no ve datos de los técnicos y no puede administrar usuarios. Los técnicos no usan 2FA.
+
+En Supabase, **una sola vez**:
+
+1. **Authentication → Multi-Factor** (o **Sign In / Providers → Multi-Factor Authentication**): **TOTP (App Authenticator)** activado.
+2. **Authentication → Sign In / Providers → Email**: **Minimum password length** = 8 y **Password requirements** = *Lowercase, uppercase letters and digits*.
+
+Orden para publicarlo, porque la migración exige el código a los administradores:
+
+1. Unir el cambio y publicar el panel (que ya pide el código) en producción.
+2. Cada administrador entra al panel y registra su app de autenticación.
+3. Aplicar la migración `admins_require_mfa` (`pnpm supabase db push`) y publicar de nuevo la función `admin-users`.
+
+Si la migración se aplica antes de que el panel de producción pida el código, los administradores entran pero no ven datos.
+
+**Si un administrador pierde su teléfono:** en Supabase, **Authentication → Users**, abre su usuario y elimina su factor de autenticación (MFA). La próxima vez que entre al panel registrará una app nueva. Hazlo solo después de confirmar la identidad de la persona por otro medio.
+
 ## Dominio propio
 
 **Settings → Domains → Add** y sigue las instrucciones del registro DNS (en GoDaddy: **Mis dominios → DNS**, agrega el registro `CNAME` o `A` que indique Vercel).

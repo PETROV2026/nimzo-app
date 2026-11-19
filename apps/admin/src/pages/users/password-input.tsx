@@ -7,7 +7,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TextField, { type TextFieldProps } from '@mui/material/TextField';
 import { useState } from 'react';
 
-import { generatePassword } from '@/lib/password';
+import { generatePassword } from '@nimzo/shared';
 
 type PasswordInputProps = Omit<TextFieldProps, 'onChange' | 'value'> & {
   value: string;

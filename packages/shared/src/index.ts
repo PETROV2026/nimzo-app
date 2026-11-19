@@ -5,6 +5,7 @@ export * from './database-errors';
 export * from './field-values';
 export * from './form-definition';
 export * from './mexican-states';
+export * from './password';
 export * from './privacy-notice';
 export * from './report';
 export * from './roles';
