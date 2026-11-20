@@ -13,7 +13,8 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.nimzo"
     },
     "web": {
       "output": "static",
@@ -32,7 +33,12 @@
       "expo-sqlite",
       "expo-font",
       "expo-image",
-      ["expo-image-picker", { "microphonePermission": false }],
+      [
+        "expo-image-picker",
+        {
+          "microphonePermission": false
+        }
+      ],
       "expo-status-bar",
       "@react-native-community/datetimepicker",
       [
@@ -45,7 +51,20 @@
       "expo-secure-store",
       [
         "@sentry/react-native/expo",
-        { "url": "https://sentry.io/", "organization": "nimzo", "project": "nimzo-mobile" }
+        {
+          "url": "https://sentry.io/",
+          "organization": "nimzo",
+          "project": "nimzo-mobile"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "experiments": {
