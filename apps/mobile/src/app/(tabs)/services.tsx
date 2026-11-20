@@ -2,7 +2,7 @@ import { formTitle, matchesSearch } from '@nimzo/shared';
 import { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
-import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
+import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
@@ -91,10 +91,7 @@ export default function ServicesScreen() {
         contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
       >
         {current === 'new' ? (
-          <>
-            <HeaderSearchField search={headerSearch} placeholder="Buscar formato" />
-            <ServiceFormGrid catalog={catalog} search={headerSearch.term} />
-          </>
+          <ServiceFormGrid catalog={catalog} search={headerSearch.term} />
         ) : (
           <EmptyState
             icon="clipboard-outline"
