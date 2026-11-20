@@ -76,10 +76,7 @@ export default function ServicesScreen() {
         label="Buscar formato"
         available={current === 'new'}
       />
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerClassName="flex-grow gap-5 p-6"
-      >
+      <View className="px-6 pb-3 pt-6">
         <SegmentedControl
           segments={sections}
           value={current}
@@ -88,6 +85,11 @@ export default function ServicesScreen() {
             headerSearch.close();
           }}
         />
+      </View>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
+      >
         {current === 'new' ? (
           <>
             <HeaderSearchField search={headerSearch} placeholder="Buscar formato" />
