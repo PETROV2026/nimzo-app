@@ -8,6 +8,7 @@ type SearchFieldProps = {
   placeholder: string;
   accessibilityLabel?: string;
   autoFocus?: boolean;
+  tone?: 'page' | 'header';
 };
 
 export function SearchField({
@@ -16,9 +17,12 @@ export function SearchField({
   placeholder,
   accessibilityLabel = placeholder,
   autoFocus,
+  tone = 'page',
 }: SearchFieldProps) {
   return (
-    <View className="min-h-14 flex-row items-center gap-2 rounded-xl border-2 border-border bg-background px-3">
+    <View
+      className={`min-h-14 flex-row items-center gap-2 rounded-xl bg-background px-3 ${tone === 'page' ? 'border-2 border-border' : ''}`}
+    >
       <Icon name="search" size={24} color={colors.muted} />
       <TextInput
         value={value}

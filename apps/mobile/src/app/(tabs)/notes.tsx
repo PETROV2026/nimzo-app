@@ -7,7 +7,7 @@ import { AddButton } from '@/components/add-button';
 import { EmptyState } from '@/components/empty-state';
 import { NoteCard } from '@/components/notes/note-card';
 import { NoteEditor } from '@/components/notes/note-editor';
-import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
+import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { dateGroup, dateGroups } from '@/notes/format';
 import { createNote, getNote, type Note } from '@/notes/notes-db';
 import { useNotes } from '@/notes/use-notes';
@@ -75,11 +75,6 @@ export default function NotesScreen() {
 
   const list = (
     <View className="flex-1">
-      {headerSearch.open ? (
-        <View className="px-4 pb-3 pt-4">
-          <HeaderSearchField search={headerSearch} placeholder="Buscar en tus notas" />
-        </View>
-      ) : null}
       {hasNotes ? (
         <FlatList
           data={buildList(notes)}

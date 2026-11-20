@@ -18,9 +18,10 @@ type AppHeaderProps = {
   title: string;
   variant: 'rail' | 'dock';
   actions?: ReactNode;
+  search?: ReactNode;
 };
 
-export function AppHeader({ title, variant, actions }: AppHeaderProps) {
+export function AppHeader({ title, variant, actions, search }: AppHeaderProps) {
   const compact = variant === 'rail';
   const insets = useSafeAreaInsets();
   return (
@@ -29,19 +30,23 @@ export function AppHeader({ title, variant, actions }: AppHeaderProps) {
         className={`flex-row items-center gap-4 ${compact ? 'min-h-16 py-1 pl-6' : 'min-h-24 py-3 pl-8'}`}
         style={{ paddingRight: insets.right + 24 }}
       >
-        <View className={compact ? 'flex-1 flex-row items-baseline gap-4' : 'flex-1 gap-0.5'}>
-          <Text
-            accessibilityRole="header"
-            numberOfLines={1}
-            className={`font-sans-bold text-background ${compact ? 'text-2xl' : 'text-3xl'}`}
-          >
-            {title}
-          </Text>
-          <Text numberOfLines={1} className="font-sans text-base text-background/70">
-            {today()}
-          </Text>
-        </View>
-        <ConnectionStatus />
+        {search ? (
+          <View className="flex-1">{search}</View>
+        ) : (
+          <View className={compact ? 'flex-1 flex-row items-baseline gap-4' : 'flex-1 gap-0.5'}>
+            <Text
+              accessibilityRole="header"
+              numberOfLines={1}
+              className={`font-sans-bold text-background ${compact ? 'text-2xl' : 'text-3xl'}`}
+            >
+              {title}
+            </Text>
+            <Text numberOfLines={1} className="font-sans text-base text-background/70">
+              {today()}
+            </Text>
+          </View>
+        )}
+        {search ? null : <ConnectionStatus />}
         {actions}
       </View>
     </View>

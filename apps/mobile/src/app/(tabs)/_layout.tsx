@@ -35,13 +35,21 @@ export default function TabsLayout() {
         }
         screenOptions={{
           tabBarPosition: variant === 'rail' ? 'left' : 'bottom',
-          header: ({ options, route }) => (
-            <AppHeader
-              title={typeof options.title === 'string' ? options.title : route.name}
-              variant={variant}
-              actions={options.headerRight?.({ canGoBack: false })}
-            />
-          ),
+          header: ({ options, route }) => {
+            const title = typeof options.title === 'string' ? options.title : route.name;
+            return (
+              <AppHeader
+                title={title}
+                variant={variant}
+                actions={options.headerRight?.({ canGoBack: false })}
+                search={
+                  typeof options.headerTitle === 'function'
+                    ? options.headerTitle({ children: title })
+                    : undefined
+                }
+              />
+            );
+          },
           sceneStyle: { backgroundColor: colors.muted },
         }}
       >

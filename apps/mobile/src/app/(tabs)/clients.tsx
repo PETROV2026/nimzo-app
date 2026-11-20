@@ -34,7 +34,7 @@ import { ClientCard } from '@/components/clients/client-card';
 import { SystemFormDialog } from '@/components/clients/system-form-dialog';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
-import { HeaderSearchButton, HeaderSearchField, useHeaderSearch } from '@/components/header-search';
+import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { useToast } from '@/components/toast';
 
 const gap = 16;
@@ -200,12 +200,7 @@ export default function ClientsScreen() {
       />
     ) : (
       <View className="flex-1">
-        <View className="gap-3 px-4 pb-3 pt-4">
-          <HeaderSearchField
-            search={headerSearch}
-            placeholder="Buscar cliente o sucursal"
-            accessibilityLabel="Buscar clientes"
-          />
+        <View className="px-4 pb-3 pt-4">
           <Text accessibilityLiveRegion="polite" className="px-1 font-sans text-base text-muted">
             {searching
               ? `${clients.length} de ${allClients.length} clientes`
@@ -366,6 +361,7 @@ export default function ClientsScreen() {
       <HeaderSearchButton
         search={headerSearch}
         label="Buscar clientes"
+        placeholder="Buscar cliente o sucursal"
         available={allClients.length > 0}
       />
       {list}
