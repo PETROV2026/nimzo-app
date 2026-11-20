@@ -1,6 +1,14 @@
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import {
+  Keyboard,
+  type LayoutChangeEvent,
+  Pressable,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { Icon, type IconName } from '@/components/icon';
 import { colors } from '@/theme';
 
@@ -42,6 +50,32 @@ const palette = {
 
 const brandMark = require('@nimzo/brand/logos/icon-color.webp');
 
+function useKeyboardVisible() {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const subscriptions = [
+      Keyboard.addListener('keyboardDidShow', () => setVisible(true)),
+      Keyboard.addListener('keyboardDidHide', () => setVisible(false)),
+    ];
+    return () => subscriptions.forEach((subscription) => subscription.remove());
+  }, []);
+  return visible;
+}
+
+function useTallestHeight() {
+  const { width, height } = useWindowDimensions();
+  const windowKey = `${width}x${height}`;
+  const [tallest, setTallest] = useState({ windowKey, height: 0 });
+  const current = tallest.windowKey === windowKey ? tallest.height : 0;
+  return {
+    minHeight: current > 0 ? current : undefined,
+    onLayout: (event: LayoutChangeEvent) => {
+      const measured = event.nativeEvent.layout.height;
+      if (measured > current) setTallest({ windowKey, height: measured });
+    },
+  };
+}
+
 type NavigationBarProps = BottomTabBarProps & { variant: Variant };
 
 export function NavigationBar({
@@ -52,6 +86,8 @@ export function NavigationBar({
   insets,
   variant,
 }: NavigationBarProps) {
+  const { minHeight, onLayout } = useTallestHeight();
+  const keyboardVisible = useKeyboardVisible();
   const items = state.routes
     .map((route, index) => ({ route, focused: state.index === index }))
     .filter(({ route }) => route.name in icons)
@@ -98,7 +134,9 @@ export function NavigationBar({
       <View
         accessibilityRole="tablist"
         className="w-[120px] items-center bg-muted"
+        onLayout={onLayout}
         style={{
+          minHeight,
           paddingTop: insets.top + 16,
           paddingBottom: insets.bottom + 16,
           paddingLeft: insets.left,
@@ -118,6 +156,8 @@ export function NavigationBar({
       </View>
     );
   }
+
+  if (keyboardVisible) return null;
 
   return (
     <View

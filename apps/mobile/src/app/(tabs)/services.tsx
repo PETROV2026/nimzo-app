@@ -9,34 +9,26 @@ import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-
 
 type Section = 'new' | 'active' | 'pending' | 'history';
 
-const sections: (Segment<Section> & { title: string; description: string })[] = [
+const sections: Segment<Section>[] = [
   {
     value: 'new',
     label: 'Nuevo servicio',
     icon: 'add-circle',
-    title: '¿Qué servicio vas a realizar?',
-    description: 'Elige el formato que vas a llenar.',
   },
   {
     value: 'active',
     label: 'Activos',
     icon: 'play-circle-outline',
-    title: 'Servicios activos',
-    description: 'Retoma los servicios que tienes en progreso.',
   },
   {
     value: 'pending',
     label: 'Pendientes',
     icon: 'hourglass-outline',
-    title: 'Servicios pendientes',
-    description: 'Ya los terminaste; solo falta enviarlos al cliente.',
   },
   {
     value: 'history',
     label: 'Historial',
     icon: 'time-outline',
-    title: 'Historial de servicios',
-    description: 'Consulta y descarga los reportes que ya enviaste.',
   },
 ];
 
@@ -75,7 +67,6 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
 export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
   const headerSearch = useHeaderSearch();
-  const section = sections.find((item) => item.value === current) ?? sections[0];
   const catalog = useServiceForms();
 
   return (
@@ -85,14 +76,7 @@ export default function ServicesScreen() {
         label="Buscar formato"
         available={current === 'new'}
       />
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerClassName="flex-grow gap-5 p-6"
-      >
-        <View className="gap-1">
-          <Text className="font-sans-bold text-2xl text-foreground">{section.title}</Text>
-          <Text className="font-sans text-base text-muted">{section.description}</Text>
-        </View>
+      <View className="px-6 pb-3 pt-6">
         <SegmentedControl
           segments={sections}
           value={current}
@@ -101,6 +85,11 @@ export default function ServicesScreen() {
             headerSearch.close();
           }}
         />
+      </View>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
+      >
         {current === 'new' ? (
           <>
             <HeaderSearchField search={headerSearch} placeholder="Buscar formato" />
