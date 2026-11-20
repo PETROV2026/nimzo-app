@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, ScrollView, Text, View } from 'react-native';
+import { FlatList, Modal, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import {
@@ -23,6 +23,7 @@ import {
   type LocalSystem,
   type SystemDetails,
 } from '@/clients/systems-db';
+import { clientRows } from '@/clients/client-rows';
 import { groupByClient, useBranches, useClients, useSystems } from '@/clients/use-clients';
 import { AddButton } from '@/components/add-button';
 import { Button } from '@/components/button';
@@ -207,57 +208,48 @@ export default function ClientsScreen() {
               : `${activeCount} ${activeCount === 1 ? 'cliente activo' : 'clientes activos'}`}
           </Text>
         </View>
-        <ScrollView
+        <FlatList
+          data={gridWidth > 0 ? clientRows(clients, columns) : []}
+          keyExtractor={(item) => item.key}
           keyboardShouldPersistTaps="handled"
-          contentContainerClassName="gap-6 px-4 pb-32 pt-1"
+          contentContainerClassName="gap-4 px-4 pb-32 pt-1"
           onLayout={(event) => setGridWidth(event.nativeEvent.layout.width - 32)}
-        >
-          {clients.length === 0 ? (
-            <Text className="px-2 py-10 text-center font-sans text-base text-muted">
-              Ningún cliente coincide con “{search.trim()}”.
-            </Text>
-          ) : null}
-          {gridWidth > 0
-            ? [
-                { key: 'active', label: null, list: clients.filter((client) => client.isActive) },
-                {
-                  key: 'inactive',
-                  label: 'Inactivos',
-                  list: clients.filter((client) => !client.isActive),
-                },
-              ].map((section) =>
-                section.list.length === 0 ? null : (
-                  <View key={section.key} className="gap-3">
-                    {section.label ? (
-                      <Text
-                        accessibilityRole="header"
-                        className="px-1 font-sans-semibold text-base text-muted"
-                      >
-                        {section.label}
-                      </Text>
-                    ) : null}
-                    <View className="flex-row flex-wrap" style={{ gap }}>
-                      {section.list.map((client) => (
-                        <ClientCard
-                          key={client.id}
-                          client={client}
-                          branches={branchesByClient.get(client.id) ?? []}
-                          search={search}
-                          width={cardWidth}
-                          pendingSystems={(branchesByClient.get(client.id) ?? []).some((branch) =>
-                            branchesWithPendingSystems.has(branch.id),
-                          )}
-                          onOpenClient={() => setSelectedId(client.id)}
-                          onOpenBranch={(branch) => setOpenBranchId(branch.id)}
-                          onAddBranch={() => setBranchForm({ client })}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                ),
-              )
-            : null}
-        </ScrollView>
+          ListEmptyComponent={
+            gridWidth > 0 ? (
+              <Text className="px-2 py-10 text-center font-sans text-base text-muted">
+                Ningún cliente coincide con “{search.trim()}”.
+              </Text>
+            ) : undefined
+          }
+          renderItem={({ item }) =>
+            item.type === 'header' ? (
+              <Text
+                accessibilityRole="header"
+                className="px-1 pt-2 font-sans-semibold text-base text-muted"
+              >
+                {item.label}
+              </Text>
+            ) : (
+              <View className="flex-row" style={{ gap }}>
+                {item.clients.map((client) => (
+                  <ClientCard
+                    key={client.id}
+                    client={client}
+                    branches={branchesByClient.get(client.id) ?? []}
+                    search={search}
+                    width={cardWidth}
+                    pendingSystems={(branchesByClient.get(client.id) ?? []).some((branch) =>
+                      branchesWithPendingSystems.has(branch.id),
+                    )}
+                    onOpenClient={() => setSelectedId(client.id)}
+                    onOpenBranch={(branch) => setOpenBranchId(branch.id)}
+                    onAddBranch={() => setBranchForm({ client })}
+                  />
+                ))}
+              </View>
+            )
+          }
+        />
       </View>
     );
 
