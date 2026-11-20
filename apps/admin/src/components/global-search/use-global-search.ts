@@ -34,6 +34,7 @@ const pages: PageEntry[] = [
   { label: 'Sistemas', to: '/systems', keywords: 'rociadores hidrantes extintores lista' },
   { label: 'Formatos', to: '/forms', keywords: 'f-ser reportes catalogo' },
   { label: 'Agregar formato', to: '/forms/create', keywords: 'nuevo crear f-ser' },
+  { label: 'Mensajes', to: '/messages', keywords: 'comentarios fallas ideas sugerencias' },
   { label: 'Usuarios', to: '/users', keywords: 'cuentas tecnicos administradores equipo' },
   {
     label: 'Agregar usuario',

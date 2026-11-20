@@ -1,5 +1,6 @@
 import BuildOutlined from '@mui/icons-material/BuildOutlined';
 import BusinessOutlined from '@mui/icons-material/BusinessOutlined';
+import ChatOutlined from '@mui/icons-material/ChatOutlined';
 import DescriptionOutlined from '@mui/icons-material/DescriptionOutlined';
 import GroupOutlined from '@mui/icons-material/GroupOutlined';
 import LocalFireDepartmentOutlined from '@mui/icons-material/LocalFireDepartmentOutlined';
@@ -73,6 +74,11 @@ const PackageEdit = lazy(() => loadPackages().then((module) => ({ default: modul
 const loadReports = () => import('@/pages/reports');
 
 const ReportList = lazy(() => loadReports().then((module) => ({ default: module.ReportList })));
+
+const loadMessages = () => import('@/pages/messages');
+
+const MessageList = lazy(() => loadMessages().then((module) => ({ default: module.MessageList })));
+const MessageShow = lazy(() => loadMessages().then((module) => ({ default: module.MessageShow })));
 
 const loadUsers = () => import('@/pages/users');
 
@@ -186,6 +192,12 @@ const resources = [
     meta: { label: 'Reportes', icon: <ReceiptLongOutlined />, canDelete: false },
   },
   {
+    name: 'feedback_messages',
+    list: '/messages',
+    show: '/messages/:id',
+    meta: { label: 'Mensajes', icon: <ChatOutlined />, canDelete: false },
+  },
+  {
     name: 'profiles',
     list: '/users',
     create: '/users/create',
@@ -215,7 +227,7 @@ const resources = [
   },
 ];
 
-const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>> = {
+const titles: Record<string, Partial<Record<'list' | 'create' | 'edit' | 'show', string>>> = {
   dashboard: { list: 'Escritorio' },
   clients: { list: 'Clientes', create: 'Agregar cliente', edit: 'Editar cliente' },
   branches: { list: 'Sucursales', create: 'Agregar sucursal', edit: 'Editar sucursal' },
@@ -223,6 +235,7 @@ const titles: Record<string, Partial<Record<'list' | 'create' | 'edit', string>>
   service_forms: { list: 'Formatos', create: 'Agregar formato', edit: 'Editar formato' },
   service_packages: { edit: 'Paquete de servicio' },
   reports: { list: 'Reportes' },
+  feedback_messages: { list: 'Mensajes', show: 'Mensaje' },
   profiles: { list: 'Usuarios', create: 'Agregar usuario', edit: 'Editar usuario' },
   tools: { list: 'Herramientas' },
 };
@@ -324,6 +337,17 @@ export default function App() {
                     }
                   />
                   <Route
+                    path="/messages"
+                    element={
+                      <Suspense fallback={<PageLoader label="Cargando mensajes…" />}>
+                        <Outlet />
+                      </Suspense>
+                    }
+                  >
+                    <Route index element={<MessageList />} />
+                    <Route path=":id" element={<MessageShow />} />
+                  </Route>
+                  <Route
                     path="/users"
                     element={
                       <Suspense fallback={<PageLoader label="Cargando usuarios…" />}>
@@ -369,7 +393,7 @@ export default function App() {
                 const toolTitle = pathname ? toolTitles[pathname] : undefined;
                 if (toolTitle) return `${toolTitle} | Nimzo`;
                 const pages = resource?.name ? titles[resource.name] : undefined;
-                const title = pages?.[action as 'list' | 'create' | 'edit'] ?? pages?.list;
+                const title = pages?.[action as 'list' | 'create' | 'edit' | 'show'] ?? pages?.list;
                 return title ? `${title} | Nimzo` : 'Nimzo';
               }}
             />
