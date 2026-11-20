@@ -2,9 +2,11 @@ import { feedbackMaxPhotos } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
-import { Linking, Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
 import { Button } from '@/components/button';
+import { Icon } from '@/components/icon';
 import { deletePhoto, savePhoto } from '@/lib/save-photo';
+import { colors } from '@/theme';
 
 type Source = 'camera' | 'library';
 
@@ -75,9 +77,9 @@ export function FeedbackPhotos({ uris, onChange }: FeedbackPhotosProps) {
         la galería.
       </Text>
       {uris.length ? (
-        <View className="flex-row flex-wrap gap-4">
+        <View className="flex-row flex-wrap gap-5 pr-3 pt-3">
           {uris.map((uri, index) => (
-            <View key={uri} className="w-32 gap-2">
+            <View key={uri} className="size-32">
               <View className="size-32 overflow-hidden rounded-lg bg-surface">
                 <Image
                   source={uri}
@@ -86,15 +88,24 @@ export function FeedbackPhotos({ uris, onChange }: FeedbackPhotosProps) {
                   accessibilityLabel={`Imagen ${index + 1}`}
                 />
               </View>
-              <Button
-                label="Quitar"
-                variant="secondary"
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Quitar la imagen ${index + 1}`}
+                disabled={Boolean(busy)}
                 onPress={() => {
                   deletePhoto(uri);
                   onChange(uris.filter((other) => other !== uri));
                 }}
-                disabled={Boolean(busy)}
-              />
+                className="absolute -right-3 -top-3 size-14 items-center justify-center"
+              >
+                {({ pressed }) => (
+                  <View
+                    className={`size-10 items-center justify-center rounded-full border-2 border-background ${pressed ? 'bg-destructive' : 'bg-foreground'}`}
+                  >
+                    <Icon name="trash-outline" size={20} color={colors.background} />
+                  </View>
+                )}
+              </Pressable>
             </View>
           ))}
         </View>
