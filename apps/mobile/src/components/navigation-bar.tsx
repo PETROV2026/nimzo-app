@@ -1,15 +1,9 @@
 import { Image } from 'expo-image';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
-import { useEffect, useState } from 'react';
-import {
-  Keyboard,
-  type LayoutChangeEvent,
-  Pressable,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { type LayoutChangeEvent, Pressable, Text, useWindowDimensions, View } from 'react-native';
 import { Icon, type IconName } from '@/components/icon';
+import { useKeyboardVisible } from '@/lib/use-keyboard-visible';
 import { colors } from '@/theme';
 
 type Variant = 'rail' | 'dock';
@@ -49,18 +43,6 @@ const palette = {
 };
 
 const brandMark = require('@nimzo/brand/logos/icon-color.webp');
-
-function useKeyboardVisible() {
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const subscriptions = [
-      Keyboard.addListener('keyboardDidShow', () => setVisible(true)),
-      Keyboard.addListener('keyboardDidHide', () => setVisible(false)),
-    ];
-    return () => subscriptions.forEach((subscription) => subscription.remove());
-  }, []);
-  return visible;
-}
 
 function useTallestHeight() {
   const { width, height } = useWindowDimensions();
