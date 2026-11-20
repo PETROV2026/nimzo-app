@@ -4,8 +4,10 @@ import { FlatList, ScrollView, Text, useWindowDimensions, View } from 'react-nat
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import type { IconName } from '@/components/icon';
+import { Notice } from '@/components/notice';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
+import { useOnline } from '@/lib/use-online';
 import { mockReports } from '@/reports/mock-reports';
 import { ReportCard } from '@/reports/report-card';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
@@ -73,6 +75,7 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
 
 function ReportList({ status }: { status: ReportStatus }) {
   const { width } = useWindowDimensions();
+  const online = useOnline();
   const columns = width >= 960 ? 2 : 1;
   const reports = mockReports.filter((report) => report.status === status);
 
@@ -87,6 +90,13 @@ function ReportList({ status }: { status: ReportStatus }) {
           <ReportCard report={item} />
         </View>
       )}
+      ListHeaderComponent={
+        status === 'sent' && !online ? (
+          <View className="p-2">
+            <Notice message="Sin conexión. Estás viendo los últimos reportes que se descargaron." />
+          </View>
+        ) : undefined
+      }
       ListEmptyComponent={<EmptyState {...emptyStates[status]} />}
       contentContainerClassName="flex-grow px-4 pb-6"
     />
