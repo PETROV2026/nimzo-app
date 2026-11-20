@@ -127,6 +127,53 @@ export type Database = {
           },
         ];
       };
+      feedback_messages: {
+        Row: {
+          app_version: string;
+          created_at: string;
+          id: string;
+          kind: Database['public']['Enums']['feedback_kind'];
+          message: string;
+          os_version: string;
+          photo_paths: string[];
+          screen: string;
+          technician_id: string;
+          written_at: string;
+        };
+        Insert: {
+          app_version: string;
+          created_at?: string;
+          id: string;
+          kind: Database['public']['Enums']['feedback_kind'];
+          message: string;
+          os_version: string;
+          photo_paths?: string[];
+          screen: string;
+          technician_id: string;
+          written_at: string;
+        };
+        Update: {
+          app_version?: string;
+          created_at?: string;
+          id?: string;
+          kind?: Database['public']['Enums']['feedback_kind'];
+          message?: string;
+          os_version?: string;
+          photo_paths?: string[];
+          screen?: string;
+          technician_id?: string;
+          written_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'feedback_messages_technician_id_fkey';
+            columns: ['technician_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           city: string | null;
@@ -486,6 +533,7 @@ export type Database = {
       admin_diagnostics: { Args: never; Returns: Json };
     };
     Enums: {
+      feedback_kind: 'bug' | 'idea';
       service_frequency: 'weekly' | 'monthly' | 'quarterly' | 'semiannual' | 'annual';
       system_type:
         | 'sprinkler'
@@ -618,6 +666,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      feedback_kind: ['bug', 'idea'],
       service_frequency: ['weekly', 'monthly', 'quarterly', 'semiannual', 'annual'],
       system_type: [
         'sprinkler',

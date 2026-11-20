@@ -13,6 +13,7 @@ import { SectionHeader } from '@/components/section-header';
 import { SignatureDialog } from '@/components/signature-dialog';
 import { SignaturePreview } from '@/components/signature-preview';
 import { SupportDialog } from '@/components/support-dialog';
+import { openFeedback } from '@/feedback/open-feedback';
 import { useToast } from '@/components/toast';
 import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
@@ -227,9 +228,15 @@ export default function ProfileScreen() {
           <View className="gap-3">
             {notificationsRow}
             <ActionRow
+              icon="chatbubble-ellipses-outline"
+              title="Enviar comentarios"
+              description="Cuéntanos qué falló o qué mejorarías en la app."
+              onPress={() => openFeedback('profile')}
+            />
+            <ActionRow
               icon="help-buoy-outline"
               title="Ayuda y soporte"
-              description="Reporta un problema o solicita ayuda."
+              description="Escríbenos por correo si necesitas ayuda."
               onPress={() => setShowingSupport(true)}
             />
             <ActionRow
