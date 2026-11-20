@@ -2,7 +2,7 @@ import { supportEmail } from './support';
 
 export type PrivacyNoticeSection = { title: string; paragraphs: string[] };
 
-export const privacyNoticeUpdatedAt = '2026-11-03';
+export const privacyNoticeUpdatedAt = '2026-11-20';
 
 export const privacyNoticeController = {
   legalName: 'Petrov',
@@ -23,6 +23,7 @@ export const privacyNotice: PrivacyNoticeSection[] = [
       'Tu firma autógrafa digitalizada, que dibujas en la app.',
       'La información de tu trabajo que capturas en la app: tus clientes, sus sucursales y sistemas, tus servicios y los reportes que envías, incluidas las fotos que tomas.',
       'Datos técnicos para darte soporte cuando nos escribes: versión de la app y versión de Android.',
+      'Los comentarios que nos envías desde la app (fallas o ideas), con las fotos o capturas que adjuntes y la pantalla de la app donde estabas.',
       'Tus notas se guardan solo en tu tablet; no las recibimos.',
       'No usamos datos personales sensibles.',
     ],
@@ -34,6 +35,7 @@ export const privacyNotice: PrivacyNoticeSection[] = [
       'Generar los reportes de servicio con tus datos de contacto y tu firma, guardarlos y entregarlos a tus clientes.',
       'Respaldar y sincronizar tu información entre la tablet y la nube.',
       'Atender tus solicitudes de ayuda y soporte.',
+      'Revisar tus comentarios para corregir fallas y mejorar la app.',
       'Cumplir obligaciones legales.',
       'No usamos tus datos para publicidad ni para fines distintos a los de este aviso.',
     ],
