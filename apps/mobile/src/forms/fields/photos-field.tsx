@@ -1,13 +1,12 @@
 import { useRef, useState } from 'react';
 import { Linking, Text, View } from 'react-native';
-import { Directory, File, Paths } from 'expo-file-system';
 import { Image } from 'expo-image';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import type { FormField } from '@nimzo/shared';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { savePhoto } from '@/lib/save-photo';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { FieldFrame } from './field-frame';
 
@@ -16,10 +15,7 @@ type Asset = ImagePicker.ImagePickerAsset;
 type Coords = { latitude?: number; longitude?: number };
 type Source = PhotosValue[number]['source'];
 
-const maxSide = 1600;
-const maxBytes = 1024 * 1024;
 const locationTimeout = 10_000;
-const folder = new Directory(Paths.document, 'photos');
 
 async function currentPosition() {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -54,27 +50,6 @@ function exifDate(exif: Asset['exif']) {
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
 }
 
-async function savePhoto({ uri, width, height }: Asset) {
-  const context = ImageManipulator.manipulate(uri);
-  if (Math.max(width, height) > maxSide) {
-    context.resize(
-      width >= height ? { width: maxSide, height: null } : { width: null, height: maxSide },
-    );
-  }
-  const image = await context.renderAsync().finally(() => context.release());
-  const saved = await image
-    .saveAsync({ format: SaveFormat.JPEG, compress: 0.7 })
-    .finally(() => image.release());
-  const file = new File(saved.uri);
-  if (file.size > maxBytes) {
-    file.delete();
-    throw new Error('Photo is larger than 1 MB');
-  }
-  folder.create({ idempotent: true });
-  file.moveSync(folder);
-  return file.uri;
-}
-
 export function PhotosField({ field, value = [], onChange, error }: PhotosFieldProps) {
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
   const running = useRef(false);
@@ -96,7 +71,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
       const photos: PhotosValue = [];
       for (const asset of result.assets.slice(0, remaining)) {
         try {
-          const uri = await savePhoto(asset);
+          const uri = await savePhoto(asset, 'photos');
           photos.push({
             uri,
             takenAt: exifDate(asset.exif) ?? new Date().toISOString(),

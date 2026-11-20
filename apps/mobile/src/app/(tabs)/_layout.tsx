@@ -4,8 +4,14 @@ import { useWindowDimensions, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { useClientsSync } from '@/clients/clients-sync';
 import { AppHeader } from '@/components/app-header';
+import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavigationBar } from '@/components/navigation-bar';
 import { SyncToast } from '@/components/sync-toast';
+import { useToast } from '@/components/toast';
+import { FeedbackDialog } from '@/feedback/feedback-dialog';
+import { useFeedbackSync } from '@/feedback/feedback-sync';
+import { closeFeedback, openFeedback, useFeedbackScreen } from '@/feedback/open-feedback';
+import { useOnline } from '@/lib/use-online';
 import { useOpenNoteFromNotification } from '@/notes/reminders';
 import { colors } from '@/theme';
 import { useServiceFormsSync } from '@/service-forms/service-forms-sync';
@@ -21,6 +27,10 @@ export default function TabsLayout() {
   useClientsSync(technicianId);
   useServiceFormsSync(technicianId);
   useOpenNoteFromNotification();
+  useFeedbackSync(technicianId);
+  const feedbackScreen = useFeedbackScreen();
+  const online = useOnline();
+  const { toast, showToast } = useToast();
   return (
     <>
       <StatusBar style="light" />
@@ -37,16 +47,27 @@ export default function TabsLayout() {
           tabBarPosition: variant === 'rail' ? 'left' : 'bottom',
           header: ({ options, route }) => {
             const title = typeof options.title === 'string' ? options.title : route.name;
+            const search =
+              typeof options.headerTitle === 'function'
+                ? options.headerTitle({ children: title })
+                : undefined;
             return (
               <AppHeader
                 title={title}
                 variant={variant}
-                actions={options.headerRight?.({ canGoBack: false })}
-                search={
-                  typeof options.headerTitle === 'function'
-                    ? options.headerTitle({ children: title })
-                    : undefined
+                actions={
+                  <>
+                    {options.headerRight?.({ canGoBack: false })}
+                    {search ? null : (
+                      <HeaderIconButton
+                        icon="chatbubble-ellipses-outline"
+                        label="Enviar comentarios"
+                        onPress={() => openFeedback(route.name)}
+                      />
+                    )}
+                  </>
                 }
+                search={search}
               />
             );
           },
@@ -60,6 +81,21 @@ export default function TabsLayout() {
         <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
       <SyncToast />
+      {feedbackScreen && technicianId ? (
+        <FeedbackDialog
+          technicianId={technicianId}
+          screen={feedbackScreen}
+          onSent={() => {
+            closeFeedback();
+            showToast(
+              'Gracias por tu comentario',
+              online ? 'Lo recibirá el equipo de Nimzo.' : 'Se enviará cuando haya conexión.',
+            );
+          }}
+          onClose={closeFeedback}
+        />
+      ) : null}
+      {toast}
     </>
   );
 }

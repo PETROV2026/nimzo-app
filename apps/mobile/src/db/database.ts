@@ -86,6 +86,21 @@ const migrations = [
     updated_at text not null
   );
   `,
+  `
+  create table if not exists feedback_outbox (
+    id text primary key not null,
+    technician_id text not null,
+    kind text not null,
+    message text not null,
+    screen text not null,
+    app_version text not null,
+    os_version text not null,
+    photo_uris text not null default '[]',
+    written_at text not null,
+    sync_error text
+  );
+  create index if not exists feedback_outbox_technician_idx on feedback_outbox (technician_id);
+  `,
 ];
 
 export const db = openDatabaseSync('nimzo.db');
