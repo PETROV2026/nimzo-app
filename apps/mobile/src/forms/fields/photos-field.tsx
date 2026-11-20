@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 import type { FormField } from '@nimzo/shared';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
+import { RemoveImageButton } from '@/components/remove-image-button';
 import { savePhoto } from '@/lib/save-photo';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { FieldFrame } from './field-frame';
@@ -122,22 +123,21 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
   return (
     <FieldFrame field={field} error={error ?? problem}>
       {value.length ? (
-        <View className="flex-row flex-wrap gap-4">
-          {value.map((photo) => (
-            <View key={photo.uri} className="w-48 gap-2">
+        <View className="flex-row flex-wrap gap-5 pr-3 pt-3">
+          {value.map((photo, index) => (
+            <View key={photo.uri} className="size-48">
               <View className="size-48 overflow-hidden rounded-lg bg-surface">
                 <Image
                   source={photo.uri}
                   contentFit="cover"
                   style={{ flex: 1 }}
-                  accessibilityLabel="Foto de evidencia"
+                  accessibilityLabel={`Foto de evidencia ${index + 1}`}
                 />
               </View>
-              <Button
-                label="Quitar"
-                variant="secondary"
-                onPress={() => setRemoving(photo.uri)}
+              <RemoveImageButton
+                label={`Quitar la foto ${index + 1}`}
                 disabled={Boolean(busy)}
+                onPress={() => setRemoving(photo.uri)}
               />
             </View>
           ))}

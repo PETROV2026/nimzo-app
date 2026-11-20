@@ -2,11 +2,10 @@ import { feedbackMaxPhotos } from '@nimzo/shared';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useRef, useState } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { Button } from '@/components/button';
-import { Icon } from '@/components/icon';
+import { RemoveImageButton } from '@/components/remove-image-button';
 import { deletePhoto, savePhoto } from '@/lib/save-photo';
-import { colors } from '@/theme';
 
 type Source = 'camera' | 'library';
 
@@ -88,24 +87,14 @@ export function FeedbackPhotos({ uris, onChange }: FeedbackPhotosProps) {
                   accessibilityLabel={`Imagen ${index + 1}`}
                 />
               </View>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Quitar la imagen ${index + 1}`}
+              <RemoveImageButton
+                label={`Quitar la imagen ${index + 1}`}
                 disabled={Boolean(busy)}
                 onPress={() => {
                   deletePhoto(uri);
                   onChange(uris.filter((other) => other !== uri));
                 }}
-                className="absolute -right-3 -top-3 size-14 items-center justify-center"
-              >
-                {({ pressed }) => (
-                  <View
-                    className={`size-10 items-center justify-center rounded-full border-2 border-background ${pressed ? 'bg-destructive' : 'bg-foreground'}`}
-                  >
-                    <Icon name="trash-outline" size={20} color={colors.background} />
-                  </View>
-                )}
-              </Pressable>
+              />
             </View>
           ))}
         </View>
