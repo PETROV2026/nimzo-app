@@ -79,10 +79,13 @@ test('check and yes/no items are numbered per section, including inside groups',
       ],
     },
   ]);
-  assert.deepEqual(
-    Object.fromEntries(fieldNumbers(form)),
-    { a: '1.1', b: '1.2', c: '2.1', d: '2.2', e: '2.3' },
-  );
+  assert.deepEqual(Object.fromEntries(fieldNumbers(form)), {
+    a: '1.1',
+    b: '1.2',
+    c: '2.1',
+    d: '2.2',
+    e: '2.3',
+  });
 });
 
 test('progress counts visible answers per section and in total, without checkboxes', () => {
