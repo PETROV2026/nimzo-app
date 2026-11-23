@@ -1,4 +1,13 @@
-import { memo, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   type LayoutChangeEvent,
   type NativeScrollEvent,
@@ -59,7 +68,7 @@ export type LeadSection = LeadTarget & {
   children: ReactNode;
 };
 
-type OnSectionLayout = (id: string, y: number | undefined) => void;
+type OnSectionLayout = (id: string, owner: string, y: number | undefined) => void;
 
 const legend = [
   { label: 'OK', meaning: 'Correcto', box: 'bg-primary-strong', text: 'text-on-primary' },
@@ -114,10 +123,13 @@ function SectionCard({
   onSectionLayout,
   children,
 }: SectionCardProps) {
-  useEffect(() => () => onSectionLayout(id, undefined), [id, onSectionLayout]);
+  const owner = useId();
+  useEffect(() => () => onSectionLayout(id, owner, undefined), [id, owner, onSectionLayout]);
   return (
     <View
-      onLayout={(event: LayoutChangeEvent) => onSectionLayout(id, event.nativeEvent.layout.y)}
+      onLayout={(event: LayoutChangeEvent) =>
+        onSectionLayout(id, owner, event.nativeEvent.layout.y)
+      }
       className="overflow-hidden rounded-2xl border border-border bg-background"
     >
       <View className="flex-row items-center gap-4 border-b border-border px-6 py-5">
@@ -282,7 +294,7 @@ export function FormRenderer({
   const scrollRef = useRef<ScrollViewInstance>(null);
   const contentRef = useRef<ViewInstance>(null);
   const fieldViews = useRef(new Map<string, ViewInstance>());
-  const sectionOffsets = useRef(new Map<string, number>());
+  const sectionOffsets = useRef(new Map<string, { owner: string; y: number }>());
   const [active, setActive] = useState(lead ? leadSectionId : 'report');
   const [missing, setMissing] = useState<number | null>(null);
   const landscape = width > height;
@@ -298,9 +310,10 @@ export function FormRenderer({
 
   const layout = useMemo(() => ({ numbers, registerField }), [numbers, registerField]);
 
-  const onSectionLayout = useCallback<OnSectionLayout>((id, y) => {
-    if (y === undefined) sectionOffsets.current.delete(id);
-    else sectionOffsets.current.set(id, y);
+  const onSectionLayout = useCallback<OnSectionLayout>((id, owner, y) => {
+    const offsets = sectionOffsets.current;
+    if (y !== undefined) offsets.set(id, { owner, y });
+    else if (offsets.get(id)?.owner === owner) offsets.delete(id);
   }, []);
 
   useEffect(() => {
@@ -317,7 +330,7 @@ export function FormRenderer({
   }
 
   function selectTarget(id: string) {
-    const y = sectionOffsets.current.get(id);
+    const y = sectionOffsets.current.get(id)?.y;
     if (y === undefined) return;
     setActive(id);
     scrollToY(y);
@@ -327,7 +340,7 @@ export function FormRenderer({
     const top = event.nativeEvent.contentOffset.y + 120;
     let current = active;
     let best = -Infinity;
-    for (const [id, y] of sectionOffsets.current) {
+    for (const [id, { y }] of sectionOffsets.current) {
       if (y <= top && y > best) {
         best = y;
         current = id;
@@ -342,7 +355,7 @@ export function FormRenderer({
     for (const id of ids) setError(id, { type: 'required', message: requiredMessage });
     const leadMissing = Boolean(lead && !lead.complete);
     setMissing(ids.length + (leadMissing ? 1 : 0));
-    const leadY = sectionOffsets.current.get(leadSectionId);
+    const leadY = sectionOffsets.current.get(leadSectionId)?.y;
     if (leadMissing && leadY !== undefined) {
       scrollToY(leadY);
       return;
@@ -386,29 +399,16 @@ export function FormRenderer({
         <RootScope definition={definition}>
           <ProgressProvider definition={definition} leadComplete={lead?.complete}>
             <View className="flex-1 bg-canvas">
-              {landscape ? (
-                <View className="flex-1 flex-row">
-                  <SectionNav
-                    definition={definition}
-                    lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
-                    active={active}
-                    onSelect={selectTarget}
-                    layout="side"
-                  />
-                  {scroll}
-                </View>
-              ) : (
-                <>
-                  <SectionNav
-                    definition={definition}
-                    lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
-                    active={active}
-                    onSelect={selectTarget}
-                    layout="top"
-                  />
-                  {scroll}
-                </>
-              )}
+              <View className={landscape ? 'flex-1 flex-row' : 'flex-1'}>
+                <SectionNav
+                  definition={definition}
+                  lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
+                  active={active}
+                  onSelect={selectTarget}
+                  layout={landscape ? 'side' : 'top'}
+                />
+                {scroll}
+              </View>
               {keyboardVisible ? null : <BottomBar missing={missing} onReview={review} />}
             </View>
           </ProgressProvider>
