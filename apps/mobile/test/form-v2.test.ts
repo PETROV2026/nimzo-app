@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import { formDefinitionSchema } from '../../../packages/shared/src/form-definition.ts';
 import {
   enabledSections,
+  entryProgress,
   evaluateExpression,
   formProgress,
   hasAnswer,
@@ -159,4 +160,25 @@ test('an item key must be written and must not repeat', () => {
   assert.equal(itemKeyProblem('  ', entries, 'Número de válvula'), 'Escribe el número de válvula');
   assert.equal(itemKeyProblem('v-1', entries, 'Número de válvula'), 'Ya agregaste V-1');
   assert.equal(itemKeyProblem('V-2', entries, 'Número de válvula'), undefined);
+});
+
+test('each item entry has its own progress', () => {
+  const form = load('control_valves_weekly');
+  const empty = entryProgress(form, {}, { key: 'V-1' });
+  assert.equal(empty.answered, 0);
+  assert.ok(empty.total > 0);
+  const flatten = (
+    nodes: { type: string; children?: unknown[] }[],
+  ): { type: string; id?: string }[] =>
+    nodes.flatMap((node) =>
+      node.children ? flatten(node.children as { type: string }[]) : [node],
+    );
+  const firstField = flatten(form.items?.sections[0].children ?? []).find(
+    (node) => node.type === 'check',
+  );
+  assert.ok(firstField?.id);
+  assert.equal(
+    entryProgress(form, {}, { key: 'V-1', [firstField.id]: { status: 'ok' } }).answered,
+    1,
+  );
 });

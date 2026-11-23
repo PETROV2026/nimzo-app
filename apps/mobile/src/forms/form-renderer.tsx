@@ -13,18 +13,27 @@ import {
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import type { FormDefinition, FormNode } from '@nimzo/shared';
 import { Icon } from '@/components/icon';
-import { FormLayoutContext, FormProgressContext, requiredMessage } from '@/forms/form-context';
-import { BottomBar, type NavTarget, ProgressPill, SectionNav } from '@/forms/form-navigation';
+import {
+  FormLayoutContext,
+  FormProgressContext,
+  FormScopeContext,
+  requiredMessage,
+} from '@/forms/form-context';
+import { ItemsNode, ServiceTypePicker } from '@/forms/form-items';
+import { BottomBar, itemsTitle, ProgressPill, SectionNav } from '@/forms/form-navigation';
 import {
   conditionFields,
+  customSectionsKey,
   fieldNumbers,
   type FormValues,
   formProgress,
+  formSections,
   hiddenIds,
   missingRequired,
+  serviceTypeKey,
   visibleValues,
 } from '@/forms/form-values';
-import { Nodes, PendingNode, RenderNode } from '@/forms/render-node';
+import { NoteNode, Nodes, RenderNode } from '@/forms/render-node';
 import { useKeyboardVisible } from '@/lib/use-keyboard-visible';
 import { colors } from '@/theme';
 
@@ -36,7 +45,7 @@ type FormRendererProps = {
   footer?: ReactNode;
 };
 
-type OnSectionLayout = (id: string, y: number) => void;
+type OnSectionLayout = (id: string, y: number | undefined) => void;
 
 const legend = [
   { label: 'OK', meaning: 'Correcto', box: 'bg-primary-strong', text: 'text-on-primary' },
@@ -80,6 +89,7 @@ type SectionCardProps = {
 };
 
 function SectionCard({ id, title, number, note, onSectionLayout, children }: SectionCardProps) {
+  useEffect(() => () => onSectionLayout(id, undefined), [id, onSectionLayout]);
   return (
     <View
       onLayout={(event: LayoutChangeEvent) => onSectionLayout(id, event.nativeEvent.layout.y)}
@@ -104,6 +114,44 @@ function SectionCard({ id, title, number, note, onSectionLayout, children }: Sec
   );
 }
 
+function EnabledSections({
+  definition,
+  onSectionLayout,
+}: {
+  definition: FormDefinition;
+  onSectionLayout: OnSectionLayout;
+}) {
+  const [type, custom] = useWatch<FormValues>({
+    name: [serviceTypeKey, customSectionsKey],
+  }) as unknown[];
+  const sections = formSections(definition, {
+    [serviceTypeKey]: type,
+    [customSectionsKey]: custom,
+  });
+
+  if (definition.serviceType && !definition.items && sections.length === 0) {
+    return (
+      <NoteNode
+        tone="info"
+        text="Elige el tipo de servicio para ver las secciones que debes llenar."
+      />
+    );
+  }
+
+  return sections.map((section) => (
+    <SectionCard
+      key={section.id}
+      id={section.id}
+      number={definition.sections.indexOf(section) + 1}
+      title={section.title}
+      note={section.note}
+      onSectionLayout={onSectionLayout}
+    >
+      <Nodes nodes={section.children} />
+    </SectionCard>
+  ));
+}
+
 const FormBody = memo(function FormBody({
   definition,
   onSectionLayout,
@@ -115,13 +163,9 @@ const FormBody = memo(function FormBody({
     () => ({ id: 'comments', type: 'text', label: definition.commentsLabel, multiline: true }),
     [definition.commentsLabel],
   );
-  const pendingServiceType = definition.serviceType ?? definition.items?.serviceType;
 
   return (
     <>
-      {pendingServiceType ? (
-        <PendingNode label="Tipo de servicio (por ahora se muestran todas las secciones)" />
-      ) : null}
       {definition.report.length > 0 ? (
         <SectionCard id="report" title="Datos del reporte" onSectionLayout={onSectionLayout}>
           <Nodes nodes={definition.report} />
@@ -132,21 +176,22 @@ const FormBody = memo(function FormBody({
           <Nodes nodes={definition.header} />
         </SectionCard>
       ) : null}
-      {definition.sections.map((section, index) => (
+      {definition.serviceType ? (
         <SectionCard
-          key={section.id}
-          id={section.id}
-          number={index + 1}
-          title={section.title}
-          note={section.note}
+          id="service_type"
+          title={definition.serviceType.label}
           onSectionLayout={onSectionLayout}
         >
-          <Nodes nodes={section.children} />
+          <ServiceTypePicker
+            serviceType={definition.serviceType}
+            sections={definition.items?.sections ?? definition.sections}
+          />
         </SectionCard>
-      ))}
+      ) : null}
+      <EnabledSections definition={definition} onSectionLayout={onSectionLayout} />
       {definition.items ? (
-        <SectionCard id="items" title={definition.items.title} onSectionLayout={onSectionLayout}>
-          <PendingNode label={`Llenado por equipo · ${definition.items.addLabel}`} />
+        <SectionCard id="items" title={itemsTitle(definition)} onSectionLayout={onSectionLayout}>
+          <ItemsNode definition={definition} />
         </SectionCard>
       ) : null}
       <SectionCard id="comments" title={definition.commentsLabel} onSectionLayout={onSectionLayout}>
@@ -156,31 +201,17 @@ const FormBody = memo(function FormBody({
   );
 });
 
-function useHidden(definition: FormDefinition) {
-  const fields = useMemo(() => conditionFields(definition), [definition]);
-  const watched: readonly unknown[] = useWatch<FormValues>({ name: fields });
-  return useMemo(() => {
-    const values = Object.fromEntries(fields.map((field, index) => [field, watched[index]]));
-    return hiddenIds(definition, values);
-  }, [definition, fields, watched]);
-}
-
-function LayoutProvider({
-  definition,
-  registerField,
-  children,
-}: {
-  definition: FormDefinition;
-  registerField: (id: string) => (view: ViewInstance | null) => void;
-  children: ReactNode;
-}) {
-  const hidden = useHidden(definition);
-  const numbers = useMemo(() => fieldNumbers(definition), [definition]);
-  const layout = useMemo(
-    () => ({ hidden, numbers, registerField }),
-    [hidden, numbers, registerField],
+function RootScope({ definition, children }: { definition: FormDefinition; children: ReactNode }) {
+  const fields = useMemo(
+    () => [...conditionFields(definition), serviceTypeKey, customSectionsKey],
+    [definition],
   );
-  return <FormLayoutContext.Provider value={layout}>{children}</FormLayoutContext.Provider>;
+  const watched: readonly unknown[] = useWatch<FormValues>({ name: fields });
+  const scope = useMemo(() => {
+    const values = Object.fromEntries(fields.map((field, index) => [field, watched[index]]));
+    return { prefix: '', hidden: hiddenIds(definition, values) };
+  }, [definition, fields, watched]);
+  return <FormScopeContext.Provider value={scope}>{children}</FormScopeContext.Provider>;
 }
 
 function ProgressProvider({
@@ -193,26 +224,6 @@ function ProgressProvider({
   const values = useWatch<FormValues>();
   const progress = useMemo(() => formProgress(definition, values), [definition, values]);
   return <FormProgressContext.Provider value={progress}>{children}</FormProgressContext.Provider>;
-}
-
-function navTargets(definition: FormDefinition): NavTarget[] {
-  return [
-    ...(definition.report.length > 0
-      ? [{ id: 'report', title: 'Datos del reporte', icon: 'document-text-outline' as const }]
-      : []),
-    ...(definition.header?.length
-      ? [{ id: 'header', title: 'Encabezado', icon: 'reader-outline' as const }]
-      : []),
-    ...definition.sections.map((section, index) => ({
-      id: section.id,
-      title: section.title,
-      number: index + 1,
-    })),
-    ...(definition.items
-      ? [{ id: 'items', title: definition.items.title, icon: 'layers-outline' as const }]
-      : []),
-    { id: 'comments', title: definition.commentsLabel, icon: 'chatbox-outline' as const },
-  ];
 }
 
 export function FormRenderer({
@@ -230,11 +241,10 @@ export function FormRenderer({
   const contentRef = useRef<ViewInstance>(null);
   const fieldViews = useRef(new Map<string, ViewInstance>());
   const sectionOffsets = useRef(new Map<string, number>());
-  const targets = useMemo(() => navTargets(definition), [definition]);
-  const [active, setActive] = useState(targets[0]?.id ?? '');
+  const [active, setActive] = useState('report');
   const [missing, setMissing] = useState<number | null>(null);
   const landscape = width > height;
-  const hasChecks = useMemo(() => fieldNumbers(definition).size > 0, [definition]);
+  const numbers = useMemo(() => fieldNumbers(definition), [definition]);
 
   const registerField = useCallback(
     (id: string) => (view: ViewInstance | null) => {
@@ -244,8 +254,11 @@ export function FormRenderer({
     [],
   );
 
-  const onSectionLayout = useCallback((id: string, y: number) => {
-    sectionOffsets.current.set(id, y);
+  const layout = useMemo(() => ({ numbers, registerField }), [numbers, registerField]);
+
+  const onSectionLayout = useCallback<OnSectionLayout>((id, y) => {
+    if (y === undefined) sectionOffsets.current.delete(id);
+    else sectionOffsets.current.set(id, y);
   }, []);
 
   useEffect(() => {
@@ -270,10 +283,13 @@ export function FormRenderer({
 
   function trackActive(event: NativeSyntheticEvent<NativeScrollEvent>) {
     const top = event.nativeEvent.contentOffset.y + 120;
-    let current = targets[0]?.id ?? '';
-    for (const target of targets) {
-      const y = sectionOffsets.current.get(target.id);
-      if (y !== undefined && y <= top) current = target.id;
+    let current = active;
+    let best = -Infinity;
+    for (const [id, y] of sectionOffsets.current) {
+      if (y <= top && y > best) {
+        best = y;
+        current = id;
+      }
     }
     if (current !== active) setActive(current);
   }
@@ -298,7 +314,7 @@ export function FormRenderer({
     >
       <View ref={contentRef} collapsable={false} className="gap-6 p-6 pb-10">
         {header}
-        <Intro instructions={definition.instructions} showLegend={hasChecks} />
+        <Intro instructions={definition.instructions} showLegend={numbers.size > 0} />
         <FormBody definition={definition} onSectionLayout={onSectionLayout} />
         {footer}
       </View>
@@ -307,34 +323,36 @@ export function FormRenderer({
 
   return (
     <FormProvider {...form}>
-      <LayoutProvider definition={definition} registerField={registerField}>
-        <ProgressProvider definition={definition}>
-          <View className="flex-1 bg-canvas">
-            {landscape ? (
-              <View className="flex-1 flex-row">
-                <SectionNav
-                  targets={targets}
-                  active={active}
-                  onSelect={selectTarget}
-                  layout="side"
-                />
-                {scroll}
-              </View>
-            ) : (
-              <>
-                <SectionNav
-                  targets={targets}
-                  active={active}
-                  onSelect={selectTarget}
-                  layout="top"
-                />
-                {scroll}
-              </>
-            )}
-            {keyboardVisible ? null : <BottomBar missing={missing} onReview={review} />}
-          </View>
-        </ProgressProvider>
-      </LayoutProvider>
+      <FormLayoutContext.Provider value={layout}>
+        <RootScope definition={definition}>
+          <ProgressProvider definition={definition}>
+            <View className="flex-1 bg-canvas">
+              {landscape ? (
+                <View className="flex-1 flex-row">
+                  <SectionNav
+                    definition={definition}
+                    active={active}
+                    onSelect={selectTarget}
+                    layout="side"
+                  />
+                  {scroll}
+                </View>
+              ) : (
+                <>
+                  <SectionNav
+                    definition={definition}
+                    active={active}
+                    onSelect={selectTarget}
+                    layout="top"
+                  />
+                  {scroll}
+                </>
+              )}
+              {keyboardVisible ? null : <BottomBar missing={missing} onReview={review} />}
+            </View>
+          </ProgressProvider>
+        </RootScope>
+      </FormLayoutContext.Provider>
     </FormProvider>
   );
 }

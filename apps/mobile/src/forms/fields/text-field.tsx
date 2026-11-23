@@ -8,7 +8,7 @@ import { FieldFrame } from './field-frame';
 
 type TextFormFieldProps = FieldProps<Extract<FormField, { type: 'text' }>, TextValue>;
 
-export function TextFormField({ field, value, onChange, error }: TextFormFieldProps) {
+export function TextFormField({ field, value, onChange, error, bare }: TextFormFieldProps) {
   const [text, setText] = useState(value?.toString() ?? '');
   const numeric = field.inputMode === 'numeric' || field.inputMode === 'decimal';
   const label = field.required ? `${field.label} *` : field.label;
@@ -20,9 +20,12 @@ export function TextFormField({ field, value, onChange, error }: TextFormFieldPr
   const shownError = error ?? (numeric ? numberError(text, decimal) : undefined);
 
   return (
-    <FieldFrame field={field} hideLabel={Boolean(shownError)}>
+    <FieldFrame
+      field={bare ? { ...field, help: undefined } : field}
+      hideLabel={bare || Boolean(shownError)}
+    >
       <TextField
-        label={shownError ? label : undefined}
+        label={shownError && !bare ? label : undefined}
         error={shownError}
         accessibilityLabel={field.label}
         inputMode={field.inputMode}

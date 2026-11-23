@@ -305,12 +305,9 @@ export function formProgress(definition: FormDefinition, values: FormValues): Fo
   const entries = definition.items ? values[definition.items.id] : undefined;
   const items = definition.items
     ? sum(
-        (Array.isArray(entries) ? (entries as FormValues[]) : []).map((entry) => {
-          const nodes = itemSections(definition, values, entry).flatMap(
-            (section) => section.children,
-          );
-          return progressOf(nodes, hiddenInNodes(nodes, entry), entry);
-        }),
+        (Array.isArray(entries) ? (entries as FormValues[]) : []).map((entry) =>
+          entryProgress(definition, values, entry),
+        ),
       )
     : undefined;
   const all = [
@@ -320,6 +317,15 @@ export function formProgress(definition: FormDefinition, values: FormValues): Fo
     ...(items ? [items] : []),
   ];
   return { report, serviceType, items, sections, ...sum(all) };
+}
+
+export function entryProgress(
+  definition: FormDefinition,
+  values: FormValues,
+  entry: FormValues,
+): Progress {
+  const nodes = itemSections(definition, values, entry).flatMap((section) => section.children);
+  return progressOf(nodes, hiddenInNodes(nodes, entry), entry);
 }
 
 function formSectionsChosen(definition: FormDefinition, values: FormValues) {

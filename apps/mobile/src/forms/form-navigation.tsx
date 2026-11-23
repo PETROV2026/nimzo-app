@@ -1,3 +1,4 @@
+import type { FormDefinition } from '@nimzo/shared';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
@@ -10,7 +11,47 @@ export type NavTarget = { id: string; title: string; number?: number; icon?: Ico
 export function useTargetProgress(id: string): Progress | undefined {
   const progress = useFormProgress();
   if (id === 'report') return progress.report;
+  if (id === 'service_type') return progress.serviceType;
+  if (id === 'items') return progress.items;
   return progress.sections.find((section) => section.id === id);
+}
+
+export function useNavTargets(definition: FormDefinition): NavTarget[] {
+  const progress = useFormProgress();
+  return [
+    ...(definition.report.length > 0
+      ? [{ id: 'report', title: 'Datos del reporte', icon: 'document-text-outline' as const }]
+      : []),
+    ...(definition.header?.length
+      ? [{ id: 'header', title: 'Encabezado', icon: 'reader-outline' as const }]
+      : []),
+    ...(definition.serviceType
+      ? [
+          {
+            id: 'service_type',
+            title: definition.serviceType.label,
+            icon: 'options-outline' as const,
+          },
+        ]
+      : []),
+    ...progress.sections.map((section) => ({
+      id: section.id,
+      title: section.title,
+      number: section.number,
+    })),
+    ...(definition.items
+      ? [{ id: 'items', title: itemsTitle(definition), icon: 'layers-outline' as const }]
+      : []),
+    { id: 'comments', title: definition.commentsLabel, icon: 'chatbox-outline' as const },
+  ];
+}
+
+export function itemsTitle(definition: FormDefinition) {
+  return definition.items?.keyLabel ? 'Llenado por equipo' : (definition.items?.title ?? '');
+}
+
+export function answersLabel({ answered, total }: Progress) {
+  return `${answered} de ${total} ${total === 1 ? 'respuesta' : 'respuestas'}`;
 }
 
 function isComplete(progress?: Progress) {
@@ -70,21 +111,18 @@ function Badge({ target, active }: { target: NavTarget; active: boolean }) {
 function NavCount({ id }: { id: string }) {
   const progress = useTargetProgress(id);
   if (!progress || progress.total === 0) return null;
-  return (
-    <Text className="font-sans text-sm text-muted">
-      {progress.answered} de {progress.total} respuestas
-    </Text>
-  );
+  return <Text className="font-sans text-sm text-muted">{answersLabel(progress)}</Text>;
 }
 
 type SectionNavProps = {
-  targets: NavTarget[];
+  definition: FormDefinition;
   active: string;
   onSelect: (id: string) => void;
   layout: 'side' | 'top';
 };
 
-export function SectionNav({ targets, active, onSelect, layout }: SectionNavProps) {
+export function SectionNav({ definition, active, onSelect, layout }: SectionNavProps) {
+  const targets = useNavTargets(definition);
   if (layout === 'top') {
     return (
       <View className="border-b border-border bg-background">
@@ -170,7 +208,7 @@ export function BottomBar({ missing, onReview }: BottomBarProps) {
         <View className="flex-row items-baseline gap-2">
           <Text className="font-sans-bold text-lg text-foreground">{percent}%</Text>
           <Text className="font-sans text-base text-muted">
-            {answered} de {total} respuestas
+            {answersLabel({ answered, total })}
           </Text>
         </View>
         <View className="h-2 overflow-hidden rounded-full bg-border">

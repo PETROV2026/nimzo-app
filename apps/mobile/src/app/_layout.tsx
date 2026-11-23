@@ -18,6 +18,7 @@ SplashScreen.preventAutoHideAsync();
 
 const formHeader = {
   headerShown: true,
+  headerBackButtonDisplayMode: 'minimal' as const,
   headerStyle: { backgroundColor: colors.muted },
   headerTintColor: colors.background,
   headerTitleStyle: { fontFamily: fonts['sans-bold'] },

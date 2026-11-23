@@ -16,4 +16,5 @@ export type FieldProps<F, V> = {
   onChange: (value: V | undefined) => void;
   error?: string;
   number?: string;
+  bare?: boolean;
 };
