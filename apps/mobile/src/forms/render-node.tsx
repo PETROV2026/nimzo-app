@@ -45,6 +45,7 @@ import type {
   TimeValue,
   YesNoValue,
 } from '@/forms/types';
+import { PumpPerformanceChart } from '@/forms/pump-chart-view';
 import { colors } from '@/theme';
 
 type EntryValues = Record<string, Record<string, unknown>[]>;
@@ -489,7 +490,7 @@ function NodeContent({ node }: { node: FormNode }) {
     case 'observations':
       return <ObservationsNode node={node} />;
     default:
-      return <PendingNode label={`Gráfica · ${node.label}`} />;
+      return <PumpPerformanceChart title={node.label} />;
   }
 }
 
