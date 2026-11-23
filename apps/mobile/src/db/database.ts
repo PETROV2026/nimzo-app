@@ -101,6 +101,29 @@ const migrations = [
   );
   create index if not exists feedback_outbox_technician_idx on feedback_outbox (technician_id);
   `,
+
+  `
+  create table if not exists reports (
+    id text primary key not null,
+    technician_id text not null,
+    client_id text not null,
+    branch_id text not null,
+    system_id text,
+    service_package_id text,
+    form_code text not null,
+    form_version integer not null,
+    status text not null default 'draft' check (status in ('draft', 'pending')),
+    answers text not null default '{}',
+    snapshot text not null,
+    supervisor_name text,
+    supervisor_signature_uri text,
+    technician_signature_uri text,
+    started_at text not null,
+    updated_at text not null,
+    signed_at text
+  );
+  create index if not exists reports_technician_idx on reports (technician_id, status, updated_at);
+  `,
 ];
 
 export const db = openDatabaseSync('nimzo.db');
