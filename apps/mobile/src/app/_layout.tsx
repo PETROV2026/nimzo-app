@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SessionProvider, useSession } from '@/auth/session-provider';
+import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -64,6 +65,18 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="login" />
+      </Stack.Protected>
+      <Stack.Protected guard={signedIn && __DEV__}>
+        <Stack.Screen
+          name="form-preview"
+          options={{
+            headerShown: true,
+            title: 'Vista previa de formatos',
+            headerStyle: { backgroundColor: colors.muted },
+            headerTintColor: colors.background,
+            headerTitleStyle: { fontFamily: fonts['sans-bold'] },
+          }}
+        />
       </Stack.Protected>
     </Stack>
   );

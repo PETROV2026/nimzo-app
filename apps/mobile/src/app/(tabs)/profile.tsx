@@ -1,5 +1,6 @@
 import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -245,6 +246,14 @@ export default function ProfileScreen() {
               description="Cómo usamos y protegemos tus datos."
               onPress={() => setShowingPrivacy(true)}
             />
+            {__DEV__ ? (
+              <ActionRow
+                icon="document-text-outline"
+                title="Vista previa de formatos"
+                description="Solo en desarrollo: abre cualquier formato para llenarlo."
+                onPress={() => router.push('/form-preview')}
+              />
+            ) : null}
             <ActionRow
               icon="log-out-outline"
               title="Cerrar sesión"
