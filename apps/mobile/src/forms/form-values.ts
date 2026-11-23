@@ -100,3 +100,94 @@ export function visibleValues(definition: FormDefinition, values: FormValues): F
   const { hidden } = visibility(definition, values);
   return Object.fromEntries(Object.entries(values).filter(([id]) => !hidden.has(id)));
 }
+
+export type ChunkKind = 'rows' | 'chips' | 'grid' | 'block';
+
+export type Chunk = { kind: ChunkKind; nodes: FormNode[] };
+
+export type Progress = { answered: number; total: number };
+
+export type SectionProgress = Progress & { id: string; title: string };
+
+export type FormProgress = Progress & { report: Progress; sections: SectionProgress[] };
+
+const numberedTypes = new Set<string>(['check', 'yes_no']);
+
+function kindOf(node: FormNode): ChunkKind {
+  switch (node.type) {
+    case 'check':
+    case 'yes_no':
+      return 'rows';
+    case 'checkbox':
+      return 'chips';
+    case 'text':
+      return node.multiline ? 'block' : 'grid';
+    case 'date':
+    case 'time':
+    case 'select':
+    case 'choice':
+      return 'grid';
+    default:
+      return 'block';
+  }
+}
+
+export function chunkNodes(nodes: FormNode[]): Chunk[] {
+  const chunks: Chunk[] = [];
+  for (const node of nodes) {
+    const kind = kindOf(node);
+    const last = chunks.at(-1);
+    if (last && last.kind === kind && kind !== 'block') last.nodes.push(node);
+    else chunks.push({ kind, nodes: [node] });
+  }
+  return chunks;
+}
+
+function fieldsOf(nodes: FormNode[]): FormField[] {
+  return nodes.flatMap((node) => {
+    if (node.type === 'group') return fieldsOf(node.children);
+    return isField(node) ? [node] : [];
+  });
+}
+
+export function fieldNumbers(definition: FormDefinition) {
+  const numbers = new Map<string, string>();
+  definition.sections.forEach((section, index) => {
+    let count = 0;
+    for (const field of fieldsOf(section.children)) {
+      if (!numberedTypes.has(field.type)) continue;
+      count += 1;
+      numbers.set(field.id, `${index + 1}.${count}`);
+    }
+  });
+  return numbers;
+}
+
+function countable(field: FormField) {
+  return field.type !== 'checkbox' && field.type !== 'calc';
+}
+
+function progressOf(fields: FormField[], hidden: Set<string>, values: FormValues): Progress {
+  const shown = fields.filter((field) => countable(field) && !hidden.has(field.id));
+  return {
+    answered: shown.filter((field) => !isEmptyValue(values[field.id])).length,
+    total: shown.length,
+  };
+}
+
+export function formProgress(definition: FormDefinition, values: FormValues): FormProgress {
+  const hidden = hiddenIds(definition, values);
+  const report = progressOf(definition.report, hidden, values);
+  const sections = definition.sections.map((section) => ({
+    id: section.id,
+    title: section.title,
+    ...progressOf(fieldsOf(section.children), hidden, values),
+  }));
+  const all = [report, ...sections];
+  return {
+    report,
+    sections,
+    answered: all.reduce((sum, item) => sum + item.answered, 0),
+    total: all.reduce((sum, item) => sum + item.total, 0),
+  };
+}
