@@ -295,6 +295,7 @@ export function FormRenderer({
   const contentRef = useRef<ViewInstance>(null);
   const fieldViews = useRef(new Map<string, ViewInstance>());
   const sectionOffsets = useRef(new Map<string, { owner: string; y: number }>());
+  const pinned = useRef(false);
   const [active, setActive] = useState(lead ? leadSectionId : 'report');
   const [missing, setMissing] = useState<number | null>(null);
   const landscape = width > height;
@@ -332,11 +333,13 @@ export function FormRenderer({
   function selectTarget(id: string) {
     const y = sectionOffsets.current.get(id)?.y;
     if (y === undefined) return;
+    pinned.current = true;
     setActive(id);
     scrollToY(y);
   }
 
   function trackActive(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    if (pinned.current) return;
     const top = event.nativeEvent.contentOffset.y + 120;
     let current = active;
     let best = -Infinity;
@@ -371,6 +374,9 @@ export function FormRenderer({
       className="flex-1"
       keyboardShouldPersistTaps="handled"
       onScroll={trackActive}
+      onScrollBeginDrag={() => {
+        pinned.current = false;
+      }}
       scrollEventThrottle={100}
     >
       <View ref={contentRef} collapsable={false} className="gap-6 p-6 pb-10">
