@@ -1,22 +1,24 @@
 import { useSyncExternalStore } from 'react';
 import { randomUUID } from 'expo-crypto';
-import type { BranchDetails } from '@/clients/branches-db';
-import type { ClientDetails } from '@/clients/clients-db';
-import type { SystemDetails } from '@/clients/systems-db';
+import type { LocalBranch } from '@/clients/branches-db';
+import type { LocalClient } from '@/clients/clients-db';
+import type { LocalSystem } from '@/clients/systems-db';
 import { db } from '@/db/database';
 import { createTableStore } from '@/db/table-store';
+import type { SignaturesValue } from '@/forms/signatures-block';
+import { deletePhoto } from '@/lib/save-photo';
 import {
   buildSnapshot,
-  canChangeStatus,
-  canDeleteReport,
   isFullySigned,
-  parseAnswers,
   type LocalReportStatus,
-  type ReportSignatures,
+  parseAnswers,
+  parseSnapshot,
   type ReportSnapshot,
+  selectionProblem,
+  unusedSignatureFiles,
 } from '@/reports/report-rules';
 
-export type LocalReport = ReportSignatures & {
+export type LocalReport = {
   id: string;
   technicianId: string;
   clientId: string;
@@ -27,7 +29,8 @@ export type LocalReport = ReportSignatures & {
   formVersion: number;
   status: LocalReportStatus;
   answers: Record<string, unknown>;
-  snapshot: ReportSnapshot;
+  snapshot: ReportSnapshot | null;
+  signatures: SignaturesValue;
   startedAt: string;
   updatedAt: string;
   signedAt: string | null;
@@ -56,9 +59,9 @@ type ReportRow = {
 type NewReport = {
   technicianId: string;
   form: { code: string; version: number };
-  client: ClientDetails & { id: string };
-  branch: BranchDetails & { id: string };
-  system: (SystemDetails & { id: string }) | null;
+  client: LocalClient;
+  branch: LocalBranch;
+  system: LocalSystem | null;
   packageId: string | null;
 };
 
@@ -74,55 +77,59 @@ function fromRow(row: ReportRow): LocalReport {
     formVersion: row.form_version,
     status: row.status,
     answers: parseAnswers(row.answers),
-    snapshot: JSON.parse(row.snapshot) as ReportSnapshot,
-    supervisorName: row.supervisor_name,
-    supervisorSignatureUri: row.supervisor_signature_uri,
-    technicianSignatureUri: row.technician_signature_uri,
+    snapshot: parseSnapshot(row.snapshot),
+    signatures: {
+      supervisorName: row.supervisor_name ?? '',
+      supervisorSignature: row.supervisor_signature_uri,
+      technicianSignature: row.technician_signature_uri,
+    },
     startedAt: row.started_at,
     updatedAt: row.updated_at,
     signedAt: row.signed_at,
   };
 }
 
-const reportsStore = createTableStore((technicianId) =>
-  db
-    .getAllSync<ReportRow>(
-      'select * from reports where technician_id = ? order by updated_at desc',
-      technicianId,
-    )
-    .map(fromRow),
-);
+function statusStore(status: LocalReportStatus) {
+  return createTableStore((technicianId) =>
+    db
+      .getAllSync<ReportRow>(
+        'select * from reports where technician_id = ? and status = ? order by updated_at desc',
+        technicianId,
+        status,
+      )
+      .map(fromRow),
+  );
+}
+
+const stores: Record<LocalReportStatus, ReturnType<typeof statusStore>> = {
+  draft: statusStore('draft'),
+  pending: statusStore('pending'),
+};
+
+function notify() {
+  stores.draft.notify();
+  stores.pending.notify();
+}
 
 export function useReports(technicianId: string, status: LocalReportStatus) {
-  const reports = useSyncExternalStore(reportsStore.subscribe, () =>
-    reportsStore.snapshot(technicianId),
-  );
-  return reports.filter((report) => report.status === status);
+  const store = stores[status];
+  return useSyncExternalStore(store.subscribe, () => store.snapshot(technicianId));
 }
 
-function statusOf(id: string) {
-  return db.getFirstSync<{ status: LocalReportStatus }>(
-    'select status from reports where id = ?',
-    id,
-  )?.status;
+function readReport(id: string) {
+  const row = db.getFirstSync<ReportRow>('select * from reports where id = ?', id);
+  return row ? fromRow(row) : null;
 }
 
-function changeStatus(id: string, to: LocalReportStatus) {
-  const from = statusOf(id);
-  if (!from || !canChangeStatus(from, to)) return false;
-  db.runSync(
-    'update reports set status = ?, updated_at = ? where id = ?',
-    to,
-    new Date().toISOString(),
-    id,
-  );
-  reportsStore.notify();
-  return true;
+function now() {
+  return new Date().toISOString();
 }
 
 export function createReport({ technicianId, form, client, branch, system, packageId }: NewReport) {
+  const problem = selectionProblem(client, branch, system);
+  if (problem) throw new Error(problem);
   const id = randomUUID();
-  const now = new Date().toISOString();
+  const time = now();
   db.runSync(
     `insert into reports (id, technician_id, client_id, branch_id, system_id, service_package_id,
        form_code, form_version, snapshot, started_at, updated_at)
@@ -136,51 +143,82 @@ export function createReport({ technicianId, form, client, branch, system, packa
     form.code,
     form.version,
     JSON.stringify(buildSnapshot(client, branch, system)),
-    now,
-    now,
+    time,
+    time,
   );
-  reportsStore.notify();
+  notify();
   return id;
 }
 
 export function saveAnswers(id: string, answers: Record<string, unknown>) {
-  db.runSync(
+  const result = db.runSync(
     "update reports set answers = ?, updated_at = ? where id = ? and status = 'draft'",
     JSON.stringify(answers),
-    new Date().toISOString(),
+    now(),
     id,
   );
-  reportsStore.notify();
+  if (result.changes === 0) return false;
+  notify();
+  return true;
 }
 
-export function saveSignatures(id: string, signatures: ReportSignatures) {
-  const now = new Date().toISOString();
-  db.runSync(
+export function saveSignatures(id: string, signatures: SignaturesValue) {
+  const before = readReport(id);
+  if (!before || before.status !== 'draft') return false;
+  const time = now();
+  const signed = isFullySigned(signatures);
+  const sameSignatures =
+    before.signatures.supervisorSignature === signatures.supervisorSignature &&
+    before.signatures.technicianSignature === signatures.technicianSignature;
+  const signedAt = signed ? (sameSignatures && before.signedAt ? before.signedAt : time) : null;
+  const result = db.runSync(
     `update reports set supervisor_name = ?, supervisor_signature_uri = ?,
        technician_signature_uri = ?, signed_at = ?, updated_at = ?
      where id = ? and status = 'draft'`,
-    signatures.supervisorName,
-    signatures.supervisorSignatureUri,
-    signatures.technicianSignatureUri,
-    isFullySigned(signatures) ? now : null,
-    now,
+    signatures.supervisorName.trim() || null,
+    signatures.supervisorSignature,
+    signatures.technicianSignature,
+    signedAt,
+    time,
     id,
   );
-  reportsStore.notify();
+  if (result.changes === 0) return false;
+  for (const uri of unusedSignatureFiles(before.signatures, signatures)) deletePhoto(uri);
+  notify();
+  return true;
 }
 
 export function markPending(id: string) {
-  return changeStatus(id, 'pending');
+  const result = db.runSync(
+    "update reports set status = 'pending', updated_at = ? where id = ? and status = 'draft' and signed_at is not null",
+    now(),
+    id,
+  );
+  if (result.changes === 0) return false;
+  notify();
+  return true;
 }
 
 export function reopen(id: string) {
-  return changeStatus(id, 'draft');
+  const before = readReport(id);
+  const result = db.runSync(
+    `update reports set status = 'draft', supervisor_signature_uri = null,
+       technician_signature_uri = null, signed_at = null, updated_at = ?
+     where id = ? and status = 'pending'`,
+    now(),
+    id,
+  );
+  if (result.changes === 0) return false;
+  if (before) for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
+  notify();
+  return true;
 }
 
 export function deleteDraft(id: string) {
-  const status = statusOf(id);
-  if (!status || !canDeleteReport(status)) return false;
-  db.runSync('delete from reports where id = ?', id);
-  reportsStore.notify();
+  const before = readReport(id);
+  const result = db.runSync("delete from reports where id = ? and status = 'draft'", id);
+  if (result.changes === 0) return false;
+  if (before) for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
+  notify();
   return true;
 }

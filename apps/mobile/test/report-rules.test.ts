@@ -5,8 +5,12 @@ import {
   buildSnapshot,
   canChangeStatus,
   canDeleteReport,
+  canFinish,
   isFullySigned,
   parseAnswers,
+  parseSnapshot,
+  selectionProblem,
+  unusedSignatureFiles,
 } from '../src/reports/report-rules.ts';
 
 const client = {
@@ -80,12 +84,53 @@ test('broken or non-object answers become empty', () => {
   assert.deepEqual(parseAnswers('[1,2]'), {});
 });
 
-test('a report is signed only with both signatures', () => {
-  const unsigned = {
+test('a report is signed only with the supervisor name and both signatures', () => {
+  const signed = {
     supervisorName: 'Luis',
-    supervisorSignatureUri: 'file:///supervisor.png',
-    technicianSignatureUri: null,
+    supervisorSignature: 'file:///supervisor.png',
+    technicianSignature: 'file:///tecnico.png',
   };
-  assert.equal(isFullySigned(unsigned), false);
-  assert.equal(isFullySigned({ ...unsigned, technicianSignatureUri: 'file:///tecnico.png' }), true);
+  assert.equal(isFullySigned(signed), true);
+  assert.equal(isFullySigned({ ...signed, technicianSignature: null }), false);
+  assert.equal(isFullySigned({ ...signed, supervisorSignature: null }), false);
+  assert.equal(isFullySigned({ ...signed, supervisorName: '   ' }), false);
+});
+
+test('only a signed draft can be finished', () => {
+  assert.equal(canFinish({ status: 'draft', signedAt: '2026-11-23T10:00:00Z' }), true);
+  assert.equal(canFinish({ status: 'draft', signedAt: null }), false);
+  assert.equal(canFinish({ status: 'pending', signedAt: '2026-11-23T10:00:00Z' }), false);
+});
+
+test('a broken snapshot reads as missing instead of failing', () => {
+  const snapshot = buildSnapshot(client, branch, null);
+  assert.deepEqual(parseSnapshot(JSON.stringify(snapshot)), snapshot);
+  assert.equal(parseSnapshot('{"client":'), null);
+  assert.equal(parseSnapshot('[]'), null);
+});
+
+test('the branch must belong to the client and the system to the branch', () => {
+  const chosenClient = { id: 'c1' };
+  const chosenBranch = { id: 'b1', clientId: 'c1' };
+  assert.equal(selectionProblem(chosenClient, chosenBranch, null), undefined);
+  assert.equal(
+    selectionProblem(chosenClient, chosenBranch, { id: 's1', branchId: 'b1' }),
+    undefined,
+  );
+  assert.ok(selectionProblem(chosenClient, { id: 'b2', clientId: 'c2' }, null));
+  assert.ok(selectionProblem(chosenClient, chosenBranch, { id: 's2', branchId: 'b9' }));
+});
+
+test('signature files no longer used are listed for deletion', () => {
+  const before = {
+    supervisorName: 'Luis',
+    supervisorSignature: 'file:///a.png',
+    technicianSignature: 'file:///b.png',
+  };
+  assert.deepEqual(
+    unusedSignatureFiles(before, { ...before, supervisorSignature: 'file:///c.png' }),
+    ['file:///a.png'],
+  );
+  assert.deepEqual(unusedSignatureFiles(before, before), []);
+  assert.deepEqual(unusedSignatureFiles(before, null), ['file:///a.png', 'file:///b.png']);
 });

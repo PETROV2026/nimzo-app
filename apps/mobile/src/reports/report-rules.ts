@@ -2,6 +2,7 @@ import type { ReportStatus } from '@nimzo/shared';
 import type { BranchDetails } from '@/clients/branches-db';
 import type { ClientDetails } from '@/clients/clients-db';
 import type { SystemDetails } from '@/clients/systems-db';
+import type { SignaturesValue } from '@/forms/signatures-block';
 
 export type LocalReportStatus = Exclude<ReportStatus, 'sent'>;
 
@@ -63,12 +64,42 @@ export function parseAnswers(value: string): Record<string, unknown> {
   }
 }
 
-export type ReportSignatures = {
-  supervisorName: string | null;
-  supervisorSignatureUri: string | null;
-  technicianSignatureUri: string | null;
-};
+export function isFullySigned(signatures: SignaturesValue) {
+  return Boolean(
+    signatures.supervisorName.trim() &&
+    signatures.supervisorSignature &&
+    signatures.technicianSignature,
+  );
+}
 
-export function isFullySigned(signatures: ReportSignatures) {
-  return Boolean(signatures.supervisorSignatureUri && signatures.technicianSignatureUri);
+export function canFinish(report: { status: LocalReportStatus; signedAt: string | null }) {
+  return report.status === 'draft' && report.signedAt !== null;
+}
+
+export function parseSnapshot(value: string): ReportSnapshot | null {
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+    const snapshot = parsed as Partial<ReportSnapshot>;
+    return snapshot.client && snapshot.branch ? (snapshot as ReportSnapshot) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function selectionProblem(
+  client: { id: string },
+  branch: { id: string; clientId: string },
+  system: { branchId: string } | null,
+) {
+  if (branch.clientId !== client.id) return 'La sucursal no pertenece al cliente.';
+  if (system && system.branchId !== branch.id) return 'El sistema no pertenece a la sucursal.';
+  return undefined;
+}
+
+export function unusedSignatureFiles(before: SignaturesValue, after: SignaturesValue | null) {
+  const kept = new Set([after?.supervisorSignature, after?.technicianSignature]);
+  return [before.supervisorSignature, before.technicianSignature].filter(
+    (uri): uri is string => Boolean(uri) && !kept.has(uri),
+  );
 }
