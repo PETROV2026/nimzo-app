@@ -203,6 +203,7 @@ export type SectionProgress = Progress & { id: string; title: string; number: nu
 
 export type FormProgress = Progress & {
   report: Progress;
+  lead?: Progress;
   serviceType?: Progress;
   items?: Progress;
   sections: SectionProgress[];

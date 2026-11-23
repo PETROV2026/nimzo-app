@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import type { FormDefinition, FormNode } from '@nimzo/shared';
-import { Icon } from '@/components/icon';
+import { Icon, type IconName } from '@/components/icon';
 import {
   FormLayoutContext,
   FormProgressContext,
@@ -20,7 +20,14 @@ import {
   requiredMessage,
 } from '@/forms/form-context';
 import { ItemsNode, ServiceTypePicker } from '@/forms/form-items';
-import { BottomBar, itemsTitle, ProgressPill, SectionNav } from '@/forms/form-navigation';
+import {
+  BottomBar,
+  itemsTitle,
+  type LeadTarget,
+  leadSectionId,
+  ProgressPill,
+  SectionNav,
+} from '@/forms/form-navigation';
 import {
   conditionFields,
   customSectionsKey,
@@ -43,6 +50,13 @@ type FormRendererProps = {
   onValuesChange?: (values: FormValues) => void;
   header?: ReactNode;
   footer?: ReactNode;
+  lead?: LeadSection;
+};
+
+export type LeadSection = LeadTarget & {
+  complete: boolean;
+  action?: ReactNode;
+  children: ReactNode;
 };
 
 type OnSectionLayout = (id: string, y: number | undefined) => void;
@@ -83,12 +97,23 @@ type SectionCardProps = {
   id: string;
   title: string;
   number?: number;
+  icon?: IconName;
+  aside?: ReactNode;
   note?: string;
   onSectionLayout: OnSectionLayout;
   children: ReactNode;
 };
 
-function SectionCard({ id, title, number, note, onSectionLayout, children }: SectionCardProps) {
+function SectionCard({
+  id,
+  title,
+  number,
+  icon,
+  aside,
+  note,
+  onSectionLayout,
+  children,
+}: SectionCardProps) {
   useEffect(() => () => onSectionLayout(id, undefined), [id, onSectionLayout]);
   return (
     <View
@@ -100,6 +125,10 @@ function SectionCard({ id, title, number, note, onSectionLayout, children }: Sec
           <View className="size-10 items-center justify-center rounded-full bg-foreground">
             <Text className="font-sans-bold text-lg text-background">{number}</Text>
           </View>
+        ) : icon ? (
+          <View className="size-10 items-center justify-center rounded-full bg-foreground">
+            <Icon name={icon} size={20} color={colors.background} />
+          </View>
         ) : null}
         <View className="flex-1 gap-1">
           <Text accessibilityRole="header" className="font-sans-bold text-xl text-foreground">
@@ -107,7 +136,7 @@ function SectionCard({ id, title, number, note, onSectionLayout, children }: Sec
           </Text>
           {note ? <Text className="font-sans text-base text-muted">{note}</Text> : null}
         </View>
-        <ProgressPill id={id} />
+        {aside ?? <ProgressPill id={id} />}
       </View>
       <View className="gap-5 p-6">{children}</View>
     </View>
@@ -216,13 +245,25 @@ function RootScope({ definition, children }: { definition: FormDefinition; child
 
 function ProgressProvider({
   definition,
+  leadComplete,
   children,
 }: {
   definition: FormDefinition;
+  leadComplete?: boolean;
   children: ReactNode;
 }) {
   const values = useWatch<FormValues>();
-  const progress = useMemo(() => formProgress(definition, values), [definition, values]);
+  const progress = useMemo(() => {
+    const base = formProgress(definition, values);
+    if (leadComplete === undefined) return base;
+    const done = leadComplete ? 1 : 0;
+    return {
+      ...base,
+      lead: { answered: done, total: 1 },
+      answered: base.answered + done,
+      total: base.total + 1,
+    };
+  }, [definition, leadComplete, values]);
   return <FormProgressContext.Provider value={progress}>{children}</FormProgressContext.Provider>;
 }
 
@@ -232,6 +273,7 @@ export function FormRenderer({
   onValuesChange,
   header,
   footer,
+  lead,
 }: FormRendererProps) {
   const form = useForm<FormValues>({ defaultValues: defaultValues ?? {} });
   const { subscribe, getValues, setError, clearErrors } = form;
@@ -241,7 +283,7 @@ export function FormRenderer({
   const contentRef = useRef<ViewInstance>(null);
   const fieldViews = useRef(new Map<string, ViewInstance>());
   const sectionOffsets = useRef(new Map<string, number>());
-  const [active, setActive] = useState('report');
+  const [active, setActive] = useState(lead ? leadSectionId : 'report');
   const [missing, setMissing] = useState<number | null>(null);
   const landscape = width > height;
   const numbers = useMemo(() => fieldNumbers(definition), [definition]);
@@ -298,7 +340,13 @@ export function FormRenderer({
     const ids = missingRequired(definition, getValues());
     clearErrors();
     for (const id of ids) setError(id, { type: 'required', message: requiredMessage });
-    setMissing(ids.length);
+    const leadMissing = Boolean(lead && !lead.complete);
+    setMissing(ids.length + (leadMissing ? 1 : 0));
+    const leadY = sectionOffsets.current.get(leadSectionId);
+    if (leadMissing && leadY !== undefined) {
+      scrollToY(leadY);
+      return;
+    }
     const first = ids[0] ? fieldViews.current.get(ids[0]) : undefined;
     const content = contentRef.current;
     if (first && content) first.measureLayout(content, (_x, y) => scrollToY(y));
@@ -314,6 +362,17 @@ export function FormRenderer({
     >
       <View ref={contentRef} collapsable={false} className="gap-6 p-6 pb-10">
         {header}
+        {lead ? (
+          <SectionCard
+            id={leadSectionId}
+            title={lead.title}
+            icon={lead.icon}
+            aside={lead.action}
+            onSectionLayout={onSectionLayout}
+          >
+            {lead.children}
+          </SectionCard>
+        ) : null}
         <Intro instructions={definition.instructions} showLegend={numbers.size > 0} />
         <FormBody definition={definition} onSectionLayout={onSectionLayout} />
         {footer}
@@ -325,12 +384,13 @@ export function FormRenderer({
     <FormProvider {...form}>
       <FormLayoutContext.Provider value={layout}>
         <RootScope definition={definition}>
-          <ProgressProvider definition={definition}>
+          <ProgressProvider definition={definition} leadComplete={lead?.complete}>
             <View className="flex-1 bg-canvas">
               {landscape ? (
                 <View className="flex-1 flex-row">
                   <SectionNav
                     definition={definition}
+                    lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
                     active={active}
                     onSelect={selectTarget}
                     layout="side"
@@ -341,6 +401,7 @@ export function FormRenderer({
                 <>
                   <SectionNav
                     definition={definition}
+                    lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
                     active={active}
                     onSelect={selectTarget}
                     layout="top"

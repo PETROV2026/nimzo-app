@@ -5,8 +5,6 @@ import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
-import { useSession } from '@/auth/session-provider';
-import { NewServiceDialog } from '@/components/service-forms/new-service-dialog';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
@@ -77,9 +75,6 @@ export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
   const headerSearch = useHeaderSearch();
   const catalog = useServiceForms();
-  const session = useSession();
-  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
-  const [starting, setStarting] = useState<LocalServiceForm | null>(null);
 
   return (
     <>
@@ -103,7 +98,13 @@ export default function ServicesScreen() {
         contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
       >
         {current === 'new' ? (
-          <ServiceFormGrid catalog={catalog} search={headerSearch.term} onPick={setStarting} />
+          <ServiceFormGrid
+            catalog={catalog}
+            search={headerSearch.term}
+            onPick={(form) =>
+              router.push({ pathname: '/forms/[code]', params: { code: form.code } })
+            }
+          />
         ) : (
           <EmptyState
             icon="clipboard-outline"
@@ -112,25 +113,6 @@ export default function ServicesScreen() {
           />
         )}
       </ScrollView>
-      {starting && technicianId ? (
-        <NewServiceDialog
-          form={starting}
-          technicianId={technicianId}
-          onClose={() => setStarting(null)}
-          onStart={(service) => {
-            setStarting(null);
-            router.push({
-              pathname: '/forms/[code]',
-              params: {
-                code: starting.code,
-                client: service.clientId,
-                branch: service.branchId,
-                ...(service.systemId ? { system: service.systemId } : {}),
-              },
-            });
-          }}
-        />
-      ) : null}
     </>
   );
 }

@@ -10,15 +10,21 @@ export type NavTarget = { id: string; title: string; number?: number; icon?: Ico
 
 export function useTargetProgress(id: string): Progress | undefined {
   const progress = useFormProgress();
+  if (id === leadSectionId) return progress.lead;
   if (id === 'report') return progress.report;
   if (id === 'service_type') return progress.serviceType;
   if (id === 'items') return progress.items;
   return progress.sections.find((section) => section.id === id);
 }
 
-export function useNavTargets(definition: FormDefinition): NavTarget[] {
+export const leadSectionId = 'service';
+
+export type LeadTarget = { title: string; icon: IconName };
+
+export function useNavTargets(definition: FormDefinition, lead?: LeadTarget): NavTarget[] {
   const progress = useFormProgress();
   return [
+    ...(lead ? [{ id: leadSectionId, title: lead.title, icon: lead.icon }] : []),
     ...(definition.report.length > 0
       ? [{ id: 'report', title: 'Datos del reporte', icon: 'document-text-outline' as const }]
       : []),
@@ -111,18 +117,26 @@ function Badge({ target, active }: { target: NavTarget; active: boolean }) {
 function NavCount({ id }: { id: string }) {
   const progress = useTargetProgress(id);
   if (!progress || progress.total === 0) return null;
+  if (id === leadSectionId) {
+    return (
+      <Text className="font-sans text-sm text-muted">
+        {progress.answered === progress.total ? 'Listo' : 'Por elegir'}
+      </Text>
+    );
+  }
   return <Text className="font-sans text-sm text-muted">{answersLabel(progress)}</Text>;
 }
 
 type SectionNavProps = {
   definition: FormDefinition;
+  lead?: LeadTarget;
   active: string;
   onSelect: (id: string) => void;
   layout: 'side' | 'top';
 };
 
-export function SectionNav({ definition, active, onSelect, layout }: SectionNavProps) {
-  const targets = useNavTargets(definition);
+export function SectionNav({ definition, lead, active, onSelect, layout }: SectionNavProps) {
+  const targets = useNavTargets(definition, lead);
   if (layout === 'top') {
     return (
       <View className="border-b border-border bg-background">
