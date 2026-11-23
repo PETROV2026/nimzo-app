@@ -17,6 +17,8 @@ type SelectFieldProps<T extends string> = {
   disabled?: boolean;
   error?: string;
   searchPlaceholder?: string;
+  showLabel?: boolean;
+  onClear?: () => void;
 };
 
 export function SelectField<T extends string>({
@@ -28,6 +30,8 @@ export function SelectField<T extends string>({
   disabled,
   error,
   searchPlaceholder,
+  showLabel = true,
+  onClear,
 }: SelectFieldProps<T>) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -45,7 +49,7 @@ export function SelectField<T extends string>({
 
   return (
     <View className="gap-2">
-      <Text className="font-sans-medium text-lg text-foreground">{label}</Text>
+      {showLabel ? <Text className="font-sans-medium text-lg text-foreground">{label}</Text> : null}
       <Pressable
         onPress={() => setOpen(true)}
         disabled={disabled}
@@ -99,6 +103,23 @@ export function SelectField<T extends string>({
               data={shown}
               keyExtractor={(option) => option.value}
               keyboardShouldPersistTaps="handled"
+              ListFooterComponent={
+                onClear && selected ? (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => {
+                      onClear();
+                      close();
+                    }}
+                    className="min-h-14 flex-row items-center gap-3 border-t border-border px-6 active:bg-surface"
+                  >
+                    <Icon name="close-circle-outline" size={22} color={colors.muted} />
+                    <Text className="font-sans-semibold text-base text-muted">
+                      Quitar selección
+                    </Text>
+                  </Pressable>
+                ) : undefined
+              }
               ListEmptyComponent={
                 <Text className="px-6 py-4 font-sans text-base text-muted">
                   No hay opciones que coincidan con «{search.trim()}».
