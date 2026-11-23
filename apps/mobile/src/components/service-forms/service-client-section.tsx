@@ -55,7 +55,16 @@ export function PendingServiceBadge() {
   );
 }
 
-function Tile({
+function ContactItem({ icon, text }: { icon: IconName; text: string }) {
+  return (
+    <View className="flex-row items-center gap-2">
+      <Icon name={icon} size={18} color={colors.muted} />
+      <Text className="font-sans text-base text-foreground">{text}</Text>
+    </View>
+  );
+}
+
+function DetailColumn({
   icon,
   label,
   title,
@@ -68,15 +77,13 @@ function Tile({
 }) {
   const shown = lines.filter((line): line is string => Boolean(line && line.trim()));
   return (
-    <View className="flex-1 flex-row gap-4 rounded-xl border border-border bg-surface p-4">
-      <View className="size-11 items-center justify-center rounded-full bg-background">
-        <Icon name={icon} size={22} color={colors['primary-strong']} />
-      </View>
-      <View className="flex-1 gap-0.5">
+    <View className="flex-1 flex-row gap-3">
+      <Icon name={icon} size={22} color={colors['primary-strong']} />
+      <View className="flex-1 gap-1">
         <Text className="font-sans-medium text-sm text-muted">{label}</Text>
-        <Text className="font-sans-bold text-lg text-foreground">{title}</Text>
+        <Text className="font-sans-semibold text-lg text-foreground">{title}</Text>
         {shown.map((line) => (
-          <Text key={line} className="font-sans text-sm text-muted">
+          <Text key={line} className="font-sans text-base text-muted">
             {line}
           </Text>
         ))}
@@ -98,34 +105,53 @@ export function ServiceSummary({
   const branch = branches.find((item) => item.id === target.branchId);
   const system = systems.find((item) => item.id === target.systemId);
   if (!client || !branch) return null;
+  const wide = width >= 900;
+  const contact = [
+    client.contact_name ? { icon: 'person-outline' as const, text: client.contact_name } : null,
+    client.contact_phone ? { icon: 'call-outline' as const, text: client.contact_phone } : null,
+    client.contact_email ? { icon: 'mail-outline' as const, text: client.contact_email } : null,
+  ].filter((item) => item !== null);
 
   return (
-    <View className={width >= 900 ? 'flex-row gap-4' : 'gap-3'}>
-      <Tile
-        icon="business-outline"
-        label="Cliente"
-        title={client.name}
-        lines={[
-          client.contact_name,
-          [client.contact_phone, client.contact_email].filter(Boolean).join(' · '),
-        ]}
-      />
-      <Tile
-        icon="location-outline"
-        label="Sucursal"
-        title={branch.name}
-        lines={[branch.address, branchPlace(branch)]}
-      />
-      <Tile
-        icon="construct-outline"
-        label="Sistema"
-        title={system ? system.name : 'Sin sistema'}
-        lines={
-          system
-            ? [systemTypeLabels[system.system_type], system.location]
-            : ['El formato es general para la sucursal.']
-        }
-      />
+    <View className="gap-5">
+      <View className="flex-row items-start gap-4">
+        <View className="size-12 items-center justify-center rounded-xl bg-primary/10">
+          <Icon name="business-outline" size={24} color={colors['primary-strong']} />
+        </View>
+        <View className="flex-1 gap-2">
+          <View className="gap-0.5">
+            <Text className="font-sans-medium text-sm text-muted">Cliente</Text>
+            <Text className="font-sans-bold text-2xl text-foreground">{client.name}</Text>
+          </View>
+          {contact.length > 0 ? (
+            <View className="flex-row flex-wrap gap-x-6 gap-y-1">
+              {contact.map((item) => (
+                <ContactItem key={item.text} icon={item.icon} text={item.text} />
+              ))}
+            </View>
+          ) : null}
+        </View>
+      </View>
+      <View className="h-px bg-border" />
+      <View className={wide ? 'flex-row gap-6' : 'gap-5'}>
+        <DetailColumn
+          icon="location-outline"
+          label="Sucursal"
+          title={branch.name}
+          lines={[branch.address, branchPlace(branch)]}
+        />
+        {wide ? <View className="w-px bg-border" /> : null}
+        <DetailColumn
+          icon="construct-outline"
+          label="Sistema"
+          title={system ? system.name : 'Sin sistema'}
+          lines={
+            system
+              ? [systemTypeLabels[system.system_type], system.location]
+              : ['El formato es general para la sucursal.']
+          }
+        />
+      </View>
     </View>
   );
 }
