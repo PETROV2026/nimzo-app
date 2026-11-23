@@ -4,6 +4,7 @@ export type RunResult = {
   id: string;
   label: string;
   flow: number;
+  adjustedFlow: number;
   net: number;
   adjusted: number;
   expected?: number;
@@ -53,6 +54,11 @@ export function adjustedPressure({
   if (ratedSpeed === undefined || speed === undefined) return round2(net);
   if (speed === 0) return 0;
   return round2(net * (ratedSpeed / speed) ** 2);
+}
+
+export function adjustedFlow(flow: number, ratedSpeed?: number, speed?: number) {
+  if (ratedSpeed === undefined || speed === undefined || speed === 0) return flow;
+  return round2(flow * (ratedSpeed / speed));
 }
 
 export function churnPressure(ratedPressure: number, maxPressure?: number) {
@@ -124,23 +130,22 @@ export function pumpChartData(values: Values): PumpChartData | undefined {
       const discharge = toNumber(run?.discharge_pressure);
       const suction = toNumber(run?.suction_pressure);
       if (flow === undefined || discharge === undefined || suction === undefined) return [];
-      const adjusted = adjustedPressure({
-        discharge,
-        suction,
-        ratedSpeed,
-        speed: ratedSpeed === undefined ? undefined : toNumber(run?.speed),
-      });
+      const speed = ratedSpeed === undefined ? undefined : toNumber(run?.speed);
+      const adjusted = adjustedPressure({ discharge, suction, ratedSpeed, speed });
       if (adjusted <= 0) return [];
+      const corrected = adjustedFlow(flow, ratedSpeed, speed);
       const label = `Desempeño ${runNumber(id) === Number.MAX_SAFE_INTEGER ? id : runNumber(id)}`;
-      if (!hasPlate) return [{ id, label, flow, net: discharge - suction, adjusted }];
-      const expected = expectedFactoryPressure(flow, ratedFlow, ratedPressure, churn, at150);
+      const net = discharge - suction;
+      if (!hasPlate) return [{ id, label, flow, adjustedFlow: corrected, net, adjusted }];
+      const expected = expectedFactoryPressure(corrected, ratedFlow, ratedPressure, churn, at150);
       const minimum = expected * acceptanceShare;
       return [
         {
           id,
           label,
           flow,
-          net: discharge - suction,
+          adjustedFlow: corrected,
+          net,
           adjusted,
           expected,
           minimum,
@@ -151,9 +156,12 @@ export function pumpChartData(values: Values): PumpChartData | undefined {
 
   if (!hasPlate && runs.length === 0) return undefined;
 
-  const measured = [...runs].sort((a, b) => a.flow - b.flow);
-  const test = measured.map((run) => ({ x: run.flow, y: run.net }));
-  const adjusted = measured.map((run) => ({ x: run.flow, y: run.adjusted }));
+  const test = [...runs]
+    .sort((a, b) => a.flow - b.flow)
+    .map((run) => ({ x: run.flow, y: run.net }));
+  const adjusted = [...runs]
+    .sort((a, b) => a.adjustedFlow - b.adjustedFlow)
+    .map((run) => ({ x: run.adjustedFlow, y: run.adjusted }));
   const all = [...test, ...adjusted, ...factory, ...acceptance];
   const maxFlow = Math.max(0, ...all.map((point) => point.x));
   const maxPsi = Math.max(0, ...all.map((point) => point.y));

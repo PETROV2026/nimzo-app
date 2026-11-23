@@ -48,8 +48,9 @@ function ResultsTable({ runs }: { runs: RunResult[] }) {
   const columns = [
     'Corrida',
     'Flujo (GPM)',
+    'Flujo ajustado (GPM)',
     'Neta (PSI)',
-    'Ajustada (PSI)',
+    'Presión ajustada (PSI)',
     'Mínimo (PSI)',
     'Resultado',
   ];
@@ -72,6 +73,9 @@ function ResultsTable({ runs }: { runs: RunResult[] }) {
           </Text>
           <Text className="flex-1 px-3 py-2 font-sans text-sm text-foreground">
             {format(run.flow)}
+          </Text>
+          <Text className="flex-1 px-3 py-2 font-sans-semibold text-sm text-foreground">
+            {format(run.adjustedFlow)}
           </Text>
           <Text className="flex-1 px-3 py-2 font-sans text-sm text-foreground">
             {format(run.net)}
@@ -252,11 +256,11 @@ export function PumpPerformanceChart({ title }: { title: string }) {
                   />
                   {data.runs
                     .slice()
-                    .sort((a, b) => a.flow - b.flow)
+                    .sort((a, b) => a.adjustedFlow - b.adjustedFlow)
                     .map((run) => (
                       <Circle
                         key={`a-${run.id}`}
-                        cx={drawing.px(run.flow)}
+                        cx={drawing.px(run.adjustedFlow)}
                         cy={drawing.py(run.adjusted)}
                         r={6.5}
                         color={

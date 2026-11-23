@@ -137,3 +137,28 @@ test('without plate data only the measured runs are drawn, with no verdict', () 
 test('with no plate data and no runs there is nothing to draw', () => {
   assert.equal(pumpChartData({}), undefined);
 });
+
+test('flow is adjusted to rated speed too, and the run is judged at the adjusted flow', () => {
+  const data = pumpChartData({
+    ...plate,
+    rated_speed: 1770,
+    performance_runs: {
+      run_1: { flow_gpm: 3540, speed: 1780, discharge_pressure: 150, suction_pressure: 10 },
+    },
+  });
+  const [run] = data?.runs ?? [];
+  const ratio = 1770 / 1780;
+  close(run.adjustedFlow, 3540 * ratio, 0.01);
+  close(run.adjusted, 140 * ratio ** 2, 0.01);
+  close(run.expected, expectedFactoryPressure(3540 * ratio, 3000, 150, 190, 115), 0.01);
+  assert.deepEqual(data?.test, [{ x: 3540, y: 140 }]);
+  close(data?.adjusted[0].x, run.adjustedFlow, 1e-9);
+});
+
+test('without speeds the adjusted flow is the measured flow', () => {
+  const data = pumpChartData({
+    ...plate,
+    performance_runs: { run_1: { flow_gpm: 3000, discharge_pressure: 160, suction_pressure: 10 } },
+  });
+  assert.equal(data?.runs[0].adjustedFlow, 3000);
+});
