@@ -1,5 +1,21 @@
 import type { FormDefinition } from '@nimzo/shared';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type LayoutChangeEvent,
+  Pressable,
+  ScrollView,
+  type ScrollViewInstance,
+  Text,
+  View,
+} from 'react-native';
+import Animated, {
+  cubicBezier,
+  Easing,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { Button } from '@/components/button';
 import { Icon, type IconName } from '@/components/icon';
 import { useFormProgress } from '@/forms/form-context';
@@ -135,68 +151,195 @@ type SectionNavProps = {
   layout: 'side' | 'top';
 };
 
+type Box = { x: number; y: number; width: number; height: number };
+
+const moveEasing = Easing.bezier(0.77, 0, 0.175, 1);
+const pressEasing = cubicBezier(0.23, 1, 0.32, 1);
+
+function sameBox(a: Box | undefined, b: Box) {
+  return a?.x === b.x && a?.y === b.y && a?.width === b.width && a?.height === b.height;
+}
+
+function useBoxes() {
+  const [boxes, setBoxes] = useState<Record<string, Box>>({});
+  const measure = useCallback(
+    (id: string) => (event: LayoutChangeEvent) => {
+      const box = event.nativeEvent.layout;
+      setBoxes((current) => (sameBox(current[id], box) ? current : { ...current, [id]: box }));
+    },
+    [],
+  );
+  return { boxes, measure };
+}
+
+function Indicator({ box, className }: { box?: Box; className: string }) {
+  const reduced = useReducedMotion();
+  const x = useSharedValue(0);
+  const y = useSharedValue(0);
+  const width = useSharedValue(0);
+  const height = useSharedValue(0);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (!box) return;
+    if (opacity.get() === 0 || reduced) {
+      x.set(box.x);
+      y.set(box.y);
+      width.set(box.width);
+      height.set(box.height);
+      opacity.set(withTiming(1, { duration: reduced ? 0 : 150 }));
+      return;
+    }
+    const config = { duration: 280, easing: moveEasing };
+    x.set(withTiming(box.x, config));
+    y.set(withTiming(box.y, config));
+    width.set(withTiming(box.width, config));
+    height.set(withTiming(box.height, config));
+  }, [box, height, opacity, reduced, width, x, y]);
+
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.get(),
+    width: width.get(),
+    height: height.get(),
+    transform: [{ translateX: x.get() }, { translateY: y.get() }],
+  }));
+
+  return <Animated.View pointerEvents="none" className={className} style={style} />;
+}
+
+function NavItem({
+  target,
+  selected,
+  layout,
+  onPress,
+  onLayout,
+}: {
+  target: NavTarget;
+  selected: boolean;
+  layout: 'side' | 'top';
+  onPress: () => void;
+  onLayout: (event: LayoutChangeEvent) => void;
+}) {
+  const [pressed, setPressed] = useState(false);
+  const side = layout === 'side';
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      pressRetentionOffset={16}
+      onLayout={onLayout}
+    >
+      <Animated.View
+        style={{
+          transform: [{ scale: pressed ? 0.97 : 1 }],
+          transitionProperty: 'transform',
+          transitionDuration: '120ms',
+          transitionTimingFunction: pressEasing,
+        }}
+        className={
+          side
+            ? `min-h-16 flex-row items-center gap-3 rounded-lg px-3 py-2 ${pressed && !selected ? 'bg-surface' : ''}`
+            : `min-h-14 max-w-72 flex-row items-center gap-2 rounded-full pl-2 pr-4 ${pressed && !selected ? 'bg-surface' : ''}`
+        }
+      >
+        <Badge target={target} active={selected} />
+        {side ? (
+          <View className="flex-1 gap-0.5">
+            <Text
+              numberOfLines={2}
+              className={`text-base text-foreground ${selected ? 'font-sans-semibold' : 'font-sans-medium'}`}
+            >
+              {target.title}
+            </Text>
+            <NavCount id={target.id} />
+          </View>
+        ) : (
+          <Text
+            numberOfLines={1}
+            className={`shrink text-base ${selected ? 'font-sans-semibold text-foreground' : 'font-sans-medium text-muted'}`}
+          >
+            {target.title}
+          </Text>
+        )}
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 export function SectionNav({ definition, lead, active, onSelect, layout }: SectionNavProps) {
   const targets = useNavTargets(definition, lead);
-  if (layout === 'top') {
+  const { boxes, measure } = useBoxes();
+  const scrollRef = useRef<ScrollViewInstance>(null);
+  const [viewport, setViewport] = useState(0);
+  const activeBox = boxes[active];
+  const top = layout === 'top';
+
+  useEffect(() => {
+    if (!activeBox || viewport === 0) return;
+    if (top) {
+      scrollRef.current?.scrollTo({
+        x: Math.max(0, activeBox.x - (viewport - activeBox.width) / 2),
+        animated: true,
+      });
+    } else {
+      scrollRef.current?.scrollTo({
+        y: Math.max(0, activeBox.y - (viewport - activeBox.height) / 2),
+        animated: true,
+      });
+    }
+  }, [activeBox, top, viewport]);
+
+  const items = (
+    <View>
+      <Indicator
+        box={activeBox}
+        className={`absolute left-0 top-0 bg-primary/10 ${top ? 'rounded-full' : 'rounded-lg'}`}
+      />
+      <View className={top ? 'flex-row gap-2' : 'gap-1'}>
+        {targets.map((target) => (
+          <NavItem
+            key={target.id}
+            target={target}
+            selected={target.id === active}
+            layout={layout}
+            onPress={() => onSelect(target.id)}
+            onLayout={measure(target.id)}
+          />
+        ))}
+      </View>
+    </View>
+  );
+
+  if (top) {
     return (
-      <View className="border-b border-border bg-background">
+      <View
+        className="border-b border-border bg-background"
+        onLayout={(event) => setViewport(event.nativeEvent.layout.width)}
+      >
         <ScrollView
+          ref={scrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerClassName="gap-2 px-4 py-2"
+          contentContainerClassName="px-4 py-2"
         >
-          {targets.map((target) => {
-            const selected = target.id === active;
-            return (
-              <Pressable
-                key={target.id}
-                accessibilityRole="button"
-                accessibilityState={{ selected }}
-                onPress={() => onSelect(target.id)}
-                className={`min-h-14 max-w-72 flex-row items-center gap-2 rounded-full pl-2 pr-4 ${selected ? 'bg-primary/10' : 'active:bg-surface'}`}
-              >
-                <Badge target={target} active={selected} />
-                <Text
-                  numberOfLines={1}
-                  className={`shrink font-sans-medium text-base ${selected ? 'text-foreground' : 'text-muted'}`}
-                >
-                  {target.title}
-                </Text>
-              </Pressable>
-            );
-          })}
+          {items}
         </ScrollView>
       </View>
     );
   }
 
   return (
-    <View className="w-80 border-r border-border bg-background">
-      <ScrollView contentContainerClassName="gap-1 p-3">
+    <View
+      className="w-80 border-r border-border bg-background"
+      onLayout={(event) => setViewport(event.nativeEvent.layout.height)}
+    >
+      <ScrollView ref={scrollRef} contentContainerClassName="gap-1 p-3">
         <Text className="px-3 pb-2 pt-3 font-sans-semibold text-sm text-muted">Secciones</Text>
-        {targets.map((target) => {
-          const selected = target.id === active;
-          return (
-            <Pressable
-              key={target.id}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => onSelect(target.id)}
-              className={`min-h-16 flex-row items-center gap-3 rounded-lg px-3 py-2 ${selected ? 'bg-primary/10' : 'active:bg-surface'}`}
-            >
-              <Badge target={target} active={selected} />
-              <View className="flex-1 gap-0.5">
-                <Text
-                  numberOfLines={2}
-                  className={`text-base ${selected ? 'font-sans-semibold text-foreground' : 'font-sans-medium text-foreground'}`}
-                >
-                  {target.title}
-                </Text>
-                <NavCount id={target.id} />
-              </View>
-            </Pressable>
-          );
-        })}
+        {items}
       </ScrollView>
     </View>
   );
