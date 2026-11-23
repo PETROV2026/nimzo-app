@@ -1,5 +1,6 @@
 import { formTitle, matchesSearch } from '@nimzo/shared';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
@@ -57,7 +58,11 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
     <View className="-m-2 flex-row flex-wrap">
       {forms.map((form) => (
         <View key={form.code} className="w-1/2 p-2">
-          <ServiceFormCard form={form} search={search} />
+          <ServiceFormCard
+            form={form}
+            search={search}
+            onPress={() => router.push({ pathname: '/forms/[code]', params: { code: form.code } })}
+          />
         </View>
       ))}
     </View>

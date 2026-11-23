@@ -16,6 +16,13 @@ import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
 
+const formHeader = {
+  headerShown: true,
+  headerStyle: { backgroundColor: colors.muted },
+  headerTintColor: colors.background,
+  headerTitleStyle: { fontFamily: fonts['sans-bold'] },
+};
+
 function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -62,6 +69,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={signedIn}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="forms/[code]" options={formHeader} />
       </Stack.Protected>
       <Stack.Protected guard={!signedIn}>
         <Stack.Screen name="login" />
@@ -69,13 +77,7 @@ function RootNavigator() {
       <Stack.Protected guard={signedIn && __DEV__}>
         <Stack.Screen
           name="form-preview"
-          options={{
-            headerShown: true,
-            title: 'Vista previa de formatos',
-            headerStyle: { backgroundColor: colors.muted },
-            headerTintColor: colors.background,
-            headerTitleStyle: { fontFamily: fonts['sans-bold'] },
-          }}
+          options={{ ...formHeader, title: 'Vista previa de formatos' }}
         />
       </Stack.Protected>
     </Stack>
