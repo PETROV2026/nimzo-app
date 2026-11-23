@@ -1,5 +1,5 @@
 import { memo, type ReactNode, useMemo } from 'react';
-import { Text, useWindowDimensions, View, type ViewStyle } from 'react-native';
+import { Text, useWindowDimensions, View } from 'react-native';
 import { useController, useFormContext } from 'react-hook-form';
 import type { FormField, FormGroup, FormNode, FormNote } from '@nimzo/shared';
 import { Icon } from '@/components/icon';
@@ -13,7 +13,13 @@ import { TextFormField } from '@/forms/fields/text-field';
 import { TimeField } from '@/forms/fields/time-field';
 import { YesNoField } from '@/forms/fields/yes-no-field';
 import { useFormLayout } from '@/forms/form-context';
-import { type FormValues, isEmptyValue, isField } from '@/forms/form-values';
+import {
+  type Chunk,
+  chunkNodes,
+  type FormValues,
+  isEmptyValue,
+  isField,
+} from '@/forms/form-values';
 import type {
   CheckboxValue,
   CheckValue,
@@ -58,7 +64,7 @@ export function NoteNode({ text, tone }: Pick<FormNote, 'text' | 'tone'>) {
     >
       <Icon
         name={warning ? 'warning-outline' : 'information-circle-outline'}
-        size={24}
+        size={22}
         color={colors.foreground}
       />
       <Text className="flex-1 font-sans text-base text-foreground">{text}</Text>
@@ -71,9 +77,10 @@ type InputProps = {
   value: unknown;
   onChange: (value: unknown) => void;
   error?: string;
+  number?: string;
 };
 
-function FieldInput({ field, value, onChange, error }: InputProps) {
+function FieldInput({ field, value, onChange, error, number }: InputProps) {
   switch (field.type) {
     case 'text':
       return (
@@ -97,11 +104,23 @@ function FieldInput({ field, value, onChange, error }: InputProps) {
       );
     case 'yes_no':
       return (
-        <YesNoField field={field} value={value as YesNoValue} onChange={onChange} error={error} />
+        <YesNoField
+          field={field}
+          value={value as YesNoValue}
+          onChange={onChange}
+          error={error}
+          number={number}
+        />
       );
     case 'check':
       return (
-        <CheckField field={field} value={value as CheckValue} onChange={onChange} error={error} />
+        <CheckField
+          field={field}
+          value={value as CheckValue}
+          onChange={onChange}
+          error={error}
+          number={number}
+        />
       );
     case 'checkbox':
       return (
@@ -123,7 +142,7 @@ function FieldInput({ field, value, onChange, error }: InputProps) {
 
 function FieldNode({ field }: { field: FormField }) {
   const { control, clearErrors } = useFormContext<FormValues>();
-  const { registerField } = useFormLayout();
+  const { registerField, numbers } = useFormLayout();
   const { field: input, fieldState } = useController({ control, name: field.id });
   const ref = useMemo(() => registerField(field.id), [registerField, field.id]);
 
@@ -139,46 +158,39 @@ function FieldNode({ field }: { field: FormField }) {
         value={input.value}
         onChange={change}
         error={fieldState.error?.message}
+        number={numbers.get(field.id)}
       />
     </View>
   );
 }
 
 function GroupNode({ group }: { group: FormGroup }) {
-  const { width, height } = useWindowDimensions();
-  const twoColumns = group.columns === 2 && width > height;
-  const cell: ViewStyle | undefined = twoColumns ? { flexBasis: '40%', flexGrow: 1 } : undefined;
-  const body = (
-    <View className={twoColumns ? 'flex-row flex-wrap gap-x-8 gap-y-6' : 'gap-6'}>
-      {group.children.map((child, index) => (
-        <RenderNode key={'id' in child ? child.id : index} node={child} style={cell} />
-      ))}
-    </View>
-  );
-
   if (group.style === 'band') {
     return (
-      <View className="gap-5">
+      <View className="gap-4">
         {group.label ? (
-          <View className="rounded-lg bg-muted px-4 py-3">
-            <Text accessibilityRole="header" className="font-sans-semibold text-lg text-background">
+          <View className="flex-row items-center gap-3 rounded-lg border-l-4 border-primary-strong bg-surface px-4 py-3">
+            <Text
+              accessibilityRole="header"
+              className="flex-1 font-sans-semibold text-lg text-foreground"
+            >
               {group.label}
             </Text>
           </View>
         ) : null}
-        {body}
+        <Nodes nodes={group.children} />
       </View>
     );
   }
 
   return (
-    <View className="gap-5 rounded-lg border-2 border-border p-5">
+    <View className="gap-4 rounded-xl border border-border p-5">
       {group.label ? (
         <Text accessibilityRole="header" className="font-sans-semibold text-lg text-foreground">
           {group.label}
         </Text>
       ) : null}
-      {body}
+      <Nodes nodes={group.children} />
     </View>
   );
 }
@@ -190,18 +202,76 @@ function NodeContent({ node }: { node: FormNode }) {
   return <PendingNode label={pendingLabel(node)} />;
 }
 
-type RenderNodeProps = { node: FormNode; style?: ViewStyle };
-
 function Visible({ id, children }: { id?: string; children: ReactNode }) {
   const { hidden } = useFormLayout();
   return id && hidden.has(id) ? null : children;
 }
 
-export const RenderNode = memo(function RenderNode({ node, style }: RenderNodeProps) {
+const keyOf = (node: FormNode, index: number) => ('id' in node ? node.id : `note-${index}`);
+
+export const RenderNode = memo(function RenderNode({
+  node,
+  className,
+}: {
+  node: FormNode;
+  className?: string;
+}) {
   const content = <NodeContent node={node} />;
   return (
     <Visible id={'id' in node ? node.id : undefined}>
-      {style ? <View style={style}>{content}</View> : content}
+      {className ? <View className={className}>{content}</View> : content}
     </Visible>
   );
 });
+
+function ChunkView({ chunk }: { chunk: Chunk }) {
+  const { width } = useWindowDimensions();
+
+  if (chunk.kind === 'rows') {
+    return (
+      <View className="overflow-hidden rounded-xl border border-border bg-background">
+        {chunk.nodes.map((node, index) => (
+          <RenderNode
+            key={keyOf(node, index)}
+            node={node}
+            className={index > 0 ? 'border-t border-border' : undefined}
+          />
+        ))}
+      </View>
+    );
+  }
+
+  if (chunk.kind === 'chips') {
+    return (
+      <View className="flex-row flex-wrap gap-3">
+        {chunk.nodes.map((node, index) => (
+          <RenderNode key={keyOf(node, index)} node={node} />
+        ))}
+      </View>
+    );
+  }
+
+  if (chunk.kind === 'grid') {
+    const cell = width >= 640 ? 'w-1/2 px-3' : 'w-full px-3';
+    return (
+      <View className="-mx-3 flex-row flex-wrap gap-y-5">
+        {chunk.nodes.map((node, index) => (
+          <RenderNode key={keyOf(node, index)} node={node} className={cell} />
+        ))}
+      </View>
+    );
+  }
+
+  return <RenderNode node={chunk.nodes[0]} />;
+}
+
+export function Nodes({ nodes }: { nodes: FormNode[] }) {
+  const chunks = useMemo(() => chunkNodes(nodes), [nodes]);
+  return (
+    <View className="gap-5">
+      {chunks.map((chunk, index) => (
+        <ChunkView key={index} chunk={chunk} />
+      ))}
+    </View>
+  );
+}
