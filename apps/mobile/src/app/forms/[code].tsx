@@ -1,5 +1,5 @@
 import { formTitle, systemTypeLabels } from '@nimzo/shared';
-import { Stack, useLocalSearchParams, useNavigation, usePreventRemove } from 'expo-router';
+import { Stack, useLocalSearchParams, usePreventRemove } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
@@ -13,10 +13,6 @@ import { FormRenderer } from '@/forms/form-renderer';
 import { type FormValues, isEmptyValue } from '@/forms/form-values';
 import { useServiceForms } from '@/service-forms/service-forms-db';
 import { colors } from '@/theme';
-
-type LeaveAction = Parameters<
-  NonNullable<Parameters<typeof usePreventRemove>[1]>
->[0]['data']['action'];
 
 type ServiceParams = { code: string; client?: string; branch?: string; system?: string };
 
@@ -76,13 +72,12 @@ function ServiceHeader({ client, branch, system }: Omit<ServiceParams, 'code'>) 
 
 export default function FillFormScreen() {
   const { code, client, branch, system } = useLocalSearchParams<ServiceParams>();
-  const navigation = useNavigation();
   const form = useServiceForms().find((item) => item.code === code);
   const definition = getDefinition(code);
   const [touched, setTouched] = useState(false);
-  const [leaving, setLeaving] = useState<LeaveAction | null>(null);
+  const [leaving, setLeaving] = useState<(() => void) | null>(null);
 
-  usePreventRemove(touched, ({ data }) => setLeaving(data.action));
+  usePreventRemove(touched, ({ repeat }) => setLeaving(() => repeat));
 
   function track(values: FormValues) {
     setTouched(Object.values(values).some((value) => !isEmptyValue(value)));
@@ -119,9 +114,9 @@ export default function FillFormScreen() {
           tone="destructive"
           onClose={() => setLeaving(null)}
           onConfirm={() => {
-            const action = leaving;
+            const leave = leaving;
             setLeaving(null);
-            navigation.dispatch(action);
+            leave();
           }}
         />
       ) : null}
