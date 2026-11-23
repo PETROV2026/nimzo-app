@@ -131,3 +131,34 @@ test('progress counts visible answers per section and in total, without checkbox
   );
   assert.deepEqual([filled.answered, filled.total], [4, 5]);
 });
+
+test('fields with long labels take the full width instead of a grid column', () => {
+  const long =
+    'Al realizar el análisis de la gráfica, comparando los resultados obtenidos, se determina que';
+  const form = definition([
+    {
+      id: 'main',
+      children: [
+        text('short'),
+        {
+          id: 'verdict',
+          type: 'choice',
+          label: long,
+          options: [
+            { value: 'acceptable', label: 'Aceptable' },
+            { value: 'not_acceptable', label: 'No aceptable' },
+          ],
+        },
+        text('other'),
+      ],
+    },
+  ]);
+  assert.deepEqual(
+    chunkNodes(form.sections[0].children).map((chunk) => [chunk.kind, chunk.nodes.length]),
+    [
+      ['grid', 1],
+      ['block', 1],
+      ['grid', 1],
+    ],
+  );
+});

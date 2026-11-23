@@ -211,7 +211,17 @@ export type FormProgress = Progress & {
 
 const numberedTypes = new Set<string>(['check', 'yes_no']);
 
+const longLabel = 80;
+
 function kindOf(node: FormNode): ChunkKind {
+  if (
+    isField(node) &&
+    node.type !== 'check' &&
+    node.type !== 'yes_no' &&
+    node.type !== 'checkbox'
+  ) {
+    if (node.label.length > longLabel) return 'block';
+  }
   switch (node.type) {
     case 'check':
     case 'yes_no':
