@@ -5,6 +5,8 @@ import { ScrollView, Text, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
+import { useSession } from '@/auth/session-provider';
+import { NewServiceDialog } from '@/components/service-forms/new-service-dialog';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
@@ -33,7 +35,13 @@ const sections: Segment<Section>[] = [
   },
 ];
 
-function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; search: string }) {
+type ServiceFormGridProps = {
+  catalog: LocalServiceForm[];
+  search: string;
+  onPick: (form: LocalServiceForm) => void;
+};
+
+function ServiceFormGrid({ catalog, search, onPick }: ServiceFormGridProps) {
   if (catalog.length === 0) {
     return (
       <EmptyState
@@ -58,11 +66,7 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
     <View className="-m-2 flex-row flex-wrap">
       {forms.map((form) => (
         <View key={form.code} className="w-1/2 p-2">
-          <ServiceFormCard
-            form={form}
-            search={search}
-            onPress={() => router.push({ pathname: '/forms/[code]', params: { code: form.code } })}
-          />
+          <ServiceFormCard form={form} search={search} onPress={() => onPick(form)} />
         </View>
       ))}
     </View>
@@ -73,6 +77,9 @@ export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
   const headerSearch = useHeaderSearch();
   const catalog = useServiceForms();
+  const session = useSession();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const [starting, setStarting] = useState<LocalServiceForm | null>(null);
 
   return (
     <>
@@ -96,7 +103,7 @@ export default function ServicesScreen() {
         contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
       >
         {current === 'new' ? (
-          <ServiceFormGrid catalog={catalog} search={headerSearch.term} />
+          <ServiceFormGrid catalog={catalog} search={headerSearch.term} onPick={setStarting} />
         ) : (
           <EmptyState
             icon="clipboard-outline"
@@ -105,6 +112,25 @@ export default function ServicesScreen() {
           />
         )}
       </ScrollView>
+      {starting && technicianId ? (
+        <NewServiceDialog
+          form={starting}
+          technicianId={technicianId}
+          onClose={() => setStarting(null)}
+          onStart={(service) => {
+            setStarting(null);
+            router.push({
+              pathname: '/forms/[code]',
+              params: {
+                code: starting.code,
+                client: service.clientId,
+                branch: service.branchId,
+                ...(service.systemId ? { system: service.systemId } : {}),
+              },
+            });
+          }}
+        />
+      ) : null}
     </>
   );
 }
