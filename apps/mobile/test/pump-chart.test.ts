@@ -1,74 +1,139 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { pumpChartData } from '../src/forms/pump-chart.ts';
+import {
+  adjustedPressure,
+  churnPressure,
+  expectedFactoryPressure,
+  pressureAt150,
+  pumpChartData,
+} from '../src/forms/pump-chart.ts';
 
-const rated = {
-  rated_flow: 1000,
-  rated_pressure: 100,
-  max_pressure: 130,
-  pressure_150: 70,
-};
+const close = (actual: number | undefined, expected: number, tolerance = 1e-9) =>
+  assert.ok(
+    actual !== undefined && Math.abs(actual - expected) <= tolerance,
+    `${actual} is not close to ${expected}`,
+  );
 
-test('the nameplate curve uses churn, rated and 150% points, and the minimum is 95% of it', () => {
-  const data = pumpChartData(rated);
-  assert.ok(data);
-  assert.deepEqual(data.nameplate, [
-    { x: 0, y: 130 },
-    { x: 100, y: 100 },
-    { x: 150, y: 70 },
+test('adjusted pressure is the net pressure when the speed equals nominal', () => {
+  assert.equal(
+    adjustedPressure({ discharge: 130, suction: 10, ratedSpeed: 1770, speed: 1770 }),
+    120,
+  );
+});
+
+test('adjusted pressure applies the squared affinity law for speed', () => {
+  close(
+    adjustedPressure({ discharge: 110, suction: 10, ratedSpeed: 1770, speed: 1765 }),
+    100 * (1770 / 1765) ** 2,
+    0.01,
+  );
+  assert.ok(adjustedPressure({ discharge: 100, suction: 0, ratedSpeed: 1770, speed: 1700 }) > 100);
+});
+
+test('adjusted pressure is zero for a zero speed and rounds to two decimals', () => {
+  assert.equal(adjustedPressure({ discharge: 100, suction: 0, ratedSpeed: 1770, speed: 0 }), 0);
+  const value = adjustedPressure({ discharge: 124, suction: 8, ratedSpeed: 1770, speed: 1768 });
+  assert.equal(value, Math.round(value * 100) / 100);
+});
+
+test('without speeds the adjusted pressure is the net pressure', () => {
+  assert.equal(adjustedPressure({ discharge: 130, suction: 10 }), 120);
+});
+
+test('churn and 150% pressures use the plate or fall back to 120% and 65%', () => {
+  assert.equal(churnPressure(120, 150), 150);
+  assert.equal(pressureAt150(120, 80), 80);
+  close(churnPressure(120, undefined), 144);
+  close(pressureAt150(120, 0), 78);
+});
+
+test('expected factory pressure follows the three plate points', () => {
+  const expected = (flow: number) => expectedFactoryPressure(flow, 1500, 120, 144, 78);
+  assert.equal(expected(0), 144);
+  close(expected(1500), 120);
+  close(expected(2250), 78);
+  close(expected(750), 132);
+  close(expected(1875), 99);
+  close(expected(2625), 57);
+  assert.equal(expectedFactoryPressure(500, 0, 120, 144, 78), 120);
+});
+
+const plate = { rated_flow: 3000, rated_pressure: 150, max_pressure: 190, pressure_150: 115 };
+
+test('factory data come from the plate and acceptance is 95% of it', () => {
+  const data = pumpChartData(plate);
+  assert.deepEqual(data?.factory, [
+    { x: 0, y: 190 },
+    { x: 3000, y: 150 },
+    { x: 4500, y: 115 },
   ]);
   assert.deepEqual(
-    data.minimum.map((point) => [point.x, Math.round(point.y * 100) / 100]),
+    data?.acceptance.map((point) => point.y),
+    [180.5, 142.5, 109.25],
+  );
+});
+
+test('runs are evaluated against 95% of the factory pressure at their flow', () => {
+  const data = pumpChartData({
+    ...plate,
+    rated_speed: 1770,
+    performance_runs: {
+      run_2: { flow_gpm: 3000, speed: 1770, discharge_pressure: 158.5, suction_pressure: 10 },
+      run_1: { flow_gpm: 0, speed: 1780, discharge_pressure: 183, suction_pressure: 10 },
+      run_3: { flow_gpm: 4500, speed: 1770 },
+    },
+  });
+  assert.deepEqual(
+    data?.runs.map((run) => [run.label, run.net, run.adjusted, run.passed]),
     [
-      [0, 123.5],
-      [100, 95],
-      [150, 66.5],
+      ['Desempeño 1', 173, 171.06, false],
+      ['Desempeño 2', 148.5, 148.5, true],
     ],
   );
-  assert.deepEqual(data.test, []);
+  assert.equal(data?.verdict, 'not_acceptable');
+  close(data?.runs[1].minimum, 142.5);
 });
 
-test('test runs are plotted as percent of rated flow and net pressure, sorted by flow', () => {
+test('every passing run gives an acceptable verdict', () => {
   const data = pumpChartData({
-    ...rated,
+    ...plate,
     performance_runs: {
-      run_2: { flow_gpm: 1500, discharge_pressure: '90', suction_pressure: '20' },
-      run_1: { flow_gpm: 0, discharge_pressure: 150, suction_pressure: 20 },
-      run_3: { flow_gpm: 1000 },
+      run_1: { flow_gpm: 3000, discharge_pressure: 160, suction_pressure: 10 },
+      run_2: { flow_gpm: 4500, discharge_pressure: 125, suction_pressure: 10 },
     },
   });
-  assert.deepEqual(data?.test, [
-    { x: 0, y: 130 },
-    { x: 150, y: 70 },
-  ]);
-  assert.equal(data?.adjusted, false);
+  assert.equal(data?.verdict, 'acceptable');
 });
 
-test('runs are adjusted to rated speed with the affinity laws', () => {
+test('no runs means no verdict yet', () => {
+  assert.equal(pumpChartData(plate)?.verdict, undefined);
+});
+
+test('axes cover every series with round steps', () => {
   const data = pumpChartData({
-    ...rated,
-    rated_speed: 1800,
+    ...plate,
     performance_runs: {
-      run_1: { flow_gpm: 900, speed: 1620, discharge_pressure: 101, suction_pressure: 20 },
+      run_1: { flow_gpm: 0, discharge_pressure: 183, suction_pressure: 10 },
+      run_2: { flow_gpm: 3000, discharge_pressure: 158.5, suction_pressure: 10 },
     },
   });
-  const [point] = data?.test ?? [];
-  assert.equal(Math.round(point.x), 100);
-  assert.equal(Math.round(point.y), 100);
-  assert.equal(data?.adjusted, true);
+  assert.equal(data?.axes.xStep, 1500);
+  assert.equal(data?.axes.maxX, 4500);
+  assert.equal(data?.axes.yStep, 50);
+  assert.ok((data?.axes.maxY ?? 0) >= 190);
 });
 
-test('without rated flow and pressure there is no chart', () => {
-  assert.equal(pumpChartData({ rated_pressure: 100 }), undefined);
-  assert.equal(pumpChartData({ rated_flow: 1000 }), undefined);
-});
-
-test('the axes leave room for every point with round limits', () => {
+test('without plate data only the measured runs are drawn, with no verdict', () => {
   const data = pumpChartData({
-    ...rated,
-    performance_runs: { run_1: { flow_gpm: 1600, discharge_pressure: 80, suction_pressure: 20 } },
+    performance_runs: { run_1: { flow_gpm: 1000, discharge_pressure: 120, suction_pressure: 20 } },
   });
-  assert.equal(data?.xMax, 175);
-  assert.equal(data?.yMax, 150);
+  assert.deepEqual(data?.factory, []);
+  assert.deepEqual(data?.acceptance, []);
+  assert.equal(data?.runs[0].passed, undefined);
+  assert.equal(data?.verdict, undefined);
+});
+
+test('with no plate data and no runs there is nothing to draw', () => {
+  assert.equal(pumpChartData({}), undefined);
 });

@@ -1,18 +1,33 @@
 export type ChartPoint = { x: number; y: number };
 
+export type RunResult = {
+  id: string;
+  label: string;
+  flow: number;
+  net: number;
+  adjusted: number;
+  expected?: number;
+  minimum?: number;
+  passed?: boolean;
+};
+
+export type ChartAxes = { maxX: number; xStep: number; maxY: number; yStep: number };
+
+export type PumpVerdict = 'acceptable' | 'not_acceptable';
+
 export type PumpChartData = {
-  nameplate: ChartPoint[];
-  minimum: ChartPoint[];
+  runs: RunResult[];
   test: ChartPoint[];
-  adjusted: boolean;
-  xMax: number;
-  yMax: number;
+  adjusted: ChartPoint[];
+  factory: ChartPoint[];
+  acceptance: ChartPoint[];
+  axes: ChartAxes;
+  verdict?: PumpVerdict;
 };
 
 type Values = Record<string, unknown>;
 
-const minimumShare = 0.95;
-const xStep = 25;
+const acceptanceShare = 0.95;
 
 function toNumber(value: unknown): number | undefined {
   if (typeof value === 'number') return Number.isFinite(value) ? value : undefined;
@@ -21,45 +36,139 @@ function toNumber(value: unknown): number | undefined {
   return Number.isFinite(number) ? number : undefined;
 }
 
-function roundUp(value: number, step: number) {
-  return Math.ceil(value / step) * step;
+const round2 = (value: number) => Math.round(value * 100) / 100;
+
+export function adjustedPressure({
+  discharge,
+  suction,
+  ratedSpeed,
+  speed,
+}: {
+  discharge: number;
+  suction: number;
+  ratedSpeed?: number;
+  speed?: number;
+}) {
+  const net = discharge - suction;
+  if (ratedSpeed === undefined || speed === undefined) return round2(net);
+  if (speed === 0) return 0;
+  return round2(net * (ratedSpeed / speed) ** 2);
+}
+
+export function churnPressure(ratedPressure: number, maxPressure?: number) {
+  return maxPressure !== undefined && maxPressure > 0 ? maxPressure : ratedPressure * 1.2;
+}
+
+export function pressureAt150(ratedPressure: number, plateValue?: number) {
+  return plateValue !== undefined && plateValue > 0 ? plateValue : ratedPressure * 0.65;
+}
+
+export function expectedFactoryPressure(
+  flow: number,
+  ratedFlow: number,
+  ratedPressure: number,
+  churn: number,
+  at150: number,
+) {
+  if (ratedFlow <= 0) return ratedPressure;
+  if (flow <= 0) return churn;
+  if (flow <= ratedFlow) return churn + (ratedPressure - churn) * (flow / ratedFlow);
+  const maxFlow = ratedFlow * 1.5;
+  if (flow <= maxFlow) {
+    return ratedPressure + (at150 - ratedPressure) * ((flow - ratedFlow) / (maxFlow - ratedFlow));
+  }
+  const slope = (at150 - ratedPressure) / (maxFlow - ratedFlow);
+  return at150 + slope * (flow - maxFlow);
+}
+
+export function niceStep(range: number, targetTicks: number) {
+  const raw = range / targetTicks;
+  const magnitude = 10 ** Math.floor(Math.log10(raw));
+  for (const multiple of [1, 2, 2.5, 5, 10]) {
+    if (raw <= multiple * magnitude) return multiple * magnitude;
+  }
+  return 10 * magnitude;
+}
+
+function runNumber(id: string) {
+  const match = /(\d+)$/.exec(id);
+  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
 }
 
 export function pumpChartData(values: Values): PumpChartData | undefined {
   const ratedFlow = toNumber(values.rated_flow);
   const ratedPressure = toNumber(values.rated_pressure);
-  if (!ratedFlow || ratedFlow <= 0 || ratedPressure === undefined) return undefined;
-
-  const nameplate = [
-    { x: 0, y: toNumber(values.max_pressure) },
-    { x: 100, y: ratedPressure },
-    { x: 150, y: toNumber(values.pressure_150) },
-  ].filter((point): point is ChartPoint => point.y !== undefined);
-  const minimum = nameplate.map((point) => ({ x: point.x, y: point.y * minimumShare }));
-
   const ratedSpeed = toNumber(values.rated_speed);
-  const runs =
+  const hasPlate =
+    ratedFlow !== undefined && ratedFlow > 0 && ratedPressure !== undefined && ratedPressure > 0;
+
+  const churn = hasPlate ? churnPressure(ratedPressure, toNumber(values.max_pressure)) : 0;
+  const at150 = hasPlate ? pressureAt150(ratedPressure, toNumber(values.pressure_150)) : 0;
+  const factory: ChartPoint[] = hasPlate
+    ? [
+        { x: 0, y: churn },
+        { x: ratedFlow, y: ratedPressure },
+        { x: ratedFlow * 1.5, y: at150 },
+      ]
+    : [];
+  const acceptance = factory.map((point) => ({ x: point.x, y: point.y * acceptanceShare }));
+
+  const table =
     values.performance_runs && typeof values.performance_runs === 'object'
-      ? Object.values(values.performance_runs as Record<string, Values>)
-      : [];
-  let adjusted = false;
-  const test = runs
-    .flatMap((run): ChartPoint[] => {
+      ? (values.performance_runs as Record<string, Values | undefined>)
+      : {};
+  const runs = Object.entries(table)
+    .sort(([a], [b]) => runNumber(a) - runNumber(b))
+    .flatMap(([id, run]): RunResult[] => {
       const flow = toNumber(run?.flow_gpm);
       const discharge = toNumber(run?.discharge_pressure);
-      const suction = toNumber(run?.suction_pressure) ?? 0;
-      if (flow === undefined || discharge === undefined) return [];
-      const speed = toNumber(run?.speed);
-      const factor = ratedSpeed && speed && speed > 0 ? ratedSpeed / speed : 1;
-      if (factor !== 1) adjusted = true;
-      return [{ x: ((flow * factor) / ratedFlow) * 100, y: (discharge - suction) * factor ** 2 }];
-    })
-    .sort((a, b) => a.x - b.x);
+      const suction = toNumber(run?.suction_pressure);
+      if (flow === undefined || discharge === undefined || suction === undefined) return [];
+      const adjusted = adjustedPressure({
+        discharge,
+        suction,
+        ratedSpeed,
+        speed: ratedSpeed === undefined ? undefined : toNumber(run?.speed),
+      });
+      if (adjusted <= 0) return [];
+      const label = `Desempeño ${runNumber(id) === Number.MAX_SAFE_INTEGER ? id : runNumber(id)}`;
+      if (!hasPlate) return [{ id, label, flow, net: discharge - suction, adjusted }];
+      const expected = expectedFactoryPressure(flow, ratedFlow, ratedPressure, churn, at150);
+      const minimum = expected * acceptanceShare;
+      return [
+        {
+          id,
+          label,
+          flow,
+          net: discharge - suction,
+          adjusted,
+          expected,
+          minimum,
+          passed: adjusted >= minimum,
+        },
+      ];
+    });
 
-  const points = [...nameplate, ...test];
-  const xMax = roundUp(Math.max(150, ...points.map((point) => point.x)) + 1, xStep);
-  const highest = Math.max(ratedPressure, ...points.map((point) => point.y)) * 1.1;
-  const yMax = roundUp(highest, highest > 200 ? 50 : 25);
+  if (!hasPlate && runs.length === 0) return undefined;
 
-  return { nameplate, minimum, test, adjusted, xMax, yMax };
+  const measured = [...runs].sort((a, b) => a.flow - b.flow);
+  const test = measured.map((run) => ({ x: run.flow, y: run.net }));
+  const adjusted = measured.map((run) => ({ x: run.flow, y: run.adjusted }));
+  const all = [...test, ...adjusted, ...factory, ...acceptance];
+  const maxFlow = Math.max(0, ...all.map((point) => point.x));
+  const maxPsi = Math.max(0, ...all.map((point) => point.y));
+  const xStep = hasPlate ? ratedFlow / 2 : niceStep(Math.max(maxFlow, 1), 4);
+  const yStep = niceStep(Math.max(maxPsi, 1), 4);
+  const stepCeil = Math.ceil(Math.max(maxFlow, xStep) / xStep) * xStep;
+  const maxX = stepCeil - maxFlow > xStep * 0.5 ? maxFlow + xStep * 0.12 : stepCeil;
+  const maxY = Math.ceil((maxPsi * 1.08) / yStep) * yStep;
+
+  const verdict =
+    hasPlate && runs.length > 0
+      ? runs.every((run) => run.passed)
+        ? 'acceptable'
+        : 'not_acceptable'
+      : undefined;
+
+  return { runs, test, adjusted, factory, acceptance, axes: { maxX, xStep, maxY, yStep }, verdict };
 }

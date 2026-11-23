@@ -456,3 +456,10 @@ export function itemKeyProblem(key: string, entries: { key?: unknown }[], label:
   );
   return taken ? `Ya agregaste ${String(taken.key)}` : undefined;
 }
+
+export function calcValue(expression: string, row: FormValues, root: FormValues) {
+  return evaluateExpression(
+    expression,
+    (name) => numericValue(row[name]) ?? numericValue(root[name]),
+  );
+}

@@ -26,14 +26,13 @@ import { FormScopeContext, useFormLayout, useFormScope } from '@/forms/form-cont
 import {
   type Chunk,
   chunkNodes,
+  calcValue,
   conditionFieldsOf,
-  evaluateExpression,
   expressionNames,
   type FormValues,
   hiddenInNodes,
   isEmptyValue,
   isField,
-  numericValue,
 } from '@/forms/form-values';
 import type {
   CheckboxValue,
@@ -114,10 +113,9 @@ function useCalc(expression: string, rowPrefix: string) {
     [names, rowPrefix],
   );
   const watched: readonly unknown[] = useWatch<FormValues>({ name: paths });
-  return evaluateExpression(expression, (name) => {
-    const index = names.indexOf(name);
-    return numericValue(watched[index * 2]) ?? numericValue(watched[index * 2 + 1]);
-  });
+  const row = Object.fromEntries(names.map((name, index) => [name, watched[index * 2]]));
+  const root = Object.fromEntries(names.map((name, index) => [name, watched[index * 2 + 1]]));
+  return calcValue(expression, row, root);
 }
 
 function CalcValue({ field, rowPrefix }: { field: CalcField; rowPrefix: string }) {

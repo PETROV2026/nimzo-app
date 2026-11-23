@@ -1,9 +1,10 @@
 import { Canvas, Circle, DashPathEffect, Path, Skia } from '@shopify/react-native-skia';
 import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { useWatch } from 'react-hook-form';
+import { useController, useWatch } from 'react-hook-form';
+import { TextAction } from '@/components/text-action';
 import type { FormValues } from '@/forms/form-values';
-import { type ChartPoint, pumpChartData } from '@/forms/pump-chart';
+import { type ChartPoint, pumpChartData, type RunResult } from '@/forms/pump-chart';
 import { NoteNode } from '@/forms/render-node';
 import { colors } from '@/theme';
 
@@ -16,8 +17,19 @@ const sources = [
   'performance_runs',
 ];
 
+const verdictField = 'chart_result';
 const chartHeight = 380;
-const padding = { left: 56, right: 20, top: 16, bottom: 44 };
+const padding = { left: 56, right: 20, top: 28, bottom: 44 };
+
+const series = {
+  test: { label: 'Desempeño en prueba', color: colors.accent },
+  adjusted: { label: 'Ajuste de velocidad', color: colors['primary-strong'] },
+  factory: { label: 'Datos de fábrica', color: colors.foreground },
+  acceptance: { label: 'Aceptación NFPA 25 (−5 %)', color: colors.danger },
+};
+
+const formatter = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 2 });
+const format = (value: number | undefined) => (value === undefined ? '—' : formatter.format(value));
 
 function LegendLine({ color, dashed }: { color: string; dashed?: boolean }) {
   return (
@@ -29,6 +41,87 @@ function LegendLine({ color, dashed }: { color: string; dashed?: boolean }) {
           : { height: 3, backgroundColor: color, borderRadius: 2 }
       }
     />
+  );
+}
+
+function ResultsTable({ runs }: { runs: RunResult[] }) {
+  const columns = [
+    'Corrida',
+    'Flujo (GPM)',
+    'Neta (PSI)',
+    'Ajustada (PSI)',
+    'Mínimo (PSI)',
+    'Resultado',
+  ];
+  return (
+    <View className="overflow-hidden rounded-xl border border-border">
+      <View className="flex-row bg-surface">
+        {columns.map((column) => (
+          <Text
+            key={column}
+            className="flex-1 px-3 py-2 font-sans-semibold text-sm text-foreground"
+          >
+            {column}
+          </Text>
+        ))}
+      </View>
+      {runs.map((run) => (
+        <View key={run.id} className="flex-row items-center border-t border-border">
+          <Text className="flex-1 px-3 py-2 font-sans-medium text-sm text-foreground">
+            {run.label}
+          </Text>
+          <Text className="flex-1 px-3 py-2 font-sans text-sm text-foreground">
+            {format(run.flow)}
+          </Text>
+          <Text className="flex-1 px-3 py-2 font-sans text-sm text-foreground">
+            {format(run.net)}
+          </Text>
+          <Text className="flex-1 px-3 py-2 font-sans-semibold text-sm text-foreground">
+            {format(run.adjusted)}
+          </Text>
+          <Text className="flex-1 px-3 py-2 font-sans text-sm text-foreground">
+            {format(run.minimum)}
+          </Text>
+          <View className="flex-1 px-3 py-2">
+            {run.passed === undefined ? (
+              <Text className="font-sans text-sm text-muted">Sin datos de placa</Text>
+            ) : (
+              <View
+                className={`self-start rounded-full px-2.5 py-0.5 ${run.passed ? 'bg-success' : 'bg-danger-strong'}`}
+              >
+                <Text
+                  className={`font-sans-semibold text-xs ${run.passed ? 'text-on-success' : 'text-on-danger'}`}
+                >
+                  {run.passed ? 'Cumple' : 'No cumple'}
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function Verdict({ verdict }: { verdict: 'acceptable' | 'not_acceptable' }) {
+  const { field } = useController<FormValues>({ name: verdictField });
+  const acceptable = verdict === 'acceptable';
+  const applied = field.value === verdict;
+  return (
+    <View
+      className={`flex-row flex-wrap items-center gap-3 rounded-lg px-4 py-3 ${acceptable ? 'bg-success/10' : 'bg-danger/10'}`}
+    >
+      <Text className="flex-1 font-sans-medium text-base text-foreground">
+        {acceptable
+          ? 'Todas las corridas cumplen con el 95 % de la curva de fábrica. Resultado sugerido: Aceptable.'
+          : 'Al menos una corrida queda debajo del 95 % de la curva de fábrica. Resultado sugerido: No aceptable.'}
+      </Text>
+      {applied ? (
+        <Text className="font-sans-semibold text-sm text-muted">Resultado aplicado</Text>
+      ) : (
+        <TextAction label="Usar este resultado" onPress={() => field.onChange(verdict)} />
+      )}
+    </View>
   );
 }
 
@@ -45,8 +138,9 @@ export function PumpPerformanceChart({ title }: { title: string }) {
 
   const drawing = useMemo(() => {
     if (!data || plotWidth <= 0) return null;
-    const px = (x: number) => padding.left + (x / data.xMax) * plotWidth;
-    const py = (y: number) => padding.top + (1 - y / data.yMax) * plotHeight;
+    const { maxX, xStep, maxY, yStep } = data.axes;
+    const px = (x: number) => padding.left + (x / maxX) * plotWidth;
+    const py = (y: number) => padding.top + (1 - y / maxY) * plotHeight;
     const line = (points: ChartPoint[]) => {
       const path = Skia.PathBuilder.Make();
       points.forEach((point, index) => {
@@ -55,22 +149,21 @@ export function PumpPerformanceChart({ title }: { title: string }) {
       });
       return path.build();
     };
-    const yStep = data.yMax <= 150 ? 25 : 50;
-    const xTicks = Array.from({ length: data.xMax / 25 + 1 }, (_, index) => index * 25);
-    const yTicks = Array.from({ length: data.yMax / yStep + 1 }, (_, index) => index * yStep);
+    const xTicks = Array.from({ length: Math.floor(maxX / xStep + 1e-9) + 1 }, (_, i) => i * xStep);
+    const yTicks = Array.from({ length: Math.floor(maxY / yStep + 1e-9) + 1 }, (_, i) => i * yStep);
     const grid = Skia.PathBuilder.Make();
     for (const tick of xTicks) {
       grid.moveTo(px(tick), py(0));
-      grid.lineTo(px(tick), py(data.yMax));
+      grid.lineTo(px(tick), py(maxY));
     }
     for (const tick of yTicks) {
       grid.moveTo(px(0), py(tick));
-      grid.lineTo(px(data.xMax), py(tick));
+      grid.lineTo(px(maxX), py(tick));
     }
     const axes = Skia.PathBuilder.Make();
-    axes.moveTo(px(0), py(data.yMax));
+    axes.moveTo(px(0), py(maxY));
     axes.lineTo(px(0), py(0));
-    axes.lineTo(px(data.xMax), py(0));
+    axes.lineTo(px(maxX), py(0));
     return {
       px,
       py,
@@ -78,9 +171,10 @@ export function PumpPerformanceChart({ title }: { title: string }) {
       yTicks,
       grid: grid.build(),
       axes: axes.build(),
-      nameplate: line(data.nameplate),
-      minimum: line(data.minimum),
       test: line(data.test),
+      adjusted: line(data.adjusted),
+      factory: line(data.factory),
+      acceptance: line(data.acceptance),
     };
   }, [data, plotHeight, plotWidth]);
 
@@ -92,7 +186,7 @@ export function PumpPerformanceChart({ title }: { title: string }) {
       {!data ? (
         <NoteNode
           tone="info"
-          text="Escribe el flujo y la presión nominales en «Datos del equipo», y los valores de cada corrida, para ver la gráfica."
+          text="Escribe el flujo y la presión nominales en «Datos del equipo», y las lecturas de cada corrida, para ver la gráfica."
         />
       ) : (
         <>
@@ -100,7 +194,7 @@ export function PumpPerformanceChart({ title }: { title: string }) {
             onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
             style={{ height: chartHeight }}
             accessible
-            accessibilityLabel={`Gráfica de flujo contra presión neta con ${data.test.length} corridas de la prueba`}
+            accessibilityLabel={`Curva de desempeño, flujo contra presión, con ${data.runs.length} corridas`}
           >
             {drawing ? (
               <>
@@ -113,43 +207,63 @@ export function PumpPerformanceChart({ title }: { title: string }) {
                     color={colors['border-strong']}
                   />
                   <Path
-                    path={drawing.minimum}
+                    path={drawing.acceptance}
                     style="stroke"
                     strokeWidth={2.5}
-                    color={colors.danger}
+                    color={series.acceptance.color}
                   >
                     <DashPathEffect intervals={[10, 8]} />
                   </Path>
                   <Path
-                    path={drawing.nameplate}
+                    path={drawing.factory}
                     style="stroke"
-                    strokeWidth={3}
-                    color={colors.muted}
+                    strokeWidth={2.5}
+                    color={series.factory.color}
                   />
-                  {data.nameplate.map((point) => (
+                  {data.factory.map((point) => (
                     <Circle
-                      key={`n-${point.x}`}
+                      key={`f-${point.x}`}
                       cx={drawing.px(point.x)}
                       cy={drawing.py(point.y)}
-                      r={5}
-                      color={colors.muted}
+                      r={4.5}
+                      color={series.factory.color}
                     />
                   ))}
                   <Path
                     path={drawing.test}
                     style="stroke"
-                    strokeWidth={3}
-                    color={colors['primary-strong']}
+                    strokeWidth={2.5}
+                    color={series.test.color}
                   />
                   {data.test.map((point, index) => (
                     <Circle
                       key={`t-${index}`}
                       cx={drawing.px(point.x)}
                       cy={drawing.py(point.y)}
-                      r={6}
-                      color={colors['primary-strong']}
+                      r={4.5}
+                      color={series.test.color}
                     />
                   ))}
+                  <Path
+                    path={drawing.adjusted}
+                    style="stroke"
+                    strokeWidth={3}
+                    color={series.adjusted.color}
+                  />
+                  {data.runs
+                    .slice()
+                    .sort((a, b) => a.flow - b.flow)
+                    .map((run) => (
+                      <Circle
+                        key={`a-${run.id}`}
+                        cx={drawing.px(run.flow)}
+                        cy={drawing.py(run.adjusted)}
+                        r={6.5}
+                        color={
+                          run.passed === false ? colors['danger-strong'] : series.adjusted.color
+                        }
+                      />
+                    ))}
                 </Canvas>
                 <View pointerEvents="none" className="absolute inset-0">
                   {drawing.yTicks.map((tick) => (
@@ -158,27 +272,27 @@ export function PumpPerformanceChart({ title }: { title: string }) {
                       className="absolute w-12 text-right font-sans text-xs text-muted"
                       style={{ left: 0, top: drawing.py(tick) - 8 }}
                     >
-                      {tick}
+                      {format(tick)}
                     </Text>
                   ))}
                   {drawing.xTicks.map((tick) => (
                     <Text
                       key={`x-${tick}`}
-                      className="absolute w-12 text-center font-sans text-xs text-muted"
-                      style={{ left: drawing.px(tick) - 24, top: chartHeight - padding.bottom + 6 }}
+                      className="absolute w-16 text-center font-sans text-xs text-muted"
+                      style={{ left: drawing.px(tick) - 32, top: chartHeight - padding.bottom + 6 }}
                     >
-                      {tick}%
+                      {format(tick)}
                     </Text>
                   ))}
                   <Text
                     className="absolute font-sans-medium text-sm text-foreground"
                     style={{ left: padding.left, bottom: 0 }}
                   >
-                    Flujo (% del nominal)
+                    Flujo (GPM)
                   </Text>
                   <Text
                     className="absolute font-sans-medium text-sm text-foreground"
-                    style={{ left: padding.left + 8, top: padding.top }}
+                    style={{ left: padding.left, top: 0 }}
                   >
                     Presión neta (PSI)
                   </Text>
@@ -187,26 +301,22 @@ export function PumpPerformanceChart({ title }: { title: string }) {
             ) : null}
           </View>
           <View className="flex-row flex-wrap gap-x-6 gap-y-2">
-            <View className="flex-row items-center gap-2">
-              <LegendLine color={colors.muted} />
-              <Text className="font-sans text-sm text-foreground">Curva de placa</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <LegendLine color={colors.danger} dashed />
-              <Text className="font-sans text-sm text-foreground">Mínimo aceptable (95 %)</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <LegendLine color={colors['primary-strong']} />
-              <Text className="font-sans text-sm text-foreground">
-                {data.adjusted ? 'Prueba, ajustada a velocidad nominal' : 'Prueba'}
-              </Text>
-            </View>
+            {Object.entries(series).map(([key, item]) => (
+              <View key={key} className="flex-row items-center gap-2">
+                <LegendLine color={item.color} dashed={key === 'acceptance'} />
+                <Text className="font-sans text-sm text-foreground">{item.label}</Text>
+              </View>
+            ))}
           </View>
-          {data.test.length === 0 ? (
+          {data.runs.length > 0 ? (
+            <ResultsTable runs={data.runs} />
+          ) : (
             <Text className="font-sans text-sm text-muted">
-              Llena las corridas en la tabla de desempeño para dibujar la curva de la prueba.
+              Llena el flujo, la succión y la descarga de cada corrida en la tabla de desempeño para
+              dibujar la curva de la prueba.
             </Text>
-          ) : null}
+          )}
+          {data.verdict ? <Verdict verdict={data.verdict} /> : null}
         </>
       )}
     </View>
