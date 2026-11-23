@@ -6,8 +6,10 @@ import { branchesTable } from '@/clients/branches-db';
 import { clientsTable } from '@/clients/clients-db';
 import { systemsTable } from '@/clients/systems-db';
 import type { SyncedMeta } from '@/db/synced-table';
+import { reportError } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
 import { useOnline } from '@/lib/use-online';
+import { isServerError } from '@/service-forms/catalog-sync-rules';
 
 export type UploadCounts = { clients: number; branches: number; systems: number };
 
@@ -168,6 +170,14 @@ async function download({ local, page }: SyncEntry, technicianId: string) {
   local.applyRemote(technicianId, rows);
 }
 
+function reportSyncError(error: unknown) {
+  if (error instanceof Error) {
+    reportError(error);
+  } else if (isServerError(error)) {
+    reportError(new Error(`Clients sync failed: ${error.code} ${error.message}`));
+  }
+}
+
 async function run(technicianId: string) {
   setStatus({ state: 'syncing', lastSyncedAt: status.lastSyncedAt });
   const uploaded: UploadCounts = { clients: 0, branches: 0, systems: 0 };
@@ -178,7 +188,8 @@ async function run(technicianId: string) {
       for (const entry of entries) await download(entry, technicianId);
     } while (rerun === technicianId);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
-  } catch {
+  } catch (error) {
+    reportSyncError(error);
     setStatus({ state: 'failed', lastSyncedAt: status.lastSyncedAt });
   }
 }
