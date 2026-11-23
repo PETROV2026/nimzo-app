@@ -22,16 +22,20 @@ type Page = PromiseLike<{ data: Record<string, unknown>[] | null; error: Postgre
 type SyncEntry = {
   key: keyof UploadCounts;
   local: typeof clientsTable | typeof branchesTable | typeof systemsTable;
-  upsert: (rows: object[]) => PromiseLike<{ error: PostgrestError | null }>;
-  page: (technicianId: string, from: number, to: number) => Page;
+  upsert: (rows: object[], signal: AbortSignal) => PromiseLike<{ error: PostgrestError | null }>;
+  page: (technicianId: string, from: number, to: number, signal: AbortSignal) => Page;
 };
 
 const entries: SyncEntry[] = [
   {
     key: 'clients',
     local: clientsTable,
-    upsert: (rows) => supabase.from('clients').upsert(rows as TablesInsert<'clients'>[]),
-    page: (technicianId, from, to) =>
+    upsert: (rows, signal) =>
+      supabase
+        .from('clients')
+        .upsert(rows as TablesInsert<'clients'>[])
+        .abortSignal(signal),
+    page: (technicianId, from, to, signal) =>
       supabase
         .from('clients')
         .select(
@@ -39,13 +43,18 @@ const entries: SyncEntry[] = [
         )
         .eq('technician_id', technicianId)
         .order('id')
-        .range(from, to),
+        .range(from, to)
+        .abortSignal(signal),
   },
   {
     key: 'branches',
     local: branchesTable,
-    upsert: (rows) => supabase.from('branches').upsert(rows as TablesInsert<'branches'>[]),
-    page: (technicianId, from, to) =>
+    upsert: (rows, signal) =>
+      supabase
+        .from('branches')
+        .upsert(rows as TablesInsert<'branches'>[])
+        .abortSignal(signal),
+    page: (technicianId, from, to, signal) =>
       supabase
         .from('branches')
         .select(
@@ -53,13 +62,18 @@ const entries: SyncEntry[] = [
         )
         .eq('technician_id', technicianId)
         .order('id')
-        .range(from, to),
+        .range(from, to)
+        .abortSignal(signal),
   },
   {
     key: 'systems',
     local: systemsTable,
-    upsert: (rows) => supabase.from('systems').upsert(rows as TablesInsert<'systems'>[]),
-    page: (technicianId, from, to) =>
+    upsert: (rows, signal) =>
+      supabase
+        .from('systems')
+        .upsert(rows as TablesInsert<'systems'>[])
+        .abortSignal(signal),
+    page: (technicianId, from, to, signal) =>
       supabase
         .from('systems')
         .select(
@@ -67,12 +81,14 @@ const entries: SyncEntry[] = [
         )
         .eq('technician_id', technicianId)
         .order('id')
-        .range(from, to),
+        .range(from, to)
+        .abortSignal(signal),
   },
 ];
 
 const retryMs = 30_000;
 const pageSize = 1000;
+const requestTimeoutMs = 15_000;
 
 let status: ClientsSyncStatus = { state: 'idle', lastSyncedAt: null };
 const listeners = new Set<() => void>();
@@ -95,10 +111,24 @@ function isRejection(error: PostgrestError) {
   return /^2[23]/.test(error.code) || error.code === '42501' || error.code === 'P0001';
 }
 
+async function withTimeout<T>(request: (signal: AbortSignal) => PromiseLike<T>): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), requestTimeoutMs);
+  try {
+    const result = await request(controller.signal);
+    if (controller.signal.aborted) {
+      throw new Error(`Clients sync request timed out after ${requestTimeoutMs} ms`);
+    }
+    return result;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function upload({ local, upsert }: SyncEntry, technicianId: string) {
   const rows = local.pending(technicianId);
   if (rows.length === 0) return 0;
-  const { error } = await upsert(rows.map(local.payload));
+  const { error } = await withTimeout((signal) => upsert(rows.map(local.payload), signal));
   if (!error) {
     local.markSynced(rows);
     return rows.length;
@@ -106,7 +136,7 @@ async function upload({ local, upsert }: SyncEntry, technicianId: string) {
   if (!isRejection(error)) throw error;
   let uploaded = 0;
   for (const row of rows) {
-    const result = await upsert([local.payload(row)]);
+    const result = await withTimeout((signal) => upsert([local.payload(row)], signal));
     if (!result.error) {
       local.markSynced([row]);
       uploaded += 1;
@@ -127,7 +157,9 @@ async function ensureSignedInAs(technicianId: string) {
 async function download({ local, page }: SyncEntry, technicianId: string) {
   const rows: Record<string, unknown>[] = [];
   for (let from = 0; ; from += pageSize) {
-    const { data, error } = await page(technicianId, from, from + pageSize - 1);
+    const { data, error } = await withTimeout((signal) =>
+      page(technicianId, from, from + pageSize - 1, signal),
+    );
     if (error) throw error;
     rows.push(...(data ?? []));
     if (!data || data.length < pageSize) break;
