@@ -46,6 +46,7 @@ import {
   formSections,
   hiddenIds,
   missingRequired,
+  pathAndParents,
   serviceTypeKey,
   visibleValues,
 } from '@/forms/form-values';
@@ -242,6 +243,14 @@ const FormBody = memo(function FormBody({
   );
 });
 
+function closestView(views: ReadonlyMap<string, ViewInstance>, id: string) {
+  for (const path of pathAndParents(id)) {
+    const view = views.get(path);
+    if (view) return view;
+  }
+  return undefined;
+}
+
 function RootScope({ definition, children }: { definition: FormDefinition; children: ReactNode }) {
   const fields = useMemo(
     () => [...conditionFields(definition), serviceTypeKey, customSectionsKey],
@@ -363,7 +372,7 @@ export function FormRenderer({
       scrollToY(leadY);
       return;
     }
-    const first = ids[0] ? fieldViews.current.get(ids[0]) : undefined;
+    const first = ids[0] ? closestView(fieldViews.current, ids[0]) : undefined;
     const content = contentRef.current;
     if (first && content) first.measureLayout(content, (_x, y) => scrollToY(y));
   }

@@ -154,11 +154,73 @@ export function hiddenIds(definition: FormDefinition, values: FormValues) {
   return visibility(definition, values).hidden;
 }
 
+function rowsOf(value: unknown): FormValues[] {
+  return Array.isArray(value) ? (value as FormValues[]) : [];
+}
+
+function collectMissing(
+  nodes: FormNode[],
+  scope: FormValues,
+  hidden: ReadonlySet<string>,
+  prefix: string,
+  missing: string[],
+) {
+  for (const node of nodes) {
+    if ('id' in node && hidden.has(node.id)) continue;
+    if (node.type === 'group') {
+      collectMissing(node.children, scope, hidden, prefix, missing);
+    } else if (node.type === 'list') {
+      rowsOf(scope[node.id]).forEach((row, index) => {
+        const rowHidden = hiddenInNodes(node.children, row);
+        collectMissing(node.children, row, rowHidden, `${prefix}${node.id}.${index}.`, missing);
+      });
+    } else if (isField(node) && node.required && node.type !== 'calc') {
+      if (isEmptyValue(scope[node.id])) missing.push(`${prefix}${node.id}`);
+    }
+  }
+}
+
+function serviceTypeChosen(serviceType: FormServiceType | undefined, chosen: unknown) {
+  if (!serviceType) return true;
+  if (chosen === customServiceType) return serviceType.allowCustom;
+  return serviceType.options.some((option) => option.value === chosen);
+}
+
 export function missingRequired(definition: FormDefinition, values: FormValues) {
-  return visibility(definition, values)
-    .shown.filter((field) => field.required && field.type !== 'calc')
-    .filter((field) => isEmptyValue(values[field.id]))
-    .map((field) => field.id);
+  const missing: string[] = [];
+  const { hidden } = visibility(definition, values);
+  collectMissing(headNodes(definition), values, hidden, '', missing);
+  if (!serviceTypeChosen(definition.serviceType, values[serviceTypeKey])) {
+    missing.push(serviceTypeKey);
+    return missing;
+  }
+  const sections = formSections(definition, values);
+  collectMissing(
+    sections.flatMap((section) => section.children),
+    values,
+    hidden,
+    '',
+    missing,
+  );
+  const items = definition.items;
+  if (!items) return missing;
+  const entries = rowsOf(values[items.id]);
+  if (entries.length === 0) missing.push(items.id);
+  entries.forEach((entry, index) => {
+    const prefix = `${items.id}.${index}.`;
+    if (!serviceTypeChosen(items.serviceType, entry[serviceTypeKey])) {
+      missing.push(`${prefix}${serviceTypeKey}`);
+      return;
+    }
+    const nodes = itemSections(definition, values, entry).flatMap((section) => section.children);
+    collectMissing(nodes, entry, hiddenInNodes(nodes, entry), prefix, missing);
+  });
+  return missing;
+}
+
+export function pathAndParents(path: string) {
+  const parts = path.split('.');
+  return parts.map((_, index) => parts.slice(0, parts.length - index).join('.'));
 }
 
 function keepEntry(definition: FormDefinition, values: FormValues, entry: FormValues) {

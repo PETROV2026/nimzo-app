@@ -10,6 +10,7 @@ import {
   isEmptyValue,
   isVisible,
   missingRequired,
+  pathAndParents,
   visibleValues,
 } from '../src/forms/form-values.ts';
 
@@ -153,4 +154,101 @@ test('site_survey shows the detail of other uses only when it is checked', () =>
     has_other: true,
     has_other_detail: 'Taller',
   });
+});
+
+test('a required field in a list row is missing for that row only', () => {
+  const form = definition([
+    {
+      type: 'list',
+      id: 'tanks',
+      label: 'Tanques',
+      addLabel: 'Agregar tanque',
+      children: [
+        { id: 'tank_name', type: 'text', label: 'Tanque' },
+        { id: 'tank_status', type: 'check', label: 'Estado', required: true },
+      ],
+    },
+  ]);
+  assert.deepEqual(missingRequired(form, {}), []);
+  assert.deepEqual(
+    missingRequired(form, { tanks: [{ tank_status: { status: 'ok' } }, { tank_name: 'B' }] }),
+    ['tanks.1.tank_status'],
+  );
+});
+
+test('a form with a service type needs one chosen before anything else', () => {
+  const form = formDefinitionSchema.parse({
+    code: 'test_form',
+    version: 1,
+    report: [],
+    serviceType: { options: [{ value: 'full', label: 'Completo', sections: ['main'] }] },
+    sections: [
+      {
+        id: 'main',
+        title: 'Principal',
+        children: [{ id: 'a', type: 'check', label: 'A', required: true }],
+      },
+    ],
+  });
+  assert.deepEqual(missingRequired(form, {}), ['service_type']);
+  assert.deepEqual(missingRequired(form, { service_type: 'full' }), ['a']);
+});
+
+function itemsForm(itemServiceType?: unknown) {
+  return formDefinitionSchema.parse({
+    code: 'test_form',
+    version: 1,
+    report: [],
+    sections: [],
+    items: {
+      id: 'valves',
+      addLabel: 'Agregar válvula',
+      title: 'Válvulas',
+      keyLabel: 'Número de válvula',
+      ...(itemServiceType ? { serviceType: itemServiceType } : {}),
+      sections: [
+        {
+          id: 'visual',
+          title: 'Visual',
+          children: [{ id: 'sealed', type: 'yes_no', label: 'Sellada', required: true }],
+        },
+        {
+          id: 'test',
+          title: 'Prueba',
+          children: [{ id: 'opens', type: 'check', label: 'Abre', required: true }],
+        },
+      ],
+    },
+  });
+}
+
+test('a form with items needs at least one item', () => {
+  assert.deepEqual(missingRequired(itemsForm(), {}), ['valves']);
+  assert.deepEqual(missingRequired(itemsForm(), { valves: [] }), ['valves']);
+});
+
+test('required fields are checked in every item, with the path of the item', () => {
+  const values = {
+    valves: [
+      { key: 'V-1', sealed: 'yes', opens: { status: 'ok' } },
+      { key: 'V-2', sealed: 'no' },
+    ],
+  };
+  assert.deepEqual(missingRequired(itemsForm(), values), ['valves.1.opens']);
+});
+
+test('each item needs its own service type, and only its enabled sections count', () => {
+  const form = itemsForm({
+    options: [
+      { value: 'visual', label: 'Visual', sections: ['visual'] },
+      { value: 'full', label: 'Completa', sections: ['visual', 'test'] },
+    ],
+  });
+  const values = { valves: [{ key: 'V-1' }, { key: 'V-2', service_type: 'visual', sealed: 'no' }] };
+  assert.deepEqual(missingRequired(form, values), ['valves.0.service_type']);
+});
+
+test('a missing field inside an item falls back to the item and then to the list', () => {
+  assert.deepEqual(pathAndParents('valves.1.opens'), ['valves.1.opens', 'valves.1', 'valves']);
+  assert.deepEqual(pathAndParents('fecha'), ['fecha']);
 });

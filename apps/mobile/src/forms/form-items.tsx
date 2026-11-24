@@ -1,11 +1,18 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { useController, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import {
+  useController,
+  useFieldArray,
+  useFormContext,
+  useFormState,
+  useWatch,
+} from 'react-hook-form';
 import type { FormDefinition, FormSection, FormServiceType } from '@nimzo/shared';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Icon } from '@/components/icon';
 import { TextField } from '@/components/text-field';
+import { requiredMessage, useFormLayout } from '@/forms/form-context';
 import {
   customSectionsKey,
   customServiceType,
@@ -54,7 +61,11 @@ function RadioCard({
 
 export function ServiceTypePicker({ serviceType, sections, prefix = '' }: ServiceTypePickerProps) {
   const { width } = useWindowDimensions();
-  const type = useController<FormValues>({ name: `${prefix}${serviceTypeKey}` });
+  const { registerField } = useFormLayout();
+  const { clearErrors } = useFormContext<FormValues>();
+  const typeName = `${prefix}${serviceTypeKey}`;
+  const ref = useMemo(() => registerField(typeName), [registerField, typeName]);
+  const type = useController<FormValues>({ name: typeName });
   const custom = useController<FormValues>({ name: `${prefix}${customSectionsKey}` });
   const chosen = type.field.value;
   const picked = Array.isArray(custom.field.value) ? (custom.field.value as string[]) : [];
@@ -73,7 +84,7 @@ export function ServiceTypePicker({ serviceType, sections, prefix = '' }: Servic
   }
 
   return (
-    <View className="gap-4">
+    <View ref={ref} collapsable={false} className="gap-4">
       {serviceType.help ? (
         <Text className="font-sans text-base text-muted">{serviceType.help}</Text>
       ) : null}
@@ -87,11 +98,19 @@ export function ServiceTypePicker({ serviceType, sections, prefix = '' }: Servic
             <RadioCard
               label={option.label}
               selected={chosen === option.value}
-              onPress={() => type.field.onChange(option.value)}
+              onPress={() => {
+                type.field.onChange(option.value);
+                clearErrors(typeName);
+              }}
             />
           </View>
         ))}
       </View>
+      {type.fieldState.error ? (
+        <Text className="font-sans-semibold text-base text-danger-strong">
+          Elige el tipo de servicio
+        </Text>
+      ) : null}
       {chosen === customServiceType ? (
         <View className="gap-3">
           <Text className="font-sans-medium text-base text-foreground">
@@ -243,10 +262,22 @@ function ItemCard({
   const key = useWatch<FormValues>({ name: `${name}.key` });
   const title = `${singularOf(items.addLabel)} ${typeof key === 'string' ? key : index + 1}`;
   const [confirming, setConfirming] = useState(false);
+  const { registerField } = useFormLayout();
+  const ref = useMemo(() => registerField(name), [registerField, name]);
+  const { getFieldState } = useFormContext<FormValues>();
+  const formState = useFormState<FormValues>({ name });
+  const incomplete = getFieldState(name, formState).invalid;
+  const border = incomplete
+    ? 'border-danger-strong'
+    : open
+      ? 'border-primary-strong'
+      : 'border-border';
 
   return (
     <View
-      className={`overflow-hidden rounded-xl border bg-background ${open ? 'border-primary-strong' : 'border-border'}`}
+      ref={ref}
+      collapsable={false}
+      className={`overflow-hidden rounded-xl border bg-background ${border}`}
     >
       <View className="flex-row items-center gap-2 bg-surface pr-2">
         <Pressable
@@ -260,7 +291,14 @@ function ItemCard({
             size={22}
             color={colors.foreground}
           />
-          <Text className="flex-1 font-sans-semibold text-lg text-foreground">{title}</Text>
+          <View className="flex-1 gap-0.5 py-2">
+            <Text className="font-sans-semibold text-lg text-foreground">{title}</Text>
+            {incomplete ? (
+              <Text className="font-sans-semibold text-sm text-danger-strong">
+                Faltan campos obligatorios
+              </Text>
+            ) : null}
+          </View>
           <ItemProgress definition={definition} name={name} />
         </Pressable>
         <Pressable
@@ -301,7 +339,11 @@ function nextKey(entries: FormValues[]) {
 
 export function ItemsNode({ definition }: { definition: FormDefinition }) {
   const items = definition.items!;
-  const { getValues } = useFormContext<FormValues>();
+  const { getValues, getFieldState, clearErrors } = useFormContext<FormValues>();
+  const { registerField } = useFormLayout();
+  const ref = useMemo(() => registerField(items.id), [registerField, items.id]);
+  const formState = useFormState<FormValues>({ name: items.id });
+  const noItems = getFieldState(items.id, formState).error?.message === requiredMessage;
   const { fields, append, remove } = useFieldArray<EntryValues>({ name: items.id });
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [key, setKey] = useState('');
@@ -320,13 +362,19 @@ export function ItemsNode({ definition }: { definition: FormDefinition }) {
       append({ key: nextKey(entries) });
     }
     setOpenIndex(fields.length);
+    clearErrors(items.id);
   }
 
   return (
-    <View className="gap-4">
+    <View ref={ref} collapsable={false} className="gap-4">
       {fields.length === 0 ? (
         <Text className="rounded-lg border border-dashed border-border-strong px-4 py-4 font-sans text-base text-muted">
           Agrega cada {singular} que revises. Cada uno tiene sus propias secciones.
+        </Text>
+      ) : null}
+      {noItems ? (
+        <Text className="font-sans-semibold text-base text-danger-strong">
+          Agrega por lo menos un registro con «{items.addLabel}».
         </Text>
       ) : null}
       {fields.map((entry, index) => (
