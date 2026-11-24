@@ -11,6 +11,7 @@ import {
   isVisible,
   missingRequired,
   pathAndParents,
+  sameAnswers,
   visibleValues,
 } from '../src/forms/form-values.ts';
 
@@ -251,4 +252,18 @@ test('each item needs its own service type, and only its enabled sections count'
 test('a missing field inside an item falls back to the item and then to the list', () => {
   assert.deepEqual(pathAndParents('valves.1.opens'), ['valves.1.opens', 'valves.1', 'valves']);
   assert.deepEqual(pathAndParents('fecha'), ['fecha']);
+});
+
+test('answers are the same when only their order or their empty fields change', () => {
+  assert.equal(sameAnswers({ a: 'x', b: { value: 1 } }, { b: { value: 1 }, a: 'x' }), true);
+  assert.equal(sameAnswers({ a: 'x' }, { a: 'x', b: undefined, c: '', d: [], e: false }), true);
+  assert.equal(sameAnswers({ rows: [{ a: 'x' }] }, { rows: [{ a: 'x', b: '' }] }), true);
+});
+
+test('answers are different when a value, a row or a photo changes', () => {
+  assert.equal(sameAnswers({ a: 'x' }, { a: 'y' }), false);
+  assert.equal(sameAnswers({ a: 'x' }, {}), false);
+  assert.equal(sameAnswers({ a: { status: 'ok' } }, { a: { status: 'ok', value: 0 } }), false);
+  assert.equal(sameAnswers({ rows: [{ a: 'x' }] }, { rows: [{ a: 'x' }, {}] }), false);
+  assert.equal(sameAnswers({ p: [{ uri: 'a' }] }, { p: [{ uri: 'b' }] }), false);
 });

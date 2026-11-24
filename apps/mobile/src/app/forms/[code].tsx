@@ -1,6 +1,6 @@
 import { formTitle } from '@nimzo/shared';
 import { router, Stack, useLocalSearchParams, usePreventRemove } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { announce } from '@/components/announcement-toast';
@@ -8,6 +8,7 @@ import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { Icon } from '@/components/icon';
+import { Notice } from '@/components/notice';
 import {
   EditServiceButton,
   PendingServiceBadge,
@@ -110,6 +111,7 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
   const [leaving, setLeaving] = useState<(() => void) | null>(null);
   const [signatureErrors, setSignatureErrors] = useState(false);
   const [drawing, setDrawing] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
   const targetComplete = useServiceTargetComplete(technicianId, target);
   const complete = targetComplete && !editing;
   const draft = useReportDraft({
@@ -120,6 +122,14 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
     initial,
     profileSignaturePath,
   });
+
+  const lock = useMemo(
+    () =>
+      draft.sealed
+        ? { label: 'Cambiar el reporte firmado', onPress: () => setUnlocking(true) }
+        : undefined,
+    [draft.sealed],
+  );
 
   usePreventRemove(answered && !draft.reportId, ({ repeat }) => setLeaving(() => repeat));
 
@@ -151,6 +161,7 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
           onValuesChange={track}
           onFinish={finish}
           scrollEnabled={!drawing}
+          lock={lock}
           lead={{
             title: 'Cliente y sucursal',
             icon: 'business-outline',
@@ -183,12 +194,17 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
             complete: Boolean(signatures && isFullySigned(signatures)),
             onMissing: () => setSignatureErrors(true),
             children: signatures ? (
-              <SignaturesBlock
-                value={signatures}
-                onChange={draft.changeSignatures}
-                errors={signatureErrors ? validateSignatures(signatures) : undefined}
-                onDrawingChange={setDrawing}
-              />
+              <>
+                {draft.signaturesRemoved ? (
+                  <Notice message="Las firmas se borraron porque el reporte cambió. Tienen que firmar otra vez." />
+                ) : null}
+                <SignaturesBlock
+                  value={signatures}
+                  onChange={draft.changeSignatures}
+                  errors={signatureErrors ? validateSignatures(signatures) : undefined}
+                  onDrawingChange={setDrawing}
+                />
+              </>
             ) : (
               <Text className="font-sans text-base text-muted">
                 Elige primero el cliente y la sucursal. Después podrán firmar aquí.
@@ -203,6 +219,19 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
           description="Actualiza la app para poder llenarlo."
         />
       )}
+      {unlocking ? (
+        <ConfirmDialog
+          title="¿Cambiar el reporte firmado?"
+          message="El supervisor ya firmó. Para cambiar el reporte se borrarán las dos firmas y tendrán que firmar otra vez."
+          confirmLabel="Borrar firmas"
+          tone="destructive"
+          onClose={() => setUnlocking(false)}
+          onConfirm={() => {
+            setUnlocking(false);
+            draft.removeSignatures();
+          }}
+        />
+      ) : null}
       {leaving ? (
         <ConfirmDialog
           title="¿Salir del formato?"

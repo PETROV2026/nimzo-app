@@ -45,6 +45,21 @@ export function hasAnswer(value: unknown): boolean {
   return true;
 }
 
+export function sameAnswers(a: unknown, b: unknown): boolean {
+  if (isEmptyValue(a) && isEmptyValue(b)) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, index) => sameAnswers(item, b[index]));
+  }
+  if (Array.isArray(a) || Array.isArray(b)) return false;
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    const left = a as FormValues;
+    const right = b as FormValues;
+    const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+    return [...keys].every((key) => sameAnswers(left[key], right[key]));
+  }
+  return a === b;
+}
+
 export function isVisible(condition: Condition | undefined, values: FormValues) {
   return !condition || values[condition.field] === condition.equals;
 }

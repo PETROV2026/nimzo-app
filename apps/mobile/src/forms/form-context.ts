@@ -16,6 +16,14 @@ export function useFormLayout() {
   return useContext(FormLayoutContext);
 }
 
+export type FormLock = { label: string; onPress: () => void };
+
+export const FormLockContext = createContext<FormLock | undefined>(undefined);
+
+export function useFormLock() {
+  return useContext(FormLockContext);
+}
+
 export type FormScope = { prefix: string; hidden: ReadonlySet<string> };
 
 export const FormScopeContext = createContext<FormScope>({ prefix: '', hidden: new Set() });
