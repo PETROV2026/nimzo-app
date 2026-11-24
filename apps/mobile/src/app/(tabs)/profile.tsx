@@ -5,6 +5,12 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
+import {
+  describeUploads,
+  syncClients,
+  type UploadCounts,
+  useUploadCounts,
+} from '@/clients/clients-sync';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
 import { showDeveloperTools } from '@/dev/developer-tools';
@@ -41,6 +47,8 @@ export default function ProfileScreen() {
   const [showingSupport, setShowingSupport] = useState(false);
   const [showingPrivacy, setShowingPrivacy] = useState(false);
   const { toast, showToast } = useToast();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const uploads = useUploadCounts(technicianId);
 
   if (session.status !== 'signed-in') {
     return null;
@@ -57,6 +65,10 @@ export default function ProfileScreen() {
   const place = [city, state].filter(Boolean).join(', ');
   const missingSignature = profile?.signaturePath === null;
   const edit = canEdit ? () => setEditing(true) : undefined;
+  const unsynced = describeUploads(addCounts(uploads.pending, uploads.rejected));
+  const signOutNote = unsynced
+    ? `Tienes ${unsynced} sin sincronizar en este dispositivo. Se sincronizarán cuando vuelvas a iniciar sesión con esta cuenta.`
+    : 'Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet.';
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -65,6 +77,11 @@ export default function ProfileScreen() {
     } finally {
       setSigningOut(false);
     }
+  }
+
+  function syncFirst() {
+    void syncClients(technicianId);
+    setConfirmingSignOut(false);
   }
 
   const signatureAlert = missingSignature ? (
@@ -319,7 +336,9 @@ export default function ProfileScreen() {
           <ConfirmDialog
             title="¿Cerrar sesión?"
             message={`Se cerrará la sesión de ${name} en este dispositivo.`}
-            note="Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet."
+            note={signOutNote}
+            secondaryLabel={unsynced && online ? 'Sincronizar primero' : undefined}
+            onSecondary={syncFirst}
             confirmLabel="Cerrar sesión"
             tone="destructive"
             onConfirm={handleSignOut}
@@ -432,4 +451,12 @@ function ActionRow({ icon, title, description, tone = 'default', onPress }: Acti
       )}
     </Pressable>
   );
+}
+
+function addCounts(a: UploadCounts, b: UploadCounts): UploadCounts {
+  return {
+    clients: a.clients + b.clients,
+    branches: a.branches + b.branches,
+    systems: a.systems + b.systems,
+  };
 }
