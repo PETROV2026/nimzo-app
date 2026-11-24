@@ -8,8 +8,8 @@ import { systemsTable } from '@/clients/systems-db';
 import type { SyncedMeta } from '@/db/synced-table';
 import { reportError } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
+import { SyncTimeoutError, syncErrorToReport } from '@/lib/sync-errors';
 import { useOnline } from '@/lib/use-online';
-import { isServerError } from '@/service-forms/catalog-sync-rules';
 
 export type UploadCounts = { clients: number; branches: number; systems: number };
 
@@ -119,7 +119,7 @@ async function withTimeout<T>(request: (signal: AbortSignal) => PromiseLike<T>):
   try {
     const result = await request(controller.signal);
     if (controller.signal.aborted) {
-      throw new Error(`Clients sync request timed out after ${requestTimeoutMs} ms`);
+      throw new SyncTimeoutError(requestTimeoutMs);
     }
     return result;
   } finally {
@@ -170,14 +170,6 @@ async function download({ local, page }: SyncEntry, technicianId: string) {
   local.applyRemote(technicianId, rows);
 }
 
-function reportSyncError(error: unknown) {
-  if (error instanceof Error) {
-    reportError(error);
-  } else if (isServerError(error)) {
-    reportError(new Error(`Clients sync failed: ${error.code} ${error.message}`));
-  }
-}
-
 async function run(technicianId: string) {
   setStatus({ state: 'syncing', lastSyncedAt: status.lastSyncedAt });
   const uploaded: UploadCounts = { clients: 0, branches: 0, systems: 0 };
@@ -189,7 +181,8 @@ async function run(technicianId: string) {
     } while (rerun === technicianId);
     setStatus({ state: 'idle', lastSyncedAt: new Date().toISOString(), uploaded });
   } catch (error) {
-    reportSyncError(error);
+    const report = syncErrorToReport(error, 'Clients sync');
+    if (report) reportError(report);
     setStatus({ state: 'failed', lastSyncedAt: status.lastSyncedAt });
   }
 }
