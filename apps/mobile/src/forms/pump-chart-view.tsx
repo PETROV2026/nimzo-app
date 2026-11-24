@@ -1,10 +1,17 @@
 import { Canvas, Circle, DashPathEffect, Path, Skia } from '@shopify/react-native-skia';
 import { useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
 import { useController, useWatch } from 'react-hook-form';
+import { DialogHeader } from '@/components/dialog-header';
+import { Icon } from '@/components/icon';
 import { TextAction } from '@/components/text-action';
 import type { FormValues } from '@/forms/form-values';
-import { type ChartPoint, pumpChartData, type RunResult } from '@/forms/pump-chart';
+import {
+  type ChartPoint,
+  type PumpChartData,
+  pumpChartData,
+  type RunResult,
+} from '@/forms/pump-chart';
 import { NoteNode } from '@/forms/render-node';
 import { colors } from '@/theme';
 
@@ -129,19 +136,14 @@ function Verdict({ verdict }: { verdict: 'acceptable' | 'not_acceptable' }) {
   );
 }
 
-export function PumpPerformanceChart({ title }: { title: string }) {
-  const watched: readonly unknown[] = useWatch<FormValues>({ name: sources });
-  const [width, setWidth] = useState(0);
-  const data = useMemo(
-    () => pumpChartData(Object.fromEntries(sources.map((name, index) => [name, watched[index]]))),
-    [watched],
-  );
-
-  const plotWidth = Math.max(0, width - padding.left - padding.right);
-  const plotHeight = chartHeight - padding.top - padding.bottom;
+function ChartPlot({ data, large }: { data: PumpChartData; large?: boolean }) {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const tickText = large ? 'text-sm' : 'text-xs';
+  const plotWidth = Math.max(0, size.width - padding.left - padding.right);
+  const plotHeight = Math.max(0, size.height - padding.top - padding.bottom);
 
   const drawing = useMemo(() => {
-    if (!data || plotWidth <= 0) return null;
+    if (plotWidth <= 0 || plotHeight <= 0) return null;
     const { maxX, xStep, maxY, yStep } = data.axes;
     const px = (x: number) => padding.left + (x / maxX) * plotWidth;
     const py = (y: number) => padding.top + (1 - y / maxY) * plotHeight;
@@ -183,10 +185,179 @@ export function PumpPerformanceChart({ title }: { title: string }) {
   }, [data, plotHeight, plotWidth]);
 
   return (
+    <View
+      onLayout={(event) => {
+        const { width, height } = event.nativeEvent.layout;
+        setSize({ width, height });
+      }}
+      style={large ? { flex: 1 } : { height: chartHeight }}
+      accessible
+      accessibilityLabel={`Curva de desempeño, flujo contra presión, con ${data.runs.length} corridas`}
+    >
+      {drawing ? (
+        <>
+          <Canvas style={{ flex: 1 }}>
+            <Path path={drawing.grid} style="stroke" strokeWidth={1} color={colors.border} />
+            <Path
+              path={drawing.axes}
+              style="stroke"
+              strokeWidth={2}
+              color={colors['border-strong']}
+            />
+            <Path
+              path={drawing.acceptance}
+              style="stroke"
+              strokeWidth={2.5}
+              color={series.acceptance.color}
+            >
+              <DashPathEffect intervals={[10, 8]} />
+            </Path>
+            <Path
+              path={drawing.factory}
+              style="stroke"
+              strokeWidth={2.5}
+              color={series.factory.color}
+            />
+            {data.factory.map((point) => (
+              <Circle
+                key={`f-${point.x}`}
+                cx={drawing.px(point.x)}
+                cy={drawing.py(point.y)}
+                r={4.5}
+                color={series.factory.color}
+              />
+            ))}
+            <Path path={drawing.test} style="stroke" strokeWidth={2.5} color={series.test.color} />
+            {data.test.map((point, index) => (
+              <Circle
+                key={`t-${index}`}
+                cx={drawing.px(point.x)}
+                cy={drawing.py(point.y)}
+                r={4.5}
+                color={series.test.color}
+              />
+            ))}
+            <Path
+              path={drawing.adjusted}
+              style="stroke"
+              strokeWidth={3}
+              color={series.adjusted.color}
+            />
+            {data.runs
+              .slice()
+              .sort((a, b) => a.adjustedFlow - b.adjustedFlow)
+              .map((run) => (
+                <Circle
+                  key={`a-${run.id}`}
+                  cx={drawing.px(run.adjustedFlow)}
+                  cy={drawing.py(run.adjusted)}
+                  r={6.5}
+                  color={run.passed === false ? colors['danger-strong'] : series.adjusted.color}
+                />
+              ))}
+          </Canvas>
+          <View pointerEvents="none" className="absolute inset-0">
+            {drawing.yTicks.map((tick) => (
+              <Text
+                key={`y-${tick}`}
+                className={`absolute w-12 text-right font-sans text-muted ${tickText}`}
+                style={{ left: 0, top: drawing.py(tick) - 8 }}
+              >
+                {format(tick)}
+              </Text>
+            ))}
+            {drawing.xTicks.map((tick) => (
+              <Text
+                key={`x-${tick}`}
+                className={`absolute w-16 text-center font-sans text-muted ${tickText}`}
+                style={{ left: drawing.px(tick) - 32, top: size.height - padding.bottom + 6 }}
+              >
+                {format(tick)}
+              </Text>
+            ))}
+            <Text
+              className="absolute font-sans-medium text-sm text-foreground"
+              style={{ left: padding.left, bottom: 0 }}
+            >
+              Flujo (GPM)
+            </Text>
+            <Text
+              className="absolute font-sans-medium text-sm text-foreground"
+              style={{ left: padding.left, top: 0 }}
+            >
+              Presión neta (PSI)
+            </Text>
+          </View>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+function Legend() {
+  return (
+    <View className="flex-row flex-wrap gap-x-6 gap-y-2">
+      {Object.entries(series).map(([key, item]) => (
+        <View key={key} className="flex-row items-center gap-2">
+          <LegendLine color={item.color} dashed={key === 'acceptance'} />
+          <Text className="font-sans text-sm text-foreground">{item.label}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function ChartDialog({
+  title,
+  data,
+  onClose,
+}: {
+  title: string;
+  data: PumpChartData;
+  onClose: () => void;
+}) {
+  return (
+    <Modal transparent animationType="fade" onRequestClose={onClose}>
+      <View className="flex-1 bg-foreground/40 p-6">
+        <View className="flex-1 gap-5 rounded-3xl bg-background p-6">
+          <DialogHeader title={title} onClose={onClose} />
+          <ChartPlot data={data} large />
+          <Legend />
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+export function PumpPerformanceChart({ title }: { title: string }) {
+  const watched: readonly unknown[] = useWatch<FormValues>({ name: sources });
+  const [enlarged, setEnlarged] = useState(false);
+  const data = useMemo(
+    () => pumpChartData(Object.fromEntries(sources.map((name, index) => [name, watched[index]]))),
+    [watched],
+  );
+
+  return (
     <View className="gap-4 rounded-xl border border-border bg-background p-5">
-      <Text accessibilityRole="header" className="font-sans-semibold text-lg text-foreground">
-        {title}
-      </Text>
+      <View className="flex-row items-center gap-4">
+        <Text
+          accessibilityRole="header"
+          className="flex-1 font-sans-semibold text-lg text-foreground"
+        >
+          {title}
+        </Text>
+        {data ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ampliar la gráfica"
+            onPress={() => setEnlarged(true)}
+            className="min-h-14 flex-row items-center gap-2 rounded-lg border-2 border-border-strong px-4 active:bg-surface"
+          >
+            <Icon name="expand-outline" size={20} color={colors.foreground} />
+            <Text className="font-sans-semibold text-base text-foreground">Ampliar</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {!data ? (
         <NoteNode
           tone="info"
@@ -194,124 +365,8 @@ export function PumpPerformanceChart({ title }: { title: string }) {
         />
       ) : (
         <>
-          <View
-            onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-            style={{ height: chartHeight }}
-            accessible
-            accessibilityLabel={`Curva de desempeño, flujo contra presión, con ${data.runs.length} corridas`}
-          >
-            {drawing ? (
-              <>
-                <Canvas style={{ flex: 1 }}>
-                  <Path path={drawing.grid} style="stroke" strokeWidth={1} color={colors.border} />
-                  <Path
-                    path={drawing.axes}
-                    style="stroke"
-                    strokeWidth={2}
-                    color={colors['border-strong']}
-                  />
-                  <Path
-                    path={drawing.acceptance}
-                    style="stroke"
-                    strokeWidth={2.5}
-                    color={series.acceptance.color}
-                  >
-                    <DashPathEffect intervals={[10, 8]} />
-                  </Path>
-                  <Path
-                    path={drawing.factory}
-                    style="stroke"
-                    strokeWidth={2.5}
-                    color={series.factory.color}
-                  />
-                  {data.factory.map((point) => (
-                    <Circle
-                      key={`f-${point.x}`}
-                      cx={drawing.px(point.x)}
-                      cy={drawing.py(point.y)}
-                      r={4.5}
-                      color={series.factory.color}
-                    />
-                  ))}
-                  <Path
-                    path={drawing.test}
-                    style="stroke"
-                    strokeWidth={2.5}
-                    color={series.test.color}
-                  />
-                  {data.test.map((point, index) => (
-                    <Circle
-                      key={`t-${index}`}
-                      cx={drawing.px(point.x)}
-                      cy={drawing.py(point.y)}
-                      r={4.5}
-                      color={series.test.color}
-                    />
-                  ))}
-                  <Path
-                    path={drawing.adjusted}
-                    style="stroke"
-                    strokeWidth={3}
-                    color={series.adjusted.color}
-                  />
-                  {data.runs
-                    .slice()
-                    .sort((a, b) => a.adjustedFlow - b.adjustedFlow)
-                    .map((run) => (
-                      <Circle
-                        key={`a-${run.id}`}
-                        cx={drawing.px(run.adjustedFlow)}
-                        cy={drawing.py(run.adjusted)}
-                        r={6.5}
-                        color={
-                          run.passed === false ? colors['danger-strong'] : series.adjusted.color
-                        }
-                      />
-                    ))}
-                </Canvas>
-                <View pointerEvents="none" className="absolute inset-0">
-                  {drawing.yTicks.map((tick) => (
-                    <Text
-                      key={`y-${tick}`}
-                      className="absolute w-12 text-right font-sans text-xs text-muted"
-                      style={{ left: 0, top: drawing.py(tick) - 8 }}
-                    >
-                      {format(tick)}
-                    </Text>
-                  ))}
-                  {drawing.xTicks.map((tick) => (
-                    <Text
-                      key={`x-${tick}`}
-                      className="absolute w-16 text-center font-sans text-xs text-muted"
-                      style={{ left: drawing.px(tick) - 32, top: chartHeight - padding.bottom + 6 }}
-                    >
-                      {format(tick)}
-                    </Text>
-                  ))}
-                  <Text
-                    className="absolute font-sans-medium text-sm text-foreground"
-                    style={{ left: padding.left, bottom: 0 }}
-                  >
-                    Flujo (GPM)
-                  </Text>
-                  <Text
-                    className="absolute font-sans-medium text-sm text-foreground"
-                    style={{ left: padding.left, top: 0 }}
-                  >
-                    Presión neta (PSI)
-                  </Text>
-                </View>
-              </>
-            ) : null}
-          </View>
-          <View className="flex-row flex-wrap gap-x-6 gap-y-2">
-            {Object.entries(series).map(([key, item]) => (
-              <View key={key} className="flex-row items-center gap-2">
-                <LegendLine color={item.color} dashed={key === 'acceptance'} />
-                <Text className="font-sans text-sm text-foreground">{item.label}</Text>
-              </View>
-            ))}
-          </View>
+          <ChartPlot data={data} />
+          <Legend />
           {data.runs.length > 0 ? (
             <ResultsTable runs={data.runs} />
           ) : (
@@ -321,6 +376,9 @@ export function PumpPerformanceChart({ title }: { title: string }) {
             </Text>
           )}
           {data.verdict ? <Verdict verdict={data.verdict} /> : null}
+          {enlarged ? (
+            <ChartDialog title={title} data={data} onClose={() => setEnlarged(false)} />
+          ) : null}
         </>
       )}
     </View>
