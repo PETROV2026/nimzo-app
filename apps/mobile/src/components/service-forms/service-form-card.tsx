@@ -13,43 +13,53 @@ type ServiceFormCardProps = {
   onPress?: () => void;
 };
 
-export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps) {
+function FormIcon({ form }: { form: LocalServiceForm }) {
   const iconUrl = formIconUrl(form);
+  if (!iconUrl) {
+    return (
+      <View className="size-36 items-center justify-center">
+        <Icon name="document-text-outline" size={104} color={colors.muted} />
+      </View>
+    );
+  }
+  return (
+    <View className="size-36 items-center justify-center">
+      <Image
+        source={iconUrl}
+        style={{ width: 140, height: 140 }}
+        contentFit="contain"
+        cachePolicy="disk"
+        accessible={false}
+      />
+    </View>
+  );
+}
+
+export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={formTitle(form)}
       onPress={onPress}
-      className="min-h-20 flex-row items-center gap-4 rounded-2xl bg-background p-3 shadow-sm active:bg-border"
+      className="flex-1 items-center gap-2 rounded-2xl border border-border bg-background px-3 pb-4 pt-4 active:border-primary active:bg-canvas"
     >
-      <View className="size-14 items-center justify-center rounded-xl bg-danger">
-        {iconUrl ? (
-          <Image
-            source={iconUrl}
-            style={{ width: 30, height: 30 }}
-            contentFit="contain"
-            cachePolicy="disk"
-            accessible={false}
-          />
-        ) : (
-          <Icon name="document-text" size={30} color={colors['on-danger']} />
-        )}
-      </View>
-      <View className="flex-1 gap-0.5">
+      <FormIcon form={form} />
+      <View className="items-center gap-1">
         <HighlightedText
           text={form.name}
           term={search}
-          className="font-sans-bold text-lg text-foreground"
+          numberOfLines={2}
+          className="text-center font-sans-bold text-lg leading-6 text-foreground"
         />
         {form.subtitle ? (
           <HighlightedText
             text={form.subtitle}
             term={search}
-            className="font-sans text-sm text-muted"
+            numberOfLines={1}
+            className="text-center font-sans-semibold text-base text-primary-strong"
           />
         ) : null}
       </View>
-      <Icon name="arrow-forward" size={24} color={colors.foreground} />
     </Pressable>
   );
 }

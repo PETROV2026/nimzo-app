@@ -1,6 +1,6 @@
 import { formTitle, matchesSearch } from '@nimzo/shared';
 import { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
@@ -32,7 +32,15 @@ const sections: Segment<Section>[] = [
   },
 ];
 
-function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; search: string }) {
+function ServiceFormGrid({
+  catalog,
+  search,
+  columns,
+}: {
+  catalog: LocalServiceForm[];
+  search: string;
+  columns: number;
+}) {
   if (catalog.length === 0) {
     return (
       <EmptyState
@@ -53,11 +61,20 @@ function ServiceFormGrid({ catalog, search }: { catalog: LocalServiceForm[]; sea
     );
   }
 
+  const rows = Array.from({ length: Math.ceil(forms.length / columns) }, (_, index) =>
+    forms.slice(index * columns, index * columns + columns),
+  );
+
   return (
-    <View className="-m-2 flex-row flex-wrap">
-      {forms.map((form) => (
-        <View key={form.code} className="w-1/2 p-2">
-          <ServiceFormCard form={form} search={search} />
+    <View className="gap-3">
+      {rows.map((row) => (
+        <View key={row[0].code} className="flex-row gap-3">
+          {row.map((form) => (
+            <ServiceFormCard key={form.code} form={form} search={search} />
+          ))}
+          {Array.from({ length: columns - row.length }, (_, index) => (
+            <View key={index} className="flex-1" />
+          ))}
         </View>
       ))}
     </View>
@@ -68,6 +85,8 @@ export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
   const headerSearch = useHeaderSearch();
   const catalog = useServiceForms();
+  const { width } = useWindowDimensions();
+  const columns = width >= 1000 ? 4 : 3;
 
   return (
     <>
@@ -91,7 +110,7 @@ export default function ServicesScreen() {
         contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
       >
         {current === 'new' ? (
-          <ServiceFormGrid catalog={catalog} search={headerSearch.term} />
+          <ServiceFormGrid catalog={catalog} search={headerSearch.term} columns={columns} />
         ) : (
           <EmptyState
             icon="clipboard-outline"
