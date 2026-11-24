@@ -24,7 +24,7 @@ export function FormIcon({ path, size = 40 }: { path: string | null | undefined;
           src={url}
           alt=""
           loading="lazy"
-          sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          sx={{ width: size, height: size, objectFit: 'contain' }}
         />
       ) : (
         <DescriptionOutlined sx={{ fontSize: size * 0.8 }} />
