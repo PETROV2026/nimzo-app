@@ -72,6 +72,10 @@ export function isFullySigned(signatures: SignaturesValue) {
   );
 }
 
+export function isSealed(signatures: SignaturesValue) {
+  return signatures.supervisorSignature !== null;
+}
+
 export function canFinish(report: { status: LocalReportStatus; signedAt: string | null }) {
   return report.status === 'draft' && report.signedAt !== null;
 }
@@ -102,6 +106,14 @@ export function unusedSignatureFiles(before: SignaturesValue, after: SignaturesV
   return [before.supervisorSignature, before.technicianSignature].filter(
     (uri): uri is string => Boolean(uri) && !kept.has(uri),
   );
+}
+
+export function photoFiles(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(photoFiles);
+  if (typeof value !== 'object' || value === null) return [];
+  const { uri } = value as { uri?: unknown };
+  if (typeof uri === 'string') return uri.startsWith('file://') ? [uri] : [];
+  return Object.values(value).flatMap(photoFiles);
 }
 
 export type ReportTarget = { clientId: string; branchId: string; systemId: string | null };

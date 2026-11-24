@@ -7,8 +7,10 @@ import {
   canDeleteReport,
   canFinish,
   isFullySigned,
+  isSealed,
   parseAnswers,
   parseSnapshot,
+  photoFiles,
   resolveTarget,
   selectionProblem,
   unusedSignatureFiles,
@@ -165,4 +167,32 @@ test('a target that is not in the catalog is not resolved', () => {
     resolveTarget({ clientId: 'c1', branchId: 'b1', systemId: 's9' }, clients, branches, []),
     null,
   );
+});
+
+test('a report is sealed once the supervisor signs, not with the technician signature alone', () => {
+  const unsigned = {
+    supervisorName: 'Luis',
+    supervisorSignature: null,
+    technicianSignature: 'file:///tecnico.png',
+  };
+  assert.equal(isSealed(unsigned), false);
+  assert.equal(isSealed({ ...unsigned, supervisorSignature: 'file:///supervisor.png' }), true);
+});
+
+test('photo files are found in fields, rows and equipment', () => {
+  const photo = (name: string) => ({
+    uri: `file:///photos/${name}.jpg`,
+    takenAt: '2026-11-24T10:00:00Z',
+    source: 'camera',
+  });
+  assert.deepEqual(
+    photoFiles({
+      evidence: [photo('a'), photo('b')],
+      observations: [{ text: 'Fuga', photos: [photo('c')] }],
+      items: [{ key: 'P-1', evidence: [photo('d')] }],
+      notes: 'file:///photos/notes.jpg',
+    }),
+    ['a', 'b', 'c', 'd'].map((name) => `file:///photos/${name}.jpg`),
+  );
+  assert.deepEqual(photoFiles({ a: 'x', b: null, c: { uri: 'https://example.com/a.jpg' } }), []);
 });

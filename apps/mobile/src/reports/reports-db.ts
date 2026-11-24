@@ -13,6 +13,7 @@ import {
   type LocalReportStatus,
   parseAnswers,
   parseSnapshot,
+  photoFiles,
   type ReportSnapshot,
   selectionProblem,
   unusedSignatureFiles,
@@ -239,7 +240,10 @@ export function deleteDraft(id: string) {
   const before = readReport(id);
   const result = db.runSync("delete from reports where id = ? and status = 'draft'", id);
   if (result.changes === 0) return false;
-  if (before) for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
+  if (before) {
+    for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
+    for (const uri of photoFiles(before.answers)) deletePhoto(uri);
+  }
   notifyReports();
   return true;
 }
