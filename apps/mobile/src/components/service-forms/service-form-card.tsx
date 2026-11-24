@@ -17,16 +17,16 @@ function FormIcon({ form }: { form: LocalServiceForm }) {
   const iconUrl = formIconUrl(form);
   if (!iconUrl) {
     return (
-      <View className="size-36 items-center justify-center">
-        <Icon name="document-text-outline" size={104} color={colors.muted} />
+      <View className="size-32 items-center justify-center">
+        <Icon name="document-text-outline" size={92} color={colors.muted} />
       </View>
     );
   }
   return (
-    <View className="size-36 items-center justify-center">
+    <View className="size-32 items-center justify-center">
       <Image
         source={iconUrl}
-        style={{ width: 140, height: 140 }}
+        style={{ width: 124, height: 124 }}
         contentFit="contain"
         cachePolicy="disk"
         accessible={false}
