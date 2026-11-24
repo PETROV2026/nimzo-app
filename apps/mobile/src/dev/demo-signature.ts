@@ -1,0 +1,6 @@
+const png =
+  'iVBORw0KGgoAAAANSUhEUgAAAPAAAABaAQMAAAC8HElZAAAABlBMVEX///8AAABVwtN+AAABZ0lEQVR42u1WQY7DIAw0SiX2lh+Uj0TJt3JASZ7GU/IE9pZD1CwYgtks+NDd0yo+VBWDsT0euwW47bb3Ta0sPFsObY6Ng6WZOLhdBjYzd4GBe/c8A2touMo2EExlHmNg//LIle3D1+HFJ19nBUtnWAlXKvaMASrWxfSqpLniDEOao2blSGNYDY5VOIQdOU6LrIaAoeSu4LdDIuxZYPOARHf4lAEIFGoM2wO9oTCcwGwai8F16qqbh51qcb46khbzl3YmJpy4VeILPVojqSI3GnI9NYweCgQkCie8F1uJHq9Y0nh2akvzs2V90ed9nVSmgWalO6MNaXY7n1kmL8xVHpaO1JKJE3MSh6GjPpd2yEnRDqCmegrVte1iyyVwmZvGkph9CVd9zMc3nVyXldrpu/0pXZkdjPw6mYiikg1EUXkR9uwa/dx/sYRhNiz8+Gc/aKLOE1oNeBWIR6BAflsDgn3cfyv+2L4Azkt/K0Pl508AAAAASUVORK5CYII=';
+
+export function demoSignaturePng() {
+  return Uint8Array.from(atob(png), (character) => character.charCodeAt(0));
+}
