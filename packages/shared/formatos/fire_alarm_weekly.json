@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -34,37 +35,44 @@
             {
               "id": "inspection_1",
               "type": "check",
-              "label": "Tablero de control en buen estado y operativo. Indica funcionamiento 'Normal'."
+              "label": "Tablero de control en buen estado y operativo. Indica funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_2",
               "type": "check",
-              "label": "Dispositivos de activación manual operativos, en condiciones físicas adecuadas y libres de obstrucciones."
+              "label": "Dispositivos de activación manual operativos, en condiciones físicas adecuadas y libres de obstrucciones.",
+              "required": true
             },
             {
               "id": "inspection_3",
               "type": "check",
-              "label": "Detectores de incendio se encuentran operativos, libres de daño físico y pintura, además de estar libres de obstrucciones y alejados de las ventilas de aire a una distancia mínima de 3 pies."
+              "label": "Detectores de incendio se encuentran operativos, libres de daño físico y pintura, además de estar libres de obstrucciones y alejados de las ventilas de aire a una distancia mínima de 3 pies.",
+              "required": true
             },
             {
               "id": "inspection_4",
               "type": "check",
-              "label": "Fuentes de poder auxiliares del sistema operativas e indicando funcionamiento 'Normal'."
+              "label": "Fuentes de poder auxiliares del sistema operativas e indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_5",
               "type": "check",
-              "label": "Anunciadores remotos del sistema operativos, indicando funcionamiento 'Normal'."
+              "label": "Anunciadores remotos del sistema operativos, indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_6",
               "type": "check",
-              "label": "Amplificadores del sistema operativos, indicando funcionamiento 'Normal'."
+              "label": "Amplificadores del sistema operativos, indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_7",
               "type": "check",
-              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación."
+              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación.",
+              "required": true
             }
           ]
         }
@@ -114,7 +122,8 @@
             {
               "id": "equipment_status",
               "type": "check",
-              "label": "Estado"
+              "label": "Estado",
+              "required": true
             }
           ]
         },
@@ -142,7 +151,8 @@
             {
               "id": "device_status",
               "type": "check",
-              "label": "Estado"
+              "label": "Estado",
+              "required": true
             }
           ]
         }

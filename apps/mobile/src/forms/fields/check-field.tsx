@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import type { FormField } from '@nimzo/shared';
 import { TextField } from '@/components/text-field';
 import type { CheckStatus, CheckValue, FieldProps } from '@/forms/types';
-import { FieldFrame } from './field-frame';
+import { FieldRow, type RowTone } from './field-row';
 import { OptionButtons, type Option } from './option-buttons';
 import { cleanNumber, numberError, toNumber } from '@/forms/to-number';
 
@@ -15,7 +15,9 @@ const options: Option<CheckStatus>[] = [
   { value: 'ok', label: 'OK' },
 ];
 
-export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
+const tones: Record<CheckStatus, RowTone> = { ok: 'positive', x: 'negative', na: 'neutral' };
+
+export function CheckField({ field, value, onChange, error, number }: CheckFieldProps) {
   const [text, setText] = useState(value?.value?.toString() ?? '');
   const { measurement } = field;
   const decimal = measurement?.inputMode === 'decimal';
@@ -28,36 +30,42 @@ export function CheckField({ field, value, onChange, error }: CheckFieldProps) {
   }
 
   return (
-    <FieldFrame field={field} error={error}>
-      <View className="flex-row flex-wrap items-end gap-4">
+    <FieldRow
+      field={field}
+      number={number}
+      tone={value ? tones[value.status] : 'empty'}
+      error={error}
+      control={
         <OptionButtons
           label={field.label}
           options={options}
           value={value?.status}
           onChange={changeStatus}
           allowDeselect={!field.required}
+          segmented
         />
-        {measurement && value && value.status !== 'na' ? (
-          <View className="w-56">
-            <TextField
-              label={measurement.label}
-              error={numberError(text, decimal)}
-              inputMode={measurement.inputMode}
-              value={text}
-              onChangeText={(next) => {
-                const clean = cleanNumber(next);
-                setText(clean);
-                onChange({ status: value.status, value: toNumber(clean, decimal) });
-              }}
-              rightAccessory={
-                measurement.unit ? (
-                  <Text className="px-4 font-sans text-lg text-muted">{measurement.unit}</Text>
-                ) : null
-              }
-            />
-          </View>
-        ) : null}
-      </View>
-    </FieldFrame>
+      }
+    >
+      {measurement && value && value.status !== 'na' ? (
+        <View className="w-64">
+          <TextField
+            label={measurement.label}
+            error={numberError(text, decimal)}
+            inputMode={measurement.inputMode}
+            value={text}
+            onChangeText={(next) => {
+              const clean = cleanNumber(next);
+              setText(clean);
+              onChange({ status: value.status, value: toNumber(clean, decimal) });
+            }}
+            rightAccessory={
+              measurement.unit ? (
+                <Text className="px-4 font-sans text-lg text-muted">{measurement.unit}</Text>
+              ) : null
+            }
+          />
+        </View>
+      ) : null}
+    </FieldRow>
   );
 }

@@ -10,12 +10,14 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -71,42 +73,50 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "El hidrante tiene libre acceso y suficiente espacio para colocar mangueras y accesorios para el carro de bomberos."
+                "label": "El hidrante tiene libre acceso y suficiente espacio para colocar mangueras y accesorios para el carro de bomberos.",
+                "required": true
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "Las tapas giran libremente."
+                "label": "Las tapas giran libremente.",
+                "required": true
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "Verificar que el barril del hidrante esté libre de agua o hielo."
+                "label": "Verificar que el barril del hidrante esté libre de agua o hielo.",
+                "required": true
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "Estado físico del hidrante."
+                "label": "Estado físico del hidrante.",
+                "required": true
               },
               {
                 "id": "inspection_5",
                 "type": "check",
-                "label": "Desgaste de roscas en conectores de descarga y tapas."
+                "label": "Desgaste de roscas en conectores de descarga y tapas.",
+                "required": true
               },
               {
                 "id": "inspection_6",
                 "type": "check",
-                "label": "Estado físico de tuerca de la válvula."
+                "label": "Estado físico de tuerca de la válvula.",
+                "required": true
               },
               {
                 "id": "inspection_7",
                 "type": "check",
-                "label": "Empaques y empaquetaduras en buen estado."
+                "label": "Empaques y empaquetaduras en buen estado.",
+                "required": true
               },
               {
                 "id": "inspection_8",
                 "type": "check",
-                "label": "Disponibilidad de la llave del hidrante."
+                "label": "Disponibilidad de la llave del hidrante.",
+                "required": true
               }
             ]
           }
@@ -126,37 +136,44 @@
               {
                 "id": "test_1",
                 "type": "check",
-                "label": "Inspeccionar el equipo de bombeo contra incendios y confirmar que se encuentra en condiciones adecuadas para su operación durante las pruebas. Realizar plan de supervisión del equipo."
+                "label": "Inspeccionar el equipo de bombeo contra incendios y confirmar que se encuentra en condiciones adecuadas para su operación durante las pruebas. Realizar plan de supervisión del equipo.",
+                "required": true
               },
               {
                 "id": "test_2",
                 "type": "check",
-                "label": "Asegurar que la prueba se pueda llevar a cabo de manera segura; de lo contrario, cancelar la prueba."
+                "label": "Asegurar que la prueba se pueda llevar a cabo de manera segura; de lo contrario, cancelar la prueba.",
+                "required": true
               },
               {
                 "id": "test_3",
                 "type": "check",
-                "label": "Lubricar vástago de la válvula, tapa, conexiones y roscas del hidrante."
+                "label": "Lubricar vástago de la válvula, tapa, conexiones y roscas del hidrante.",
+                "required": true
               },
               {
                 "id": "test_4",
                 "type": "check",
-                "label": "Retirar la tapa del hidrante, abrir su válvula al 100% y dejar fluir el agua por una de las descargas por lo menos un minuto o hasta que el agua se vea clara y sin sólidos."
+                "label": "Retirar la tapa del hidrante, abrir su válvula al 100% y dejar fluir el agua por una de las descargas por lo menos un minuto o hasta que el agua se vea clara y sin sólidos.",
+                "required": true
               },
               {
                 "id": "test_5",
                 "type": "check",
-                "label": "Cerrar 100% la válvula lentamente para evitar golpe de ariete."
+                "label": "Cerrar 100% la válvula lentamente para evitar golpe de ariete.",
+                "required": true
               },
               {
                 "id": "test_6",
                 "type": "check",
-                "label": "Al finalizar las pruebas a los hidrantes realice el servicio semanal al sistema de bombeo contra incendios."
+                "label": "Al finalizar las pruebas a los hidrantes realice el servicio semanal al sistema de bombeo contra incendios.",
+                "required": true
               },
               {
                 "id": "test_7",
                 "type": "check",
-                "label": "Comprobar que el drenaje del barril funciona correctamente, verificando un tiempo máximo de drenaje de 60 minutos."
+                "label": "Comprobar que el drenaje del barril funciona correctamente, verificando un tiempo máximo de drenaje de 60 minutos.",
+                "required": true
               }
             ]
           }
@@ -176,17 +193,20 @@
               {
                 "id": "corrective_1",
                 "type": "check",
-                "label": "Instale una válvula en una de las salidas del hidrante. Con las descargas cerradas, abrir el hidrante 2 o 3 vueltas para presurizarlo por 5 minutos."
+                "label": "Instale una válvula en una de las salidas del hidrante. Con las descargas cerradas, abrir el hidrante 2 o 3 vueltas para presurizarlo por 5 minutos.",
+                "required": true
               },
               {
                 "id": "corrective_2",
                 "type": "check",
-                "label": "Cerrar 100% el hidrante lentamente para evitar golpe de ariete, regresar la válvula del hidrante 1/4 de vuelta para evitar agarrotamiento y abrir la válvula instalada para confirmar la ausencia de presión en el hidrante."
+                "label": "Cerrar 100% el hidrante lentamente para evitar golpe de ariete, regresar la válvula del hidrante 1/4 de vuelta para evitar agarrotamiento y abrir la válvula instalada para confirmar la ausencia de presión en el hidrante.",
+                "required": true
               },
               {
                 "id": "corrective_3",
                 "type": "check",
-                "label": "El hidrante está en condiciones para operar sin dificultades en una situación de emergencia."
+                "label": "El hidrante está en condiciones para operar sin dificultades en una situación de emergencia.",
+                "required": true
               }
             ]
           }

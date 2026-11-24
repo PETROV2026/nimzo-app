@@ -5,7 +5,8 @@
     {
       "id": "request_date",
       "type": "date",
-      "label": "Fecha de solicitud"
+      "label": "Fecha de solicitud",
+      "required": true
     },
     {
       "id": "requested_execution_date",
@@ -30,7 +31,8 @@
     {
       "id": "requested_by",
       "type": "text",
-      "label": "Solicitado por"
+      "label": "Solicitado por",
+      "required": true
     },
     {
       "id": "city",
@@ -43,6 +45,7 @@
       "id": "certainty",
       "type": "select",
       "label": "Certeza",
+      "required": true,
       "options": [
         {
           "value": "p10",
@@ -99,7 +102,8 @@
           {
             "id": "area",
             "type": "text",
-            "label": "Área"
+            "label": "Área",
+            "required": true
           },
           {
             "id": "system",
@@ -109,18 +113,21 @@
           {
             "id": "component",
             "type": "text",
-            "label": "Equipo/componente"
+            "label": "Equipo/componente",
+            "required": true
           },
           {
             "id": "observation",
             "type": "text",
             "label": "Observación",
+            "required": true,
             "multiline": true
           },
           {
             "id": "corrective_action",
             "type": "text",
             "label": "Acción correctiva",
+            "required": true,
             "multiline": true
           },
           {
@@ -133,6 +140,7 @@
             "id": "status",
             "type": "choice",
             "label": "Estado",
+            "required": true,
             "options": [
               {
                 "value": "dnc",

@@ -10,12 +10,14 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -26,6 +28,7 @@
       "id": "quarter",
       "type": "select",
       "label": "Corresponde al trimestre número",
+      "required": true,
       "options": [
         {
           "value": "q1",
@@ -94,17 +97,20 @@
               {
                 "id": "flow_sensor_inspected",
                 "type": "check",
-                "label": "Retirar la tapa del sensor de flujo e inspeccionar, verificar y confirmar que no presenta daño físico visible."
+                "label": "Retirar la tapa del sensor de flujo e inspeccionar, verificar y confirmar que no presenta daño físico visible.",
+                "required": true
               },
               {
                 "id": "flow_sensor_manual",
                 "type": "check",
-                "label": "Operar en forma manual el mecanismo del sensor de flujo y verificar que opera correctamente."
+                "label": "Operar en forma manual el mecanismo del sensor de flujo y verificar que opera correctamente.",
+                "required": true
               },
               {
                 "id": "test_drain_flow",
                 "type": "check",
-                "label": "Generar flujo abriendo la válvula de TEST DRAIN y verificar que el panel detecta flujo con el retardo adecuado."
+                "label": "Generar flujo abriendo la válvula de TEST DRAIN y verificar que el panel detecta flujo con el retardo adecuado.",
+                "required": true
               },
               {
                 "id": "flow_alarm_delay",
@@ -116,7 +122,8 @@
               {
                 "id": "flow_alarm_notification",
                 "type": "check",
-                "label": "Verificar que las sirenas de notificación y la campana de alarma de flujo correspondiente operan correctamente."
+                "label": "Verificar que las sirenas de notificación y la campana de alarma de flujo correspondiente operan correctamente.",
+                "required": true
               }
             ]
           }

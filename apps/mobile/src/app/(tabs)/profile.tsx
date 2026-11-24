@@ -1,9 +1,13 @@
 import { mexicanStateLabels } from '@nimzo/shared';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
+import { announce } from '@/components/announcement-toast';
+import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
+import { showDeveloperTools } from '@/dev/developer-tools';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ConnectionStatus } from '@/components/connection-status';
@@ -245,6 +249,34 @@ export default function ProfileScreen() {
               description="Cómo usamos y protegemos tus datos."
               onPress={() => setShowingPrivacy(true)}
             />
+            {__DEV__ && showDeveloperTools ? (
+              <>
+                <ActionRow
+                  icon="document-text-outline"
+                  title="Vista previa de formatos"
+                  description="Solo en desarrollo: abre cualquier formato para llenarlo."
+                  onPress={() => router.push('/form-preview')}
+                />
+                <ActionRow
+                  icon="flask-outline"
+                  title="Crear reportes de prueba"
+                  description="Solo en desarrollo: un reporte falso por formato, en Pendientes."
+                  onPress={() => {
+                    const count = createDemoReports(session.session.user.id);
+                    announce('Reportes de prueba creados', `${count} en Pendientes.`);
+                  }}
+                />
+                <ActionRow
+                  icon="trash-outline"
+                  title="Borrar reportes de prueba"
+                  description="Solo en desarrollo: quita los reportes falsos de este dispositivo."
+                  onPress={() => {
+                    const count = deleteDemoReports(session.session.user.id);
+                    announce('Reportes de prueba borrados', `Se quitaron ${count}.`);
+                  }}
+                />
+              </>
+            ) : null}
             <ActionRow
               icon="log-out-outline"
               title="Cerrar sesión"

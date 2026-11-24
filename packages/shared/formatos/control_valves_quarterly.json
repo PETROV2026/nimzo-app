@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -44,32 +45,38 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "La válvula se encuentra operativa y libre de daño físico visible."
+                "label": "La válvula se encuentra operativa y libre de daño físico visible.",
+                "required": true
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "La válvula está accesible y libre de obstrucciones."
+                "label": "La válvula está accesible y libre de obstrucciones.",
+                "required": true
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "La válvula está equipada con la correspondiente llave para su manipulación."
+                "label": "La válvula está equipada con la correspondiente llave para su manipulación.",
+                "required": true
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "La válvula cuenta con candado y/o se encuentra supervisada eléctricamente."
+                "label": "La válvula cuenta con candado y/o se encuentra supervisada eléctricamente.",
+                "required": true
               },
               {
                 "id": "inspection_5",
                 "type": "check",
-                "label": "Verificar el estado correcto de la válvula (abierta o cerrada)."
+                "label": "Verificar el estado correcto de la válvula (abierta o cerrada).",
+                "required": true
               },
               {
                 "id": "inspection_6",
                 "type": "check",
-                "label": "La válvula cuenta con placa de identificación indicando el sistema o parte del sistema que controla."
+                "label": "La válvula cuenta con placa de identificación indicando el sistema o parte del sistema que controla.",
+                "required": true
               }
             ]
           }
@@ -89,7 +96,8 @@
               {
                 "id": "exercise",
                 "type": "check",
-                "label": "Ejercitar cerrando y abriendo 3 vueltas las válvulas normalmente abiertas del sistema. Cerrar un cuarto de vuelta al final."
+                "label": "Ejercitar cerrando y abriendo 3 vueltas las válvulas normalmente abiertas del sistema. Cerrar un cuarto de vuelta al final.",
+                "required": true
               }
             ]
           }
@@ -109,7 +117,8 @@
               {
                 "id": "supervisory_switch",
                 "type": "check",
-                "label": "El interruptor de supervisión de la válvula está libre de daño físico."
+                "label": "El interruptor de supervisión de la válvula está libre de daño físico.",
+                "required": true
               }
             ]
           }

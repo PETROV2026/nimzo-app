@@ -111,3 +111,91 @@ test('table calculations can use the columns of the same row', () => {
   });
   assert.deepEqual(problems, []);
 });
+
+const administrativeForms = new Set([
+  'quote_request',
+  'site_survey',
+  'work_order',
+  'observations_report',
+]);
+const answerTypes = new Set(['check', 'yes_no', 'choice']);
+const requiredReportLabels = new Set([
+  'Fecha de ejecución',
+  'Hora de entrada',
+  'Corresponde al mes de',
+  'Mes correspondiente',
+  'Corresponde al trimestre número',
+]);
+
+type JsonNode = {
+  type: string;
+  id?: string;
+  label?: string;
+  required?: boolean;
+  children?: JsonNode[];
+};
+
+function nodesOf(nodes: JsonNode[] = []): JsonNode[] {
+  return nodes.flatMap((node) => [node, ...nodesOf(node.children)]);
+}
+
+for (const file of files.filter((name) => !administrativeForms.has(name.replace('.json', '')))) {
+  test(`${file} requires every answer and the date of the service`, () => {
+    const form = JSON.parse(readFileSync(path.join(folder, file), 'utf8'));
+    const body = [
+      ...nodesOf(form.header),
+      ...form.sections.flatMap((section: { children: JsonNode[] }) => nodesOf(section.children)),
+      ...(form.items?.sections ?? []).flatMap((section: { children: JsonNode[] }) =>
+        nodesOf(section.children),
+      ),
+    ];
+    const optionalAnswers = body.filter((node) => answerTypes.has(node.type) && !node.required);
+    assert.deepEqual(
+      optionalAnswers.map((node) => node.id),
+      [],
+    );
+    const report: JsonNode[] = form.report;
+    const optionalReport = report.filter(
+      (node) => requiredReportLabels.has(node.label ?? '') && !node.required,
+    );
+    assert.deepEqual(
+      optionalReport.map((node) => node.id),
+      [],
+    );
+    assert.ok(report.some((node) => node.label === 'Fecha de ejecución' && node.required));
+  });
+}
+
+const administrativeRequired: Record<string, string[]> = {
+  quote_request: [
+    'request_date',
+    'requested_by',
+    'certainty',
+    'area',
+    'component',
+    'observation',
+    'corrective_action',
+    'status',
+  ],
+  site_survey: ['survey_date'],
+  work_order: ['request_date', 'requester_name', 'execution_date', 'requested_description'],
+  observations_report: ['execution_date'],
+};
+
+for (const [code, expected] of Object.entries(administrativeRequired)) {
+  test(`${code}.json requires only its key fields`, () => {
+    const form = JSON.parse(readFileSync(path.join(folder, `${code}.json`), 'utf8'));
+    const all = [
+      ...nodesOf(form.report),
+      ...nodesOf(form.header),
+      ...form.sections.flatMap((section: { children: JsonNode[] }) => nodesOf(section.children)),
+      ...(form.items?.sections ?? []).flatMap((section: { children: JsonNode[] }) =>
+        nodesOf(section.children),
+      ),
+    ];
+    assert.deepEqual(
+      all.filter((node) => node.required).map((node) => node.id),
+      expected,
+    );
+  });
+}

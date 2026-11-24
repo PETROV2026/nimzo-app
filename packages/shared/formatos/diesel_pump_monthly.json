@@ -10,17 +10,20 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "month",
       "type": "select",
       "label": "Mes correspondiente",
+      "required": true,
       "options": [
         {
           "value": "january",
@@ -91,72 +94,86 @@
         {
           "id": "maintenance_1",
           "type": "check",
-          "label": "Ejercitar cerrando y abriendo las válvulas normalmente abiertas del cuarto de bombas. Cerrar un cuarto de vuelta al final."
+          "label": "Ejercitar cerrando y abriendo las válvulas normalmente abiertas del cuarto de bombas. Cerrar un cuarto de vuelta al final.",
+          "required": true
         },
         {
           "id": "maintenance_2",
           "type": "check",
-          "label": "Ejercitar el indicador de nivel del tanque de almacenamiento de agua y verificar que se encuentre libre de movimiento."
+          "label": "Ejercitar el indicador de nivel del tanque de almacenamiento de agua y verificar que se encuentre libre de movimiento.",
+          "required": true
         },
         {
           "id": "maintenance_3",
           "type": "check",
-          "label": "El tanque de almacenamiento de agua no cuenta con materiales extraños o desechos en su superficie."
+          "label": "El tanque de almacenamiento de agua no cuenta con materiales extraños o desechos en su superficie.",
+          "required": true
         },
         {
           "id": "maintenance_4",
           "type": "check",
-          "label": "Operar manualmente la válvula de llenado automático del tanque de almacenamiento de agua y confirmar que funciona correctamente."
+          "label": "Operar manualmente la válvula de llenado automático del tanque de almacenamiento de agua y confirmar que funciona correctamente.",
+          "required": true
         },
         {
           "id": "maintenance_5",
           "type": "check",
-          "label": "Ejercitar el indicador de nivel del tanque de combustible y verificar que se encuentre libre de movimiento."
+          "label": "Ejercitar el indicador de nivel del tanque de combustible y verificar que se encuentre libre de movimiento.",
+          "required": true
         },
         {
           "id": "maintenance_6",
           "type": "check",
-          "label": "Probar el interruptor aislador del controlador jockey y verificar que funcione correctamente."
+          "label": "Probar el interruptor aislador del controlador jockey y verificar que funcione correctamente.",
+          "required": true
         },
         {
           "id": "maintenance_7",
           "type": "check",
-          "label": "Activar la protección térmica del controlador jockey utilizando el medio de prueba y verificar que funcione correctamente."
+          "label": "Activar la protección térmica del controlador jockey utilizando el medio de prueba y verificar que funcione correctamente.",
+          "required": true
         },
         {
           "id": "maintenance_8",
           "type": "check",
-          "label": "Ejercitar los interruptores del suministro de AC del controlador diésel y verificar que funcionen correctamente."
+          "label": "Ejercitar los interruptores del suministro de AC del controlador diésel y verificar que funcionen correctamente.",
+          "required": true
         },
         {
           "id": "maintenance_9",
           "type": "check",
-          "label": "Ejercitar los interruptores del suministro de baterías del controlador diésel y verificar que funcionen correctamente."
+          "label": "Ejercitar los interruptores del suministro de baterías del controlador diésel y verificar que funcionen correctamente.",
+          "required": true
         },
         {
           "id": "maintenance_10",
           "type": "check",
-          "label": "Inspeccionar los componentes internos del controlador diésel y verificar que no cuenten con daño físico visible."
+          "label": "Inspeccionar los componentes internos del controlador diésel y verificar que no cuenten con daño físico visible.",
+          "required": true
         },
         {
           "id": "maintenance_11",
           "type": "check",
-          "label": "Rellenar con agua destilada las celdas de las baterías que presentan bajo nivel de electrolito."
+          "label": "Rellenar con agua destilada las celdas de las baterías que presentan bajo nivel de electrolito.",
+          "required": true
         },
         {
           "id": "maintenance_12",
           "type": "check",
-          "label": "Retirar corrosión de la batería y limpiar su carcasa."
+          "label": "Retirar corrosión de la batería y limpiar su carcasa.",
+          "required": true
         },
         {
           "id": "maintenance_13",
           "type": "check",
-          "label": "Inspeccionar y realizar servicio de limpieza de filtros de la línea de suministro de agua del intercambiador de calor."
+          "label": "Inspeccionar y realizar servicio de limpieza de filtros de la línea de suministro de agua del intercambiador de calor.",
+          "required": true
         },
         {
           "id": "maintenance_14",
           "type": "check",
-          "label": "Realizar limpieza general del cuarto de bombas en caso necesario."
+          "label": "Realizar limpieza general del cuarto de bombas en caso necesario.",
+          "required": true
         }
       ]
     },
@@ -167,7 +184,8 @@
         {
           "id": "tests_1",
           "type": "check",
-          "label": "Durante las pruebas del equipo las protecciones térmicas, disyuntores y fusibles operaron correctamente."
+          "label": "Durante las pruebas del equipo las protecciones térmicas, disyuntores y fusibles operaron correctamente.",
+          "required": true
         },
         {
           "type": "table",
@@ -219,12 +237,14 @@
         {
           "id": "tests_3",
           "type": "check",
-          "label": "Verificar que el cargador está trabajando correctamente."
+          "label": "Verificar que el cargador está trabajando correctamente.",
+          "required": true
         },
         {
           "id": "tests_4",
           "type": "check",
-          "label": "Verificar que las baterías no sufren de temperatura excesiva."
+          "label": "Verificar que las baterías no sufren de temperatura excesiva.",
+          "required": true
         }
       ]
     }
