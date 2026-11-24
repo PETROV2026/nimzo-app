@@ -398,15 +398,7 @@ export function BottomBar({ missing, onReview, onFinish }: BottomBarProps) {
         ) : null}
       </View>
       {onFinish ? (
-        <View className="flex-row gap-3">
-          <Button
-            variant="secondary"
-            label="Revisar"
-            icon="checkmark-done-outline"
-            onPress={onReview}
-          />
-          <Button label="Terminar" icon="checkmark-circle-outline" onPress={onFinish} />
-        </View>
+        <Button label="Enviar" icon="send-outline" onPress={onFinish} />
       ) : (
         <Button label="Revisar" icon="checkmark-done-outline" onPress={onReview} />
       )}
