@@ -1,9 +1,8 @@
 import { Canvas, Circle, DashPathEffect, Path, Skia } from '@shopify/react-native-skia';
 import { useMemo, useState } from 'react';
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Text, View } from 'react-native';
 import { useController, useWatch } from 'react-hook-form';
 import { DialogHeader } from '@/components/dialog-header';
-import { Icon } from '@/components/icon';
 import { TextAction } from '@/components/text-action';
 import type { FormValues } from '@/forms/form-values';
 import {
@@ -347,15 +346,12 @@ export function PumpPerformanceChart({ title }: { title: string }) {
           {title}
         </Text>
         {data ? (
-          <Pressable
-            accessibilityRole="button"
+          <TextAction
+            icon="expand-outline"
+            label="Ampliar"
             accessibilityLabel="Ampliar la gráfica"
             onPress={() => setEnlarged(true)}
-            className="min-h-14 flex-row items-center gap-2 rounded-lg border-2 border-border-strong px-4 active:bg-surface"
-          >
-            <Icon name="expand-outline" size={20} color={colors.foreground} />
-            <Text className="font-sans-semibold text-base text-foreground">Ampliar</Text>
-          </Pressable>
+          />
         ) : null}
       </View>
       {!data ? (
