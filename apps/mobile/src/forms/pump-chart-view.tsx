@@ -12,6 +12,7 @@ import {
   type RunResult,
 } from '@/forms/pump-chart';
 import { NoteNode } from '@/forms/render-node';
+import { landscapeFrame } from '@/lib/landscape-frame';
 import { colors } from '@/theme';
 
 const sources = [
@@ -315,13 +316,29 @@ function ChartDialog({
   data: PumpChartData;
   onClose: () => void;
 }) {
+  const [area, setArea] = useState({ width: 0, height: 0 });
+  const { rotated, ...frame } = landscapeFrame(area);
+
   return (
     <Modal transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-foreground/40 p-6">
-        <View className="flex-1 gap-5 rounded-3xl bg-background p-6">
-          <DialogHeader title={title} onClose={onClose} />
-          <ChartPlot data={data} large />
-          <Legend />
+        <View
+          className="flex-1"
+          onLayout={(event) => {
+            const { width, height } = event.nativeEvent.layout;
+            setArea({ width, height });
+          }}
+        >
+          {area.width > 0 ? (
+            <View
+              className="absolute gap-5 rounded-3xl bg-background p-6"
+              style={[frame, { transform: [{ rotate: rotated ? '90deg' : '0deg' }] }]}
+            >
+              <DialogHeader title={title} onClose={onClose} />
+              <ChartPlot data={data} large />
+              <Legend />
+            </View>
+          ) : null}
         </View>
       </View>
     </Modal>
