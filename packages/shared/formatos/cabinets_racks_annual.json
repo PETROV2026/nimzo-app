@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "building",
@@ -49,37 +50,44 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "Estado de gabinete o rack y bolsa de manguera."
+                "label": "Estado de gabinete o rack y bolsa de manguera.",
+                "required": true
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "Revisión de etiqueta de mantenimiento."
+                "label": "Revisión de etiqueta de mantenimiento.",
+                "required": true
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "Inspección del estado de la manguera."
+                "label": "Inspección del estado de la manguera.",
+                "required": true
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "Verificar buen estado del chiflón."
+                "label": "Verificar buen estado del chiflón.",
+                "required": true
               },
               {
                 "id": "inspection_5",
                 "type": "check",
-                "label": "Revisión de válvula."
+                "label": "Revisión de válvula.",
+                "required": true
               },
               {
                 "id": "inspection_6",
                 "type": "check",
-                "label": "Soportería en buen estado."
+                "label": "Soportería en buen estado.",
+                "required": true
               },
               {
                 "id": "inspection_7",
                 "type": "check",
-                "label": "Manguera colocada correctamente."
+                "label": "Manguera colocada correctamente.",
+                "required": true
               }
             ]
           },
@@ -93,7 +101,8 @@
               {
                 "id": "cleaning",
                 "type": "check",
-                "label": "Servicio de limpieza a gabinete o rack y bolsa de manguera."
+                "label": "Servicio de limpieza a gabinete o rack y bolsa de manguera.",
+                "required": true
               }
             ]
           }
@@ -113,7 +122,8 @@
               {
                 "id": "hose_folds",
                 "type": "check",
-                "label": "Recorrido de dobleces de manguera."
+                "label": "Recorrido de dobleces de manguera.",
+                "required": true
               }
             ]
           }

@@ -10,12 +10,14 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -61,47 +63,56 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "El sistema de extinción está en su ubicación correcta."
+                "label": "El sistema de extinción está en su ubicación correcta.",
+                "required": true
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "Los actuadores manuales no están obstruidos."
+                "label": "Los actuadores manuales no están obstruidos.",
+                "required": true
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "Los indicadores de manipulación y los sellos están intactos."
+                "label": "Los indicadores de manipulación y los sellos están intactos.",
+                "required": true
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "La etiqueta de mantenimiento o certificado está en su lugar."
+                "label": "La etiqueta de mantenimiento o certificado está en su lugar.",
+                "required": true
               },
               {
                 "id": "inspection_5",
                 "type": "check",
-                "label": "El sistema no muestra daños físicos o condiciones que puedan impedir el funcionamiento."
+                "label": "El sistema no muestra daños físicos o condiciones que puedan impedir el funcionamiento.",
+                "required": true
               },
               {
                 "id": "inspection_6",
                 "type": "check",
-                "label": "El (los) indicador(es) de presión, si están provistos, se inspeccionan física o eléctricamente para asegurar que se encuentren en el rango operable."
+                "label": "El (los) indicador(es) de presión, si están provistos, se inspeccionan física o eléctricamente para asegurar que se encuentren en el rango operable.",
+                "required": true
               },
               {
                 "id": "inspection_7",
                 "type": "check",
-                "label": "Las tapas de boquilla, donde estén provistas, están intactas y no están dañadas."
+                "label": "Las tapas de boquilla, donde estén provistas, están intactas y no están dañadas.",
+                "required": true
               },
               {
                 "id": "inspection_8",
                 "type": "check",
-                "label": "Ni el equipo protegido ni el peligro han sido reemplazados, modificados o reubicados."
+                "label": "Ni el equipo protegido ni el peligro han sido reemplazados, modificados o reubicados.",
+                "required": true
               },
               {
                 "id": "inspection_9",
                 "type": "check",
-                "label": "Realizar el servicio de limpieza a componentes internos y externos, asegurándose que las condiciones sean seguras para evitar una activación accidental."
+                "label": "Realizar el servicio de limpieza a componentes internos y externos, asegurándose que las condiciones sean seguras para evitar una activación accidental.",
+                "required": true
               }
             ]
           }
@@ -121,37 +132,44 @@
               {
                 "id": "maintenance_1",
                 "type": "check",
-                "label": "Inspeccionar todos los detectores, contenedores de gas expulsores, contenedores de agentes, dispositivos de descarga, tuberías, conjuntos de mangueras, boquillas, señales y todo equipo auxiliar."
+                "label": "Inspeccionar todos los detectores, contenedores de gas expulsores, contenedores de agentes, dispositivos de descarga, tuberías, conjuntos de mangueras, boquillas, señales y todo equipo auxiliar.",
+                "required": true
               },
               {
                 "id": "maintenance_2",
                 "type": "check",
-                "label": "Verificar que la tubería de distribución del agente no está obstruida."
+                "label": "Verificar que la tubería de distribución del agente no está obstruida.",
+                "required": true
               },
               {
                 "id": "maintenance_3",
                 "type": "check",
-                "label": "Examinar la sustancia química seca. Si hay evidencia de apelmazamiento, la sustancia química seca se desechará y el sistema se recargará de acuerdo con las instrucciones del fabricante."
+                "label": "Examinar la sustancia química seca. Si hay evidencia de apelmazamiento, la sustancia química seca se desechará y el sistema se recargará de acuerdo con las instrucciones del fabricante.",
+                "required": true
               },
               {
                 "id": "maintenance_4",
                 "type": "check",
-                "label": "Verificar que el cilindro cuente con collar de mantenimiento donde indique la fecha del último mantenimiento y la empresa que realizó la recarga. Cada 12 meses debe reemplazarse el químico seco."
+                "label": "Verificar que el cilindro cuente con collar de mantenimiento donde indique la fecha del último mantenimiento y la empresa que realizó la recarga. Cada 12 meses debe reemplazarse el químico seco.",
+                "required": true
               },
               {
                 "id": "maintenance_5",
                 "type": "check",
-                "label": "Probar el funcionamiento del equipo por medio de la estación manual, método de emergencia, por sistema de detección o por otro equipo asociado. NOTA: no debe haber descarga del químico seco; se deberá inhabilitar la descarga del químico seco."
+                "label": "Probar el funcionamiento del equipo por medio de la estación manual, método de emergencia, por sistema de detección o por otro equipo asociado. NOTA: no debe haber descarga del químico seco; se deberá inhabilitar la descarga del químico seco.",
+                "required": true
               },
               {
                 "id": "maintenance_6",
                 "type": "check",
-                "label": "Reemplazar fusibles."
+                "label": "Reemplazar fusibles.",
+                "required": true
               },
               {
                 "id": "maintenance_7",
                 "type": "check",
-                "label": "Restablecer el equipo para su operación normal y, si es monitoreado por un panel de alarmas, restablecer los eventos."
+                "label": "Restablecer el equipo para su operación normal y, si es monitoreado por un panel de alarmas, restablecer los eventos.",
+                "required": true
               }
             ]
           }

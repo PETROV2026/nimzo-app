@@ -16,11 +16,11 @@ export function CheckboxField({ field, value, onChange, error }: CheckboxFieldPr
         accessibilityRole="checkbox"
         accessibilityState={{ checked }}
         onPress={() => onChange(!checked)}
-        className="min-h-14 flex-row items-center gap-3 self-start"
+        className={`min-h-14 flex-row items-center gap-3 self-start rounded-lg border-2 py-2 pl-3 pr-5 ${checked ? 'border-primary-strong bg-primary/10' : 'border-border bg-background active:bg-surface'}`}
       >
         <Icon
           name={checked ? 'checkbox' : 'square-outline'}
-          size={32}
+          size={28}
           color={checked ? colors['primary-strong'] : colors['border-strong']}
         />
         <Text className="font-sans-medium text-lg text-foreground">

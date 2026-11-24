@@ -72,6 +72,10 @@ export function isFullySigned(signatures: SignaturesValue) {
   );
 }
 
+export function isSealed(signatures: SignaturesValue) {
+  return signatures.supervisorSignature !== null;
+}
+
 export function canFinish(report: { status: LocalReportStatus; signedAt: string | null }) {
   return report.status === 'draft' && report.signedAt !== null;
 }
@@ -102,4 +106,26 @@ export function unusedSignatureFiles(before: SignaturesValue, after: SignaturesV
   return [before.supervisorSignature, before.technicianSignature].filter(
     (uri): uri is string => Boolean(uri) && !kept.has(uri),
   );
+}
+
+export function photoFiles(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(photoFiles);
+  if (typeof value !== 'object' || value === null) return [];
+  const { uri } = value as { uri?: unknown };
+  if (typeof uri === 'string') return uri.startsWith('file://') ? [uri] : [];
+  return Object.values(value).flatMap(photoFiles);
+}
+
+export type ReportTarget = { clientId: string; branchId: string; systemId: string | null };
+
+export function resolveTarget<
+  C extends { id: string },
+  B extends { id: string; clientId: string },
+  S extends { id: string; branchId: string },
+>(target: ReportTarget, clients: readonly C[], branches: readonly B[], systems: readonly S[]) {
+  const client = clients.find((item) => item.id === target.clientId);
+  const branch = branches.find((item) => item.id === target.branchId);
+  const system = target.systemId ? systems.find((item) => item.id === target.systemId) : null;
+  if (!client || !branch || system === undefined) return null;
+  return { client, branch, system };
 }

@@ -10,17 +10,20 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "month",
       "type": "select",
       "label": "Mes correspondiente",
+      "required": true,
       "options": [
         {
           "value": "january",
@@ -100,6 +103,7 @@
               "id": "pump_orientation",
               "type": "choice",
               "label": "Orientación",
+              "required": true,
               "options": [
                 {
                   "value": "horizontal",
@@ -125,6 +129,7 @@
               "id": "pump_approval",
               "type": "choice",
               "label": "Aprobación",
+              "required": true,
               "options": [
                 {
                   "value": "approved",
@@ -186,7 +191,8 @@
             {
               "id": "gear_head",
               "type": "yes_no",
-              "label": "Cabezal de engranes"
+              "label": "Cabezal de engranes",
+              "required": true
             },
             {
               "id": "gear_head_brand",
@@ -237,6 +243,7 @@
               "id": "motor_type",
               "type": "choice",
               "label": "Tipo",
+              "required": true,
               "options": [
                 {
                   "value": "diesel",
@@ -262,6 +269,7 @@
               "id": "motor_approval",
               "type": "choice",
               "label": "Aprobación",
+              "required": true,
               "options": [
                 {
                   "value": "approved",
@@ -354,6 +362,7 @@
               "id": "controller_approval",
               "type": "choice",
               "label": "Aprobación",
+              "required": true,
               "options": [
                 {
                   "value": "approved",
@@ -374,6 +383,7 @@
               "id": "controller_mode",
               "type": "choice",
               "label": "Modo de operación",
+              "required": true,
               "options": [
                 {
                   "value": "manual",
@@ -412,6 +422,7 @@
               "id": "storage_type",
               "type": "choice",
               "label": "Tipo",
+              "required": true,
               "options": [
                 {
                   "value": "tank",
@@ -622,6 +633,7 @@
           "id": "chart_result",
           "type": "choice",
           "label": "Al realizar el análisis de la gráfica, comparando los resultados obtenidos ajustados a velocidad nominal de la bomba contra los datos de fábrica del equipo, se determina que el desempeño de la motobomba contra incendios es",
+          "required": true,
           "options": [
             {
               "value": "acceptable",
@@ -637,6 +649,7 @@
           "id": "nfpa_result",
           "type": "choice",
           "label": "NFPA-25 (2017) 8.3.7.3: el ensamble de bomba contra incendio deberá considerarse aceptable si cualquiera de las siguientes condiciones se presenta durante las pruebas: (1) la prueba resulta en no menos del 95 por ciento de la presión a flujo nominal y presión nominal de la curva de la prueba de aceptación de campo, siempre y cuando la curva de la prueba de aceptación coincida con la curva original certificada de la bomba utilizando factores teóricos; (2) la bomba contra incendio es no menos del 95 por ciento de las características de desempeño indicadas en la placa de la bomba. En base a lo anterior, se determina que el resultado es",
+          "required": true,
           "options": [
             {
               "value": "acceptable",

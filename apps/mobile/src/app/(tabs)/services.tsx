@@ -1,10 +1,13 @@
 import { formTitle, matchesSearch } from '@nimzo/shared';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
+import { useSession } from '@/auth/session-provider';
+import { ReportList } from '@/reports/report-list';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
 type Section = 'new' | 'active' | 'pending' | 'history';
@@ -32,15 +35,14 @@ const sections: Segment<Section>[] = [
   },
 ];
 
-function ServiceFormGrid({
-  catalog,
-  search,
-  columns,
-}: {
+type ServiceFormGridProps = {
   catalog: LocalServiceForm[];
   search: string;
   columns: number;
-}) {
+  onPick: (form: LocalServiceForm) => void;
+};
+
+function ServiceFormGrid({ catalog, search, columns, onPick }: ServiceFormGridProps) {
   if (catalog.length === 0) {
     return (
       <EmptyState
@@ -70,7 +72,12 @@ function ServiceFormGrid({
       {rows.map((row) => (
         <View key={row[0].code} className="flex-row gap-3">
           {row.map((form) => (
-            <ServiceFormCard key={form.code} form={form} search={search} />
+            <ServiceFormCard
+              key={form.code}
+              form={form}
+              search={search}
+              onPress={() => onPick(form)}
+            />
           ))}
           {Array.from({ length: columns - row.length }, (_, index) => (
             <View key={index} className="flex-1" />
@@ -87,6 +94,8 @@ export default function ServicesScreen() {
   const catalog = useServiceForms();
   const { width } = useWindowDimensions();
   const columns = width >= 1000 ? 4 : 3;
+  const session = useSession();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
 
   return (
     <>
@@ -105,20 +114,34 @@ export default function ServicesScreen() {
           }}
         />
       </View>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
-      >
-        {current === 'new' ? (
-          <ServiceFormGrid catalog={catalog} search={headerSearch.term} columns={columns} />
-        ) : (
-          <EmptyState
-            icon="clipboard-outline"
-            title="Aún no tienes servicios"
-            description="Crea un servicio para una sucursal de tus clientes y llena sus formatos, incluso sin conexión."
-          />
-        )}
-      </ScrollView>
+      {current === 'active' || current === 'pending' ? (
+        <ReportList
+          technicianId={technicianId}
+          status={current === 'active' ? 'draft' : 'pending'}
+        />
+      ) : (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
+        >
+          {current === 'new' ? (
+            <ServiceFormGrid
+              catalog={catalog}
+              search={headerSearch.term}
+              columns={columns}
+              onPick={(form) =>
+                router.push({ pathname: '/forms/[code]', params: { code: form.code } })
+              }
+            />
+          ) : (
+            <EmptyState
+              icon="time-outline"
+              title="Aún no has enviado reportes"
+              description="Cuando envíes un reporte, aparecerá aquí con su folio."
+            />
+          )}
+        </ScrollView>
+      )}
     </>
   );
 }

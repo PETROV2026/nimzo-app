@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -34,37 +35,44 @@
             {
               "id": "inspection_1",
               "type": "check",
-              "label": "Tablero de control en buen estado y operativo. Indica funcionamiento 'Normal'."
+              "label": "Tablero de control en buen estado y operativo. Indica funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_2",
               "type": "check",
-              "label": "Dispositivos de activación manual operativos, en condiciones físicas adecuadas y libres de obstrucciones."
+              "label": "Dispositivos de activación manual operativos, en condiciones físicas adecuadas y libres de obstrucciones.",
+              "required": true
             },
             {
               "id": "inspection_3",
               "type": "check",
-              "label": "Detectores de incendio se encuentran operativos, libres de daño físico y pintura, además de estar libres de obstrucciones y alejados de las ventilas de aire a una distancia mínima de 3 pies."
+              "label": "Detectores de incendio se encuentran operativos, libres de daño físico y pintura, además de estar libres de obstrucciones y alejados de las ventilas de aire a una distancia mínima de 3 pies.",
+              "required": true
             },
             {
               "id": "inspection_4",
               "type": "check",
-              "label": "Fuentes de poder auxiliares del sistema operativas e indicando funcionamiento 'Normal'."
+              "label": "Fuentes de poder auxiliares del sistema operativas e indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_5",
               "type": "check",
-              "label": "Anunciadores remotos del sistema operativos, indicando funcionamiento 'Normal'."
+              "label": "Anunciadores remotos del sistema operativos, indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_6",
               "type": "check",
-              "label": "Amplificadores del sistema operativos, indicando funcionamiento 'Normal'."
+              "label": "Amplificadores del sistema operativos, indicando funcionamiento 'Normal'.",
+              "required": true
             },
             {
               "id": "inspection_7",
               "type": "check",
-              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación."
+              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación.",
+              "required": true
             }
           ]
         }
@@ -89,27 +97,32 @@
             {
               "id": "monthly_1",
               "type": "check",
-              "label": "Revisar el historial del tablero de control y analizar su información para diagnóstico del sistema."
+              "label": "Revisar el historial del tablero de control y analizar su información para diagnóstico del sistema.",
+              "required": true
             },
             {
               "id": "monthly_2",
               "type": "check",
-              "label": "Medir los voltajes de suministro principal (AC) y baterías de respaldo del sistema y verificar que los valores obtenidos se encuentren dentro de un rango adecuado."
+              "label": "Medir los voltajes de suministro principal (AC) y baterías de respaldo del sistema y verificar que los valores obtenidos se encuentren dentro de un rango adecuado.",
+              "required": true
             },
             {
               "id": "monthly_3",
               "type": "check",
-              "label": "Dispositivos de notificación en condiciones físicas adecuadas."
+              "label": "Dispositivos de notificación en condiciones físicas adecuadas.",
+              "required": true
             },
             {
               "id": "monthly_4",
               "type": "check",
-              "label": "Dispositivos de salida del sistema (módulos de control y relevadores) en condiciones físicas adecuadas."
+              "label": "Dispositivos de salida del sistema (módulos de control y relevadores) en condiciones físicas adecuadas.",
+              "required": true
             },
             {
               "id": "monthly_5",
               "type": "check",
-              "label": "Dispositivos de monitoreo en condiciones físicas adecuadas."
+              "label": "Dispositivos de monitoreo en condiciones físicas adecuadas.",
+              "required": true
             }
           ]
         },
@@ -123,32 +136,38 @@
             {
               "id": "tests_1",
               "type": "check",
-              "label": "Confirmar con el cliente que se ha notificado a los ocupantes del edificio que se realizarán pruebas del sistema de alarma de incendio."
+              "label": "Confirmar con el cliente que se ha notificado a los ocupantes del edificio que se realizarán pruebas del sistema de alarma de incendio.",
+              "required": true
             },
             {
               "id": "tests_2",
               "type": "check",
-              "label": "Activar el modo de prueba de luces del tablero de control y verificar que todas las luces funcionan correctamente (sólo si aplica)."
+              "label": "Activar el modo de prueba de luces del tablero de control y verificar que todas las luces funcionan correctamente (sólo si aplica).",
+              "required": true
             },
             {
               "id": "tests_3",
               "type": "check",
-              "label": "Activar todas las estaciones manuales del sistema. Verifique que las señales de entrada sean recibidas en el tablero de control y se activen las señales de salida."
+              "label": "Activar todas las estaciones manuales del sistema. Verifique que las señales de entrada sean recibidas en el tablero de control y se activen las señales de salida.",
+              "required": true
             },
             {
               "id": "tests_4",
               "type": "check",
-              "label": "Activar un detector de humo. Confirmar que su funcionamiento y el mensaje desplegado en el tablero de control sean correctos. Anote la información del detector."
+              "label": "Activar un detector de humo. Confirmar que su funcionamiento y el mensaje desplegado en el tablero de control sean correctos. Anote la información del detector.",
+              "required": true
             },
             {
               "id": "tests_5",
               "type": "check",
-              "label": "Activar dispositivos de notificación. Verificar que funcionen correctamente."
+              "label": "Activar dispositivos de notificación. Verificar que funcionen correctamente.",
+              "required": true
             },
             {
               "id": "tests_6",
               "type": "check",
-              "label": "Operar válvulas monitoreadas con el sistema y verificar que la señal sea recibida en el tablero de control entre las primeras 2 vueltas del volante o una quinta parte de su recorrido."
+              "label": "Operar válvulas monitoreadas con el sistema y verificar que la señal sea recibida en el tablero de control entre las primeras 2 vueltas del volante o una quinta parte de su recorrido.",
+              "required": true
             }
           ]
         },
@@ -162,7 +181,8 @@
             {
               "id": "maintenance_1",
               "type": "check",
-              "label": "Servicio de limpieza a tablero de control, fuentes de respaldo, anunciadores remotos y estaciones manuales."
+              "label": "Servicio de limpieza a tablero de control, fuentes de respaldo, anunciadores remotos y estaciones manuales.",
+              "required": true
             }
           ]
         }
@@ -182,42 +202,50 @@
             {
               "id": "annual_1",
               "type": "check",
-              "label": "Inspeccionar las instalaciones y verificar con el cliente que no han realizado modificaciones al edificio que pudieran afectar la operación del sistema."
+              "label": "Inspeccionar las instalaciones y verificar con el cliente que no han realizado modificaciones al edificio que pudieran afectar la operación del sistema.",
+              "required": true
             },
             {
               "id": "annual_2",
               "type": "check",
-              "label": "Verificar que los fusibles, cableado y conexiones del sistema de alarmas se encuentren en buen estado."
+              "label": "Verificar que los fusibles, cableado y conexiones del sistema de alarmas se encuentren en buen estado.",
+              "required": true
             },
             {
               "id": "annual_3",
               "type": "check",
-              "label": "Simular la condición de falla a tierra en el sistema y verificar la notificación del problema en el tablero de control (sólo si aplica)."
+              "label": "Simular la condición de falla a tierra en el sistema y verificar la notificación del problema en el tablero de control (sólo si aplica).",
+              "required": true
             },
             {
               "id": "annual_4",
               "type": "check",
-              "label": "Simular falla de suministro principal de energía eléctrica y baterías de respaldo del tablero de control y verificar la notificación del problema."
+              "label": "Simular falla de suministro principal de energía eléctrica y baterías de respaldo del tablero de control y verificar la notificación del problema.",
+              "required": true
             },
             {
               "id": "annual_5",
               "type": "check",
-              "label": "Verificar que los cargadores de baterías del sistema se encuentren operativos y en condiciones físicas adecuadas."
+              "label": "Verificar que los cargadores de baterías del sistema se encuentren operativos y en condiciones físicas adecuadas.",
+              "required": true
             },
             {
               "id": "annual_6",
               "type": "check",
-              "label": "Interrumpir alimentación de suministro eléctrico principal (AC) del sistema durante condiciones de carga eléctrica máxima y verificar su correcta operación."
+              "label": "Interrumpir alimentación de suministro eléctrico principal (AC) del sistema durante condiciones de carga eléctrica máxima y verificar su correcta operación.",
+              "required": true
             },
             {
               "id": "annual_7",
               "type": "check",
-              "label": "Activar el estado de alarma general del sistema al mantener el suministro eléctrico principal (AC) interrumpido. Verificar que el sistema se mantenga operando correctamente por 5 minutos (para sistemas de voceo, considere 15 minutos). Restablezca el suministro eléctrico principal (AC) al finalizar."
+              "label": "Activar el estado de alarma general del sistema al mantener el suministro eléctrico principal (AC) interrumpido. Verificar que el sistema se mantenga operando correctamente por 5 minutos (para sistemas de voceo, considere 15 minutos). Restablezca el suministro eléctrico principal (AC) al finalizar.",
+              "required": true
             },
             {
               "id": "annual_8",
               "type": "check",
-              "label": "Si el sistema cuenta con dispositivos adicionales y periféricos, verificar que se encuentren libres de daño físico y realizar pruebas según corresponda."
+              "label": "Si el sistema cuenta con dispositivos adicionales y periféricos, verificar que se encuentren libres de daño físico y realizar pruebas según corresponda.",
+              "required": true
             }
           ]
         },
@@ -231,17 +259,20 @@
             {
               "id": "annual_maintenance_1",
               "type": "check",
-              "label": "Servicio de limpieza a los detectores del sistema."
+              "label": "Servicio de limpieza a los detectores del sistema.",
+              "required": true
             },
             {
               "id": "annual_maintenance_2",
               "type": "check",
-              "label": "Reemplazar baterías de respaldo del tablero de control, fuentes auxiliares y amplificadores del sistema de alarma de incendios."
+              "label": "Reemplazar baterías de respaldo del tablero de control, fuentes auxiliares y amplificadores del sistema de alarma de incendios.",
+              "required": true
             },
             {
               "id": "annual_maintenance_3",
               "type": "check",
-              "label": "Restablecer el sistema de alarma de incendios y verificar su condición de operación."
+              "label": "Restablecer el sistema de alarma de incendios y verificar su condición de operación.",
+              "required": true
             }
           ]
         }
@@ -291,7 +322,8 @@
             {
               "id": "equipment_status",
               "type": "check",
-              "label": "Estado"
+              "label": "Estado",
+              "required": true
             }
           ]
         },
@@ -319,7 +351,8 @@
             {
               "id": "device_status",
               "type": "check",
-              "label": "Estado"
+              "label": "Estado",
+              "required": true
             }
           ]
         }

@@ -13,6 +13,7 @@ import {
   type LocalReportStatus,
   parseAnswers,
   parseSnapshot,
+  photoFiles,
   type ReportSnapshot,
   selectionProblem,
   unusedSignatureFiles,
@@ -106,7 +107,7 @@ const stores: Record<LocalReportStatus, ReturnType<typeof statusStore>> = {
   pending: statusStore('pending'),
 };
 
-function notify() {
+export function notifyReports() {
   stores.draft.notify();
   stores.pending.notify();
 }
@@ -116,7 +117,7 @@ export function useReports(technicianId: string, status: LocalReportStatus) {
   return useSyncExternalStore(store.subscribe, () => store.snapshot(technicianId));
 }
 
-function readReport(id: string) {
+export function readReport(id: string) {
   const row = db.getFirstSync<ReportRow>('select * from reports where id = ?', id);
   return row ? fromRow(row) : null;
 }
@@ -146,8 +147,29 @@ export function createReport({ technicianId, form, client, branch, system, packa
     time,
     time,
   );
-  notify();
+  notifyReports();
   return id;
+}
+
+export function changeTarget(
+  id: string,
+  { client, branch, system }: Pick<NewReport, 'client' | 'branch' | 'system'>,
+) {
+  const problem = selectionProblem(client, branch, system);
+  if (problem) throw new Error(problem);
+  const result = db.runSync(
+    `update reports set client_id = ?, branch_id = ?, system_id = ?, snapshot = ?, updated_at = ?
+     where id = ? and status = 'draft'`,
+    client.id,
+    branch.id,
+    system?.id ?? null,
+    JSON.stringify(buildSnapshot(client, branch, system)),
+    now(),
+    id,
+  );
+  if (result.changes === 0) return false;
+  notifyReports();
+  return true;
 }
 
 export function saveAnswers(id: string, answers: Record<string, unknown>) {
@@ -158,7 +180,7 @@ export function saveAnswers(id: string, answers: Record<string, unknown>) {
     id,
   );
   if (result.changes === 0) return false;
-  notify();
+  notifyReports();
   return true;
 }
 
@@ -184,7 +206,7 @@ export function saveSignatures(id: string, signatures: SignaturesValue) {
   );
   if (result.changes === 0) return false;
   for (const uri of unusedSignatureFiles(before.signatures, signatures)) deletePhoto(uri);
-  notify();
+  notifyReports();
   return true;
 }
 
@@ -195,7 +217,7 @@ export function markPending(id: string) {
     id,
   );
   if (result.changes === 0) return false;
-  notify();
+  notifyReports();
   return true;
 }
 
@@ -210,7 +232,7 @@ export function reopen(id: string) {
   );
   if (result.changes === 0) return false;
   if (before) for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
-  notify();
+  notifyReports();
   return true;
 }
 
@@ -218,7 +240,10 @@ export function deleteDraft(id: string) {
   const before = readReport(id);
   const result = db.runSync("delete from reports where id = ? and status = 'draft'", id);
   if (result.changes === 0) return false;
-  if (before) for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
-  notify();
+  if (before) {
+    for (const uri of unusedSignatureFiles(before.signatures, null)) deletePhoto(uri);
+    for (const uri of photoFiles(before.answers)) deletePhoto(uri);
+  }
+  notifyReports();
   return true;
 }
