@@ -33,6 +33,7 @@ import {
   BottomBar,
   itemsTitle,
   type LeadTarget,
+  closingSectionId,
   leadSectionId,
   ProgressPill,
   SectionNav,
@@ -61,12 +62,16 @@ type FormRendererProps = {
   header?: ReactNode;
   footer?: ReactNode;
   lead?: LeadSection;
+  closing?: LeadSection;
+  onFinish?: (values: FormValues) => void;
+  scrollEnabled?: boolean;
 };
 
 export type LeadSection = LeadTarget & {
   complete: boolean;
   action?: ReactNode;
   children: ReactNode;
+  onMissing?: () => void;
 };
 
 type OnSectionLayout = (id: string, owner: string, y: number | undefined) => void;
@@ -264,27 +269,35 @@ function RootScope({ definition, children }: { definition: FormDefinition; child
   return <FormScopeContext.Provider value={scope}>{children}</FormScopeContext.Provider>;
 }
 
+function extraProgress(complete: boolean | undefined) {
+  return complete === undefined ? undefined : { answered: complete ? 1 : 0, total: 1 };
+}
+
 function ProgressProvider({
   definition,
   leadComplete,
+  closingComplete,
   children,
 }: {
   definition: FormDefinition;
   leadComplete?: boolean;
+  closingComplete?: boolean;
   children: ReactNode;
 }) {
   const values = useWatch<FormValues>();
   const progress = useMemo(() => {
     const base = formProgress(definition, values);
-    if (leadComplete === undefined) return base;
-    const done = leadComplete ? 1 : 0;
+    const lead = extraProgress(leadComplete);
+    const closing = extraProgress(closingComplete);
+    const extras = [lead, closing].filter((item) => item !== undefined);
     return {
       ...base,
-      lead: { answered: done, total: 1 },
-      answered: base.answered + done,
-      total: base.total + 1,
+      lead,
+      closing,
+      answered: base.answered + extras.reduce((total, item) => total + item.answered, 0),
+      total: base.total + extras.length,
     };
-  }, [definition, leadComplete, values]);
+  }, [definition, leadComplete, closingComplete, values]);
   return <FormProgressContext.Provider value={progress}>{children}</FormProgressContext.Provider>;
 }
 
@@ -295,6 +308,9 @@ export function FormRenderer({
   header,
   footer,
   lead,
+  closing,
+  onFinish,
+  scrollEnabled = true,
 }: FormRendererProps) {
   const form = useForm<FormValues>({ defaultValues: defaultValues ?? {} });
   const { subscribe, getValues, setError, clearErrors } = form;
@@ -366,21 +382,35 @@ export function FormRenderer({
     clearErrors();
     for (const id of ids) setError(id, { type: 'required', message: requiredMessage });
     const leadMissing = Boolean(lead && !lead.complete);
-    setMissing(ids.length + (leadMissing ? 1 : 0));
+    const closingMissing = Boolean(closing && !closing.complete);
+    if (closingMissing) closing?.onMissing?.();
+    const total = ids.length + (leadMissing ? 1 : 0) + (closingMissing ? 1 : 0);
+    setMissing(total);
     const leadY = sectionOffsets.current.get(leadSectionId)?.y;
     if (leadMissing && leadY !== undefined) {
       scrollToY(leadY);
-      return;
+      return total;
     }
     const first = ids[0] ? closestView(fieldViews.current, ids[0]) : undefined;
     const content = contentRef.current;
-    if (first && content) first.measureLayout(content, (_x, y) => scrollToY(y));
+    if (first && content) {
+      first.measureLayout(content, (_x, y) => scrollToY(y));
+      return total;
+    }
+    const closingY = sectionOffsets.current.get(closingSectionId)?.y;
+    if (closingMissing && closingY !== undefined) scrollToY(closingY);
+    return total;
+  }
+
+  function finish() {
+    if (review() === 0) onFinish?.(getValues());
   }
 
   const scroll = (
     <ScrollView
       ref={scrollRef}
       className="flex-1"
+      scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
       onScroll={trackActive}
       onScrollBeginDrag={() => {
@@ -403,6 +433,17 @@ export function FormRenderer({
         ) : null}
         <Intro instructions={definition.instructions} showLegend={numbers.size > 0} />
         <FormBody definition={definition} onSectionLayout={onSectionLayout} />
+        {closing ? (
+          <SectionCard
+            id={closingSectionId}
+            title={closing.title}
+            icon={closing.icon}
+            aside={closing.action}
+            onSectionLayout={onSectionLayout}
+          >
+            {closing.children}
+          </SectionCard>
+        ) : null}
         {footer}
       </View>
     </ScrollView>
@@ -412,19 +453,30 @@ export function FormRenderer({
     <FormProvider {...form}>
       <FormLayoutContext.Provider value={layout}>
         <RootScope definition={definition}>
-          <ProgressProvider definition={definition} leadComplete={lead?.complete}>
+          <ProgressProvider
+            definition={definition}
+            leadComplete={lead?.complete}
+            closingComplete={closing?.complete}
+          >
             <View className="flex-1 bg-canvas">
               <View className={landscape ? 'flex-1 flex-row' : 'flex-1'}>
                 <SectionNav
                   definition={definition}
                   lead={lead ? { title: lead.title, icon: lead.icon } : undefined}
+                  closing={closing ? { title: closing.title, icon: closing.icon } : undefined}
                   active={active}
                   onSelect={selectTarget}
                   layout={landscape ? 'side' : 'top'}
                 />
                 {scroll}
               </View>
-              {keyboardVisible ? null : <BottomBar missing={missing} onReview={review} />}
+              {keyboardVisible ? null : (
+                <BottomBar
+                  missing={missing}
+                  onReview={review}
+                  onFinish={onFinish ? finish : undefined}
+                />
+              )}
             </View>
           </ProgressProvider>
         </RootScope>

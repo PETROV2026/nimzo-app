@@ -27,6 +27,7 @@ export type NavTarget = { id: string; title: string; number?: number; icon?: Ico
 export function useTargetProgress(id: string): Progress | undefined {
   const progress = useFormProgress();
   if (id === leadSectionId) return progress.lead;
+  if (id === closingSectionId) return progress.closing;
   if (id === 'report') return progress.report;
   if (id === 'service_type') return progress.serviceType;
   if (id === 'items') return progress.items;
@@ -35,9 +36,15 @@ export function useTargetProgress(id: string): Progress | undefined {
 
 export const leadSectionId = 'service';
 
+export const closingSectionId = 'signatures';
+
 export type LeadTarget = { title: string; icon: IconName };
 
-export function useNavTargets(definition: FormDefinition, lead?: LeadTarget): NavTarget[] {
+export function useNavTargets(
+  definition: FormDefinition,
+  lead?: LeadTarget,
+  closing?: LeadTarget,
+): NavTarget[] {
   const progress = useFormProgress();
   return [
     ...(lead ? [{ id: leadSectionId, title: lead.title, icon: lead.icon }] : []),
@@ -65,6 +72,7 @@ export function useNavTargets(definition: FormDefinition, lead?: LeadTarget): Na
       ? [{ id: 'items', title: itemsTitle(definition), icon: 'layers-outline' as const }]
       : []),
     { id: 'comments', title: definition.commentsLabel, icon: 'chatbox-outline' as const },
+    ...(closing ? [{ id: closingSectionId, title: closing.title, icon: closing.icon }] : []),
   ];
 }
 
@@ -133,10 +141,11 @@ function Badge({ target, active }: { target: NavTarget; active: boolean }) {
 function NavCount({ id }: { id: string }) {
   const progress = useTargetProgress(id);
   if (!progress || progress.total === 0) return null;
-  if (id === leadSectionId) {
+  if (id === leadSectionId || id === closingSectionId) {
+    const pending = id === leadSectionId ? 'Por elegir' : 'Por firmar';
     return (
       <Text className="font-sans text-sm text-muted">
-        {progress.answered === progress.total ? 'Listo' : 'Por elegir'}
+        {progress.answered === progress.total ? 'Listo' : pending}
       </Text>
     );
   }
@@ -146,6 +155,7 @@ function NavCount({ id }: { id: string }) {
 type SectionNavProps = {
   definition: FormDefinition;
   lead?: LeadTarget;
+  closing?: LeadTarget;
   active: string;
   onSelect: (id: string) => void;
   layout: 'side' | 'top';
@@ -270,8 +280,15 @@ function NavItem({
   );
 }
 
-export function SectionNav({ definition, lead, active, onSelect, layout }: SectionNavProps) {
-  const targets = useNavTargets(definition, lead);
+export function SectionNav({
+  definition,
+  lead,
+  closing,
+  active,
+  onSelect,
+  layout,
+}: SectionNavProps) {
+  const targets = useNavTargets(definition, lead, closing);
   const { boxes, measure } = useBoxes();
   const scrollRef = useRef<ScrollViewInstance>(null);
   const [viewport, setViewport] = useState(0);
@@ -345,9 +362,9 @@ export function SectionNav({ definition, lead, active, onSelect, layout }: Secti
   );
 }
 
-type BottomBarProps = { missing: number | null; onReview: () => void };
+type BottomBarProps = { missing: number | null; onReview: () => void; onFinish?: () => void };
 
-export function BottomBar({ missing, onReview }: BottomBarProps) {
+export function BottomBar({ missing, onReview, onFinish }: BottomBarProps) {
   const { answered, total } = useFormProgress();
   const percent = total > 0 ? Math.round((answered / total) * 100) : 0;
   const message =
@@ -380,7 +397,19 @@ export function BottomBar({ missing, onReview }: BottomBarProps) {
           </Text>
         ) : null}
       </View>
-      <Button label="Revisar" icon="checkmark-done-outline" onPress={onReview} />
+      {onFinish ? (
+        <View className="flex-row gap-3">
+          <Button
+            variant="secondary"
+            label="Revisar"
+            icon="checkmark-done-outline"
+            onPress={onReview}
+          />
+          <Button label="Terminar" icon="checkmark-circle-outline" onPress={onFinish} />
+        </View>
+      ) : (
+        <Button label="Revisar" icon="checkmark-done-outline" onPress={onReview} />
+      )}
     </View>
   );
 }
