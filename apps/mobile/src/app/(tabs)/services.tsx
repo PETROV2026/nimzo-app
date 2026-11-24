@@ -6,6 +6,8 @@ import { EmptyState } from '@/components/empty-state';
 import { HeaderSearchButton, useHeaderSearch } from '@/components/header-search';
 import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
+import { useSession } from '@/auth/session-provider';
+import { ReportList } from '@/reports/report-list';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
 type Section = 'new' | 'active' | 'pending' | 'history';
@@ -75,6 +77,8 @@ export default function ServicesScreen() {
   const [current, setCurrent] = useState<Section>('new');
   const headerSearch = useHeaderSearch();
   const catalog = useServiceForms();
+  const session = useSession();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
 
   return (
     <>
@@ -93,26 +97,33 @@ export default function ServicesScreen() {
           }}
         />
       </View>
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
-      >
-        {current === 'new' ? (
-          <ServiceFormGrid
-            catalog={catalog}
-            search={headerSearch.term}
-            onPick={(form) =>
-              router.push({ pathname: '/forms/[code]', params: { code: form.code } })
-            }
-          />
-        ) : (
-          <EmptyState
-            icon="clipboard-outline"
-            title="Aún no tienes servicios"
-            description="Crea un servicio para una sucursal de tus clientes y llena sus formatos, incluso sin conexión."
-          />
-        )}
-      </ScrollView>
+      {current === 'active' || current === 'pending' ? (
+        <ReportList
+          technicianId={technicianId}
+          status={current === 'active' ? 'draft' : 'pending'}
+        />
+      ) : (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="flex-grow gap-5 px-6 pb-6 pt-2"
+        >
+          {current === 'new' ? (
+            <ServiceFormGrid
+              catalog={catalog}
+              search={headerSearch.term}
+              onPick={(form) =>
+                router.push({ pathname: '/forms/[code]', params: { code: form.code } })
+              }
+            />
+          ) : (
+            <EmptyState
+              icon="time-outline"
+              title="Aún no has enviado reportes"
+              description="Cuando envíes un reporte, aparecerá aquí con su folio."
+            />
+          )}
+        </ScrollView>
+      )}
     </>
   );
 }
