@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Nimzo is an app for independent fire-protection technicians to digitize inspection, testing and maintenance (ITM) service forms. The monorepo skeleton is in place: every app builds and runs a placeholder screen, but no business features exist yet. Migrations exist for profiles and roles, technician-owned catalogs (clients, branches, systems, service packages), the service form catalog and sent reports. Database migrations and RLS policies are tested with `pnpm test:db`; pure mobile modules (no React Native imports) are tested with `pnpm test:mobile` (Node's test runner on `apps/mobile/test/*.test.ts`). There is no test runner for screens yet.
+Nimzo is an app for independent fire-protection technicians to digitize inspection, testing and maintenance (ITM) service forms. In the mobile app, technicians sign in, manage their clients, branches and systems offline (synced with the cloud), take notes, send feedback, and fill, sign and finish the 30 service forms as reports stored on the device. In the admin panel, administrators manage users, clients, branches, systems, service packages and service forms, and see sent reports and feedback messages. Not built yet: sending reports to the cloud (the **Enviar** button only moves the report to Pendientes), their history in the mobile app, service packages in the mobile app, and the PDF and its email. Migrations exist for profiles and roles, technician-owned catalogs (clients, branches, systems, service packages), the service form catalog, sent reports and feedback messages. Database migrations and RLS policies are tested with `pnpm test:db`; pure mobile modules (no React Native imports) are tested with `pnpm test:mobile` (Node's test runner on `apps/mobile/test/*.test.ts`). There is no test runner for screens yet.
 
 ## Commands (run from repo root)
 
@@ -50,7 +50,7 @@ Two apps share one Supabase backend (PostgreSQL, Auth, Storage, RLS) and one sha
 
 | Path | What | Stack |
 |---|---|---|
-| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians (Android tablets only, landscape + portrait) | Expo SDK 58 (React Native 0.88, React 19.3), Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`. Planned: expo-sqlite + Drizzle, React Hook Form + Zod |
+| `apps/mobile` (`@nimzo/mobile`) | Field app for technicians (Android tablets only, landscape + portrait) | Expo SDK 58 (React Native 0.88, React 19.3), Expo Router (routes in `src/app/`), NativeWind v4 (Tailwind 3), ESLint via `expo lint`, expo-sqlite, React Hook Form + Zod |
 | `apps/admin` (`@nimzo/admin`) | Web panel for administrators (users, clients, branches, systems, service packages, report history) | Vite 8, React 19, Refine 5 with the Supabase data provider, **Material UI v6** via `@refinedev/mui` (pinned: Refine requires MUI v6), oxlint. No Tailwind, no other UI library |
 | `packages/shared` (`@nimzo/shared`) | Types, Zod schemas and **form definitions** consumed by the apps | TypeScript, Zod 4 |
 | `packages/brand` (`@nimzo/brand`) | Logos used by both apps. `source/` holds the originals; `logos/`, the mobile app icons/splash and the favicons are generated with `pnpm brand:assets` (Python + Pillow). See its README for which logo to use where | PNG assets |
