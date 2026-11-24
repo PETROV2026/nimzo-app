@@ -1,9 +1,8 @@
 import { formTitle } from '@nimzo/shared';
-import { Image } from 'expo-image';
 import { Pressable, View } from 'react-native';
 import { HighlightedText } from '@/components/highlighted-text';
 import { Icon } from '@/components/icon';
-import { formIconUrl } from '@/service-forms/form-icon-url';
+import { FormIcon } from '@/components/service-forms/form-icon';
 import type { LocalServiceForm } from '@/service-forms/service-forms-db';
 import { colors } from '@/theme';
 
@@ -14,7 +13,6 @@ type ServiceFormCardProps = {
 };
 
 export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps) {
-  const iconUrl = formIconUrl(form);
   return (
     <Pressable
       accessibilityRole="button"
@@ -22,19 +20,7 @@ export function ServiceFormCard({ form, search, onPress }: ServiceFormCardProps)
       onPress={onPress}
       className="min-h-20 flex-row items-center gap-4 rounded-2xl bg-background p-3 shadow-sm active:bg-border"
     >
-      <View className="size-14 items-center justify-center rounded-xl bg-danger">
-        {iconUrl ? (
-          <Image
-            source={iconUrl}
-            style={{ width: 30, height: 30 }}
-            contentFit="contain"
-            cachePolicy="disk"
-            accessible={false}
-          />
-        ) : (
-          <Icon name="document-text" size={30} color={colors['on-danger']} />
-        )}
-      </View>
+      <FormIcon form={form} />
       <View className="flex-1 gap-0.5">
         <HighlightedText
           text={form.name}
