@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
+import { showDeveloperTools } from '@/dev/developer-tools';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { ConnectionStatus } from '@/components/connection-status';
@@ -248,7 +249,7 @@ export default function ProfileScreen() {
               description="Cómo usamos y protegemos tus datos."
               onPress={() => setShowingPrivacy(true)}
             />
-            {__DEV__ ? (
+            {__DEV__ && showDeveloperTools ? (
               <>
                 <ActionRow
                   icon="document-text-outline"
