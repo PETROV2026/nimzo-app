@@ -5,7 +5,8 @@
     {
       "id": "request_date",
       "type": "date",
-      "label": "Fecha de llenado de solicitud"
+      "label": "Fecha de llenado de solicitud",
+      "required": true
     },
     {
       "id": "requested_execution_date",
@@ -41,7 +42,8 @@
     {
       "id": "requester_name",
       "type": "text",
-      "label": "Nombre del solicitante"
+      "label": "Nombre del solicitante",
+      "required": true
     },
     {
       "id": "project",
@@ -56,7 +58,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -74,6 +77,7 @@
           "id": "requested_description",
           "type": "text",
           "label": "Descripción",
+          "required": true,
           "multiline": true
         }
       ]
