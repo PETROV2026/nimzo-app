@@ -1,11 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 
-import {
-  isDownloadDue,
-  isServerError,
-  shouldReplaceCatalog,
-} from '../src/service-forms/catalog-sync-rules.ts';
+import { isDownloadDue, shouldReplaceCatalog } from '../src/service-forms/catalog-sync-rules.ts';
 
 const row = (code: string, updated_at: string) => ({ code, updated_at });
 
@@ -49,19 +45,5 @@ describe('isDownloadDue', () => {
   test('returning to the app downloads again only after ten minutes', () => {
     assert.equal(isDownloadDue(0, 9 * minute, { force: false }), false);
     assert.equal(isDownloadDue(0, 10 * minute, { force: false }), true);
-  });
-});
-
-describe('isServerError', () => {
-  test('postgres and postgrest codes are server errors worth reporting', () => {
-    assert.equal(isServerError({ code: '42501', message: 'permission denied' }), true);
-    assert.equal(isServerError({ code: 'PGRST301', message: 'JWT expired' }), true);
-  });
-
-  test('network failures and timeouts are not', () => {
-    assert.equal(isServerError({ code: '', message: 'TypeError: Network request failed' }), false);
-    assert.equal(isServerError({ code: '20', message: 'AbortError: Aborted' }), false);
-    assert.equal(isServerError(null), false);
-    assert.equal(isServerError(new Error('boom')), false);
   });
 });

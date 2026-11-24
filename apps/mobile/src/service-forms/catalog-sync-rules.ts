@@ -24,8 +24,3 @@ export function isDownloadDue(
 ) {
   return force || lastDownloadAt === null || now - lastDownloadAt >= foregroundIntervalMs;
 }
-
-export function isServerError(error: unknown): error is { code: string; message: string } {
-  if (typeof error !== 'object' || error === null || !('code' in error)) return false;
-  return typeof error.code === 'string' && /^(PGRST\d+|[0-9A-Z]{5})$/.test(error.code);
-}

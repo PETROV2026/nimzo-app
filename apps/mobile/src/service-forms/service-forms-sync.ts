@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { AppState } from 'react-native';
 import { reportError } from '@/lib/monitoring';
 import { supabase } from '@/lib/supabase';
+import { syncErrorToReport } from '@/lib/sync-errors';
 import { useOnline } from '@/lib/use-online';
-import { isDownloadDue, isServerError } from '@/service-forms/catalog-sync-rules';
+import { isDownloadDue } from '@/service-forms/catalog-sync-rules';
 import { saveServiceForms } from '@/service-forms/service-forms-db';
 
 const requestTimeoutMs = 15_000;
@@ -34,11 +35,8 @@ export function syncServiceForms({ force = false }: { force?: boolean } = {}) {
   }
   running ??= download()
     .catch((error: unknown) => {
-      if (error instanceof Error) {
-        reportError(error);
-      } else if (isServerError(error)) {
-        reportError(new Error(`Service form download failed: ${error.code} ${error.message}`));
-      }
+      const report = syncErrorToReport(error, 'Service form download');
+      if (report) reportError(report);
       return null;
     })
     .finally(() => {
