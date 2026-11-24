@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "system",
@@ -37,37 +38,44 @@
         {
           "id": "preliminary_1",
           "type": "check",
-          "label": "Revisar si el recinto cuenta con techo suspendido."
+          "label": "Revisar si el recinto cuenta con techo suspendido.",
+          "required": true
         },
         {
           "id": "preliminary_2",
           "type": "check",
-          "label": "Verificar que el techo no cuente con espacios descubiertos (plafones retirados, lámparas, rejillas, entre otros)."
+          "label": "Verificar que el techo no cuente con espacios descubiertos (plafones retirados, lámparas, rejillas, entre otros).",
+          "required": true
         },
         {
           "id": "preliminary_3",
           "type": "check",
-          "label": "Si el sitio cuenta con dampers en los ductos de los sistemas del sitio, verificar que puedan ser apagados durante la prueba."
+          "label": "Si el sitio cuenta con dampers en los ductos de los sistemas del sitio, verificar que puedan ser apagados durante la prueba.",
+          "required": true
         },
         {
           "id": "preliminary_4",
           "type": "check",
-          "label": "Verificar si las fugas evidentes pueden ser selladas (luminarias, puertas, centros de carga, rejillas, canalizaciones de cableado, entre otros)."
+          "label": "Verificar si las fugas evidentes pueden ser selladas (luminarias, puertas, centros de carga, rejillas, canalizaciones de cableado, entre otros).",
+          "required": true
         },
         {
           "id": "preliminary_5",
           "type": "check",
-          "label": "Revisar si el hardware que será utilizado en el sitio se encuentra instalado."
+          "label": "Revisar si el hardware que será utilizado en el sitio se encuentra instalado.",
+          "required": true
         },
         {
           "id": "preliminary_6",
           "type": "check",
-          "label": "Verificar si es posible programar un paro del sistema de HVAC para el momento de las pruebas."
+          "label": "Verificar si es posible programar un paro del sistema de HVAC para el momento de las pruebas.",
+          "required": true
         },
         {
           "id": "preliminary_7",
           "type": "check",
-          "label": "Comprobar que se cuenta con un área suficiente hacia adentro y hacia afuera de la puerta para suministrar el aire durante la prueba."
+          "label": "Comprobar que se cuenta con un área suficiente hacia adentro y hacia afuera de la puerta para suministrar el aire durante la prueba.",
+          "required": true
         },
         {
           "type": "group",
@@ -163,27 +171,32 @@
         {
           "id": "full_room_1",
           "type": "check",
-          "label": "Preparar el sitio para las condiciones en las que se llevará a cabo la prueba."
+          "label": "Preparar el sitio para las condiciones en las que se llevará a cabo la prueba.",
+          "required": true
         },
         {
           "id": "full_room_2",
           "type": "check",
-          "label": "Montar el equipo de prueba, asegurándose que el sellado sea similar al de la puerta."
+          "label": "Montar el equipo de prueba, asegurándose que el sellado sea similar al de la puerta.",
+          "required": true
         },
         {
           "id": "full_room_3",
           "type": "check",
-          "label": "Si el agente está diseñado para descargarse debajo de piso falso, remover el 1% de las baldosas que lo conforman."
+          "label": "Si el agente está diseñado para descargarse debajo de piso falso, remover el 1% de las baldosas que lo conforman.",
+          "required": true
         },
         {
           "id": "full_room_4",
           "type": "check",
-          "label": "Presurizar +15 Pa el sitio y verificar fugas utilizando humo de prueba (humo de flotabilidad neutra)."
+          "label": "Presurizar +15 Pa el sitio y verificar fugas utilizando humo de prueba (humo de flotabilidad neutra).",
+          "required": true
         },
         {
           "id": "full_room_smoke",
           "type": "choice",
           "label": "Indicar la dirección en que se mueve el humo al liberarlo a través del Door-Fan con el equipo de prueba apagado",
+          "required": true,
           "options": [
             {
               "value": "inside",
@@ -203,6 +216,7 @@
           "id": "full_room_static_pressure",
           "type": "check",
           "label": "Anotar la presión estática máxima registrada alrededor del sitio",
+          "required": true,
           "measurement": {
             "unit": "Pa"
           }
@@ -211,6 +225,7 @@
           "id": "full_room_temperature",
           "type": "check",
           "label": "Anotar la temperatura del sitio durante la prueba",
+          "required": true,
           "measurement": {
             "unit": "°C"
           }
@@ -262,6 +277,7 @@
           "id": "full_room_result",
           "type": "choice",
           "label": "Resultado de la prueba",
+          "required": true,
           "options": [
             {
               "value": "acceptable",
@@ -286,12 +302,14 @@
         {
           "id": "below_ceiling_seal",
           "type": "check",
-          "label": "Sellar las fugas en el techo utilizando materiales adecuados."
+          "label": "Sellar las fugas en el techo utilizando materiales adecuados.",
+          "required": true
         },
         {
           "id": "below_ceiling_smoke",
           "type": "choice",
           "label": "Indicar la dirección en que se mueve el humo al liberarlo a través del Door-Fan con el equipo de prueba apagado",
+          "required": true,
           "options": [
             {
               "value": "inside",
@@ -311,6 +329,7 @@
           "id": "below_ceiling_static_pressure",
           "type": "check",
           "label": "Anotar la presión estática máxima registrada alrededor del sitio",
+          "required": true,
           "measurement": {
             "unit": "Pa"
           }
@@ -362,6 +381,7 @@
           "id": "below_ceiling_result",
           "type": "choice",
           "label": "Resultado de la prueba",
+          "required": true,
           "options": [
             {
               "value": "acceptable",

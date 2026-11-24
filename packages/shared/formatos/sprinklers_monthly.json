@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -44,12 +45,14 @@
               {
                 "id": "operational",
                 "type": "check",
-                "label": "Verificar que el sistema se encuentre operativo."
+                "label": "Verificar que el sistema se encuentre operativo.",
+                "required": true
               },
               {
                 "id": "riser_supply_pressure",
                 "type": "check",
                 "label": "Anotar la presión de suministro del riser (inferior).",
+                "required": true,
                 "measurement": {
                   "unit": "PSI"
                 }
@@ -58,6 +61,7 @@
                 "id": "system_pressure",
                 "type": "check",
                 "label": "Anotar presión de agua o aire en el sistema, según aplique.",
+                "required": true,
                 "measurement": {
                   "unit": "PSI"
                 }
@@ -65,22 +69,26 @@
               {
                 "id": "inspection_1",
                 "type": "check",
-                "label": "Verificar fugas y daño físico en válvula de alarma."
+                "label": "Verificar fugas y daño físico en válvula de alarma.",
+                "required": true
               },
               {
                 "id": "inspection_2",
                 "type": "check",
-                "label": "Verificar fugas y daño físico en válvula de acción previa."
+                "label": "Verificar fugas y daño físico en válvula de acción previa.",
+                "required": true
               },
               {
                 "id": "inspection_3",
                 "type": "check",
-                "label": "Válvulas y trim: verificar que se encuentren en buen estado. Las válvulas deberán ser accesibles y en estado correcto (abierta o cerrada)."
+                "label": "Válvulas y trim: verificar que se encuentren en buen estado. Las válvulas deberán ser accesibles y en estado correcto (abierta o cerrada).",
+                "required": true
               },
               {
                 "id": "inspection_4",
                 "type": "check",
-                "label": "Inspeccionar que el riser cuente con una placa de identificación y datos hidráulicos."
+                "label": "Inspeccionar que el riser cuente con una placa de identificación y datos hidráulicos.",
+                "required": true
               }
             ]
           }
@@ -100,22 +108,26 @@
               {
                 "id": "monthly_1",
                 "type": "check",
-                "label": "Verificar que la conexión con bomberos no esté obstruida y esté libre de daño físico."
+                "label": "Verificar que la conexión con bomberos no esté obstruida y esté libre de daño físico.",
+                "required": true
               },
               {
                 "id": "monthly_2",
                 "type": "check",
-                "label": "Verificar que la válvula de seccionamiento (control) esté enclavada o supervisada."
+                "label": "Verificar que la válvula de seccionamiento (control) esté enclavada o supervisada.",
+                "required": true
               },
               {
                 "id": "monthly_3",
                 "type": "check",
-                "label": "Inspeccionar que los dispositivos de alarma y conexiones estén libres de daño físico."
+                "label": "Inspeccionar que los dispositivos de alarma y conexiones estén libres de daño físico.",
+                "required": true
               },
               {
                 "id": "monthly_4",
                 "type": "check",
-                "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto."
+                "label": "Acopio de rociadores: verificar que se cuenta con los tipos y cantidades requeridas de rociadores de repuesto.",
+                "required": true
               }
             ]
           }

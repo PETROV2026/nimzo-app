@@ -10,12 +10,14 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -54,12 +56,14 @@
             {
               "id": "pump_approved",
               "type": "yes_no",
-              "label": "Aprobada"
+              "label": "Aprobada",
+              "required": true
             },
             {
               "id": "pump_orientation",
               "type": "choice",
               "label": "Orientación",
+              "required": true,
               "options": [
                 {
                   "value": "horizontal",
@@ -95,7 +99,8 @@
             {
               "id": "gear_head",
               "type": "yes_no",
-              "label": "Cabezal de engranes"
+              "label": "Cabezal de engranes",
+              "required": true
             },
             {
               "id": "gear_head_brand",
@@ -160,7 +165,8 @@
             {
               "id": "engine_approved",
               "type": "yes_no",
-              "label": "Aprobado"
+              "label": "Aprobado",
+              "required": true
             },
             {
               "id": "engine_hp",
@@ -200,7 +206,8 @@
             {
               "id": "controller_approved",
               "type": "yes_no",
-              "label": "Aprobado"
+              "label": "Aprobado",
+              "required": true
             },
             {
               "id": "controller_serial",
@@ -245,6 +252,7 @@
               "id": "suction_pressure",
               "type": "check",
               "label": "Presión de succión",
+              "required": true,
               "measurement": {
                 "unit": "PSI"
               }
@@ -253,6 +261,7 @@
               "id": "network_pressure",
               "type": "check",
               "label": "Presión de la red hidráulica",
+              "required": true,
               "measurement": {
                 "unit": "PSI"
               }
@@ -260,32 +269,38 @@
             {
               "id": "hydraulic_1",
               "type": "check",
-              "label": "La válvula de la succión está abierta y cuenta con bloqueo."
+              "label": "La válvula de la succión está abierta y cuenta con bloqueo.",
+              "required": true
             },
             {
               "id": "hydraulic_2",
               "type": "check",
-              "label": "La válvula de la descarga está abierta y cuenta con bloqueo."
+              "label": "La válvula de la descarga está abierta y cuenta con bloqueo.",
+              "required": true
             },
             {
               "id": "hydraulic_3",
               "type": "check",
-              "label": "Todas las válvulas están accesibles."
+              "label": "Todas las válvulas están accesibles.",
+              "required": true
             },
             {
               "id": "hydraulic_4",
               "type": "check",
-              "label": "Válvulas identificadas (sistema o porción de sistema que controlan)."
+              "label": "Válvulas identificadas (sistema o porción de sistema que controlan).",
+              "required": true
             },
             {
               "id": "hydraulic_5",
               "type": "check",
-              "label": "El tanque o cisterna de suministro de agua se encuentra en un nivel adecuado."
+              "label": "El tanque o cisterna de suministro de agua se encuentra en un nivel adecuado.",
+              "required": true
             },
             {
               "id": "hydraulic_6",
               "type": "check",
-              "label": "El sello de la barra de la bomba gotea correctamente (1 gota por segundo)."
+              "label": "El sello de la barra de la bomba gotea correctamente (1 gota por segundo).",
+              "required": true
             }
           ]
         },
@@ -300,6 +315,7 @@
               "id": "fuel_level",
               "type": "check",
               "label": "El tanque diésel está a 3/4 partes de su capacidad.",
+              "required": true,
               "measurement": {
                 "unit": "%"
               }
@@ -307,27 +323,32 @@
             {
               "id": "engine_1",
               "type": "check",
-              "label": "Las baterías están bien cargadas y sin daño físico evidente."
+              "label": "Las baterías están bien cargadas y sin daño físico evidente.",
+              "required": true
             },
             {
               "id": "engine_2",
               "type": "check",
-              "label": "El cargador de batería opera correctamente."
+              "label": "El cargador de batería opera correctamente.",
+              "required": true
             },
             {
               "id": "engine_3",
               "type": "check",
-              "label": "La luz piloto de falla de batería está apagada."
+              "label": "La luz piloto de falla de batería está apagada.",
+              "required": true
             },
             {
               "id": "engine_4",
               "type": "check",
-              "label": "El nivel del aceite en el motor es el adecuado."
+              "label": "El nivel del aceite en el motor es el adecuado.",
+              "required": true
             },
             {
               "id": "heater_range",
               "type": "check",
               "label": "El precalentador del motor opera correctamente, su rango de operación es el adecuado.",
+              "required": true,
               "measurement": {
                 "unit": "°C"
               }
@@ -335,62 +356,74 @@
             {
               "id": "engine_5",
               "type": "check",
-              "label": "Los filtros strainer de la línea de enfriamiento están limpios y sin daño físico evidente."
+              "label": "Los filtros strainer de la línea de enfriamiento están limpios y sin daño físico evidente.",
+              "required": true
             },
             {
               "id": "engine_6",
               "type": "check",
-              "label": "Las conexiones en las tarjetas electrónicas están bien ajustadas y libres de corrosión o daño físico evidente."
+              "label": "Las conexiones en las tarjetas electrónicas están bien ajustadas y libres de corrosión o daño físico evidente.",
+              "required": true
             },
             {
               "id": "engine_7",
               "type": "check",
-              "label": "Los manómetros y manovacuómetros se encuentran operativos y sin daño físico visible."
+              "label": "Los manómetros y manovacuómetros se encuentran operativos y sin daño físico visible.",
+              "required": true
             },
             {
               "id": "engine_8",
               "type": "check",
-              "label": "El tanque diésel no presenta daño físico evidente, sin obstrucciones en la tubería de venteo. Drenar y verificar ausencia de agua o materiales extraños."
+              "label": "El tanque diésel no presenta daño físico evidente, sin obstrucciones en la tubería de venteo. Drenar y verificar ausencia de agua o materiales extraños.",
+              "required": true
             },
             {
               "id": "engine_9",
               "type": "check",
-              "label": "Las terminales de las baterías están limpias."
+              "label": "Las terminales de las baterías están limpias.",
+              "required": true
             },
             {
               "id": "engine_10",
               "type": "check",
-              "label": "La luz piloto AC del controlador está encendida."
+              "label": "La luz piloto AC del controlador está encendida.",
+              "required": true
             },
             {
               "id": "engine_11",
               "type": "check",
-              "label": "Todas las luces piloto de falla están apagadas."
+              "label": "Todas las luces piloto de falla están apagadas.",
+              "required": true
             },
             {
               "id": "engine_12",
               "type": "check",
-              "label": "El nivel y las características del anticongelante son las adecuadas para el motor."
+              "label": "El nivel y las características del anticongelante son las adecuadas para el motor.",
+              "required": true
             },
             {
               "id": "engine_13",
               "type": "check",
-              "label": "Las mangueras del motor están libres de goteos o daño físico."
+              "label": "Las mangueras del motor están libres de goteos o daño físico.",
+              "required": true
             },
             {
               "id": "engine_14",
               "type": "check",
-              "label": "Los baleros y las válvulas de control del sistema están lubricados."
+              "label": "Los baleros y las válvulas de control del sistema están lubricados.",
+              "required": true
             },
             {
               "id": "engine_15",
               "type": "check",
-              "label": "El sistema de escape del motor y sus accesorios están libres de daño físico y obstrucciones."
+              "label": "El sistema de escape del motor y sus accesorios están libres de daño físico y obstrucciones.",
+              "required": true
             },
             {
               "id": "engine_16",
               "type": "check",
-              "label": "La alineación en el acoplamiento de la motobomba es correcta, sin daño físico visible en los componentes."
+              "label": "La alineación en el acoplamiento de la motobomba es correcta, sin daño físico visible en los componentes.",
+              "required": true
             }
           ]
         }
@@ -408,82 +441,98 @@
         {
           "id": "maintenance_1",
           "type": "check",
-          "label": "Lubricar los baleros y cople de la bomba."
+          "label": "Lubricar los baleros y cople de la bomba.",
+          "required": true
         },
         {
           "id": "maintenance_2",
           "type": "check",
-          "label": "Cambio de aceite a la bomba."
+          "label": "Cambio de aceite a la bomba.",
+          "required": true
         },
         {
           "id": "maintenance_3",
           "type": "check",
-          "label": "Cambio de aceite a motor diésel."
+          "label": "Cambio de aceite a motor diésel.",
+          "required": true
         },
         {
           "id": "maintenance_4",
           "type": "check",
-          "label": "Cambio de filtros para diésel."
+          "label": "Cambio de filtros para diésel.",
+          "required": true
         },
         {
           "id": "maintenance_5",
           "type": "check",
-          "label": "Limpieza de filtros de línea de enfriamiento."
+          "label": "Limpieza de filtros de línea de enfriamiento.",
+          "required": true
         },
         {
           "id": "maintenance_6",
           "type": "check",
-          "label": "Cambio de ánodo de sacrificio."
+          "label": "Cambio de ánodo de sacrificio.",
+          "required": true
         },
         {
           "id": "maintenance_7",
           "type": "check",
-          "label": "Mantenimiento a controlador diésel."
+          "label": "Mantenimiento a controlador diésel.",
+          "required": true
         },
         {
           "id": "maintenance_8",
           "type": "check",
-          "label": "Engrasado a baleros de bomba jockey."
+          "label": "Engrasado a baleros de bomba jockey.",
+          "required": true
         },
         {
           "id": "maintenance_9",
           "type": "check",
-          "label": "Cambio de termostato del motor diésel."
+          "label": "Cambio de termostato del motor diésel.",
+          "required": true
         },
         {
           "id": "maintenance_10",
           "type": "check",
-          "label": "Cambio de filtros de aceite a motor diésel."
+          "label": "Cambio de filtros de aceite a motor diésel.",
+          "required": true
         },
         {
           "id": "maintenance_11",
           "type": "check",
-          "label": "Cambio de anticongelante mezcla 50/50 para motor diésel."
+          "label": "Cambio de anticongelante mezcla 50/50 para motor diésel.",
+          "required": true
         },
         {
           "id": "maintenance_12",
           "type": "check",
-          "label": "Cambio de filtro de aire."
+          "label": "Cambio de filtro de aire.",
+          "required": true
         },
         {
           "id": "maintenance_13",
           "type": "check",
-          "label": "Cambio de baterías."
+          "label": "Cambio de baterías.",
+          "required": true
         },
         {
           "id": "maintenance_14",
           "type": "check",
-          "label": "Mantenimiento a panel de instrumentos motor diésel."
+          "label": "Mantenimiento a panel de instrumentos motor diésel.",
+          "required": true
         },
         {
           "id": "maintenance_15",
           "type": "check",
-          "label": "Mantenimiento a controlador jockey."
+          "label": "Mantenimiento a controlador jockey.",
+          "required": true
         },
         {
           "id": "maintenance_16",
           "type": "check",
-          "label": "Pintura a tuberías y equipos contra incendio de cuarto de bombas que aplique."
+          "label": "Pintura a tuberías y equipos contra incendio de cuarto de bombas que aplique.",
+          "required": true
         },
         {
           "type": "group",
@@ -519,7 +568,8 @@
             {
               "id": "ab_status",
               "type": "check",
-              "label": "A/B Estado"
+              "label": "A/B Estado",
+              "required": true
             },
             {
               "id": "cd_tolerance_1",
@@ -548,7 +598,8 @@
             {
               "id": "cd_status",
               "type": "check",
-              "label": "C/D Estado"
+              "label": "C/D Estado",
+              "required": true
             }
           ]
         },
@@ -556,17 +607,20 @@
           "id": "maintenance_closing",
           "type": "check",
           "label": "Al término de las actividades anteriores colocar la guarda del motor, habilitar nuevamente la alimentación eléctrica del controlador, precalentador y componentes adicionales del sistema, abrir válvulas de control correspondientes como del suministro diésel y conectar los cables de las baterías.",
+          "required": true,
           "highlight": true
         },
         {
           "id": "maintenance_19",
           "type": "check",
-          "label": "Revisar la calibración de los sensores de presión (switch de presión o transductor)."
+          "label": "Revisar la calibración de los sensores de presión (switch de presión o transductor).",
+          "required": true
         },
         {
           "id": "maintenance_20",
           "type": "check",
-          "label": "Calibrar los sensores de presión."
+          "label": "Calibrar los sensores de presión.",
+          "required": true
         }
       ]
     },
@@ -577,17 +631,20 @@
         {
           "id": "tests_1",
           "type": "check",
-          "label": "Activar tarjeta alterna ECM y verificar su correcto funcionamiento."
+          "label": "Activar tarjeta alterna ECM y verificar su correcto funcionamiento.",
+          "required": true
         },
         {
           "id": "tests_2",
           "type": "check",
-          "label": "La válvula solenoide de enfriamiento opera correctamente."
+          "label": "La válvula solenoide de enfriamiento opera correctamente.",
+          "required": true
         },
         {
           "id": "start_pressure",
           "type": "check",
           "label": "Presión de arranque de la motobomba.",
+          "required": true,
           "measurement": {
             "unit": "PSI"
           }
@@ -595,7 +652,8 @@
         {
           "id": "tests_4",
           "type": "check",
-          "label": "Encender el motor diésel 30 minutos y guardar los resultados."
+          "label": "Encender el motor diésel 30 minutos y guardar los resultados.",
+          "required": true
         },
         {
           "type": "group",
@@ -608,6 +666,7 @@
               "id": "hour_meter_start",
               "type": "check",
               "label": "Lectura inicial",
+              "required": true,
               "measurement": {
                 "unit": "h"
               }
@@ -616,6 +675,7 @@
               "id": "hour_meter_end",
               "type": "check",
               "label": "Lectura final",
+              "required": true,
               "measurement": {
                 "unit": "h"
               }
@@ -625,12 +685,14 @@
         {
           "id": "tests_6",
           "type": "check",
-          "label": "La caja de empaquetaduras, baleros y la voluta de la bomba está libre de sobrecalentamientos."
+          "label": "La caja de empaquetaduras, baleros y la voluta de la bomba está libre de sobrecalentamientos.",
+          "required": true
         },
         {
           "id": "start_time_seconds",
           "type": "check",
           "label": "Tiempo requerido para que el motor arranque.",
+          "required": true,
           "measurement": {
             "unit": "s"
           }
@@ -639,6 +701,7 @@
           "id": "rated_speed_time",
           "type": "check",
           "label": "Tiempo requerido para que el motor alcance su velocidad nominal.",
+          "required": true,
           "measurement": {
             "unit": "s"
           }
@@ -647,6 +710,7 @@
           "id": "oil_pressure",
           "type": "check",
           "label": "Anotar la presión del aceite con el motor encendido.",
+          "required": true,
           "measurement": {
             "unit": "PSI"
           }
@@ -655,6 +719,7 @@
           "id": "engine_speed",
           "type": "check",
           "label": "Anotar la velocidad del motor operando en RPM.",
+          "required": true,
           "measurement": {
             "unit": "RPM"
           }
@@ -662,17 +727,20 @@
         {
           "id": "tests_11",
           "type": "check",
-          "label": "Revisar si la bomba opera con alguna anormalidad."
+          "label": "Revisar si la bomba opera con alguna anormalidad.",
+          "required": true
         },
         {
           "id": "tests_12",
           "type": "check",
-          "label": "El sistema está libre de vibraciones o ruidos inusuales."
+          "label": "El sistema está libre de vibraciones o ruidos inusuales.",
+          "required": true
         },
         {
           "id": "engine_temperature",
           "type": "check",
           "label": "Anotar la temperatura del motor operando.",
+          "required": true,
           "measurement": {
             "unit": "°C"
           }
@@ -681,6 +749,7 @@
           "id": "cooling_water_pressure",
           "type": "check",
           "label": "Presión del agua en línea de enfriamiento del intercambiador de calor.",
+          "required": true,
           "measurement": {
             "unit": "PSI"
           }
@@ -688,17 +757,20 @@
         {
           "id": "tests_15",
           "type": "check",
-          "label": "El sensor de temperatura de la línea de enfriamiento opera correctamente."
+          "label": "El sensor de temperatura de la línea de enfriamiento opera correctamente.",
+          "required": true
         },
         {
           "id": "tests_16",
           "type": "check",
-          "label": "La válvula de alivio principal opera correctamente."
+          "label": "La válvula de alivio principal opera correctamente.",
+          "required": true
         },
         {
           "id": "tests_17",
           "type": "check",
-          "label": "Realizar prueba de desempeño de la bomba y adjuntar resultados en el formato Prueba de desempeño del sistema de bombeo."
+          "label": "Realizar prueba de desempeño de la bomba y adjuntar resultados en el formato Prueba de desempeño del sistema de bombeo.",
+          "required": true
         },
         {
           "type": "table",
@@ -774,12 +846,14 @@
         {
           "id": "performance_ok",
           "type": "check",
-          "label": "La prueba de desempeño fue realizada correctamente."
+          "label": "La prueba de desempeño fue realizada correctamente.",
+          "required": true
         },
         {
           "id": "final_inspection",
           "type": "check",
           "label": "Realizar inspección general, restablecer el sistema a su modo de operación automática y verificar que el sistema queda operativo.",
+          "required": true,
           "highlight": true
         }
       ]

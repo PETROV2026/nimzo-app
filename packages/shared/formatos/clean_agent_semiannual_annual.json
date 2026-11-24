@@ -15,17 +15,20 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "month",
       "type": "select",
       "label": "Corresponde al mes de",
+      "required": true,
       "options": [
         {
           "value": "january",
@@ -110,97 +113,116 @@
           "id": "semiannual_1",
           "type": "check",
           "label": "Notifique al cliente acerca del alcance del servicio a realizar y sobre la activación de señales de alarma de incendio.",
+          "required": true,
           "highlight": true
         },
         {
           "id": "semiannual_2",
           "type": "check",
-          "label": "Verificar que el cargador de baterías del panel de control está operando correctamente."
+          "label": "Verificar que el cargador de baterías del panel de control está operando correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_3",
           "type": "check",
-          "label": "Desmontar el dispositivo actuador del tanque para evitar una descarga accidental de agente durante las pruebas. Si el tipo de actuador es mecánico, desconectar desde el tanque; en caso de ser electrónico, realizar la desconexión desde el circuito."
+          "label": "Desmontar el dispositivo actuador del tanque para evitar una descarga accidental de agente durante las pruebas. Si el tipo de actuador es mecánico, desconectar desde el tanque; en caso de ser electrónico, realizar la desconexión desde el circuito.",
+          "required": true
         },
         {
           "id": "semiannual_4",
           "type": "check",
-          "label": "Al realizar el desmontaje del actuador, verificar que el panel mande la señal de supervisión correspondiente (sólo si aplica)."
+          "label": "Al realizar el desmontaje del actuador, verificar que el panel mande la señal de supervisión correspondiente (sólo si aplica).",
+          "required": true
         },
         {
           "id": "semiannual_5",
           "type": "check",
-          "label": "Verificar la cantidad de agente limpio y presión en los tanques. En caso de no contar con un medio de medición, pesarlo con una báscula calibrada. Anotar los datos que apliquen en la sección Inspección a tanques de agente limpio y colocar su estado."
+          "label": "Verificar la cantidad de agente limpio y presión en los tanques. En caso de no contar con un medio de medición, pesarlo con una báscula calibrada. Anotar los datos que apliquen en la sección Inspección a tanques de agente limpio y colocar su estado.",
+          "required": true
         },
         {
           "id": "semiannual_6",
           "type": "check",
-          "label": "Interrumpir el voltaje de alimentación principal del panel de control y verificar que el panel registra el evento correctamente."
+          "label": "Interrumpir el voltaje de alimentación principal del panel de control y verificar que el panel registra el evento correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_7",
           "type": "check",
-          "label": "Restablecer el voltaje de alimentación principal y el panel de control. Verificar que la condición de falla se ha eliminado."
+          "label": "Restablecer el voltaje de alimentación principal y el panel de control. Verificar que la condición de falla se ha eliminado.",
+          "required": true
         },
         {
           "id": "semiannual_8",
           "type": "check",
-          "label": "Activar un detector del sistema y verificar que el panel de control entra en estado de alarma."
+          "label": "Activar un detector del sistema y verificar que el panel de control entra en estado de alarma.",
+          "required": true
         },
         {
           "id": "semiannual_9",
           "type": "check",
-          "label": "Durante el estado de alarma, verificar que la notificación correspondiente se activó y operó correctamente."
+          "label": "Durante el estado de alarma, verificar que la notificación correspondiente se activó y operó correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_10",
           "type": "check",
-          "label": "Activar un segundo detector del sistema y verificar que el panel de control entra en estado de predescarga."
+          "label": "Activar un segundo detector del sistema y verificar que el panel de control entra en estado de predescarga.",
+          "required": true
         },
         {
           "id": "semiannual_11",
           "type": "check",
-          "label": "Durante el estado de predescarga, verificar que la notificación correspondiente se activó y operó correctamente."
+          "label": "Durante el estado de predescarga, verificar que la notificación correspondiente se activó y operó correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_12",
           "type": "check",
-          "label": "Al finalizar el conteo de descarga verificar que las notificaciones y el actuador correspondientes se activaron y operaron correctamente."
+          "label": "Al finalizar el conteo de descarga verificar que las notificaciones y el actuador correspondientes se activaron y operaron correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_13",
           "type": "check",
-          "label": "Verificar que los dispositivos periféricos operaron correctamente durante las pruebas del equipo."
+          "label": "Verificar que los dispositivos periféricos operaron correctamente durante las pruebas del equipo.",
+          "required": true
         },
         {
           "id": "semiannual_14",
           "type": "check",
-          "label": "Activar nuevamente dos detectores del sistema y verificar que el panel de control entra en estado de predescarga."
+          "label": "Activar nuevamente dos detectores del sistema y verificar que el panel de control entra en estado de predescarga.",
+          "required": true
         },
         {
           "id": "semiannual_15",
           "type": "check",
-          "label": "Durante el conteo de predescarga, presionar y mantener presionado el botón de aborto y verificar que inhibe la descarga."
+          "label": "Durante el conteo de predescarga, presionar y mantener presionado el botón de aborto y verificar que inhibe la descarga.",
+          "required": true
         },
         {
           "id": "semiannual_16",
           "type": "check",
-          "label": "Presionar el botón de descarga manual y verificar que el sistema entra en estado de descarga."
+          "label": "Presionar el botón de descarga manual y verificar que el sistema entra en estado de descarga.",
+          "required": true
         },
         {
           "id": "semiannual_17",
           "type": "check",
-          "label": "Presionar el botón de descarga manual mientras se mantiene presionado el botón de aborto y verificar que el sistema entra en estado de descarga."
+          "label": "Presionar el botón de descarga manual mientras se mantiene presionado el botón de aborto y verificar que el sistema entra en estado de descarga.",
+          "required": true
         },
         {
           "id": "semiannual_18",
           "type": "check",
-          "label": "Presionar el botón de descarga manual del dispositivo actuador y verificar que el mecanismo funciona correctamente."
+          "label": "Presionar el botón de descarga manual del dispositivo actuador y verificar que el mecanismo funciona correctamente.",
+          "required": true
         },
         {
           "id": "semiannual_19",
           "type": "check",
-          "label": "Activar los dispositivos supervisorios y verificar que el panel registra los eventos correctamente."
+          "label": "Activar los dispositivos supervisorios y verificar que el panel registra los eventos correctamente.",
+          "required": true
         }
       ]
     },
@@ -211,17 +233,20 @@
         {
           "id": "annual_1",
           "type": "check",
-          "label": "Inspeccionar los fusibles y conexiones visibles del sistema y verificar que se encuentren en buen estado."
+          "label": "Inspeccionar los fusibles y conexiones visibles del sistema y verificar que se encuentren en buen estado.",
+          "required": true
         },
         {
           "id": "annual_2",
           "type": "check",
-          "label": "Activar todos los detectores del sistema y verificar que la señal fue recibida correctamente en el panel de control."
+          "label": "Activar todos los detectores del sistema y verificar que la señal fue recibida correctamente en el panel de control.",
+          "required": true
         },
         {
           "id": "annual_3",
           "type": "check",
-          "label": "Reemplazar baterías de respaldo del panel de control."
+          "label": "Reemplazar baterías de respaldo del panel de control.",
+          "required": true
         }
       ]
     },
@@ -232,17 +257,20 @@
         {
           "id": "closing_1",
           "type": "check",
-          "label": "Realizar servicio de limpieza al panel de control, detectores, dispositivos supervisorios, estaciones de descarga manuales y de aborto."
+          "label": "Realizar servicio de limpieza al panel de control, detectores, dispositivos supervisorios, estaciones de descarga manuales y de aborto.",
+          "required": true
         },
         {
           "id": "closing_2",
           "type": "check",
-          "label": "Restablecer el sistema, colocando el dispositivo actuador del tanque de agente, y verificar que el sistema se mantenga operativo."
+          "label": "Restablecer el sistema, colocando el dispositivo actuador del tanque de agente, y verificar que el sistema se mantenga operativo.",
+          "required": true
         },
         {
           "id": "closing_3",
           "type": "check",
-          "label": "El sistema quedó 100% operativo, en estado normal de operación. En caso contrario explicar en comentarios."
+          "label": "El sistema quedó 100% operativo, en estado normal de operación. En caso contrario explicar en comentarios.",
+          "required": true
         }
       ]
     },
@@ -294,7 +322,8 @@
             {
               "id": "tank_status",
               "type": "check",
-              "label": "Estado"
+              "label": "Estado",
+              "required": true
             }
           ]
         }

@@ -10,12 +10,14 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "arrival_time",
       "type": "time",
-      "label": "Hora de entrada"
+      "label": "Hora de entrada",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -49,7 +51,8 @@
               {
                 "id": "pressurize",
                 "type": "check",
-                "label": "Presurizar la manguera acorde a sus especificaciones."
+                "label": "Presurizar la manguera acorde a sus especificaciones.",
+                "required": true
               },
               {
                 "id": "start_pressure",
@@ -66,7 +69,8 @@
               {
                 "id": "no_leaks",
                 "type": "check",
-                "label": "Verificar la ausencia de fugas en la manguera, chiflón y conectores."
+                "label": "Verificar la ausencia de fugas en la manguera, chiflón y conectores.",
+                "required": true
               },
               {
                 "id": "end_pressure",
@@ -83,12 +87,14 @@
               {
                 "id": "good_condition",
                 "type": "check",
-                "label": "La manguera se encuentra en buenas condiciones para su uso."
+                "label": "La manguera se encuentra en buenas condiciones para su uso.",
+                "required": true
               },
               {
                 "id": "drying",
                 "type": "check",
-                "label": "Colocar la manguera en un sitio en el cual pueda asegurarse su secado para evitar daños por humedad."
+                "label": "Colocar la manguera en un sitio en el cual pueda asegurarse su secado para evitar daños por humedad.",
+                "required": true
               }
             ]
           },
@@ -102,12 +108,14 @@
               {
                 "id": "reinstalled",
                 "type": "check",
-                "label": "Reinstalar la manguera en el gabinete o rack correspondiente, recorriendo los dobleces para evitar daño físico."
+                "label": "Reinstalar la manguera en el gabinete o rack correspondiente, recorriendo los dobleces para evitar daño físico.",
+                "required": true
               },
               {
                 "id": "operational",
                 "type": "check",
-                "label": "La manguera quedó operativa."
+                "label": "La manguera quedó operativa.",
+                "required": true
               }
             ]
           }

@@ -10,7 +10,8 @@
     {
       "id": "execution_date",
       "type": "date",
-      "label": "Fecha de ejecución"
+      "label": "Fecha de ejecución",
+      "required": true
     },
     {
       "id": "execution_time",
@@ -56,58 +57,69 @@
             {
               "id": "inspection_1",
               "type": "check",
-              "label": "Tablero de control en buen estado, libre de daño físico, obstrucciones y operativo. Indica funcionamiento normal."
+              "label": "Tablero de control en buen estado, libre de daño físico, obstrucciones y operativo. Indica funcionamiento normal.",
+              "required": true
             },
             {
               "id": "inspection_2",
               "type": "check",
-              "label": "Interior del panel de control, sus componentes, conexiones y cableado visibles se encuentran en buen estado."
+              "label": "Interior del panel de control, sus componentes, conexiones y cableado visibles se encuentran en buen estado.",
+              "required": true
             },
             {
               "id": "inspection_3",
               "type": "check",
-              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación."
+              "label": "Baterías de respaldo del sistema libres de daño físico, corrosión o escurrimiento. Deben indicar su fecha de instalación.",
+              "required": true
             },
             {
               "id": "inspection_4",
               "type": "check",
-              "label": "Verificar que la hora y fecha que indica el panel de control estén correctas; de lo contrario, hacer los ajustes necesarios."
+              "label": "Verificar que la hora y fecha que indica el panel de control estén correctas; de lo contrario, hacer los ajustes necesarios.",
+              "required": true
             },
             {
               "id": "inspection_5",
               "type": "check",
-              "label": "Revisar el historial de eventos. Si existieron activaciones o problemas, anotarlos en el reporte de observaciones."
+              "label": "Revisar el historial de eventos. Si existieron activaciones o problemas, anotarlos en el reporte de observaciones.",
+              "required": true
             },
             {
               "id": "inspection_6",
               "type": "check",
-              "label": "Condición física de ductos, solenoides y boquillas."
+              "label": "Condición física de ductos, solenoides y boquillas.",
+              "required": true
             },
             {
               "id": "inspection_7",
               "type": "check",
-              "label": "El medio de supresión de chispas, sus componentes, conexiones y accesorios se encuentran operativos, bien montados y libres de daño físico."
+              "label": "El medio de supresión de chispas, sus componentes, conexiones y accesorios se encuentran operativos, bien montados y libres de daño físico.",
+              "required": true
             },
             {
               "id": "inspection_8",
               "type": "check",
-              "label": "Las válvulas de cabezales para boquillas de descarga se encuentran completamente abiertas."
+              "label": "Las válvulas de cabezales para boquillas de descarga se encuentran completamente abiertas.",
+              "required": true
             },
             {
               "id": "inspection_9",
               "type": "check",
-              "label": "Para sistemas a base de agua, verifique que las condiciones de las instalaciones de drenaje, boquillas y ductos sean adecuadas para descargar agua."
+              "label": "Para sistemas a base de agua, verifique que las condiciones de las instalaciones de drenaje, boquillas y ductos sean adecuadas para descargar agua.",
+              "required": true
             },
             {
               "id": "co2_remove_actuator",
               "type": "check",
               "label": "Para sistemas de CO2, desmontar actuador o válvula solenoide antes de iniciar las pruebas.",
+              "required": true,
               "highlight": true
             },
             {
               "id": "notify_occupants",
               "type": "check",
-              "label": "Confirmar con el cliente que se ha notificado a los ocupantes del edificio que se realizarán pruebas del sistema de alarma de incendio."
+              "label": "Confirmar con el cliente que se ha notificado a los ocupantes del edificio que se realizarán pruebas del sistema de alarma de incendio.",
+              "required": true
             },
             {
               "type": "group",
@@ -154,59 +166,70 @@
                 {
                   "id": "voltage_status",
                   "type": "check",
-                  "label": "Estado"
+                  "label": "Estado",
+                  "required": true
                 }
               ]
             },
             {
               "id": "test_13",
               "type": "check",
-              "label": "Interrumpir el voltaje de AC momentáneamente y comprobar que el tablero de control indique el evento correspondiente."
+              "label": "Interrumpir el voltaje de AC momentáneamente y comprobar que el tablero de control indique el evento correspondiente.",
+              "required": true
             },
             {
               "id": "test_14",
               "type": "check",
-              "label": "Desconectar las baterías del tablero de control momentáneamente y comprobar que el tablero de control indique el evento correspondiente."
+              "label": "Desconectar las baterías del tablero de control momentáneamente y comprobar que el tablero de control indique el evento correspondiente.",
+              "required": true
             },
             {
               "id": "test_15",
               "type": "check",
-              "label": "Para sistemas a base de agua, verifique que las condiciones de las instalaciones de drenaje, boquillas y ductos sean adecuadas para descargar agua."
+              "label": "Para sistemas a base de agua, verifique que las condiciones de las instalaciones de drenaje, boquillas y ductos sean adecuadas para descargar agua.",
+              "required": true
             },
             {
               "id": "test_16",
               "type": "check",
-              "label": "Mediante el panel de control, utilizar la función de prueba de detectores y válvulas. Verificar que todas las pruebas se realicen satisfactoriamente."
+              "label": "Mediante el panel de control, utilizar la función de prueba de detectores y válvulas. Verificar que todas las pruebas se realicen satisfactoriamente.",
+              "required": true
             },
             {
               "id": "test_17",
               "type": "check",
-              "label": "Inhabilitar desde el tablero de control las zonas a probar."
+              "label": "Inhabilitar desde el tablero de control las zonas a probar.",
+              "required": true
             },
             {
               "id": "test_18",
               "type": "check",
-              "label": "Retirar detectores de chispa del adaptador. Realizar servicio de limpieza y verificar la ausencia de daño físico en el dispositivo."
+              "label": "Retirar detectores de chispa del adaptador. Realizar servicio de limpieza y verificar la ausencia de daño físico en el dispositivo.",
+              "required": true
             },
             {
               "id": "test_19",
               "type": "check",
-              "label": "El detector de chispa entra ajustadamente en el adaptador de ducto. El adaptador se encuentra en buenas condiciones para impedir filtración de luz."
+              "label": "El detector de chispa entra ajustadamente en el adaptador de ducto. El adaptador se encuentra en buenas condiciones para impedir filtración de luz.",
+              "required": true
             },
             {
               "id": "test_20",
               "type": "check",
-              "label": "Para sistemas a base de agua, realizar limpieza a filtros 'Y' del sistema."
+              "label": "Para sistemas a base de agua, realizar limpieza a filtros 'Y' del sistema.",
+              "required": true
             },
             {
               "id": "test_21",
               "type": "check",
-              "label": "Habilitar las zonas y dispositivos deshabilitados anteriormente durante este servicio."
+              "label": "Habilitar las zonas y dispositivos deshabilitados anteriormente durante este servicio.",
+              "required": true
             },
             {
               "id": "co2_mount_actuator",
               "type": "check",
               "label": "Para sistemas de CO2, montar actuador o válvula solenoide al finalizar las pruebas asegurándose que no hay alarmas activas.",
+              "required": true,
               "highlight": true
             }
           ]
@@ -221,32 +244,38 @@
             {
               "id": "co2_1",
               "type": "check",
-              "label": "Tanques de CO2 en buenas condiciones, libres de obstrucciones y asegurados correctamente a un soporte adecuado."
+              "label": "Tanques de CO2 en buenas condiciones, libres de obstrucciones y asegurados correctamente a un soporte adecuado.",
+              "required": true
             },
             {
               "id": "co2_2",
               "type": "check",
-              "label": "Mecanismos de liberación manual en buen estado y cuentan con el seguro para prevenir su manipulación accidental."
+              "label": "Mecanismos de liberación manual en buen estado y cuentan con el seguro para prevenir su manipulación accidental.",
+              "required": true
             },
             {
               "id": "co2_3",
               "type": "check",
-              "label": "Los tanques cuentan con placa de datos del fabricante y etiqueta de mantenimiento."
+              "label": "Los tanques cuentan con placa de datos del fabricante y etiqueta de mantenimiento.",
+              "required": true
             },
             {
               "id": "co2_4",
               "type": "check",
-              "label": "El actuador o válvula solenoide se encuentra en buen estado, correctamente colocado y el indicador de liberación se encuentra en estado normal."
+              "label": "El actuador o válvula solenoide se encuentra en buen estado, correctamente colocado y el indicador de liberación se encuentra en estado normal.",
+              "required": true
             },
             {
               "id": "co2_5",
               "type": "check",
-              "label": "Mangueras, conexiones y tuberías se encuentran en buen estado, libres de daño físico visible."
+              "label": "Mangueras, conexiones y tuberías se encuentran en buen estado, libres de daño físico visible.",
+              "required": true
             },
             {
               "id": "final_inspection",
               "type": "check",
-              "label": "Realizar una inspección general verificando que el sistema queda operativo."
+              "label": "Realizar una inspección general verificando que el sistema queda operativo.",
+              "required": true
             }
           ]
         }
@@ -272,6 +301,7 @@
               "id": "disable_zones",
               "type": "check",
               "label": "Inhabilitar desde el tablero de control las zonas del sistema y retirar actuador o válvula solenoide de descarga.",
+              "required": true,
               "highlight": true
             },
             {
@@ -312,7 +342,8 @@
                 {
                   "id": "tank_weight_status",
                   "type": "check",
-                  "label": "Estado"
+                  "label": "Estado",
+                  "required": true
                 }
               ]
             },
@@ -320,6 +351,7 @@
               "id": "enable_zones",
               "type": "check",
               "label": "Habilitar las zonas del sistema y colocar actuador o válvula solenoide de descarga después de confirmar que no hay alarmas activas.",
+              "required": true,
               "highlight": true
             }
           ]
@@ -340,27 +372,32 @@
             {
               "id": "annual_1",
               "type": "check",
-              "label": "Reemplazar baterías del tablero de control y colocar etiqueta de la fecha de instalación."
+              "label": "Reemplazar baterías del tablero de control y colocar etiqueta de la fecha de instalación.",
+              "required": true
             },
             {
               "id": "annual_2",
               "type": "check",
-              "label": "Deshabilitar las válvulas de descarga de sistemas de CO2 / cerrar válvulas de sistemas a base de agua."
+              "label": "Deshabilitar las válvulas de descarga de sistemas de CO2 / cerrar válvulas de sistemas a base de agua.",
+              "required": true
             },
             {
               "id": "annual_3",
               "type": "check",
-              "label": "Desconectar el suministro eléctrico de AC y dejar en estado de alarma el tablero de control por 5 minutos."
+              "label": "Desconectar el suministro eléctrico de AC y dejar en estado de alarma el tablero de control por 5 minutos.",
+              "required": true
             },
             {
               "id": "annual_4",
               "type": "check",
-              "label": "Restablecer el panel de control y confirmar que el panel de control y dispositivos se hayan restablecido correctamente."
+              "label": "Restablecer el panel de control y confirmar que el panel de control y dispositivos se hayan restablecido correctamente.",
+              "required": true
             },
             {
               "id": "annual_5",
               "type": "check",
-              "label": "Habilitar las zonas y dispositivos deshabilitados anteriormente y realizar una inspección general verificando que el sistema queda operativo."
+              "label": "Habilitar las zonas y dispositivos deshabilitados anteriormente y realizar una inspección general verificando que el sistema queda operativo.",
+              "required": true
             }
           ]
         }
