@@ -103,3 +103,17 @@ export function unusedSignatureFiles(before: SignaturesValue, after: SignaturesV
     (uri): uri is string => Boolean(uri) && !kept.has(uri),
   );
 }
+
+export type ReportTarget = { clientId: string; branchId: string; systemId: string | null };
+
+export function resolveTarget<
+  C extends { id: string },
+  B extends { id: string; clientId: string },
+  S extends { id: string; branchId: string },
+>(target: ReportTarget, clients: readonly C[], branches: readonly B[], systems: readonly S[]) {
+  const client = clients.find((item) => item.id === target.clientId);
+  const branch = branches.find((item) => item.id === target.branchId);
+  const system = target.systemId ? systems.find((item) => item.id === target.systemId) : null;
+  if (!client || !branch || system === undefined) return null;
+  return { client, branch, system };
+}

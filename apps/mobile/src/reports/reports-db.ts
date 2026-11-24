@@ -116,7 +116,7 @@ export function useReports(technicianId: string, status: LocalReportStatus) {
   return useSyncExternalStore(store.subscribe, () => store.snapshot(technicianId));
 }
 
-function readReport(id: string) {
+export function readReport(id: string) {
   const row = db.getFirstSync<ReportRow>('select * from reports where id = ?', id);
   return row ? fromRow(row) : null;
 }
@@ -148,6 +148,27 @@ export function createReport({ technicianId, form, client, branch, system, packa
   );
   notify();
   return id;
+}
+
+export function changeTarget(
+  id: string,
+  { client, branch, system }: Pick<NewReport, 'client' | 'branch' | 'system'>,
+) {
+  const problem = selectionProblem(client, branch, system);
+  if (problem) throw new Error(problem);
+  const result = db.runSync(
+    `update reports set client_id = ?, branch_id = ?, system_id = ?, snapshot = ?, updated_at = ?
+     where id = ? and status = 'draft'`,
+    client.id,
+    branch.id,
+    system?.id ?? null,
+    JSON.stringify(buildSnapshot(client, branch, system)),
+    now(),
+    id,
+  );
+  if (result.changes === 0) return false;
+  notify();
+  return true;
 }
 
 export function saveAnswers(id: string, answers: Record<string, unknown>) {

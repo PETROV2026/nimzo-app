@@ -9,6 +9,7 @@ import {
   isFullySigned,
   parseAnswers,
   parseSnapshot,
+  resolveTarget,
   selectionProblem,
   unusedSignatureFiles,
 } from '../src/reports/report-rules.ts';
@@ -133,4 +134,35 @@ test('signature files no longer used are listed for deletion', () => {
   );
   assert.deepEqual(unusedSignatureFiles(before, before), []);
   assert.deepEqual(unusedSignatureFiles(before, null), ['file:///a.png', 'file:///b.png']);
+});
+
+test('the chosen client, branch and system are found in the catalog', () => {
+  const clients = [{ id: 'c1' }, { id: 'c2' }];
+  const branches = [{ id: 'b1', clientId: 'c1' }];
+  const systems = [{ id: 's1', branchId: 'b1' }];
+  assert.deepEqual(
+    resolveTarget({ clientId: 'c1', branchId: 'b1', systemId: 's1' }, clients, branches, systems),
+    { client: clients[0], branch: branches[0], system: systems[0] },
+  );
+  assert.deepEqual(
+    resolveTarget({ clientId: 'c1', branchId: 'b1', systemId: null }, clients, branches, systems),
+    { client: clients[0], branch: branches[0], system: null },
+  );
+});
+
+test('a target that is not in the catalog is not resolved', () => {
+  const clients = [{ id: 'c1' }];
+  const branches = [{ id: 'b1', clientId: 'c1' }];
+  assert.equal(
+    resolveTarget({ clientId: 'c9', branchId: 'b1', systemId: null }, clients, branches, []),
+    null,
+  );
+  assert.equal(
+    resolveTarget({ clientId: 'c1', branchId: 'b9', systemId: null }, clients, branches, []),
+    null,
+  );
+  assert.equal(
+    resolveTarget({ clientId: 'c1', branchId: 'b1', systemId: 's9' }, clients, branches, []),
+    null,
+  );
 });

@@ -6,6 +6,7 @@ import { useClientsSync } from '@/clients/clients-sync';
 import { AppHeader } from '@/components/app-header';
 import { HeaderIconButton } from '@/components/header-icon-button';
 import { NavigationBar } from '@/components/navigation-bar';
+import { AnnouncementToast } from '@/components/announcement-toast';
 import { SyncToast } from '@/components/sync-toast';
 import { useToast } from '@/components/toast';
 import { FeedbackDialog } from '@/feedback/feedback-dialog';
@@ -81,6 +82,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="index" options={{ href: null }} />
       </Tabs>
       <SyncToast />
+      <AnnouncementToast />
       {feedbackScreen && technicianId ? (
         <FeedbackDialog
           technicianId={technicianId}
