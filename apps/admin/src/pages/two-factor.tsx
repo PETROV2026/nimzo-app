@@ -4,13 +4,13 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import logoColor from '@nimzo/brand/logos/logo-horizontal-color.webp';
 import { useInvalidateAuthStore, useLogout } from '@refinedev/core';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 
+import { CodeInput } from '@/components/code-input';
 import { supabase } from '@/lib/supabase';
 import { tokens } from '@/theme';
 
@@ -21,6 +21,8 @@ type Step =
   | { kind: 'failed'; message: string };
 
 const FRIENDLY_NAME = 'Nimzo';
+const CODE_LENGTH = 6;
+const ERROR_ID = 'two-factor-error';
 
 async function prepareStep(): Promise<Step> {
   const { data: session } = await supabase.auth.getSession();
@@ -63,6 +65,8 @@ export function TwoFactorPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const started = useRef(false);
+  const verifying = useRef(false);
+  const codeRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (started.current) return;
@@ -70,20 +74,24 @@ export function TwoFactorPage() {
     void prepareStep().then(setStep);
   }, []);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (step.kind !== 'enroll' && step.kind !== 'verify') return;
-    const digits = code.replace(/\s/g, '');
-    if (!/^\d{6}$/.test(digits)) {
+  useEffect(() => {
+    if (error && !submitting) codeRef.current?.focus();
+  }, [error, submitting]);
+
+  async function verify(digits: string) {
+    if (verifying.current || (step.kind !== 'enroll' && step.kind !== 'verify')) return;
+    if (digits.length !== CODE_LENGTH) {
       setError('Escribe los 6 dígitos que muestra tu app de autenticación.');
       return;
     }
+    verifying.current = true;
     setSubmitting(true);
     setError(null);
     const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({
       factorId: step.factorId,
       code: digits,
     });
+    verifying.current = false;
     if (verifyError) {
       setSubmitting(false);
       setCode('');
@@ -92,6 +100,11 @@ export function TwoFactorPage() {
     }
     await invalidateAuthStore();
     navigate('/', { replace: true });
+  }
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    void verify(code);
   }
 
   return (
@@ -172,19 +185,21 @@ export function TwoFactorPage() {
               </Typography>
             )}
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && (
+              <Alert id={ERROR_ID} severity="error">
+                {error}
+              </Alert>
+            )}
 
-            <TextField
+            <CodeInput
               label="Código de 6 dígitos"
+              length={CODE_LENGTH}
               value={code}
-              onChange={(event) => setCode(event.target.value)}
+              onChange={setCode}
+              onComplete={(digits) => void verify(digits)}
+              inputRef={codeRef}
               disabled={submitting}
-              autoFocus
-              required
-              autoComplete="one-time-code"
-              slotProps={{
-                htmlInput: { inputMode: 'numeric', maxLength: 7 },
-              }}
+              errorId={error ? ERROR_ID : undefined}
             />
             <Button
               type="submit"

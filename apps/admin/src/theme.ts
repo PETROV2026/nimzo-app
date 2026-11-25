@@ -74,9 +74,6 @@ export const theme = createTheme(
       MuiCssBaseline: {
         styleOverrides: {
           body: { WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' },
-          '.SnackbarContainer-root.SnackbarContainer-top.snackbar-below-bar': {
-            top: ADMIN_BAR_HEIGHT + 8,
-          },
           '.visually-hidden': {
             position: 'absolute',
             width: 1,
