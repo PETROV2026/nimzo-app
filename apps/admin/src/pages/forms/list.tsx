@@ -7,7 +7,7 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import { formTitle, toSearchText, type ServiceForm } from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { useCatalogGridProps } from '@/components/catalog-grid';
@@ -18,8 +18,9 @@ import { RowActions } from '@/components/row-actions';
 import { SearchField } from '@/components/search-field';
 import { StatusChip } from '@/components/status-chip';
 import { StatusLinks } from '@/components/status-links';
-import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
+import { statusCrudFilter, statusFilters } from '@/lib/status-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useOptionParam, useSearchParam } from '@/lib/use-list-params';
 
 import { FormIcon } from './form-icon';
 
@@ -68,10 +69,10 @@ function NameCell({ form }: { form: ServiceForm }) {
 
 export function ServiceFormList() {
   const gridProps = useCatalogGridProps();
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('all');
+  const [search, setSearch] = useSearchParam();
+  const [status, setStatus] = useOptionParam('status', statusFilters, 'all');
 
-  const { dataGridProps, setFilters } = useDataGrid<ServiceForm>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<ServiceForm>({
     resource: 'service_forms',
     sorters: {
       initial: [
@@ -86,7 +87,7 @@ export function ServiceFormList() {
   if (search.trim()) {
     filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
   }
-  useDebouncedFilters(setFilters, filters);
+  useDebouncedFilters({ setFilters, setCurrentPage }, filters);
 
   const columns = useMemo<GridColDef<ServiceForm>[]>(
     () => [

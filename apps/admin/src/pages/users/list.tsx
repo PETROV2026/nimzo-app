@@ -28,8 +28,9 @@ import { RowActions } from '@/components/row-actions';
 import { SearchField } from '@/components/search-field';
 import { StatusChip } from '@/components/status-chip';
 import { StatusLinks } from '@/components/status-links';
-import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
+import { statusCrudFilter, statusFilters } from '@/lib/status-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useOptionParam, useSearchParam } from '@/lib/use-list-params';
 import type { Identity } from '@/providers/auth-provider';
 import { theme } from '@/theme';
 
@@ -84,12 +85,12 @@ export function UserList() {
   const gridProps = useCatalogGridProps();
   const { data: identity } = useGetIdentity<Identity>();
   const { run, pending } = useAdminUsers();
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('all');
-  const [role, setRole] = useState<UserRole | ''>('');
+  const [search, setSearch] = useSearchParam();
+  const [status, setStatus] = useOptionParam('status', statusFilters, 'all');
+  const [role, setRole] = useOptionParam<UserRole | ''>('role', userRoleSchema.options, '');
   const [toDeactivate, setToDeactivate] = useState<Profile | null>(null);
 
-  const { dataGridProps, setFilters } = useDataGrid<Profile>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<Profile>({
     resource: 'profiles',
     sorters: { initial: [{ field: 'full_name', order: 'asc' }] },
     pagination: { pageSize: 20 },
@@ -100,7 +101,7 @@ export function UserList() {
   if (search.trim()) {
     filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
   }
-  useDebouncedFilters(setFilters, filters);
+  useDebouncedFilters({ setFilters, setCurrentPage }, filters);
 
   async function deactivate(user: Profile) {
     try {

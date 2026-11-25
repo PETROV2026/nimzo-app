@@ -15,6 +15,7 @@ import { Link as RouterLink, useNavigate } from 'react-router';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader } from '@/components/page-header';
 import { Postbox } from '@/components/postbox';
+import { listPath } from '@/lib/list-path';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 import { CredentialsDialog } from './credentials-dialog';
@@ -49,7 +50,9 @@ export function UserCreate() {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'Usuarios', to: '/users' }, { label: 'Agregar usuario' }]} />
+      <Breadcrumbs
+        items={[{ label: 'Usuarios', to: listPath('/users') }, { label: 'Agregar usuario' }]}
+      />
       <PageHeader title="Agregar usuario" />
 
       <Box component="form" noValidate onSubmit={handleSubmit(submit)}>
@@ -159,7 +162,7 @@ export function UserCreate() {
               >
                 <Link
                   component={RouterLink}
-                  to="/users"
+                  to={listPath('/users')}
                   className="touch-target"
                   sx={{ fontSize: 13 }}
                 >

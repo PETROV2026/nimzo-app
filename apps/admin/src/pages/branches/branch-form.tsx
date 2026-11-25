@@ -29,6 +29,7 @@ import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
 import { RecordAutocomplete } from '@/components/record-autocomplete';
+import { listPath } from '@/lib/list-path';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 const emptyBranch: BranchVariables = {
@@ -106,7 +107,7 @@ export function BranchForm({ action, clientId, id, children }: BranchFormProps) 
   });
 
   const recordClientId = query?.data?.data.client_id ?? clientId;
-  const cancelTo = recordClientId ? `/clients/${recordClientId}/edit` : '/branches';
+  const cancelTo = recordClientId ? `/clients/${recordClientId}/edit` : listPath('/branches');
 
   const loadingRecord = isEdit && query?.isLoading;
 

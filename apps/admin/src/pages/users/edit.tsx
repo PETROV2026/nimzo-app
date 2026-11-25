@@ -32,6 +32,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { PageHeader } from '@/components/page-header';
 import { Postbox } from '@/components/postbox';
 import { StatusChip } from '@/components/status-chip';
+import { listPath } from '@/lib/list-path';
 import { generatePassword } from '@nimzo/shared';
 import type { Identity } from '@/providers/auth-provider';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
@@ -212,7 +213,7 @@ export function UserEdit() {
 
   const loading = query.isLoading;
   const crumbs = [
-    { label: 'Usuarios', to: '/users' },
+    { label: 'Usuarios', to: listPath('/users') },
     { label: loading ? undefined : user?.full_name || user?.email || 'Usuario' },
   ];
 
@@ -393,7 +394,7 @@ export function UserEdit() {
               >
                 <Link
                   component={RouterLink}
-                  to="/users"
+                  to={listPath('/users')}
                   className="touch-target"
                   sx={{ fontSize: 13 }}
                 >

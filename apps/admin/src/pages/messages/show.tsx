@@ -19,6 +19,7 @@ import { Notice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { Postbox } from '@/components/postbox';
 import { supabase } from '@/lib/supabase';
+import { listPath } from '@/lib/list-path';
 
 import { formatMessageDate } from './format';
 
@@ -124,7 +125,7 @@ export function MessageShow() {
 
   return (
     <>
-      <Breadcrumbs items={[{ label: 'Mensajes', to: '/messages' }, { label: title }]} />
+      <Breadcrumbs items={[{ label: 'Mensajes', to: listPath('/messages') }, { label: title }]} />
       <PageHeader title="Mensaje" />
 
       {query.isError ? (

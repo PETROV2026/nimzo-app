@@ -4,16 +4,10 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import {
-  mexicanStateLabels,
-  type Branch,
-  type MexicanState,
-  type Profile,
-  toSearchText,
-} from '@nimzo/shared';
+import { mexicanStateLabels, type Branch, type MexicanState, toSearchText } from '@nimzo/shared';
 import { useUpdate, type CrudFilter } from '@refinedev/core';
 import { useDataGrid } from '@refinedev/mui';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { useCatalogGridProps } from '@/components/catalog-grid';
@@ -25,9 +19,10 @@ import { SearchField } from '@/components/search-field';
 import { StatusChip } from '@/components/status-chip';
 import { StatusLinks } from '@/components/status-links';
 import { TechnicianFilter } from '@/components/technician-field';
-import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
+import { statusCrudFilter, statusFilters } from '@/lib/status-filter';
 import { technicianCrudFilter } from '@/lib/technician-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useIdParam, useOptionParam, useSearchParam } from '@/lib/use-list-params';
 import { theme } from '@/theme';
 
 type BranchRow = Branch & {
@@ -74,22 +69,25 @@ function NameCell({ branch }: { branch: Branch }) {
 export function BranchList() {
   const gridProps = useCatalogGridProps();
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('all');
-  const [technician, setTechnician] = useState<Profile | null>(null);
+  const [search, setSearch] = useSearchParam();
+  const [status, setStatus] = useOptionParam('status', statusFilters, 'all');
+  const [technicianId, setTechnicianId] = useIdParam('technician');
 
-  const { dataGridProps, setFilters } = useDataGrid<BranchRow>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<BranchRow>({
     resource: 'branches',
     meta: { select: '*, clients(name), systems(count), technician:profiles(full_name)' },
     sorters: { initial: [{ field: 'name', order: 'asc' }] },
     pagination: { pageSize: 20 },
   });
 
-  const filters: CrudFilter[] = [...statusCrudFilter(status), ...technicianCrudFilter(technician)];
+  const filters: CrudFilter[] = [
+    ...statusCrudFilter(status),
+    ...technicianCrudFilter(technicianId),
+  ];
   if (search.trim()) {
     filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
   }
-  useDebouncedFilters(setFilters, filters);
+  useDebouncedFilters({ setFilters, setCurrentPage }, filters);
 
   const columns = useMemo<GridColDef<BranchRow>[]>(
     () => [
@@ -147,7 +145,7 @@ export function BranchList() {
     [],
   );
 
-  const filtering = search.trim().length > 0 || status !== 'all' || technician !== null;
+  const filtering = search.trim().length > 0 || status !== 'all' || technicianId !== undefined;
   const emptyState = filtering ? (
     <GridEmptyState
       title="No se encontraron sucursales"
@@ -156,7 +154,7 @@ export function BranchList() {
   ) : (
     <GridEmptyState
       title="Aún no hay sucursales"
-      description="Agrega la primera con el botón de arriba, o desde la página de un cliente."
+      description="Agrega la primera desde «Agregar», en la barra superior, o desde la página de un cliente."
     />
   );
 
@@ -181,7 +179,7 @@ export function BranchList() {
         <Box
           sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, width: { xs: '100%', sm: 'auto' } }}
         >
-          <TechnicianFilter value={technician} onChange={setTechnician} />
+          <TechnicianFilter value={technicianId} onChange={setTechnicianId} />
           <SearchField
             value={search}
             onChange={setSearch}

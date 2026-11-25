@@ -3,9 +3,9 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { formatFolio, type Profile, type Report } from '@nimzo/shared';
+import { formatFolio, type Report } from '@nimzo/shared';
 import { useDataGrid } from '@refinedev/mui';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { useCatalogGridProps } from '@/components/catalog-grid';
@@ -15,6 +15,7 @@ import { PageHeader } from '@/components/page-header';
 import { TechnicianFilter } from '@/components/technician-field';
 import { technicianCrudFilter } from '@/lib/technician-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useIdParam } from '@/lib/use-list-params';
 
 import { formatSentAt } from './format';
 
@@ -27,9 +28,9 @@ type ReportRow = Report & {
 
 export function ReportList() {
   const gridProps = useCatalogGridProps();
-  const [technician, setTechnician] = useState<Profile | null>(null);
+  const [technicianId, setTechnicianId] = useIdParam('technician');
 
-  const { dataGridProps, setFilters } = useDataGrid<ReportRow>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<ReportRow>({
     resource: 'reports',
     meta: {
       select:
@@ -39,7 +40,7 @@ export function ReportList() {
     pagination: { pageSize: 20 },
   });
 
-  useDebouncedFilters(setFilters, technicianCrudFilter(technician));
+  useDebouncedFilters({ setFilters, setCurrentPage }, technicianCrudFilter(technicianId));
 
   const columns = useMemo<GridColDef<ReportRow>[]>(
     () => [
@@ -116,7 +117,7 @@ export function ReportList() {
     [],
   );
 
-  const emptyState = technician ? (
+  const emptyState = technicianId ? (
     <GridEmptyState
       title="Este técnico aún no ha enviado reportes"
       description="Elige otro técnico o quita el filtro."
@@ -134,7 +135,7 @@ export function ReportList() {
 
       <ListToolbar>
         <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          <TechnicianFilter value={technician} onChange={setTechnician} />
+          <TechnicianFilter value={technicianId} onChange={setTechnicianId} />
         </Box>
       </ListToolbar>
 

@@ -23,7 +23,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 
 import { AppLayout } from '@/components/layout/app-layout';
-import { GlobalLoading } from '@/components/loading/global-loading';
+import { OfflineNotice } from '@/components/offline-notice';
 import { SnackbarProvider } from '@/components/snackbar-provider';
 import { dataProvider } from '@/lib/data-provider';
 import { supabase } from '@/lib/supabase';
@@ -269,7 +269,11 @@ export default function App() {
             <Routes>
               <Route
                 element={
-                  <Authenticated key="protected" fallback={<SignInRedirect />}>
+                  <Authenticated
+                    key="protected"
+                    loading={<PageLoader label="Verificando tu sesión…" />}
+                    fallback={<SignInRedirect />}
+                  >
                     <Outlet />
                   </Authenticated>
                 }
@@ -377,7 +381,11 @@ export default function App() {
 
               <Route
                 element={
-                  <Authenticated key="public" fallback={<Outlet />}>
+                  <Authenticated
+                    key="public"
+                    loading={<PageLoader label="Verificando tu sesión…" />}
+                    fallback={<Outlet />}
+                  >
                     <NavigateToResource resource="dashboard" />
                   </Authenticated>
                 }
@@ -387,7 +395,7 @@ export default function App() {
               </Route>
             </Routes>
             <UnsavedChangesNotifier />
-            <GlobalLoading />
+            <OfflineNotice />
             <DocumentTitleHandler
               handler={({ resource, action, pathname }) => {
                 const toolTitle = pathname ? toolTitles[pathname] : undefined;
