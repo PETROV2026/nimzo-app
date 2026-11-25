@@ -21,11 +21,12 @@ export function describeReports({ draft, pending }: ReportCounts) {
   return second ? `${head} y ${second.count} ${plural(second.count, second.label)}` : head;
 }
 
-function reportsNote(counts: ReportCounts) {
+function reportsNote(counts: ReportCounts, short: boolean) {
   const reports = describeReports(counts);
   if (!reports) return null;
-  const verb = counts.draft + counts.pending === 1 ? 'Seguirá' : 'Seguirán';
-  return `Tienes ${reports} en este dispositivo. ${verb} aquí cuando vuelvas a iniciar sesión con esta cuenta.`;
+  const one = counts.draft + counts.pending === 1;
+  if (short) return `También tienes ${reports}, que ${one ? 'seguirá' : 'seguirán'} aquí.`;
+  return `Tienes ${reports} en este dispositivo. ${one ? 'Seguirá' : 'Seguirán'} aquí cuando vuelvas a iniciar sesión con esta cuenta.`;
 }
 
 export function signOutNote({ pending, rejected, reports = noReports }: SignOutChanges) {
@@ -36,7 +37,7 @@ export function signOutNote({ pending, rejected, reports = noReports }: SignOutC
     rejected
       ? `El servidor rechazó cambios en ${rejected}. Siguen guardados en este dispositivo, pero debes revisar sus datos para sincronizar.`
       : null,
-    reportsNote(reports),
+    reportsNote(reports, Boolean(pending || rejected)),
     accessNote,
   ]
     .filter((part) => part !== null)

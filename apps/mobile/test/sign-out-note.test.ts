@@ -52,3 +52,10 @@ test('a single report uses the singular verb', () => {
     `Tienes 1 reporte activo en este dispositivo. Seguirá aquí cuando vuelvas a iniciar sesión con esta cuenta. ${access}`,
   );
 });
+
+test('reports use a short sentence when other changes are already explained', () => {
+  assert.equal(
+    signOutNote({ pending: '1 cliente', rejected: '', reports: { draft: 1, pending: 0 } }),
+    `Tienes 1 cliente sin sincronizar en este dispositivo. La sincronización continuará cuando vuelvas a iniciar sesión con esta cuenta. También tienes 1 reporte activo, que seguirá aquí. ${access}`,
+  );
+});
