@@ -107,9 +107,19 @@ const stores: Record<LocalReportStatus, ReturnType<typeof statusStore>> = {
   pending: statusStore('pending'),
 };
 
+type StatusCount = { status: LocalReportStatus; count: number };
+
+const countStore = createTableStore((technicianId) =>
+  db.getAllSync<StatusCount>(
+    'select status, count(*) as count from reports where technician_id = ? group by status',
+    technicianId,
+  ),
+);
+
 export function notifyReports() {
   stores.draft.notify();
   stores.pending.notify();
+  countStore.notify();
 }
 
 export function useReports(technicianId: string, status: LocalReportStatus) {
@@ -118,10 +128,10 @@ export function useReports(technicianId: string, status: LocalReportStatus) {
 }
 
 export function useReportCounts(technicianId: string) {
-  return {
-    draft: useReports(technicianId, 'draft').length,
-    pending: useReports(technicianId, 'pending').length,
-  };
+  const rows = useSyncExternalStore(countStore.subscribe, () => countStore.snapshot(technicianId));
+  const count = (status: LocalReportStatus) =>
+    rows.find((row) => row.status === status)?.count ?? 0;
+  return { draft: count('draft'), pending: count('pending') };
 }
 
 export function readReport(id: string) {
