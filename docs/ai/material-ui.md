@@ -51,7 +51,7 @@ The examples below show the hooks; follow the clients pages for the surrounding 
 | Create / edit form | `<Create>` / `<Edit>` + `useForm()` from `@refinedev/react-hook-form` |
 | Detail page | `<Show>` + `useShow()` |
 | Row actions | `<EditButton>`, `<ShowButton>`, `<CreateButton>`, `<SaveButton>` |
-| Notifications | `useNotificationProvider` (already wired in `App.tsx`) |
+| Notifications | `notificationProvider` (Sonner, already wired in `App.tsx`); components call Refine's `useNotification`, never `toast` directly |
 
 ```tsx
 // List with server-side pagination, sorting and filtering.
@@ -173,7 +173,7 @@ import { Edit } from '@mui/icons-material';
 ```
 
 - Icons come from `@mui/icons-material` only. Don't add another icon library.
-- Don't add other UI libraries (shadcn/ui, Ant Design, Chakra, Tailwind…). One design system.
+- Don't add other UI libraries (shadcn/ui, Ant Design, Chakra, Tailwind…). One design system. The only two exceptions cover what MUI lacks and are styled with our tokens: **Sonner** for toasts (`src/components/toaster.tsx`) and **input-otp** for verification codes (`src/components/code-input.tsx`).
 
 ## 6. Accessibility (WCAG 2.1, see `docs/ux-principles.es.md`)
 

@@ -24,17 +24,17 @@ import { BrowserRouter, Outlet, Route, Routes } from 'react-router';
 
 import { AppLayout } from '@/components/layout/app-layout';
 import { OfflineNotice } from '@/components/offline-notice';
-import { SnackbarProvider } from '@/components/snackbar-provider';
 import { dataProvider } from '@/lib/data-provider';
 import { supabase } from '@/lib/supabase';
 import { DashboardPage } from '@/pages/dashboard';
 import { SignInRedirect } from '@/components/sign-in-redirect';
+import { Toaster } from '@/components/toaster';
 import { LoginPage } from '@/pages/login';
 import { TwoFactorPage } from '@/pages/two-factor';
 import { NotFoundPage } from '@/pages/not-found';
 import { authProvider } from '@/providers/auth-provider';
 import { i18nProvider } from '@/providers/i18n-provider';
-import { useNotificationProvider } from '@/providers/notification-provider';
+import { notificationProvider } from '@/providers/notification-provider';
 import { theme } from '@/theme';
 
 const loadClients = () => import('@/pages/clients');
@@ -251,162 +251,161 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <SnackbarProvider>
-          <Refine
-            dataProvider={dataProvider}
-            liveProvider={liveProvider(supabase)}
-            authProvider={authProvider}
-            i18nProvider={i18nProvider}
-            routerProvider={routerProvider}
-            notificationProvider={useNotificationProvider}
-            resources={resources}
-            options={{
-              disableTelemetry: true,
-              syncWithLocation: false,
-              warnWhenUnsavedChanges: true,
-            }}
-          >
-            <Routes>
-              <Route
-                element={
-                  <Authenticated
-                    key="protected"
-                    loading={<PageLoader label="Verificando tu sesión…" />}
-                    fallback={<SignInRedirect />}
-                  >
-                    <Outlet />
-                  </Authenticated>
-                }
-              >
-                <Route element={<ProtectedLayout />}>
-                  <Route index element={<DashboardPage />} />
-                  <Route
-                    path="/clients"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando clientes…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<ClientList />} />
-                    <Route path="create" element={<ClientCreate />} />
-                    <Route path=":id/edit" element={<ClientEdit />} />
-                  </Route>
-                  <Route
-                    path="/branches"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando sucursales…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<BranchList />} />
-                    <Route path="create" element={<BranchCreate />} />
-                    <Route path=":id/edit" element={<BranchEdit />} />
-                  </Route>
-                  <Route
-                    path="/systems"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando sistemas…" />}>
-                        <SystemList />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/forms"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando formatos…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<ServiceFormList />} />
-                    <Route path="create" element={<ServiceFormCreate />} />
-                    <Route path=":id/edit" element={<ServiceFormEdit />} />
-                  </Route>
-                  <Route
-                    path="/packages/:id"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando paquete…" />}>
-                        <PackageEdit />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/reports"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando reportes…" />}>
-                        <ReportList />
-                      </Suspense>
-                    }
-                  />
-                  <Route
-                    path="/messages"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando mensajes…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<MessageList />} />
-                    <Route path=":id" element={<MessageShow />} />
-                  </Route>
-                  <Route
-                    path="/users"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando usuarios…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<UserList />} />
-                    <Route path="create" element={<UserCreate />} />
-                    <Route path=":id/edit" element={<UserEdit />} />
-                  </Route>
-                  <Route
-                    path="/tools"
-                    element={
-                      <Suspense fallback={<PageLoader label="Cargando herramientas…" />}>
-                        <Outlet />
-                      </Suspense>
-                    }
-                  >
-                    <Route index element={<ToolsDiagnostics />} />
-                    <Route path="queries" element={<ToolsQueries />} />
-                    <Route path="links" element={<ToolsLinks />} />
-                  </Route>
-                  <Route path="*" element={<NotFoundPage />} />
+        <Refine
+          dataProvider={dataProvider}
+          liveProvider={liveProvider(supabase)}
+          authProvider={authProvider}
+          i18nProvider={i18nProvider}
+          routerProvider={routerProvider}
+          notificationProvider={notificationProvider}
+          resources={resources}
+          options={{
+            disableTelemetry: true,
+            syncWithLocation: false,
+            warnWhenUnsavedChanges: true,
+          }}
+        >
+          <Routes>
+            <Route
+              element={
+                <Authenticated
+                  key="protected"
+                  loading={<PageLoader label="Verificando tu sesión…" />}
+                  fallback={<SignInRedirect />}
+                >
+                  <Outlet />
+                </Authenticated>
+              }
+            >
+              <Route element={<ProtectedLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route
+                  path="/clients"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando clientes…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<ClientList />} />
+                  <Route path="create" element={<ClientCreate />} />
+                  <Route path=":id/edit" element={<ClientEdit />} />
                 </Route>
+                <Route
+                  path="/branches"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando sucursales…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<BranchList />} />
+                  <Route path="create" element={<BranchCreate />} />
+                  <Route path=":id/edit" element={<BranchEdit />} />
+                </Route>
+                <Route
+                  path="/systems"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando sistemas…" />}>
+                      <SystemList />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/forms"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando formatos…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<ServiceFormList />} />
+                  <Route path="create" element={<ServiceFormCreate />} />
+                  <Route path=":id/edit" element={<ServiceFormEdit />} />
+                </Route>
+                <Route
+                  path="/packages/:id"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando paquete…" />}>
+                      <PackageEdit />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/reports"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando reportes…" />}>
+                      <ReportList />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando mensajes…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<MessageList />} />
+                  <Route path=":id" element={<MessageShow />} />
+                </Route>
+                <Route
+                  path="/users"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando usuarios…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<UserList />} />
+                  <Route path="create" element={<UserCreate />} />
+                  <Route path=":id/edit" element={<UserEdit />} />
+                </Route>
+                <Route
+                  path="/tools"
+                  element={
+                    <Suspense fallback={<PageLoader label="Cargando herramientas…" />}>
+                      <Outlet />
+                    </Suspense>
+                  }
+                >
+                  <Route index element={<ToolsDiagnostics />} />
+                  <Route path="queries" element={<ToolsQueries />} />
+                  <Route path="links" element={<ToolsLinks />} />
+                </Route>
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
+            </Route>
 
-              <Route
-                element={
-                  <Authenticated
-                    key="public"
-                    loading={<PageLoader label="Verificando tu sesión…" />}
-                    fallback={<Outlet />}
-                  >
-                    <NavigateToResource resource="dashboard" />
-                  </Authenticated>
-                }
-              >
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/two-factor" element={<TwoFactorPage />} />
-              </Route>
-            </Routes>
-            <UnsavedChangesNotifier />
-            <OfflineNotice />
-            <DocumentTitleHandler
-              handler={({ resource, action, pathname }) => {
-                const toolTitle = pathname ? toolTitles[pathname] : undefined;
-                if (toolTitle) return `${toolTitle} | Nimzo`;
-                const pages = resource?.name ? titles[resource.name] : undefined;
-                const title = pages?.[action as 'list' | 'create' | 'edit' | 'show'] ?? pages?.list;
-                return title ? `${title} | Nimzo` : 'Nimzo';
-              }}
-            />
-          </Refine>
-        </SnackbarProvider>
+            <Route
+              element={
+                <Authenticated
+                  key="public"
+                  loading={<PageLoader label="Verificando tu sesión…" />}
+                  fallback={<Outlet />}
+                >
+                  <NavigateToResource resource="dashboard" />
+                </Authenticated>
+              }
+            >
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/two-factor" element={<TwoFactorPage />} />
+            </Route>
+          </Routes>
+          <UnsavedChangesNotifier />
+          <OfflineNotice />
+          <DocumentTitleHandler
+            handler={({ resource, action, pathname }) => {
+              const toolTitle = pathname ? toolTitles[pathname] : undefined;
+              if (toolTitle) return `${toolTitle} | Nimzo`;
+              const pages = resource?.name ? titles[resource.name] : undefined;
+              const title = pages?.[action as 'list' | 'create' | 'edit' | 'show'] ?? pages?.list;
+              return title ? `${title} | Nimzo` : 'Nimzo';
+            }}
+          />
+        </Refine>
+        <Toaster />
       </ThemeProvider>
     </BrowserRouter>
   );
