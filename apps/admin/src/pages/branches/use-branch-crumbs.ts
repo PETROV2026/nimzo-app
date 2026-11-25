@@ -2,6 +2,7 @@ import type { Branch, Client } from '@nimzo/shared';
 import { useOne } from '@refinedev/core';
 
 import type { Crumb } from '@/components/breadcrumbs';
+import { listPath } from '@/lib/list-path';
 
 export function useBranchCrumbs({ branchId, clientId }: { branchId?: string; clientId?: string }): {
   crumbs: Crumb[];
@@ -21,14 +22,14 @@ export function useBranchCrumbs({ branchId, clientId }: { branchId?: string; cli
 
   if (!branchId && resolvedClientId === undefined) {
     return {
-      crumbs: [{ label: 'Sucursales', to: '/branches' }, { label: 'Agregar sucursal' }],
+      crumbs: [{ label: 'Sucursales', to: listPath('/branches') }, { label: 'Agregar sucursal' }],
     };
   }
 
   return {
     clientId: resolvedClientId,
     crumbs: [
-      { label: 'Clientes', to: '/clients' },
+      { label: 'Clientes', to: listPath('/clients') },
       {
         label: client?.name,
         to: resolvedClientId ? `/clients/${resolvedClientId}/edit` : undefined,

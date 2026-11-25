@@ -2,9 +2,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import { useList } from '@refinedev/core';
 
-import { type KindFilter, kindCrudFilter } from './kind-filter';
-
-const order: KindFilter[] = ['all', 'bug', 'idea'];
+import { type KindFilter, kindCrudFilter, kindFilters } from './kind-filter';
 
 const labels: Record<KindFilter, string> = {
   all: 'Todos',
@@ -40,7 +38,7 @@ export function KindLinks({
       aria-label="Filtrar por tipo"
       sx={{ display: 'flex', flexWrap: 'wrap', listStyle: 'none', m: 0, p: 0 }}
     >
-      {order.map((filter, index) => {
+      {kindFilters.map((filter, index) => {
         const current = filter === value;
         return (
           <Box component="li" key={filter} sx={{ display: 'flex', alignItems: 'center' }}>

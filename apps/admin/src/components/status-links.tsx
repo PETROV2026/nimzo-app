@@ -2,9 +2,7 @@ import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import { useList } from '@refinedev/core';
 
-import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
-
-const order: StatusFilter[] = ['all', 'active', 'inactive'];
+import { statusCrudFilter, statusFilters, type StatusFilter } from '@/lib/status-filter';
 
 function useStatusCount(resource: string, status: StatusFilter) {
   const { result } = useList({
@@ -35,7 +33,7 @@ export function StatusLinks({ resource, value, onChange, labels }: StatusLinksPr
       aria-label="Filtrar por estado"
       sx={{ display: 'flex', flexWrap: 'wrap', listStyle: 'none', m: 0, p: 0 }}
     >
-      {order.map((filter, index) => {
+      {statusFilters.map((filter, index) => {
         const current = filter === value;
         return (
           <Box component="li" key={filter} sx={{ display: 'flex', alignItems: 'center' }}>

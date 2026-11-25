@@ -225,18 +225,21 @@ function SummaryBox() {
           resource="branches"
           singular="sucursal"
           plural="sucursales"
+          to="/branches"
         />
         <SummaryRow
           icon={<LocalFireDepartmentOutlined />}
           resource="systems"
           singular="sistema"
           plural="sistemas"
+          to="/systems"
         />
         <SummaryRow
           icon={<GroupOutlined />}
           resource="profiles"
           singular="usuario"
           plural="usuarios"
+          to="/users"
         />
       </Box>
     </Postbox>

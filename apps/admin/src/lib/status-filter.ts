@@ -1,6 +1,8 @@
 import type { CrudFilter } from '@refinedev/core';
 
-export type StatusFilter = 'all' | 'active' | 'inactive';
+export const statusFilters = ['all', 'active', 'inactive'] as const;
+
+export type StatusFilter = (typeof statusFilters)[number];
 
 export function statusCrudFilter(status: StatusFilter): CrudFilter[] {
   if (status === 'all') return [];

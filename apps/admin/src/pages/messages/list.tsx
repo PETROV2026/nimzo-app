@@ -4,14 +4,9 @@ import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import {
-  type FeedbackMessage,
-  feedbackKindLabels,
-  feedbackScreenLabel,
-  type Profile,
-} from '@nimzo/shared';
+import { type FeedbackMessage, feedbackKindLabels, feedbackScreenLabel } from '@nimzo/shared';
 import { useDataGrid } from '@refinedev/mui';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link as RouterLink } from 'react-router';
 
 import { useCatalogGridProps } from '@/components/catalog-grid';
@@ -21,9 +16,10 @@ import { PageHeader } from '@/components/page-header';
 import { TechnicianFilter } from '@/components/technician-field';
 import { technicianCrudFilter } from '@/lib/technician-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useIdParam, useOptionParam } from '@/lib/use-list-params';
 
 import { formatMessageDate } from './format';
-import { type KindFilter, kindCrudFilter } from './kind-filter';
+import { kindCrudFilter, kindFilters } from './kind-filter';
 import { KindLinks } from './kind-links';
 
 type MessageRow = FeedbackMessage & {
@@ -32,10 +28,10 @@ type MessageRow = FeedbackMessage & {
 
 export function MessageList() {
   const gridProps = useCatalogGridProps();
-  const [kind, setKind] = useState<KindFilter>('all');
-  const [technician, setTechnician] = useState<Profile | null>(null);
+  const [kind, setKind] = useOptionParam('kind', kindFilters, 'all');
+  const [technicianId, setTechnicianId] = useIdParam('technician');
 
-  const { dataGridProps, setFilters } = useDataGrid<MessageRow>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<MessageRow>({
     resource: 'feedback_messages',
     meta: {
       select:
@@ -45,7 +41,10 @@ export function MessageList() {
     pagination: { pageSize: 20 },
   });
 
-  useDebouncedFilters(setFilters, [...kindCrudFilter(kind), ...technicianCrudFilter(technician)]);
+  useDebouncedFilters({ setFilters, setCurrentPage }, [
+    ...kindCrudFilter(kind),
+    ...technicianCrudFilter(technicianId),
+  ]);
 
   const columns = useMemo<GridColDef<MessageRow>[]>(
     () => [
@@ -126,7 +125,7 @@ export function MessageList() {
     [],
   );
 
-  const filtering = kind !== 'all' || technician !== null;
+  const filtering = kind !== 'all' || technicianId !== undefined;
   const emptyState = filtering ? (
     <GridEmptyState
       title="No hay mensajes con estos filtros"
@@ -146,7 +145,7 @@ export function MessageList() {
       <ListToolbar>
         <KindLinks value={kind} onChange={setKind} />
         <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          <TechnicianFilter value={technician} onChange={setTechnician} />
+          <TechnicianFilter value={technicianId} onChange={setTechnicianId} />
         </Box>
       </ListToolbar>
 

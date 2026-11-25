@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router';
 
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { PageHeader } from '@/components/page-header';
+import { listPath } from '@/lib/list-path';
 
 import { ServiceFormForm } from './service-form-form';
 
@@ -16,7 +17,7 @@ export function ServiceFormEdit() {
     <>
       <Breadcrumbs
         items={[
-          { label: 'Formatos', to: '/forms' },
+          { label: 'Formatos', to: listPath('/forms') },
           { label: result ? formTitle(result) : undefined },
         ]}
       />

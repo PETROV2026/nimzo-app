@@ -2,7 +2,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import { toSearchText, type Profile } from '@nimzo/shared';
 import { useAutocomplete } from '@refinedev/mui';
-import type { Ref } from 'react';
+import { useState, type Ref } from 'react';
 
 import { RecordAutocomplete } from '@/components/record-autocomplete';
 
@@ -32,13 +32,15 @@ export function TechnicianField(props: TechnicianFieldProps) {
 }
 
 type TechnicianFilterProps = {
-  value: Profile | null;
-  onChange: (technician: Profile | null) => void;
+  value: string | undefined;
+  onChange: (id: string | undefined) => void;
 };
 
 export function TechnicianFilter({ value, onChange }: TechnicianFilterProps) {
+  const [selected, setSelected] = useState<Profile | null>(null);
   const { autocompleteProps } = useAutocomplete<Profile>({
     resource: 'profiles',
+    defaultValue: value,
     filters: [{ field: 'role', operator: 'eq', value: 'technician' }],
     sorters: [{ field: 'full_name', order: 'asc' }],
     onSearch: (search) => [
@@ -47,13 +49,21 @@ export function TechnicianFilter({ value, onChange }: TechnicianFilterProps) {
     pagination: { pageSize: 25 },
   });
 
+  const current =
+    selected && selected.id === value
+      ? selected
+      : (autocompleteProps.options.find((option) => option.id === value) ?? null);
+
   return (
     <Autocomplete
       {...autocompleteProps}
-      value={value}
-      onChange={(_, technician) => onChange(technician)}
+      value={current}
+      onChange={(_, technician) => {
+        setSelected(technician);
+        onChange(technician?.id);
+      }}
       getOptionLabel={(technician) => technician.full_name}
-      isOptionEqualToValue={(option, current) => option.id === current.id}
+      isOptionEqualToValue={(option, chosen) => option.id === chosen.id}
       noOptionsText="No hay técnicos"
       loadingText="Buscando…"
       sx={{ width: { xs: '100%', sm: 240 } }}

@@ -10,7 +10,6 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid';
 import {
   systemTypeLabels,
   systemTypeSchema,
-  type Profile,
   type System,
   type SystemType,
   toSearchText,
@@ -29,9 +28,10 @@ import { SearchField } from '@/components/search-field';
 import { StatusChip } from '@/components/status-chip';
 import { StatusLinks } from '@/components/status-links';
 import { TechnicianFilter } from '@/components/technician-field';
-import { statusCrudFilter, type StatusFilter } from '@/lib/status-filter';
+import { statusCrudFilter, statusFilters } from '@/lib/status-filter';
 import { technicianCrudFilter } from '@/lib/technician-filter';
 import { useDebouncedFilters } from '@/lib/use-debounced-filters';
+import { useIdParam, useOptionParam, useSearchParam } from '@/lib/use-list-params';
 import { theme } from '@/theme';
 
 import { SystemDialog } from './system-dialog';
@@ -80,25 +80,28 @@ function NameCell({ system, onEdit }: { system: System; onEdit: () => void }) {
 export function SystemList() {
   const gridProps = useCatalogGridProps();
   const isWide = useMediaQuery(theme.breakpoints.up('lg'));
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('all');
-  const [type, setType] = useState<SystemType | ''>('');
-  const [technician, setTechnician] = useState<Profile | null>(null);
+  const [search, setSearch] = useSearchParam();
+  const [status, setStatus] = useOptionParam('status', statusFilters, 'all');
+  const [type, setType] = useOptionParam<SystemType | ''>('type', systemTypeSchema.options, '');
+  const [technicianId, setTechnicianId] = useIdParam('technician');
   const [dialog, setDialog] = useState<DialogState>({ mode: 'closed' });
 
-  const { dataGridProps, setFilters } = useDataGrid<SystemRow>({
+  const { dataGridProps, setFilters, setCurrentPage } = useDataGrid<SystemRow>({
     resource: 'systems',
     meta: { select: '*, branches(name, clients(name)), technician:profiles(full_name)' },
     sorters: { initial: [{ field: 'name', order: 'asc' }] },
     pagination: { pageSize: 20 },
   });
 
-  const filters: CrudFilter[] = [...statusCrudFilter(status), ...technicianCrudFilter(technician)];
+  const filters: CrudFilter[] = [
+    ...statusCrudFilter(status),
+    ...technicianCrudFilter(technicianId),
+  ];
   if (type) filters.push({ field: 'system_type', operator: 'eq', value: type });
   if (search.trim()) {
     filters.push({ field: 'search_text', operator: 'contains', value: toSearchText(search) });
   }
-  useDebouncedFilters(setFilters, filters);
+  useDebouncedFilters({ setFilters, setCurrentPage }, filters);
 
   const columns = useMemo<GridColDef<SystemRow>[]>(
     () => [
@@ -162,7 +165,7 @@ export function SystemList() {
   );
 
   const filtering =
-    search.trim().length > 0 || status !== 'all' || type !== '' || technician !== null;
+    search.trim().length > 0 || status !== 'all' || type !== '' || technicianId !== undefined;
   const emptyState = filtering ? (
     <GridEmptyState
       title="No se encontraron sistemas"
@@ -196,7 +199,7 @@ export function SystemList() {
         <Box
           sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, width: { xs: '100%', sm: 'auto' } }}
         >
-          <TechnicianFilter value={technician} onChange={setTechnician} />
+          <TechnicianFilter value={technicianId} onChange={setTechnicianId} />
           <TextField
             select
             label="Tipo"

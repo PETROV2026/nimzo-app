@@ -21,10 +21,11 @@ import type { HttpError } from '@refinedev/core';
 import { useForm } from '@refinedev/react-hook-form';
 import type { ReactNode } from 'react';
 import { Controller, type Control, type FieldPath, type Resolver } from 'react-hook-form';
-import { Link as RouterLink } from 'react-router';
+import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
 import { TechnicianField } from '@/components/technician-field';
+import { listPath } from '@/lib/list-path';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 type ClientVariables = ClientFormInput & { technician_id?: string };
@@ -68,6 +69,7 @@ type ClientFormProps = { action: 'create' | 'edit'; id?: string; children?: Reac
 
 export function ClientForm({ action, id, children }: ClientFormProps) {
   const isEdit = action === 'edit';
+  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
@@ -77,13 +79,16 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
       resource: 'clients',
       action,
       id,
-      redirect: isEdit ? 'list' : 'edit',
+      redirect: isEdit ? false : 'edit',
       meta: { select: '*, technician:profiles(full_name, email)' },
       successNotification: (response) => ({
         type: 'success',
         message: isEdit ? 'Cliente guardado' : 'Cliente agregado',
         description: response?.data.name,
       }),
+      onMutationSuccess: () => {
+        if (isEdit) navigate(listPath('/clients'));
+      },
     },
     resolver: (isEdit
       ? zodResolver(clientFormSchema)
@@ -272,7 +277,7 @@ export function ClientForm({ action, id, children }: ClientFormProps) {
             >
               <Link
                 component={RouterLink}
-                to="/clients"
+                to={listPath('/clients')}
                 className="touch-target"
                 sx={{ fontSize: 13 }}
               >

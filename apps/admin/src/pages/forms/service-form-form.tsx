@@ -24,6 +24,7 @@ import { Link as RouterLink, useNavigate } from 'react-router';
 
 import { Postbox } from '@/components/postbox';
 import { removeFormIcon } from '@/lib/form-icons';
+import { listPath } from '@/lib/list-path';
 import { ADMIN_BAR_HEIGHT } from '@/theme';
 
 import { CardPreview } from './card-preview';
@@ -222,7 +223,7 @@ export function ServiceFormForm({ action, id }: ServiceFormFormProps) {
               >
                 <Link
                   component={RouterLink}
-                  to="/forms"
+                  to={listPath('/forms')}
                   className="touch-target"
                   sx={{ fontSize: 13 }}
                 >

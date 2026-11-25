@@ -35,6 +35,7 @@ The panel follows the **WordPress admin** conventions, so administrators recogni
 - Records that belong to another one (a client's branches, a branch's systems) are reachable two ways: listed in a `<Postbox>` on the parent's edit page with `<CatalogTable>`, and in their own sidebar entry with a list of all records (with a column linking to the parent). Their pages use flat routes (`/branches/:id/edit`) and show `<Breadcrumbs>` with the hierarchy (`Clientes / Cliente / Sucursal`). Creating one outside the parent asks for the parent with `<RecordAutocomplete>`. Small records with few fields (systems) are created and edited in a `Dialog`. See `pages/clients/branches-box.tsx`, `pages/branches/` and `pages/systems/`.
 - **Search ignores accents and case.** Searchable tables have a generated `search_text` column (unaccented, lower case; see migration `accent_insensitive_search`). Search inputs filter it with `{ field: 'search_text', operator: 'contains', value: toSearchText(term) }` (`toSearchText` from `@nimzo/shared`). A new searchable table adds its own `search_text` column and trigram index in its migration.
 - Lists share `<StatusLinks>`, `<SearchField>`, `<ListToolbar>`, `<GridEmptyState>` and `useCatalogGridProps()`; filters go through `useDebouncedFilters`.
+- List filters live in the URL (`useSearchParam`, `useOptionParam` and `useIdParam` in `src/lib/use-list-params.ts`), so they survive going back and reloading. Links and redirects that return to a list use `listPath('/clients')`, which keeps the last filters; the sidebar links to the plain path and clears them.
 - After creating a record that has children, redirect to its edit page so the admin can add them right away.
 - Tables: `useDataGrid()` + MUI `<DataGrid>` inside an outlined `<Paper>`, with status links and search above it (see `clients/list.tsx`).
 - Forms: `useForm()` from `@refinedev/react-hook-form` + `zodResolver` with the schema from `packages/shared`, MUI fields wired through `Controller`, laid out like `client-form.tsx` (main column + side save box).
@@ -189,7 +190,7 @@ Every data view handles three states besides the happy path:
 
 | State | How |
 |---|---|
-| Loading | DataGrid `loading` (from `dataGridProps`), `Skeleton` for cards, disabled `SaveButton` while saving |
+| Loading | DataGrid `loading` (from `dataGridProps`), `Skeleton` for cards, `loading` on the button that saves. Never a dialog that blocks the whole panel; only `<OfflineNotice>` does |
 | Empty | DataGrid `slots.noRowsOverlay` with a short message and the primary action ("Aún no hay clientes" + "Crear cliente") |
 | Error | Refine notifications for mutations; an `Alert severity="error"` for failed loads |
 
