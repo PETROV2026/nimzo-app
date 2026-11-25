@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { signOutNote } from '../src/auth/sign-out-note.ts';
+import { describeReports, signOutNote } from '../src/auth/sign-out-note.ts';
 
 const access = 'Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet.';
 
@@ -30,4 +30,18 @@ test('pending and rejected changes are explained separately', () => {
   assert.ok(note.includes('Tienes 2 clientes sin sincronizar'));
   assert.ok(note.includes('El servidor rechazó cambios en 1 sistema.'));
   assert.ok(note.endsWith(access));
+});
+
+test('reports are counted with their status', () => {
+  assert.equal(describeReports({ draft: 2, pending: 1 }), '2 reportes activos y 1 pendiente');
+  assert.equal(describeReports({ draft: 1, pending: 0 }), '1 reporte activo');
+  assert.equal(describeReports({ draft: 0, pending: 3 }), '3 reportes pendientes');
+  assert.equal(describeReports({ draft: 0, pending: 0 }), '');
+});
+
+test('local reports stay on the device after signing out', () => {
+  assert.equal(
+    signOutNote({ pending: '', rejected: '', reports: '2 reportes activos y 1 pendiente' }),
+    `Tienes 2 reportes activos y 1 pendiente en este dispositivo. Seguirán aquí cuando vuelvas a iniciar sesión con esta cuenta. ${access}`,
+  );
 });
