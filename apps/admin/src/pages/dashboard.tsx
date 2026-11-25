@@ -11,7 +11,13 @@ import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import iconWhite from '@nimzo/brand/logos/icon-white.webp';
-import type { Client } from '@nimzo/shared';
+import {
+  feedbackKindLabels,
+  formatFolio,
+  type Client,
+  type FeedbackMessage,
+  type Report,
+} from '@nimzo/shared';
 import { useList } from '@refinedev/core';
 import { useState, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router';
@@ -19,8 +25,10 @@ import { Link as RouterLink } from 'react-router';
 import { Notice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
 import { Postbox } from '@/components/postbox';
+import { RecentBox } from '@/components/recent-box';
 import { tokens } from '@/theme';
 
+const RECENT_COUNT = 5;
 const WELCOME_DISMISSED_KEY = 'nimzo.dashboard.welcomeDismissed';
 
 function readDismissed() {
@@ -246,79 +254,95 @@ function SummaryBox() {
   );
 }
 
-const dateFormat = new Intl.DateTimeFormat('es-MX', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-});
+type RecentReport = Pick<Report, 'id' | 'folio' | 'sent_at'> & {
+  client: { name: string } | null;
+  technician: { full_name: string } | null;
+};
+
+function RecentReportsBox() {
+  const { result, query } = useList<RecentReport>({
+    resource: 'reports',
+    meta: {
+      select: 'id, folio, sent_at, client:clients(name), technician:profiles(full_name)',
+    },
+    sorters: [{ field: 'sent_at', order: 'desc' }],
+    pagination: { pageSize: RECENT_COUNT },
+  });
+
+  return (
+    <RecentBox
+      title="Últimos reportes"
+      allTo="/reports"
+      items={result.data.map((report) => ({
+        id: report.id,
+        label: `Folio ${formatFolio(report.folio)} · ${report.client?.name ?? '—'}`,
+        to: `/reports?folio=${report.folio}`,
+        detail: report.technician?.full_name,
+        date: report.sent_at,
+      }))}
+      loading={query.isLoading}
+      failed={query.isError}
+      failedText="No se pudieron cargar los reportes. Recarga la página."
+      emptyText="Aún no hay reportes. Aparecerán aquí cuando un técnico los envíe desde la app."
+    />
+  );
+}
+
+type RecentMessage = Pick<FeedbackMessage, 'id' | 'kind' | 'message' | 'created_at'> & {
+  technician: { full_name: string } | null;
+};
+
+function RecentMessagesBox() {
+  const { result, query } = useList<RecentMessage>({
+    resource: 'feedback_messages',
+    meta: { select: 'id, kind, message, created_at, technician:profiles(full_name)' },
+    sorters: [{ field: 'created_at', order: 'desc' }],
+    pagination: { pageSize: RECENT_COUNT },
+  });
+
+  return (
+    <RecentBox
+      title="Últimos mensajes"
+      allTo="/messages"
+      items={result.data.map((message) => ({
+        id: message.id,
+        label: message.message,
+        to: `/messages/${message.id}`,
+        detail: [feedbackKindLabels[message.kind], message.technician?.full_name]
+          .filter(Boolean)
+          .join(' · '),
+        date: message.created_at,
+      }))}
+      loading={query.isLoading}
+      failed={query.isError}
+      failedText="No se pudieron cargar los mensajes. Recarga la página."
+      emptyText="Aún no hay mensajes. Aparecerán aquí cuando un técnico envíe un comentario."
+    />
+  );
+}
 
 function RecentClientsBox() {
   const { result, query } = useList<Client>({
     resource: 'clients',
     sorters: [{ field: 'created_at', order: 'desc' }],
-    pagination: { pageSize: 5 },
+    pagination: { pageSize: RECENT_COUNT },
   });
 
-  let content: ReactNode;
-  if (query.isLoading) {
-    content = (
-      <>
-        <Skeleton />
-        <Skeleton />
-        <Skeleton />
-      </>
-    );
-  } else if (query.isError) {
-    content = (
-      <Typography color="error">No se pudieron cargar los clientes. Recarga la página.</Typography>
-    );
-  } else if (result.data.length === 0) {
-    content = (
-      <Typography color="text.secondary">
-        Aún no hay clientes. Los que agregues aparecerán aquí.
-      </Typography>
-    );
-  } else {
-    content = (
-      <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0 }}>
-        {result.data.map((client) => (
-          <Box
-            component="li"
-            key={client.id}
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 2,
-              py: 1,
-              borderBottom: 1,
-              borderColor: 'divider',
-              '&:last-of-type': { borderBottom: 0 },
-            }}
-          >
-            <Link component={RouterLink} to={`/clients/${client.id}/edit`} noWrap>
-              {client.name}
-            </Link>
-            <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0 }}>
-              {dateFormat.format(new Date(client.created_at))}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-    );
-  }
-
   return (
-    <Postbox
+    <RecentBox
       title="Clientes recientes"
-      collapsible
-      action={
-        <Link component={RouterLink} to="/clients" variant="body2">
-          Ver todos
-        </Link>
-      }
-    >
-      {content}
-    </Postbox>
+      allTo="/clients"
+      items={result.data.map((client) => ({
+        id: client.id,
+        label: client.name,
+        to: `/clients/${client.id}/edit`,
+        date: client.created_at,
+      }))}
+      loading={query.isLoading}
+      failed={query.isError}
+      failedText="No se pudieron cargar los clientes. Recarga la página."
+      emptyText="Aún no hay clientes. Los que agregues aparecerán aquí."
+    />
   );
 }
 
@@ -358,6 +382,12 @@ export function DashboardPage() {
       <Grid container spacing={2.5}>
         <Grid size={{ xs: 12, lg: 6 }}>
           <SummaryBox />
+        </Grid>
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <RecentReportsBox />
+        </Grid>
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <RecentMessagesBox />
         </Grid>
         <Grid size={{ xs: 12, lg: 6 }}>
           <RecentClientsBox />

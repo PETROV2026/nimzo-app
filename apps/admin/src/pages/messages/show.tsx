@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
 import Chip from '@mui/material/Chip';
 import Grid from '@mui/material/Grid2';
-import Link from '@mui/material/Link';
 import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import {
@@ -17,6 +17,7 @@ import { useParams } from 'react-router';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Notice } from '@/components/notice';
 import { PageHeader } from '@/components/page-header';
+import { PhotoDialog } from '@/components/photo-dialog';
 import { Postbox } from '@/components/postbox';
 import { supabase } from '@/lib/supabase';
 import { listPath } from '@/lib/list-path';
@@ -68,6 +69,8 @@ function Detail({ label, children }: { label: string; children: ReactNode }) {
 
 function Photos({ paths }: { paths: string[] }) {
   const { loading, urls } = usePhotoUrls(paths);
+  const [openUrl, setOpenUrl] = useState<string | null>(null);
+  const available = urls.filter((url) => url !== null);
 
   if (paths.length === 0) {
     return <Typography color="text.secondary">El técnico no adjuntó imágenes.</Typography>;
@@ -79,17 +82,17 @@ function Photos({ paths }: { paths: string[] }) {
         loading ? (
           <Skeleton key={path} variant="rectangular" width={200} height={200} />
         ) : urls[index] ? (
-          <Link
+          <ButtonBase
             key={path}
-            href={urls[index] ?? undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Abrir la imagen ${index + 1} en otra pestaña`}
+            onClick={() => setOpenUrl(urls[index])}
+            aria-label={`Ampliar la imagen ${index + 1}`}
+            aria-haspopup="dialog"
+            sx={{ borderRadius: 1 }}
           >
             <Box
               component="img"
               src={urls[index] ?? undefined}
-              alt={`Imagen ${index + 1} del mensaje`}
+              alt=""
               sx={{
                 display: 'block',
                 width: 200,
@@ -100,12 +103,19 @@ function Photos({ paths }: { paths: string[] }) {
                 borderRadius: 1,
               }}
             />
-          </Link>
+          </ButtonBase>
         ) : (
           <Typography key={path} color="text.secondary">
             No se pudo cargar la imagen {index + 1}. Recarga la página para intentar de nuevo.
           </Typography>
         ),
+      )}
+      {openUrl && (
+        <PhotoDialog
+          urls={available}
+          initialIndex={available.indexOf(openUrl)}
+          onClose={() => setOpenUrl(null)}
+        />
       )}
     </Box>
   );
