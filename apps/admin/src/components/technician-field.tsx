@@ -1,10 +1,8 @@
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
-import { toSearchText, type Profile } from '@nimzo/shared';
-import { useAutocomplete } from '@refinedev/mui';
-import { useState, type Ref } from 'react';
+import type { Profile } from '@nimzo/shared';
+import type { Ref } from 'react';
 
 import { RecordAutocomplete } from '@/components/record-autocomplete';
+import { RecordFilter } from '@/components/record-filter';
 
 type TechnicianFieldProps = {
   value: string | undefined;
@@ -37,44 +35,17 @@ type TechnicianFilterProps = {
 };
 
 export function TechnicianFilter({ value, onChange }: TechnicianFilterProps) {
-  const [selected, setSelected] = useState<Profile | null>(null);
-  const { autocompleteProps } = useAutocomplete<Profile>({
-    resource: 'profiles',
-    defaultValue: value,
-    filters: [{ field: 'role', operator: 'eq', value: 'technician' }],
-    sorters: [{ field: 'full_name', order: 'asc' }],
-    onSearch: (search) => [
-      { field: 'search_text', operator: 'contains', value: toSearchText(search) },
-    ],
-    pagination: { pageSize: 25 },
-  });
-
-  const current =
-    selected && selected.id === value
-      ? selected
-      : (autocompleteProps.options.find((option) => option.id === value) ?? null);
-
   return (
-    <Autocomplete
-      {...autocompleteProps}
-      value={current}
-      onChange={(_, technician) => {
-        setSelected(technician);
-        onChange(technician?.id);
-      }}
-      getOptionLabel={(technician) => technician.full_name}
-      isOptionEqualToValue={(option, chosen) => option.id === chosen.id}
+    <RecordFilter<Profile>
+      resource="profiles"
+      label="Técnico"
+      placeholder="Todos los técnicos"
       noOptionsText="No hay técnicos"
-      loadingText="Buscando…"
-      sx={{ width: { xs: '100%', sm: 240 } }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Técnico"
-          placeholder="Todos los técnicos"
-          slotProps={{ inputLabel: { shrink: true } }}
-        />
-      )}
+      value={value}
+      onChange={onChange}
+      getOptionLabel={(technician) => technician.full_name}
+      sortField="full_name"
+      filters={[{ field: 'role', operator: 'eq', value: 'technician' }]}
     />
   );
 }
