@@ -12,6 +12,8 @@ type ConfirmDialogProps = {
   tone?: 'primary' | 'destructive';
   onConfirm: () => void;
   onClose: () => void;
+  secondaryLabel?: string;
+  onSecondary?: () => void;
   loading?: boolean;
 };
 
@@ -23,6 +25,8 @@ export function ConfirmDialog({
   tone = 'primary',
   onConfirm,
   onClose,
+  secondaryLabel,
+  onSecondary,
   loading,
 }: ConfirmDialogProps) {
   return (
@@ -37,12 +41,22 @@ export function ConfirmDialog({
               <Text className="flex-1 font-sans text-base text-muted">{note}</Text>
             </View>
           ) : null}
-          <View className="flex-row gap-3">
-            <View className="flex-1">
-              <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={loading} />
-            </View>
-            <View className="flex-1">
-              <Button variant={tone} label={confirmLabel} onPress={onConfirm} loading={loading} />
+          <View className="gap-3">
+            {secondaryLabel && onSecondary ? (
+              <Button
+                variant="outline"
+                label={secondaryLabel}
+                onPress={onSecondary}
+                disabled={loading}
+              />
+            ) : null}
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Button variant="secondary" label="Cancelar" onPress={onClose} disabled={loading} />
+              </View>
+              <View className="flex-1">
+                <Button variant={tone} label={confirmLabel} onPress={onConfirm} loading={loading} />
+              </View>
             </View>
           </View>
         </View>

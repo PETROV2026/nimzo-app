@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
+import { signOutNote } from '@/auth/sign-out-note';
+import { describeUploads, retryRejected, useUploadCounts } from '@/clients/clients-sync';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
 import { showDeveloperTools } from '@/dev/developer-tools';
@@ -41,6 +43,8 @@ export default function ProfileScreen() {
   const [showingSupport, setShowingSupport] = useState(false);
   const [showingPrivacy, setShowingPrivacy] = useState(false);
   const { toast, showToast } = useToast();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const uploads = useUploadCounts(technicianId);
 
   if (session.status !== 'signed-in') {
     return null;
@@ -57,6 +61,9 @@ export default function ProfileScreen() {
   const place = [city, state].filter(Boolean).join(', ');
   const missingSignature = profile?.signaturePath === null;
   const edit = canEdit ? () => setEditing(true) : undefined;
+  const pending = describeUploads(uploads.pending);
+  const rejected = describeUploads(uploads.rejected);
+  const syncLabel = pending ? 'Sincronizar primero' : rejected ? 'Volver a intentar' : undefined;
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -65,6 +72,11 @@ export default function ProfileScreen() {
     } finally {
       setSigningOut(false);
     }
+  }
+
+  function syncFirst() {
+    void retryRejected(technicianId);
+    setConfirmingSignOut(false);
   }
 
   const signatureAlert = missingSignature ? (
@@ -319,7 +331,9 @@ export default function ProfileScreen() {
           <ConfirmDialog
             title="¿Cerrar sesión?"
             message={`Se cerrará la sesión de ${name} en este dispositivo.`}
-            note="Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet."
+            note={signOutNote({ pending, rejected })}
+            secondaryLabel={online ? syncLabel : undefined}
+            onSecondary={syncFirst}
             confirmLabel="Cerrar sesión"
             tone="destructive"
             onConfirm={handleSignOut}
