@@ -117,6 +117,13 @@ export function useReports(technicianId: string, status: LocalReportStatus) {
   return useSyncExternalStore(store.subscribe, () => store.snapshot(technicianId));
 }
 
+export function useReportCounts(technicianId: string) {
+  return {
+    draft: useReports(technicianId, 'draft').length,
+    pending: useReports(technicianId, 'pending').length,
+  };
+}
+
 export function readReport(id: string) {
   const row = db.getFirstSync<ReportRow>('select * from reports where id = ?', id);
   return row ? fromRow(row) : null;

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
-import { signOutNote } from '@/auth/sign-out-note';
+import { describeReports, signOutNote } from '@/auth/sign-out-note';
 import { describeUploads, retryRejected, useUploadCounts } from '@/clients/clients-sync';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
@@ -25,6 +25,7 @@ import { PrivacyNoticeDialog } from '@/components/privacy-notice-dialog';
 import { initials } from '@/lib/initials';
 import { useOnline } from '@/lib/use-online';
 import { useNotificationAccess } from '@/notes/reminders';
+import { useReportCounts } from '@/reports/reports-db';
 import { colors } from '@/theme';
 
 const roomyWidth = 640;
@@ -45,6 +46,7 @@ export default function ProfileScreen() {
   const { toast, showToast } = useToast();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
   const uploads = useUploadCounts(technicianId);
+  const reportCounts = useReportCounts(technicianId);
 
   if (session.status !== 'signed-in') {
     return null;
@@ -63,6 +65,7 @@ export default function ProfileScreen() {
   const edit = canEdit ? () => setEditing(true) : undefined;
   const pending = describeUploads(uploads.pending);
   const rejected = describeUploads(uploads.rejected);
+  const reports = describeReports(reportCounts);
   const syncLabel = pending ? 'Sincronizar primero' : rejected ? 'Volver a intentar' : undefined;
 
   async function handleSignOut() {
@@ -331,7 +334,7 @@ export default function ProfileScreen() {
           <ConfirmDialog
             title="¿Cerrar sesión?"
             message={`Se cerrará la sesión de ${name} en este dispositivo.`}
-            note={signOutNote({ pending, rejected })}
+            note={signOutNote({ pending, rejected, reports })}
             secondaryLabel={online ? syncLabel : undefined}
             onSecondary={syncFirst}
             confirmLabel="Cerrar sesión"
