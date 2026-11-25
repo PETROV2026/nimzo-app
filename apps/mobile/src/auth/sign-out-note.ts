@@ -3,9 +3,7 @@ const accessNote =
 
 type ReportCounts = { draft: number; pending: number };
 
-type SignOutChanges = { pending: string; rejected: string; reports?: ReportCounts };
-
-const noReports: ReportCounts = { draft: 0, pending: 0 };
+type SignOutChanges = { pending: string; rejected: string; reports: ReportCounts };
 
 function plural(count: number, word: string) {
   return count === 1 ? word : `${word}s`;
@@ -29,7 +27,7 @@ function reportsNote(counts: ReportCounts, short: boolean) {
   return `Tienes ${reports} en este dispositivo. ${one ? 'Seguirá' : 'Seguirán'} aquí cuando vuelvas a iniciar sesión con esta cuenta.`;
 }
 
-export function signOutNote({ pending, rejected, reports = noReports }: SignOutChanges) {
+export function signOutNote({ pending, rejected, reports }: SignOutChanges) {
   return [
     pending
       ? `Tienes ${pending} sin sincronizar en este dispositivo. La sincronización continuará cuando vuelvas a iniciar sesión con esta cuenta.`
