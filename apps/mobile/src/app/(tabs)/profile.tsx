@@ -5,12 +5,8 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
-import {
-  describeUploads,
-  syncClients,
-  type UploadCounts,
-  useUploadCounts,
-} from '@/clients/clients-sync';
+import { signOutNote } from '@/auth/sign-out-note';
+import { describeUploads, retryRejected, useUploadCounts } from '@/clients/clients-sync';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
 import { showDeveloperTools } from '@/dev/developer-tools';
@@ -65,10 +61,9 @@ export default function ProfileScreen() {
   const place = [city, state].filter(Boolean).join(', ');
   const missingSignature = profile?.signaturePath === null;
   const edit = canEdit ? () => setEditing(true) : undefined;
-  const unsynced = describeUploads(addCounts(uploads.pending, uploads.rejected));
-  const signOutNote = unsynced
-    ? `Tienes ${unsynced} sin sincronizar en este dispositivo. Se sincronizarán cuando vuelvas a iniciar sesión con esta cuenta.`
-    : 'Para volver a acceder necesitarás tu correo, tu contraseña y conexión a internet.';
+  const pending = describeUploads(uploads.pending);
+  const rejected = describeUploads(uploads.rejected);
+  const syncLabel = pending ? 'Sincronizar primero' : rejected ? 'Volver a intentar' : undefined;
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -80,7 +75,7 @@ export default function ProfileScreen() {
   }
 
   function syncFirst() {
-    void syncClients(technicianId);
+    void retryRejected(technicianId);
     setConfirmingSignOut(false);
   }
 
@@ -336,8 +331,8 @@ export default function ProfileScreen() {
           <ConfirmDialog
             title="¿Cerrar sesión?"
             message={`Se cerrará la sesión de ${name} en este dispositivo.`}
-            note={signOutNote}
-            secondaryLabel={unsynced && online ? 'Sincronizar primero' : undefined}
+            note={signOutNote({ pending, rejected })}
+            secondaryLabel={online ? syncLabel : undefined}
             onSecondary={syncFirst}
             confirmLabel="Cerrar sesión"
             tone="destructive"
@@ -451,12 +446,4 @@ function ActionRow({ icon, title, description, tone = 'default', onPress }: Acti
       )}
     </Pressable>
   );
-}
-
-function addCounts(a: UploadCounts, b: UploadCounts): UploadCounts {
-  return {
-    clients: a.clients + b.clients,
-    branches: a.branches + b.branches,
-    systems: a.systems + b.systems,
-  };
 }
