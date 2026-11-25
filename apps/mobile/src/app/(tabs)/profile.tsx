@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSession } from '@/auth/session-provider';
-import { describeReports, signOutNote } from '@/auth/sign-out-note';
+import { signOutNote } from '@/auth/sign-out-note';
 import { describeUploads, retryRejected, useUploadCounts } from '@/clients/clients-sync';
 import { announce } from '@/components/announcement-toast';
 import { createDemoReports, deleteDemoReports } from '@/dev/demo-reports';
@@ -65,7 +65,6 @@ export default function ProfileScreen() {
   const edit = canEdit ? () => setEditing(true) : undefined;
   const pending = describeUploads(uploads.pending);
   const rejected = describeUploads(uploads.rejected);
-  const reports = describeReports(reportCounts);
   const syncLabel = pending ? 'Sincronizar primero' : rejected ? 'Volver a intentar' : undefined;
 
   async function handleSignOut() {
@@ -334,7 +333,7 @@ export default function ProfileScreen() {
           <ConfirmDialog
             title="¿Cerrar sesión?"
             message={`Se cerrará la sesión de ${name} en este dispositivo.`}
-            note={signOutNote({ pending, rejected, reports })}
+            note={signOutNote({ pending, rejected, reports: reportCounts })}
             secondaryLabel={online ? syncLabel : undefined}
             onSecondary={syncFirst}
             confirmLabel="Cerrar sesión"

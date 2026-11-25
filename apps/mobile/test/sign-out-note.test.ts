@@ -41,7 +41,14 @@ test('reports are counted with their status', () => {
 
 test('local reports stay on the device after signing out', () => {
   assert.equal(
-    signOutNote({ pending: '', rejected: '', reports: '2 reportes activos y 1 pendiente' }),
+    signOutNote({ pending: '', rejected: '', reports: { draft: 2, pending: 1 } }),
     `Tienes 2 reportes activos y 1 pendiente en este dispositivo. Seguirán aquí cuando vuelvas a iniciar sesión con esta cuenta. ${access}`,
+  );
+});
+
+test('a single report uses the singular verb', () => {
+  assert.equal(
+    signOutNote({ pending: '', rejected: '', reports: { draft: 1, pending: 0 } }),
+    `Tienes 1 reporte activo en este dispositivo. Seguirá aquí cuando vuelvas a iniciar sesión con esta cuenta. ${access}`,
   );
 });

@@ -3,7 +3,9 @@ const accessNote =
 
 type ReportCounts = { draft: number; pending: number };
 
-type SignOutChanges = { pending: string; rejected: string; reports?: string };
+type SignOutChanges = { pending: string; rejected: string; reports?: ReportCounts };
+
+const noReports: ReportCounts = { draft: 0, pending: 0 };
 
 function plural(count: number, word: string) {
   return count === 1 ? word : `${word}s`;
@@ -19,7 +21,14 @@ export function describeReports({ draft, pending }: ReportCounts) {
   return second ? `${head} y ${second.count} ${plural(second.count, second.label)}` : head;
 }
 
-export function signOutNote({ pending, rejected, reports = '' }: SignOutChanges) {
+function reportsNote(counts: ReportCounts) {
+  const reports = describeReports(counts);
+  if (!reports) return null;
+  const verb = counts.draft + counts.pending === 1 ? 'Seguirá' : 'Seguirán';
+  return `Tienes ${reports} en este dispositivo. ${verb} aquí cuando vuelvas a iniciar sesión con esta cuenta.`;
+}
+
+export function signOutNote({ pending, rejected, reports = noReports }: SignOutChanges) {
   return [
     pending
       ? `Tienes ${pending} sin sincronizar en este dispositivo. La sincronización continuará cuando vuelvas a iniciar sesión con esta cuenta.`
@@ -27,9 +36,7 @@ export function signOutNote({ pending, rejected, reports = '' }: SignOutChanges)
     rejected
       ? `El servidor rechazó cambios en ${rejected}. Siguen guardados en este dispositivo, pero debes revisar sus datos para sincronizar.`
       : null,
-    reports
-      ? `Tienes ${reports} en este dispositivo. Seguirán aquí cuando vuelvas a iniciar sesión con esta cuenta.`
-      : null,
+    reportsNote(reports),
     accessNote,
   ]
     .filter((part) => part !== null)
