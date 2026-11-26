@@ -116,6 +116,15 @@ export function photoFiles(value: unknown): string[] {
   return Object.values(value).flatMap(photoFiles);
 }
 
+function fileName(uri: string) {
+  return uri.slice(uri.lastIndexOf('/') + 1);
+}
+
+export function unusedPhotoFiles(files: readonly string[], answers: readonly unknown[]) {
+  const used = new Set(answers.flatMap(photoFiles).map(fileName));
+  return files.filter((uri) => !used.has(fileName(uri)));
+}
+
 export type ReportTarget = { clientId: string; branchId: string; systemId: string | null };
 
 export function resolveTarget<
