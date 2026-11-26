@@ -22,7 +22,12 @@ import { SelectField } from '@/forms/fields/select-field';
 import { TextFormField } from '@/forms/fields/text-field';
 import { TimeField } from '@/forms/fields/time-field';
 import { YesNoField } from '@/forms/fields/yes-no-field';
-import { FormScopeContext, useFormLayout, useFormScope } from '@/forms/form-context';
+import {
+  FormScopeContext,
+  useFormLayout,
+  useFormReadOnly,
+  useFormScope,
+} from '@/forms/form-context';
 import {
   type Chunk,
   chunkNodes,
@@ -229,6 +234,7 @@ function FieldNode({ field, name, bare }: { field: FormField; name: string; bare
   const { registerField, numbers } = useFormLayout();
   const { field: input, fieldState } = useController({ control, name });
   const ref = useMemo(() => registerField(name), [registerField, name]);
+  const readOnly = useFormReadOnly();
 
   function change(value: unknown) {
     input.onChange(value);
@@ -236,7 +242,7 @@ function FieldNode({ field, name, bare }: { field: FormField; name: string; bare
   }
 
   return (
-    <View ref={ref} collapsable={false}>
+    <View ref={ref} collapsable={false} className={readOnly ? 'pointer-events-none' : undefined}>
       <FieldInput
         field={field}
         value={input.value}
@@ -284,14 +290,14 @@ function EntryCard({
   children,
 }: {
   title: string;
-  onRemove: () => void;
+  onRemove?: () => void;
   children: ReactNode;
 }) {
   return (
     <View className="overflow-hidden rounded-xl border border-border bg-background">
       <View className="flex-row items-center gap-3 border-b border-border bg-surface pl-5 pr-2">
         <Text className="flex-1 font-sans-semibold text-lg text-foreground">{title}</Text>
-        <RemoveEntryButton label={title.toLowerCase()} onConfirm={onRemove} />
+        {onRemove ? <RemoveEntryButton label={title.toLowerCase()} onConfirm={onRemove} /> : null}
       </View>
       <View className="gap-5 p-5">{children}</View>
     </View>
@@ -313,6 +319,7 @@ function Collection({
 }) {
   const { fields, append, remove } = useFieldArray<EntryValues>({ name });
   const singular = singularOf(addLabel);
+  const readOnly = useFormReadOnly();
 
   return (
     <View className="gap-4">
@@ -329,17 +336,23 @@ function Collection({
       </View>
       {fields.length === 0 ? (
         <Text className="rounded-lg border border-dashed border-border-strong px-4 py-4 font-sans text-base text-muted">
-          {emptyText}
+          {readOnly ? 'Sin registros.' : emptyText}
         </Text>
       ) : null}
       {fields.map((entry, index) => (
-        <EntryCard key={entry.id} title={`${singular} ${index + 1}`} onRemove={() => remove(index)}>
+        <EntryCard
+          key={entry.id}
+          title={`${singular} ${index + 1}`}
+          onRemove={readOnly ? undefined : () => remove(index)}
+        >
           <ScopeProvider prefix={`${name}.${index}.`} nodes={nodes}>
             <Nodes nodes={nodes} />
           </ScopeProvider>
         </EntryCard>
       ))}
-      <TextAction icon="add-circle-outline" label={addLabel} onPress={() => append({})} />
+      {readOnly ? null : (
+        <TextAction icon="add-circle-outline" label={addLabel} onPress={() => append({})} />
+      )}
     </View>
   );
 }

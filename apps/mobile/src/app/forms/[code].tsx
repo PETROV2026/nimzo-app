@@ -1,6 +1,6 @@
 import { formTitle } from '@nimzo/shared';
 import { router, Stack, useLocalSearchParams, usePreventRemove } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { announce } from '@/components/announcement-toast';
@@ -49,6 +49,18 @@ function initialTarget(
     return { clientId: report.clientId, branchId: report.branchId, systemId: report.systemId };
   }
   return client && branch ? { clientId: client, branchId: branch, systemId: system ?? null } : null;
+}
+
+type LockedNoticeProps = { message: string; actionLabel: string; onAction: () => void };
+
+function LockedNotice({ message, actionLabel, onAction }: LockedNoticeProps) {
+  return (
+    <View className="flex-row flex-wrap items-center gap-4 rounded-xl border border-border bg-background p-5">
+      <Icon name="lock-closed-outline" size={24} color={colors.muted} />
+      <Text className="min-w-64 flex-1 font-sans text-base text-foreground">{message}</Text>
+      <Button variant="secondary" icon="create-outline" label={actionLabel} onPress={onAction} />
+    </View>
+  );
 }
 
 function FinishedReport({ onReopen }: { onReopen: () => void }) {
@@ -123,14 +135,6 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
     profileSignaturePath,
   });
 
-  const lock = useMemo(
-    () =>
-      draft.sealed
-        ? { label: 'Cambiar el reporte firmado', onPress: () => setUnlocking(true) }
-        : undefined,
-    [draft.sealed],
-  );
-
   usePreventRemove(answered && !draft.reportId, ({ repeat }) => setLeaving(() => repeat));
 
   function track(values: FormValues) {
@@ -161,13 +165,24 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
           onValuesChange={track}
           onFinish={finish}
           scrollEnabled={!drawing}
-          lock={lock}
+          readOnly={draft.sealed}
+          header={
+            draft.sealed ? (
+              <LockedNotice
+                message="El supervisor ya firmó. El reporte solo se puede ver."
+                actionLabel="Cambiar reporte"
+                onAction={() => setUnlocking(true)}
+              />
+            ) : undefined
+          }
           lead={{
             title: 'Cliente y sucursal',
             icon: 'business-outline',
             complete,
             action: complete ? (
-              <EditServiceButton onPress={() => setEditing(true)} />
+              draft.sealed ? undefined : (
+                <EditServiceButton onPress={() => setEditing(true)} />
+              )
             ) : target ? (
               <View />
             ) : (

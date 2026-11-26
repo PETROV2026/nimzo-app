@@ -12,7 +12,6 @@ import {
   type LayoutChangeEvent,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   type ScrollViewInstance,
   Text,
@@ -25,12 +24,10 @@ import type { FormDefinition, FormNode } from '@nimzo/shared';
 import { Icon, type IconName } from '@/components/icon';
 import {
   FormLayoutContext,
-  type FormLock,
-  FormLockContext,
   FormProgressContext,
+  FormReadOnlyContext,
   FormScopeContext,
   requiredMessage,
-  useFormLock,
 } from '@/forms/form-context';
 import { ItemsNode, ServiceTypePicker } from '@/forms/form-items';
 import {
@@ -69,7 +66,7 @@ type FormRendererProps = {
   closing?: LeadSection;
   onFinish?: (values: FormValues) => void;
   scrollEnabled?: boolean;
-  lock?: FormLock;
+  readOnly?: boolean;
 };
 
 export type LeadSection = LeadTarget & {
@@ -135,7 +132,6 @@ function SectionCard({
   children,
 }: SectionCardProps) {
   const owner = useId();
-  const lock = useFormLock();
   useEffect(() => () => onSectionLayout(id, owner, undefined), [id, owner, onSectionLayout]);
   return (
     <View
@@ -163,14 +159,6 @@ function SectionCard({
         {aside ?? <ProgressPill id={id} />}
       </View>
       <View className="gap-5 p-6">{children}</View>
-      {lock && id !== closingSectionId ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={lock.label}
-          onPress={lock.onPress}
-          className="absolute inset-0"
-        />
-      ) : null}
     </View>
   );
 }
@@ -325,7 +313,7 @@ export function FormRenderer({
   closing,
   onFinish,
   scrollEnabled = true,
-  lock,
+  readOnly = false,
 }: FormRendererProps) {
   const form = useForm<FormValues>({ defaultValues: defaultValues ?? {} });
   const { subscribe, getValues, setError, clearErrors } = form;
@@ -467,7 +455,7 @@ export function FormRenderer({
   return (
     <FormProvider {...form}>
       <FormLayoutContext.Provider value={layout}>
-        <FormLockContext.Provider value={lock}>
+        <FormReadOnlyContext.Provider value={readOnly}>
           <RootScope definition={definition}>
             <ProgressProvider
               definition={definition}
@@ -486,7 +474,7 @@ export function FormRenderer({
                   />
                   {scroll}
                 </View>
-                {keyboardVisible ? null : (
+                {keyboardVisible || (readOnly && !onFinish) ? null : (
                   <BottomBar
                     missing={missing}
                     onReview={review}
@@ -496,7 +484,7 @@ export function FormRenderer({
               </View>
             </ProgressProvider>
           </RootScope>
-        </FormLockContext.Provider>
+        </FormReadOnlyContext.Provider>
       </FormLayoutContext.Provider>
     </FormProvider>
   );
