@@ -8,6 +8,8 @@ import { type Segment, SegmentedControl } from '@/components/segmented-control';
 import { ServiceFormCard } from '@/components/service-forms/service-form-card';
 import { useSession } from '@/auth/session-provider';
 import { ReportList } from '@/reports/report-list';
+import type { LocalReportStatus } from '@/reports/report-rules';
+import { useReportCounts } from '@/reports/reports-db';
 import { type LocalServiceForm, useServiceForms } from '@/service-forms/service-forms-db';
 
 type Section = 'new' | 'active' | 'pending' | 'history';
@@ -34,6 +36,11 @@ const sections: Segment<Section>[] = [
     icon: 'time-outline',
   },
 ];
+
+const reportStatuses: Partial<Record<Section, LocalReportStatus>> = {
+  active: 'draft',
+  pending: 'pending',
+};
 
 type ServiceFormGridProps = {
   catalog: LocalServiceForm[];
@@ -96,13 +103,16 @@ export default function ServicesScreen() {
   const columns = width >= 1000 ? 4 : 3;
   const session = useSession();
   const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const counts = useReportCounts(technicianId);
+  const reportStatus = reportStatuses[current];
+  const hasReports = reportStatus !== undefined && counts[reportStatus] > 0;
 
   return (
     <>
       <HeaderSearchButton
         search={headerSearch}
-        label="Buscar formato"
-        available={current === 'new'}
+        label={reportStatus ? 'Buscar reporte' : 'Buscar formato'}
+        available={current === 'new' || hasReports}
       />
       <View className="px-6 pb-3 pt-6">
         <SegmentedControl
@@ -114,11 +124,8 @@ export default function ServicesScreen() {
           }}
         />
       </View>
-      {current === 'active' || current === 'pending' ? (
-        <ReportList
-          technicianId={technicianId}
-          status={current === 'active' ? 'draft' : 'pending'}
-        />
+      {reportStatus ? (
+        <ReportList technicianId={technicianId} status={reportStatus} search={headerSearch.term} />
       ) : (
         <ScrollView
           keyboardShouldPersistTaps="handled"
