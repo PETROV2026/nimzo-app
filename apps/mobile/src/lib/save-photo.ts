@@ -4,6 +4,7 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 
 const maxSide = 1600;
 const maxBytes = 1024 * 1024;
+export const photosFolder = 'photos';
 
 export async function savePhoto({ uri, width, height }: ImagePickerAsset, folderName: string) {
   const context = ImageManipulator.manipulate(uri);

@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SessionProvider, useSession } from '@/auth/session-provider';
+import { cleanUnusedPhotos } from '@/reports/photo-cleanup';
 import { colors, fonts } from '@/theme';
 
 SplashScreen.preventAutoHideAsync();
@@ -57,6 +58,7 @@ function RootNavigator() {
   useEffect(() => {
     if (ready) {
       SplashScreen.hideAsync();
+      cleanUnusedPhotos().catch(() => undefined);
     }
   }, [ready]);
 
