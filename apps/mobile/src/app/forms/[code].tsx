@@ -63,23 +63,67 @@ function LockedNotice({ message, actionLabel, onAction }: LockedNoticeProps) {
   );
 }
 
-function FinishedReport({ onReopen }: { onReopen: () => void }) {
+function FinishedReport({ report, onReopen }: { report: LocalReport; onReopen: () => void }) {
+  const session = useSession();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const definition = getDefinition(report.formCode);
+  const [confirming, setConfirming] = useState(false);
+  const target = {
+    clientId: report.clientId,
+    branchId: report.branchId,
+    systemId: report.systemId,
+  };
+
+  if (!definition || !technicianId) {
+    return (
+      <EmptyState
+        icon="document-text-outline"
+        title="Este formato aún no está disponible"
+        description="Actualiza la app para poder verlo."
+      />
+    );
+  }
+
   return (
-    <View className="flex-1 items-center justify-center gap-6 bg-canvas p-8">
-      <Icon name="checkmark-circle-outline" size={64} color={colors['primary-strong']} />
-      <View className="max-w-[480px] gap-2">
-        <Text className="text-center font-sans-bold text-xl text-foreground">
-          Este reporte ya está terminado
-        </Text>
-        <Text className="text-center font-sans text-base text-muted">
-          Para cambiarlo, reábrelo. Se borrarán las dos firmas y tendrán que firmar otra vez.
-        </Text>
-      </View>
-      <View className="flex-row gap-3">
-        <Button variant="secondary" label="Volver" onPress={() => router.back()} />
-        <Button label="Reabrir" icon="create-outline" onPress={onReopen} />
-      </View>
-    </View>
+    <>
+      <FormRenderer
+        definition={definition}
+        defaultValues={report.answers}
+        readOnly
+        header={
+          <LockedNotice
+            message="Este reporte ya está terminado. Para cambiarlo, reábrelo."
+            actionLabel="Reabrir"
+            onAction={() => setConfirming(true)}
+          />
+        }
+        lead={{
+          title: 'Cliente y sucursal',
+          icon: 'business-outline',
+          complete: true,
+          children: <ServiceSummary technicianId={technicianId} target={target} />,
+        }}
+        closing={{
+          title: 'Firmas',
+          icon: 'create-outline',
+          complete: true,
+          children: <SignaturesBlock value={report.signatures} />,
+        }}
+      />
+      {confirming ? (
+        <ConfirmDialog
+          title="¿Reabrir el reporte?"
+          message="Se borrarán las dos firmas y tendrán que firmar otra vez."
+          confirmLabel="Reabrir"
+          tone="destructive"
+          onClose={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            onReopen();
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -94,6 +138,7 @@ export default function FillFormScreen() {
       <>
         <Stack.Screen options={{ title }} />
         <FinishedReport
+          report={initial}
           onReopen={() => {
             reopen(initial.id);
             setInitial(readReport(initial.id));
