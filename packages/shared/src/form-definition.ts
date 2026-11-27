@@ -325,6 +325,22 @@ function serviceTypeProblems(
   );
 }
 
+function possibleValues(node: FormNode): readonly unknown[] | undefined {
+  switch (node.type) {
+    case 'checkbox':
+      return [true, false];
+    case 'yes_no':
+      return ['yes', 'no'];
+    case 'choice':
+    case 'select':
+      return node.options.map((option) => option.value);
+    case 'check':
+      return [];
+    default:
+      return undefined;
+  }
+}
+
 export function definitionProblems(form: DefinitionShape): string[] {
   const problems: string[] = [];
   if (form.items && form.sections.length > 0) {
@@ -354,6 +370,16 @@ export function definitionProblems(form: DefinitionShape): string[] {
   eachNode(nodes, (node) => {
     if ('visibleWhen' in node && node.visibleWhen && !fields.has(node.visibleWhen.field)) {
       problems.push(`"${node.id}" depends on a missing field "${node.visibleWhen.field}"`);
+    }
+    if ('visibleWhen' in node && node.visibleWhen) {
+      const { field, equals } = node.visibleWhen;
+      const target = fields.get(field);
+      const values = target ? possibleValues(target) : undefined;
+      if (values && !values.includes(equals)) {
+        problems.push(
+          `"${node.id}" shows when "${field}" is ${JSON.stringify(equals)}, a value it can never have`,
+        );
+      }
     }
     if (node.type === 'calc') {
       for (const name of expressionNames(node.expression)) {

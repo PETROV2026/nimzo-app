@@ -108,7 +108,7 @@
               "label": "Marca del cabezal de engranes",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -117,7 +117,7 @@
               "label": "Modelo del cabezal de engranes",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -126,7 +126,7 @@
               "label": "Número de serie del cabezal de engranes",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -135,7 +135,7 @@
               "label": "Relación del cabezal de engranes",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             }
           ]

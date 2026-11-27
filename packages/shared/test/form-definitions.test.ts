@@ -199,3 +199,74 @@ for (const [code, expected] of Object.entries(administrativeRequired)) {
     );
   });
 }
+
+test('a condition must use a value its field can have', () => {
+  const problems = definitionProblems({
+    report: [],
+    sections: [
+      {
+        id: 'main',
+        title: 'Principal',
+        children: [
+          { id: 'gear_head', type: 'yes_no', label: 'Cabezal de engranes' },
+          { id: 'others', type: 'checkbox', label: 'Otros' },
+          {
+            id: 'state',
+            type: 'choice',
+            label: 'Estado',
+            options: [{ value: 'open', label: 'Abierta' }],
+          },
+          { id: 'valve', type: 'check', label: 'Válvula' },
+          {
+            id: 'brand',
+            type: 'text',
+            label: 'Marca',
+            visibleWhen: { field: 'gear_head', equals: true },
+          },
+          {
+            id: 'model',
+            type: 'text',
+            label: 'Modelo',
+            visibleWhen: { field: 'gear_head', equals: 'yes' },
+          },
+          {
+            id: 'detail',
+            type: 'text',
+            label: 'Detalle',
+            visibleWhen: { field: 'others', equals: 'yes' },
+          },
+          {
+            id: 'extra',
+            type: 'text',
+            label: 'Extra',
+            visibleWhen: { field: 'others', equals: true },
+          },
+          {
+            id: 'date',
+            type: 'date',
+            label: 'Fecha',
+            visibleWhen: { field: 'state', equals: 'closed' },
+          },
+          {
+            id: 'note',
+            type: 'text',
+            label: 'Nota',
+            visibleWhen: { field: 'state', equals: 'open' },
+          },
+          {
+            id: 'fix',
+            type: 'text',
+            label: 'Arreglo',
+            visibleWhen: { field: 'valve', equals: 'x' },
+          },
+        ],
+      },
+    ],
+  });
+  assert.deepEqual(problems, [
+    '"brand" shows when "gear_head" is true, a value it can never have',
+    '"detail" shows when "others" is "yes", a value it can never have',
+    '"date" shows when "state" is "closed", a value it can never have',
+    '"fix" shows when "valve" is "x", a value it can never have',
+  ]);
+});
