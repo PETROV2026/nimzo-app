@@ -1,5 +1,5 @@
 import '../global.css';
-import { setMonitoringUser, wrapRoot } from '@/lib/monitoring';
+import { reportError, setMonitoringUser, wrapRoot } from '@/lib/monitoring';
 
 import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
 import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
@@ -58,7 +58,7 @@ function RootNavigator() {
   useEffect(() => {
     if (ready) {
       SplashScreen.hideAsync();
-      cleanUnusedPhotos().catch(() => undefined);
+      cleanUnusedPhotos().catch(reportError);
     }
   }, [ready]);
 
