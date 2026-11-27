@@ -128,6 +128,7 @@ export type FormObservations = z.infer<typeof observationsSchema>;
 
 export const observationFields: FormField[] = [
   { id: 'system', type: 'text', label: 'Sistema' },
+  { id: 'component', type: 'text', label: 'Equipo / Componente' },
   {
     id: 'status',
     type: 'choice',
@@ -138,6 +139,8 @@ export const observationFields: FormField[] = [
     ],
   },
   { id: 'observation', type: 'text', label: 'Observación', multiline: true },
+  { id: 'impact', type: 'text', label: 'Impacto', multiline: true },
+  { id: 'corrective_action', type: 'text', label: 'Acción correctiva', multiline: true },
   { id: 'photos', type: 'photos', label: 'Fotos', count: 4 },
 ];
 
