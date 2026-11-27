@@ -314,3 +314,20 @@ test('an open observation does not keep its closing date', () => {
     },
   );
 });
+
+test('service observations are saved with the rest of the answers', () => {
+  const form = formDefinitionSchema.parse({
+    code: 'test_form',
+    version: 1,
+    report: [],
+    sections: [
+      { id: 'main', title: 'Principal', children: [{ id: 'a', type: 'check', label: 'A' }] },
+    ],
+    serviceObservations: true,
+  });
+  const values = {
+    a: { status: 'ok' },
+    service_observations: [{ observation: 'Fuga', classification: 'critical_deficiency' }],
+  };
+  assert.deepEqual(visibleValues(form, values), values);
+});

@@ -1,6 +1,7 @@
 {
   "code": "clean_agent_monthly",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "protected_place",

@@ -71,6 +71,15 @@ export function useNavTargets(
     ...(definition.items
       ? [{ id: 'items', title: itemsTitle(definition), icon: 'layers-outline' as const }]
       : []),
+    ...(definition.serviceObservations
+      ? [
+          {
+            id: definition.serviceObservations.id,
+            title: 'Observaciones',
+            icon: 'clipboard-outline' as const,
+          },
+        ]
+      : []),
     { id: 'comments', title: definition.commentsLabel, icon: 'chatbox-outline' as const },
     ...(closing ? [{ id: closingSectionId, title: closing.title, icon: closing.icon }] : []),
   ];

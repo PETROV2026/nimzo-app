@@ -37,3 +37,21 @@ test('the summary names the system, component and location that are filled', () 
   );
   assert.equal(observationSummary({ system: '  ', location: undefined }), '');
 });
+
+test('a service observation shows only the finding and the evidence', () => {
+  const brief = observationFields.filter((field) =>
+    ['observation', 'classification', 'photos'].includes(field.id),
+  );
+  assert.deepEqual(ids(arrangeObservation(brief)), [
+    ['Hallazgo', [['classification'], ['observation']]],
+    ['Evidencia', [['photos']]],
+  ]);
+});
+
+test('without a place the summary shows the first line of the observation', () => {
+  assert.equal(
+    observationSummary({ observation: '  Fuga en la válvula de prueba\nSe cambió el empaque' }),
+    'Fuga en la válvula de prueba',
+  );
+  assert.equal(observationSummary({ system: 'Bombas', observation: 'Fuga' }), 'Bombas');
+});

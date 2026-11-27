@@ -243,6 +243,15 @@ const FormBody = memo(function FormBody({
           <ItemsNode definition={definition} />
         </SectionCard>
       ) : null}
+      {definition.serviceObservations ? (
+        <SectionCard
+          id={definition.serviceObservations.id}
+          title="Observaciones"
+          onSectionLayout={onSectionLayout}
+        >
+          <RenderNode node={definition.serviceObservations} />
+        </SectionCard>
+      ) : null}
       <SectionCard id="comments" title={definition.commentsLabel} onSectionLayout={onSectionLayout}>
         <RenderNode node={comments} />
       </SectionCard>

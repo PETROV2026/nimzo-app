@@ -1,6 +1,7 @@
 {
   "code": "control_valves_quarterly",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",

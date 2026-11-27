@@ -152,6 +152,14 @@ export const observationFields: FormField[] = [
   { id: 'photos', type: 'photos', label: 'Fotos', count: 4 },
 ];
 
+const serviceObservationIds = ['observation', 'classification', 'photos'];
+
+export const serviceObservationFields: FormField[] = serviceObservationIds.flatMap(
+  (id) => observationFields.find((field) => field.id === id) ?? [],
+);
+
+export const serviceObservationsKey = 'service_observations';
+
 export const observationsSchema = z
   .object({
     type: z.literal('observations'),
@@ -262,12 +270,23 @@ export const formDefinitionSchema = z
     items: formItemsSchema.optional(),
     sections: z.array(sectionSchema),
     commentsLabel: label.default('Comentarios'),
+    serviceObservations: z.boolean().default(false),
   })
   .superRefine((form, ctx) => {
     for (const problem of definitionProblems(form)) {
       ctx.addIssue({ code: 'custom', message: problem });
     }
-  });
+  })
+  .transform(({ serviceObservations, ...form }) => ({
+    ...form,
+    serviceObservations: serviceObservations
+      ? {
+          type: 'observations' as const,
+          id: serviceObservationsKey,
+          children: serviceObservationFields,
+        }
+      : undefined,
+  }));
 
 export type FormDefinition = z.output<typeof formDefinitionSchema>;
 export type FormDefinitionInput = z.input<typeof formDefinitionSchema>;
@@ -278,6 +297,7 @@ type DefinitionShape = {
   serviceType?: FormServiceType;
   items?: FormItems;
   sections: FormSection[];
+  serviceObservations?: boolean;
 };
 
 function childrenOf(node: FormNode): FormNode[] {
@@ -358,6 +378,7 @@ export function definitionProblems(form: DefinitionShape): string[] {
   ];
   const ids: string[] = [...allSections.map((section) => section.id)];
   if (form.items) ids.push(form.items.id);
+  if (form.serviceObservations) ids.push(serviceObservationsKey);
   const fields = new Map<string, FormNode>();
   collectIds(nodes, ids, fields);
 

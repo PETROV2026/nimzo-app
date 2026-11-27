@@ -1,6 +1,7 @@
 {
   "code": "fire_alarm_weekly",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",
