@@ -116,19 +116,20 @@ export const tableSchema = z.object({
   columns: z.array(fieldSchema).min(1),
 });
 
-export const observationsSchema = z.object({
-  type: z.literal('observations'),
-  id: fieldId,
-});
-
-export type FormNote = z.infer<typeof noteSchema>;
-export type FormChart = z.infer<typeof chartSchema>;
-export type FormTable = z.infer<typeof tableSchema>;
-export type FormObservations = z.infer<typeof observationsSchema>;
-
 export const observationFields: FormField[] = [
   { id: 'system', type: 'text', label: 'Sistema' },
   { id: 'component', type: 'text', label: 'Equipo / Componente' },
+  { id: 'location', type: 'text', label: 'Ubicación' },
+  {
+    id: 'classification',
+    type: 'choice',
+    label: 'Clasificación',
+    options: [
+      { value: 'noncritical_deficiency', label: 'Deficiencia no crítica' },
+      { value: 'critical_deficiency', label: 'Deficiencia crítica' },
+      { value: 'impairment', label: 'Fuera de servicio' },
+    ],
+  },
   {
     id: 'status',
     type: 'choice',
@@ -138,11 +139,30 @@ export const observationFields: FormField[] = [
       { value: 'closed', label: 'Cerrada' },
     ],
   },
+  {
+    id: 'closed_on',
+    type: 'date',
+    label: 'Fecha de cierre',
+    visibleWhen: { field: 'status', equals: 'closed' },
+  },
+  { id: 'quote_required', type: 'yes_no', label: '¿Requiere cotización?' },
   { id: 'observation', type: 'text', label: 'Observación', multiline: true },
   { id: 'impact', type: 'text', label: 'Impacto', multiline: true },
   { id: 'corrective_action', type: 'text', label: 'Acción correctiva', multiline: true },
   { id: 'photos', type: 'photos', label: 'Fotos', count: 4 },
 ];
+
+export const observationsSchema = z
+  .object({
+    type: z.literal('observations'),
+    id: fieldId,
+  })
+  .transform((node) => ({ ...node, children: observationFields }));
+
+export type FormNote = z.infer<typeof noteSchema>;
+export type FormChart = z.infer<typeof chartSchema>;
+export type FormTable = z.infer<typeof tableSchema>;
+export type FormObservations = z.output<typeof observationsSchema>;
 
 export type FormGroup = {
   type: 'group';

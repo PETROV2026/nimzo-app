@@ -1,7 +1,9 @@
 import type {
   FormDefinition,
   FormField,
+  FormList,
   FormNode,
+  FormObservations,
   FormSection,
   FormServiceType,
 } from '@nimzo/shared';
@@ -29,6 +31,10 @@ const fieldTypes = new Set<string>([
 
 export function isField(node: FormNode): node is FormField {
   return fieldTypes.has(node.type);
+}
+
+function isCollection(node: FormNode): node is FormList | FormObservations {
+  return node.type === 'list' || node.type === 'observations';
 }
 
 export function isEmptyValue(value: unknown) {
@@ -71,7 +77,7 @@ function conditionOf(node: FormNode) {
 function hideAll(nodes: FormNode[], hidden: Set<string>) {
   for (const node of nodes) {
     if ('id' in node) hidden.add(node.id);
-    if (node.type === 'group' || node.type === 'list') hideAll(node.children, hidden);
+    if (node.type === 'group' || isCollection(node)) hideAll(node.children, hidden);
   }
 }
 
@@ -148,7 +154,7 @@ function collectConditions(nodes: FormNode[], fields: Set<string>) {
   for (const node of nodes) {
     const condition = conditionOf(node);
     if (condition) fields.add(condition.field);
-    if (node.type === 'group' || node.type === 'list') collectConditions(node.children, fields);
+    if (node.type === 'group' || isCollection(node)) collectConditions(node.children, fields);
   }
 }
 
@@ -184,7 +190,7 @@ function collectMissing(
     if ('id' in node && hidden.has(node.id)) continue;
     if (node.type === 'group') {
       collectMissing(node.children, scope, hidden, prefix, missing);
-    } else if (node.type === 'list') {
+    } else if (isCollection(node)) {
       rowsOf(scope[node.id]).forEach((row, index) => {
         const rowHidden = hiddenInNodes(node.children, row);
         collectMissing(node.children, row, rowHidden, `${prefix}${node.id}.${index}.`, missing);
@@ -238,6 +244,30 @@ export function pathAndParents(path: string) {
   return parts.map((_, index) => parts.slice(0, parts.length - index).join('.'));
 }
 
+function keepRow(nodes: FormNode[], row: FormValues): FormValues {
+  const hidden = hiddenInNodes(nodes, row);
+  return withVisibleRows(
+    nodes,
+    Object.fromEntries(Object.entries(row).filter(([id]) => !hidden.has(id))),
+  );
+}
+
+function withVisibleRows(nodes: FormNode[], values: FormValues): FormValues {
+  const result = { ...values };
+  const visit = (list: FormNode[]) => {
+    for (const node of list) {
+      if (node.type === 'group') visit(node.children);
+      else if (isCollection(node) && Array.isArray(result[node.id])) {
+        result[node.id] = rowsOf(result[node.id]).map((row) =>
+          row && typeof row === 'object' ? keepRow(node.children, row) : row,
+        );
+      }
+    }
+  };
+  visit(nodes);
+  return result;
+}
+
 function keepEntry(definition: FormDefinition, values: FormValues, entry: FormValues) {
   const sections = itemSections(definition, values, entry);
   const nodes = sections.flatMap((section) => section.children);
@@ -252,13 +282,20 @@ function keepEntry(definition: FormDefinition, values: FormValues, entry: FormVa
     }
   };
   collect(nodes);
-  return Object.fromEntries(Object.entries(entry).filter(([id]) => allowed.has(id)));
+  return withVisibleRows(
+    nodes,
+    Object.fromEntries(Object.entries(entry).filter(([id]) => allowed.has(id))),
+  );
 }
 
 export function visibleValues(definition: FormDefinition, values: FormValues): FormValues {
   const { hidden } = visibility(definition, values);
-  const kept: FormValues = Object.fromEntries(
-    Object.entries(values).filter(([id]) => !hidden.has(id)),
+  const kept: FormValues = withVisibleRows(
+    [
+      ...headNodes(definition),
+      ...formSections(definition, values).flatMap((section) => section.children),
+    ],
+    Object.fromEntries(Object.entries(values).filter(([id]) => !hidden.has(id))),
   );
   if (kept[serviceTypeKey] !== customServiceType) delete kept[customSectionsKey];
   const items = definition.items;

@@ -9,7 +9,6 @@ import {
   type FormNote,
   type FormObservations,
   type FormTable,
-  observationFields,
 } from '@nimzo/shared';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Icon } from '@/components/icon';
@@ -366,7 +365,7 @@ function ObservationsNode({ node }: { node: FormObservations }) {
       label="Observaciones"
       addLabel="Agregar observación"
       emptyText="Aún no hay observaciones. Agrega una por cada hallazgo que quieras reportar."
-      nodes={observationFields}
+      nodes={node.children}
     />
   );
 }
