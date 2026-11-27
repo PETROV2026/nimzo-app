@@ -13,7 +13,7 @@ type OptionButtonsProps<T extends string> = {
   onChange: (value: T | undefined) => void;
 };
 
-const selectedStyles = {
+export const optionToneStyles: Record<OptionTone, { box: string; border: string; text: string }> = {
   primary: { box: 'bg-primary-strong', border: 'border-primary-strong', text: 'text-on-primary' },
   danger: { box: 'bg-danger-strong', border: 'border-danger-strong', text: 'text-on-danger' },
   neutral: { box: 'bg-muted', border: 'border-muted', text: 'text-background' },
@@ -44,7 +44,7 @@ export function OptionButtons<T extends string>({
     >
       {options.map((option, index) => {
         const selected = option.value === value;
-        const style = selectedStyles[option.tone ?? 'primary'];
+        const style = optionToneStyles[option.tone ?? 'primary'];
         const shape = segmented
           ? `min-w-16 ${index > 0 ? 'border-l-2 border-border-strong' : ''}`
           : `min-w-20 rounded-lg border-2 ${selected ? style.border : 'border-border-strong'}`;
