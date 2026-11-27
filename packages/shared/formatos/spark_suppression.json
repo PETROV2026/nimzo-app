@@ -1,6 +1,7 @@
 {
   "code": "spark_suppression",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",

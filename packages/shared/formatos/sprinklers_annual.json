@@ -1,6 +1,7 @@
 {
   "code": "sprinklers_annual",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",

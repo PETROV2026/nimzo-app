@@ -294,6 +294,7 @@ export function visibleValues(definition: FormDefinition, values: FormValues): F
     [
       ...headNodes(definition),
       ...formSections(definition, values).flatMap((section) => section.children),
+      ...(definition.serviceObservations ? [definition.serviceObservations] : []),
     ],
     Object.fromEntries(Object.entries(values).filter(([id]) => !hidden.has(id))),
   );

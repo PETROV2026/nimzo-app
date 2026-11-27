@@ -1,6 +1,7 @@
 {
   "code": "dry_chemical_systems",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",

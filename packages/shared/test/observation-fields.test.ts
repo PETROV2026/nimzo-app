@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { fieldSchema, nodeSchema, observationFields } from '../src/form-definition.ts';
+import {
+  fieldSchema,
+  formDefinitionSchema,
+  nodeSchema,
+  observationFields,
+  serviceObservationFields,
+} from '../src/form-definition.ts';
 
 test('every observation has its place, classification, findings and up to four photos', () => {
   assert.deepEqual(
@@ -69,4 +75,50 @@ test('an observations node gets the observation fields when it is read', () => {
     id: 'client_observations',
     children: observationFields,
   });
+});
+
+test('a service observation keeps only the observation, its classification and photos', () => {
+  assert.deepEqual(
+    serviceObservationFields.map((field) => field.id),
+    ['observation', 'classification', 'photos'],
+  );
+  for (const field of serviceObservationFields) {
+    assert.equal(
+      field,
+      observationFields.find((item) => item.id === field.id),
+    );
+  }
+});
+
+const minimalForm = {
+  code: 'test_form',
+  version: 1,
+  report: [],
+  sections: [
+    { id: 'main', title: 'Principal', children: [{ id: 'a', type: 'check', label: 'A' }] },
+  ],
+};
+
+test('a form that asks for service observations gets the observations node', () => {
+  assert.deepEqual(
+    formDefinitionSchema.parse({ ...minimalForm, serviceObservations: true }).serviceObservations,
+    {
+      type: 'observations',
+      id: 'service_observations',
+      children: serviceObservationFields,
+    },
+  );
+  assert.equal(formDefinitionSchema.parse(minimalForm).serviceObservations, undefined);
+});
+
+test('the service observations id cannot be used by another field', () => {
+  const result = formDefinitionSchema.safeParse({
+    ...minimalForm,
+    serviceObservations: true,
+    report: [{ id: 'service_observations', type: 'text', label: 'Repetido' }],
+  });
+  assert.equal(result.success, false);
+  assert.ok(
+    result.error?.issues.some((issue) => issue.message === 'Duplicate id "service_observations"'),
+  );
 });

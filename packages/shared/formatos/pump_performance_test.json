@@ -1,6 +1,7 @@
 {
   "code": "pump_performance_test",
   "version": 1,
+  "serviceObservations": true,
   "report": [
     {
       "id": "vta",

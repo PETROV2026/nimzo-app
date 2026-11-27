@@ -26,6 +26,19 @@ for (const file of files) {
   });
 }
 
+test('every service form has a service observations section and administrative forms do not', () => {
+  for (const file of files) {
+    const form = formDefinitionSchema.parse(
+      JSON.parse(readFileSync(path.join(folder, file), 'utf8')),
+    );
+    assert.equal(
+      form.serviceObservations !== undefined,
+      !administrativeForms.has(form.code),
+      form.code,
+    );
+  }
+});
+
 test('every seeded service form has exactly one definition', () => {
   const codes = files.map((file) => file.replace('.json', '')).sort();
   assert.deepEqual(codes, [...seededCodes].sort());

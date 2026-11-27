@@ -42,9 +42,12 @@ export function arrangeObservation(fields: FormField[]): ObservationBlock[] {
 }
 
 export function observationSummary(row: Record<string, unknown>) {
-  return ['system', 'component', 'location']
+  const place = ['system', 'component', 'location']
     .map((id) => row[id])
     .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
     .map((value) => value.trim())
     .join(', ');
+  if (place) return place;
+  const text = typeof row.observation === 'string' ? row.observation.trim() : '';
+  return text.split('\n')[0].trim();
 }
