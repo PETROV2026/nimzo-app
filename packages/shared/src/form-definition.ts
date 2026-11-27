@@ -116,15 +116,53 @@ export const tableSchema = z.object({
   columns: z.array(fieldSchema).min(1),
 });
 
-export const observationsSchema = z.object({
-  type: z.literal('observations'),
-  id: fieldId,
-});
+export const observationFields: FormField[] = [
+  { id: 'system', type: 'text', label: 'Sistema' },
+  { id: 'component', type: 'text', label: 'Equipo / Componente' },
+  { id: 'location', type: 'text', label: 'Ubicación' },
+  {
+    id: 'classification',
+    type: 'choice',
+    label: 'Clasificación',
+    options: [
+      { value: 'noncritical_deficiency', label: 'Deficiencia no crítica' },
+      { value: 'critical_deficiency', label: 'Deficiencia crítica' },
+      { value: 'impairment', label: 'Fuera de servicio' },
+    ],
+  },
+  {
+    id: 'status',
+    type: 'choice',
+    label: 'Estado',
+    options: [
+      { value: 'open', label: 'Abierta' },
+      { value: 'closed', label: 'Cerrada' },
+    ],
+  },
+  {
+    id: 'closed_on',
+    type: 'date',
+    label: 'Fecha de cierre',
+    visibleWhen: { field: 'status', equals: 'closed' },
+  },
+  { id: 'quote_required', type: 'yes_no', label: '¿Requiere cotización?' },
+  { id: 'observation', type: 'text', label: 'Observación', multiline: true },
+  { id: 'impact', type: 'text', label: 'Impacto', multiline: true },
+  { id: 'corrective_action', type: 'text', label: 'Acción correctiva', multiline: true },
+  { id: 'photos', type: 'photos', label: 'Fotos', count: 4 },
+];
+
+export const observationsSchema = z
+  .object({
+    type: z.literal('observations'),
+    id: fieldId,
+  })
+  .transform((node) => ({ ...node, children: observationFields }));
 
 export type FormNote = z.infer<typeof noteSchema>;
 export type FormChart = z.infer<typeof chartSchema>;
 export type FormTable = z.infer<typeof tableSchema>;
-export type FormObservations = z.infer<typeof observationsSchema>;
+export type FormObservations = z.output<typeof observationsSchema>;
 
 export type FormGroup = {
   type: 'group';
@@ -287,6 +325,22 @@ function serviceTypeProblems(
   );
 }
 
+function possibleValues(node: FormNode): readonly unknown[] | undefined {
+  switch (node.type) {
+    case 'checkbox':
+      return [true, false];
+    case 'yes_no':
+      return ['yes', 'no'];
+    case 'choice':
+    case 'select':
+      return node.options.map((option) => option.value);
+    case 'check':
+      return [];
+    default:
+      return undefined;
+  }
+}
+
 export function definitionProblems(form: DefinitionShape): string[] {
   const problems: string[] = [];
   if (form.items && form.sections.length > 0) {
@@ -316,6 +370,16 @@ export function definitionProblems(form: DefinitionShape): string[] {
   eachNode(nodes, (node) => {
     if ('visibleWhen' in node && node.visibleWhen && !fields.has(node.visibleWhen.field)) {
       problems.push(`"${node.id}" depends on a missing field "${node.visibleWhen.field}"`);
+    }
+    if ('visibleWhen' in node && node.visibleWhen) {
+      const { field, equals } = node.visibleWhen;
+      const target = fields.get(field);
+      const values = target ? possibleValues(target) : undefined;
+      if (values && !values.includes(equals)) {
+        problems.push(
+          `"${node.id}" shows when "${field}" is ${JSON.stringify(equals)}, a value it can never have`,
+        );
+      }
     }
     if (node.type === 'calc') {
       for (const name of expressionNames(node.expression)) {

@@ -1,14 +1,14 @@
 import { memo, type ReactNode, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useController, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import type {
-  FormField,
-  FormGroup,
-  FormList,
-  FormNode,
-  FormNote,
-  FormObservations,
-  FormTable,
+import {
+  type FormField,
+  type FormGroup,
+  type FormList,
+  type FormNode,
+  type FormNote,
+  type FormObservations,
+  type FormTable,
 } from '@nimzo/shared';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Icon } from '@/components/icon';
@@ -49,6 +49,8 @@ import type {
   TimeValue,
   YesNoValue,
 } from '@/forms/types';
+import type { OptionTone } from '@/forms/fields/option-buttons';
+import { arrangeObservation, observationSummary } from '@/forms/observation-layout';
 import { PumpPerformanceChart } from '@/forms/pump-chart-view';
 import { colors } from '@/theme';
 
@@ -154,6 +156,8 @@ function CalcNode({ field }: { field: CalcField }) {
   );
 }
 
+type FieldLook = { compact?: boolean; tones?: Partial<Record<string, OptionTone>> };
+
 type InputProps = {
   field: FormField;
   value: unknown;
@@ -161,9 +165,10 @@ type InputProps = {
   error?: string;
   number?: string;
   bare?: boolean;
+  look?: FieldLook;
 };
 
-function FieldInput({ field, value, onChange, error, number, bare }: InputProps) {
+function FieldInput({ field, value, onChange, error, number, bare, look }: InputProps) {
   switch (field.type) {
     case 'text':
       return (
@@ -189,7 +194,14 @@ function FieldInput({ field, value, onChange, error, number, bare }: InputProps)
       );
     case 'choice':
       return (
-        <ChoiceField field={field} value={value as OptionValue} onChange={onChange} error={error} />
+        <ChoiceField
+          field={field}
+          value={value as OptionValue}
+          onChange={onChange}
+          error={error}
+          tones={look?.tones}
+          segmented={look?.compact && field.options.length <= 2}
+        />
       );
     case 'yes_no':
       return (
@@ -199,6 +211,8 @@ function FieldInput({ field, value, onChange, error, number, bare }: InputProps)
           onChange={onChange}
           error={error}
           number={number}
+          stacked={look?.compact}
+          tones={look?.tones}
         />
       );
     case 'check':
@@ -229,7 +243,17 @@ function FieldInput({ field, value, onChange, error, number, bare }: InputProps)
   }
 }
 
-function FieldNode({ field, name, bare }: { field: FormField; name: string; bare?: boolean }) {
+function FieldNode({
+  field,
+  name,
+  bare,
+  look,
+}: {
+  field: FormField;
+  name: string;
+  bare?: boolean;
+  look?: FieldLook;
+}) {
   const { control, clearErrors } = useFormContext<FormValues>();
   const { registerField, numbers } = useFormLayout();
   const { field: input, fieldState } = useController({ control, name });
@@ -248,8 +272,9 @@ function FieldNode({ field, name, bare }: { field: FormField; name: string; bare
         value={input.value}
         onChange={change}
         error={fieldState.error?.message}
-        number={bare ? undefined : numbers.get(field.id)}
+        number={bare || look ? undefined : numbers.get(field.id)}
         bare={bare}
+        look={look}
       />
     </View>
   );
@@ -370,30 +395,195 @@ function ListNode({ list }: { list: FormList }) {
   );
 }
 
-const observationNodes: FormNode[] = [
-  { id: 'system', type: 'text', label: 'Sistema' },
-  {
-    id: 'status',
-    type: 'choice',
-    label: 'Estado',
-    options: [
-      { value: 'open', label: 'Abierta' },
-      { value: 'closed', label: 'Cerrada' },
-    ],
+const observationTones: Record<string, Partial<Record<string, OptionTone>>> = {
+  classification: {
+    noncritical_deficiency: 'neutral',
+    critical_deficiency: 'danger',
+    impairment: 'destructive',
   },
-  { id: 'observation', type: 'text', label: 'Observación', multiline: true },
-];
+  status: { open: 'neutral', closed: 'primary' },
+  quote_required: { no: 'neutral' },
+};
+
+const badgeStyles: Record<OptionTone, { box: string; text: string }> = {
+  primary: { box: 'bg-primary/15', text: 'text-primary-strong' },
+  danger: { box: 'bg-danger/15', text: 'text-danger-strong' },
+  neutral: { box: 'bg-border', text: 'text-foreground' },
+  destructive: { box: 'bg-destructive', text: 'text-on-destructive' },
+};
+
+function Badge({ label, tone }: { label: string; tone: OptionTone }) {
+  const style = badgeStyles[tone];
+  return (
+    <View className={`rounded-full px-3 py-1 ${style.box}`}>
+      <Text className={`font-sans-semibold text-sm ${style.text}`}>{label}</Text>
+    </View>
+  );
+}
+
+function OptionBadge({ fields, id, value }: { fields: FormNode[]; id: string; value: unknown }) {
+  const field = fields.find((item) => 'id' in item && item.id === id);
+  if (field?.type !== 'choice' || typeof value !== 'string') return null;
+  const option = field.options.find((item) => item.value === value);
+  if (!option) return null;
+  return <Badge label={option.label} tone={observationTones[id]?.[value] ?? 'neutral'} />;
+}
+
+function ObservationBody({ fields, name }: { fields: FormField[]; name: string }) {
+  const blocks = useMemo(() => arrangeObservation(fields), [fields]);
+  return (
+    <ScopeProvider prefix={name} nodes={fields}>
+      <View className="gap-8">
+        {blocks.map((block) => (
+          <View key={block.title} className="gap-4">
+            <View className="flex-row items-center gap-2">
+              <Icon name={block.icon} size={20} color={colors['primary-strong']} />
+              <Text
+                accessibilityRole="header"
+                className="font-sans-semibold text-base text-primary-strong"
+              >
+                {block.title}
+              </Text>
+              <View className="ml-2 h-px flex-1 bg-border" />
+            </View>
+            {block.rows.map((row) => (
+              <View key={row.map((field) => field.id).join()} className="flex-row flex-wrap gap-4">
+                {row.map((field) => (
+                  <Visible key={field.id} id={field.id}>
+                    <View
+                      style={{
+                        flexGrow: 1,
+                        flexBasis: field.type === 'text' && field.multiline ? 320 : 220,
+                      }}
+                    >
+                      <FieldNode
+                        field={field}
+                        name={`${name}${field.id}`}
+                        look={{ compact: true, tones: observationTones[field.id] }}
+                      />
+                    </View>
+                  </Visible>
+                ))}
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    </ScopeProvider>
+  );
+}
+
+function ObservationCard({
+  fields,
+  name,
+  number,
+  open,
+  onToggle,
+  onRemove,
+}: {
+  fields: FormField[];
+  name: string;
+  number: number;
+  open: boolean;
+  onToggle: () => void;
+  onRemove: () => void;
+}) {
+  const row = (useWatch<FormValues>({ name }) ?? {}) as FormValues;
+  const summary = observationSummary(row);
+  const title = `Observación ${number}`;
+
+  return (
+    <View
+      className={`overflow-hidden rounded-2xl border bg-background ${open ? 'border-primary-strong' : 'border-border'}`}
+    >
+      <View className="flex-row items-center gap-2 bg-surface pr-2">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={summary ? `${title}: ${summary}` : title}
+          accessibilityState={{ expanded: open }}
+          onPress={onToggle}
+          className="min-h-20 flex-1 flex-row items-center gap-4 py-3 pl-4 active:bg-border/60"
+        >
+          <View className="size-10 items-center justify-center rounded-full bg-foreground">
+            <Text className="font-sans-bold text-base text-background">{number}</Text>
+          </View>
+          <View className="flex-1 gap-1.5">
+            <Text numberOfLines={1} className="font-sans-semibold text-lg text-foreground">
+              {title}
+              {summary ? <Text className="font-sans text-lg text-muted"> · {summary}</Text> : null}
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              <OptionBadge fields={fields} id="classification" value={row.classification} />
+              <OptionBadge fields={fields} id="status" value={row.status} />
+              {row.quote_required === 'yes' ? (
+                <Badge label="Requiere cotización" tone="primary" />
+              ) : null}
+            </View>
+          </View>
+          <Icon name={open ? 'chevron-up' : 'chevron-down'} size={24} color={colors.foreground} />
+        </Pressable>
+        <RemoveEntryButton label={title.toLowerCase()} onConfirm={onRemove} />
+      </View>
+      {open ? (
+        <View className="border-t border-border p-5">
+          <ObservationBody fields={fields} name={`${name}.`} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
 
 function ObservationsNode({ node }: { node: FormObservations }) {
   const { prefix } = useFormScope();
+  const name = `${prefix}${node.id}`;
+  const { fields, append, remove } = useFieldArray<EntryValues>({ name });
+  const [collapsed, setCollapsed] = useState(
+    () => new Set(fields.length > 1 ? fields.map((entry) => entry.id) : []),
+  );
+
+  function toggle(id: string) {
+    setCollapsed((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
   return (
-    <Collection
-      name={`${prefix}${node.id}`}
-      label="Observaciones"
-      addLabel="Agregar observación"
-      emptyText="Aún no hay observaciones. Agrega una por cada hallazgo que quieras reportar."
-      nodes={observationNodes}
-    />
+    <View className="gap-4">
+      {fields.length === 0 ? (
+        <View className="items-center gap-2 rounded-2xl border border-dashed border-border-strong px-6 py-8">
+          <Icon name="clipboard-outline" size={36} color={colors.muted} />
+          <Text className="text-center font-sans-semibold text-lg text-foreground">
+            Aún no hay observaciones
+          </Text>
+          <Text className="max-w-[480px] text-center font-sans text-base text-muted">
+            Agrega una por cada hallazgo: dónde está, qué tan grave es y cómo se corrige.
+          </Text>
+        </View>
+      ) : (
+        <Text className="font-sans-medium text-base text-muted">
+          {fields.length === 1 ? '1 observación' : `${fields.length} observaciones`}
+        </Text>
+      )}
+      {fields.map((entry, index) => (
+        <ObservationCard
+          key={entry.id}
+          fields={node.children}
+          name={`${name}.${index}`}
+          number={index + 1}
+          open={!collapsed.has(entry.id)}
+          onToggle={() => toggle(entry.id)}
+          onRemove={() => remove(index)}
+        />
+      ))}
+      <TextAction
+        icon="add-circle-outline"
+        label="Agregar observación"
+        onPress={() => append({})}
+      />
+    </View>
   );
 }
 

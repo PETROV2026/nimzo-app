@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 
-export type Option<T extends string> = { value: T; label: string; tone?: 'danger' | 'neutral' };
+export type OptionTone = 'primary' | 'danger' | 'neutral' | 'destructive';
+
+export type Option<T extends string> = { value: T; label: string; tone?: OptionTone };
 
 type OptionButtonsProps<T extends string> = {
   label: string;
@@ -15,6 +17,11 @@ const selectedStyles = {
   primary: { box: 'bg-primary-strong', border: 'border-primary-strong', text: 'text-on-primary' },
   danger: { box: 'bg-danger-strong', border: 'border-danger-strong', text: 'text-on-danger' },
   neutral: { box: 'bg-muted', border: 'border-muted', text: 'text-background' },
+  destructive: {
+    box: 'bg-destructive',
+    border: 'border-destructive',
+    text: 'text-on-destructive',
+  },
 };
 
 export function OptionButtons<T extends string>({
