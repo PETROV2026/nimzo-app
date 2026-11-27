@@ -47,11 +47,14 @@ test('only the component is a single line among the new text fields', () => {
 
 test('observations are classified as in NFPA 25', () => {
   const field = observationFields.find((item) => item.id === 'classification');
-  assert.deepEqual(field?.type === 'choice' && field.options, [
-    { value: 'noncritical_deficiency', label: 'Deficiencia no crítica' },
-    { value: 'critical_deficiency', label: 'Deficiencia crítica' },
-    { value: 'impairment', label: 'Fuera de servicio' },
-  ]);
+  assert.deepEqual(
+    field?.type === 'choice' && field.options.map(({ value, label }) => ({ value, label })),
+    [
+      { value: 'noncritical_deficiency', label: 'Deficiencia no crítica' },
+      { value: 'critical_deficiency', label: 'Deficiencia crítica' },
+      { value: 'impairment', label: 'Fuera de servicio' },
+    ],
+  );
 });
 
 test('the closing date only shows for a closed observation', () => {
@@ -121,4 +124,29 @@ test('the service observations id cannot be used by another field', () => {
   assert.ok(
     result.error?.issues.some((issue) => issue.message === 'Duplicate id "service_observations"'),
   );
+});
+
+test('each classification explains what it means', () => {
+  const field = observationFields.find((item) => item.id === 'classification');
+  assert.ok(field?.type === 'choice');
+  for (const option of field.options) {
+    assert.ok(option.description && option.description.length > 40, option.value);
+  }
+  assert.match(
+    field.options.find((option) => option.value === 'impairment')?.description ?? '',
+    /no funcionaría en un incendio/,
+  );
+});
+
+test('a choice option can carry a description', () => {
+  const field = {
+    id: 'kind',
+    type: 'choice',
+    label: 'Tipo',
+    options: [
+      { value: 'a', label: 'A', description: 'Qué significa A.' },
+      { value: 'b', label: 'B' },
+    ],
+  };
+  assert.deepEqual(fieldSchema.parse(field), field);
 });

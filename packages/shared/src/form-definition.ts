@@ -6,7 +6,7 @@ const fieldId = z
 
 const label = z.string().trim().min(1);
 
-const option = z.object({ value: fieldId, label });
+const option = z.object({ value: fieldId, label, description: z.string().optional() });
 
 const inputMode = z.enum(['text', 'numeric', 'decimal']);
 
@@ -125,9 +125,24 @@ export const observationFields: FormField[] = [
     type: 'choice',
     label: 'Clasificación',
     options: [
-      { value: 'noncritical_deficiency', label: 'Deficiencia no crítica' },
-      { value: 'critical_deficiency', label: 'Deficiencia crítica' },
-      { value: 'impairment', label: 'Fuera de servicio' },
+      {
+        value: 'noncritical_deficiency',
+        label: 'Deficiencia no crítica',
+        description:
+          'Algo que hay que corregir para el buen mantenimiento del sistema, pero que no impide que funcione en un incendio.',
+      },
+      {
+        value: 'critical_deficiency',
+        label: 'Deficiencia crítica',
+        description:
+          'Algo que, si no se corrige, puede afectar que el sistema funcione en un incendio. Hay que corregirlo lo antes posible.',
+      },
+      {
+        value: 'impairment',
+        label: 'Fuera de servicio',
+        description:
+          'El sistema, o una parte de él, no funcionaría en un incendio. Avisa de inmediato al responsable del inmueble.',
+      },
     ],
   },
   {
