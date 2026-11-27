@@ -1,14 +1,15 @@
 import { memo, type ReactNode, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { useController, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import type {
-  FormField,
-  FormGroup,
-  FormList,
-  FormNode,
-  FormNote,
-  FormObservations,
-  FormTable,
+import {
+  type FormField,
+  type FormGroup,
+  type FormList,
+  type FormNode,
+  type FormNote,
+  type FormObservations,
+  type FormTable,
+  observationFields,
 } from '@nimzo/shared';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Icon } from '@/components/icon';
@@ -357,20 +358,6 @@ function ListNode({ list }: { list: FormList }) {
   );
 }
 
-const observationNodes: FormNode[] = [
-  { id: 'system', type: 'text', label: 'Sistema' },
-  {
-    id: 'status',
-    type: 'choice',
-    label: 'Estado',
-    options: [
-      { value: 'open', label: 'Abierta' },
-      { value: 'closed', label: 'Cerrada' },
-    ],
-  },
-  { id: 'observation', type: 'text', label: 'Observación', multiline: true },
-];
-
 function ObservationsNode({ node }: { node: FormObservations }) {
   const { prefix } = useFormScope();
   return (
@@ -379,7 +366,7 @@ function ObservationsNode({ node }: { node: FormObservations }) {
       label="Observaciones"
       addLabel="Agregar observación"
       emptyText="Aún no hay observaciones. Agrega una por cada hallazgo que quieras reportar."
-      nodes={observationNodes}
+      nodes={observationFields}
     />
   );
 }

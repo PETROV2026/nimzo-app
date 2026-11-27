@@ -126,6 +126,21 @@ export type FormChart = z.infer<typeof chartSchema>;
 export type FormTable = z.infer<typeof tableSchema>;
 export type FormObservations = z.infer<typeof observationsSchema>;
 
+export const observationFields: FormField[] = [
+  { id: 'system', type: 'text', label: 'Sistema' },
+  {
+    id: 'status',
+    type: 'choice',
+    label: 'Estado',
+    options: [
+      { value: 'open', label: 'Abierta' },
+      { value: 'closed', label: 'Cerrada' },
+    ],
+  },
+  { id: 'observation', type: 'text', label: 'Observación', multiline: true },
+  { id: 'photos', type: 'photos', label: 'Fotos', count: 4 },
+];
+
 export type FormGroup = {
   type: 'group';
   id: string;
