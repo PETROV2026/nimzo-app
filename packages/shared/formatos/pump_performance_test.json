@@ -200,7 +200,7 @@
               "label": "Marca del cabezal",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -209,7 +209,7 @@
               "label": "Modelo del cabezal",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -218,7 +218,7 @@
               "label": "Número de serie del cabezal",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             },
             {
@@ -227,7 +227,7 @@
               "label": "Relación",
               "visibleWhen": {
                 "field": "gear_head",
-                "equals": true
+                "equals": "yes"
               }
             }
           ]

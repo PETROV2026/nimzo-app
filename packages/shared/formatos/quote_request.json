@@ -191,7 +191,7 @@
                 "label": "Alcance",
                 "visibleWhen": {
                   "field": "engineering_required",
-                  "equals": true
+                  "equals": "yes"
                 }
               }
             ]
@@ -214,7 +214,7 @@
                 "label": "Alcance",
                 "visibleWhen": {
                   "field": "contractor_required",
-                  "equals": true
+                  "equals": "yes"
                 }
               }
             ]
@@ -239,7 +239,7 @@
                 "columns": 2,
                 "visibleWhen": {
                   "field": "lift_required",
-                  "equals": true
+                  "equals": "yes"
                 },
                 "children": [
                   {

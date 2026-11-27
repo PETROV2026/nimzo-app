@@ -267,3 +267,50 @@ test('answers are different when a value, a row or a photo changes', () => {
   assert.equal(sameAnswers({ rows: [{ a: 'x' }] }, { rows: [{ a: 'x' }, {}] }), false);
   assert.equal(sameAnswers({ p: [{ uri: 'a' }] }, { p: [{ uri: 'b' }] }), false);
 });
+
+test('fields hidden inside a list row are not saved', () => {
+  const form = definition([
+    {
+      type: 'list',
+      id: 'rows',
+      label: 'Filas',
+      addLabel: 'Agregar fila',
+      children: [
+        { id: 'done', type: 'yes_no', label: 'Hecho' },
+        {
+          id: 'when',
+          type: 'date',
+          label: 'Cuándo',
+          visibleWhen: { field: 'done', equals: 'yes' },
+        },
+      ],
+    },
+  ]);
+  assert.deepEqual(
+    visibleValues(form, {
+      rows: [
+        { done: 'yes', when: '2026-11-27' },
+        { done: 'no', when: '2026-11-27' },
+      ],
+    }),
+    { rows: [{ done: 'yes', when: '2026-11-27' }, { done: 'no' }] },
+  );
+});
+
+test('an open observation does not keep its closing date', () => {
+  const form = definition([{ type: 'observations', id: 'client_observations' }]);
+  assert.deepEqual(
+    visibleValues(form, {
+      client_observations: [
+        { observation: 'Fuga', status: 'open', closed_on: '2026-11-27' },
+        { observation: 'Válvula', status: 'closed', closed_on: '2026-11-27' },
+      ],
+    }),
+    {
+      client_observations: [
+        { observation: 'Fuga', status: 'open' },
+        { observation: 'Válvula', status: 'closed', closed_on: '2026-11-27' },
+      ],
+    },
+  );
+});
