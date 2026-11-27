@@ -486,7 +486,7 @@ function ObservationCard({
   number: number;
   open: boolean;
   onToggle: () => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const row = (useWatch<FormValues>({ name }) ?? {}) as FormValues;
   const summary = observationSummary(row);
@@ -522,7 +522,7 @@ function ObservationCard({
           </View>
           <Icon name={open ? 'chevron-up' : 'chevron-down'} size={24} color={colors.foreground} />
         </Pressable>
-        <RemoveEntryButton label={title.toLowerCase()} onConfirm={onRemove} />
+        {onRemove ? <RemoveEntryButton label={title.toLowerCase()} onConfirm={onRemove} /> : null}
       </View>
       {open ? (
         <View className="border-t border-border p-5">
@@ -537,6 +537,7 @@ function ObservationsNode({ node }: { node: FormObservations }) {
   const { prefix } = useFormScope();
   const name = `${prefix}${node.id}`;
   const { fields, append, remove } = useFieldArray<EntryValues>({ name });
+  const readOnly = useFormReadOnly();
   const [collapsed, setCollapsed] = useState(
     () => new Set(fields.length > 1 ? fields.map((entry) => entry.id) : []),
   );
@@ -552,7 +553,11 @@ function ObservationsNode({ node }: { node: FormObservations }) {
 
   return (
     <View className="gap-4">
-      {fields.length === 0 ? (
+      {fields.length === 0 && readOnly ? (
+        <Text className="rounded-lg border border-dashed border-border-strong px-4 py-4 font-sans text-base text-muted">
+          Sin observaciones.
+        </Text>
+      ) : fields.length === 0 ? (
         <View className="items-center gap-2 rounded-2xl border border-dashed border-border-strong px-6 py-8">
           <Icon name="clipboard-outline" size={36} color={colors.muted} />
           <Text className="text-center font-sans-semibold text-lg text-foreground">
@@ -575,14 +580,16 @@ function ObservationsNode({ node }: { node: FormObservations }) {
           number={index + 1}
           open={!collapsed.has(entry.id)}
           onToggle={() => toggle(entry.id)}
-          onRemove={() => remove(index)}
+          onRemove={readOnly ? undefined : () => remove(index)}
         />
       ))}
-      <TextAction
-        icon="add-circle-outline"
-        label="Agregar observación"
-        onPress={() => append({})}
-      />
+      {readOnly ? null : (
+        <TextAction
+          icon="add-circle-outline"
+          label="Agregar observación"
+          onPress={() => append({})}
+        />
+      )}
     </View>
   );
 }
