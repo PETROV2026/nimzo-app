@@ -22,6 +22,7 @@ import { FormRenderer } from '@/forms/form-renderer';
 import { type FormValues, hasAnswer, visibleValues } from '@/forms/form-values';
 import { SignaturesBlock, validateSignatures } from '@/forms/signatures-block';
 import { isFullySigned } from '@/reports/report-rules';
+import { useOpenForm } from '@/reports/photo-cleanup';
 import {
   type LocalReport,
   markPending,
@@ -128,6 +129,7 @@ function FinishedReport({ report, onReopen }: { report: LocalReport; onReopen: (
 }
 
 export default function FillFormScreen() {
+  useOpenForm();
   const params = useLocalSearchParams<ServiceParams>();
   const form = useServiceForms().find((item) => item.code === params.code);
   const [initial, setInitial] = useState(() => (params.report ? readReport(params.report) : null));

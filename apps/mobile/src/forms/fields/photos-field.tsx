@@ -7,7 +7,7 @@ import type { FormField } from '@nimzo/shared';
 import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { RemoveImageButton } from '@/components/remove-image-button';
-import { savePhoto } from '@/lib/save-photo';
+import { photosFolder, savePhoto } from '@/lib/save-photo';
 import type { FieldProps, PhotosValue } from '@/forms/types';
 import { useFormReadOnly } from '@/forms/form-context';
 import { FieldFrame } from './field-frame';
@@ -74,7 +74,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
       const photos: PhotosValue = [];
       for (const asset of result.assets.slice(0, remaining)) {
         try {
-          const uri = await savePhoto(asset, 'photos');
+          const uri = await savePhoto(asset, photosFolder);
           photos.push({
             uri,
             takenAt: exifDate(asset.exif) ?? new Date().toISOString(),

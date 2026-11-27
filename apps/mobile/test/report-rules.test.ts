@@ -14,6 +14,7 @@ import {
   resolveTarget,
   selectionProblem,
   unusedSignatureFiles,
+  unusedPhotoFiles,
 } from '../src/reports/report-rules.ts';
 
 const client = {
@@ -195,4 +196,15 @@ test('photo files are found in fields, rows and equipment', () => {
     ['a', 'b', 'c', 'd'].map((name) => `file:///photos/${name}.jpg`),
   );
   assert.deepEqual(photoFiles({ a: 'x', b: null, c: { uri: 'https://example.com/a.jpg' } }), []);
+});
+
+test('photo files no report uses are listed for deletion', () => {
+  const folder = ['a', 'b', 'c'].map((name) => `file:///data/photos/${name}.jpg`);
+  const answers = [
+    { evidence: [{ uri: 'file:///data/photos/a.jpg' }] },
+    { items: [{ key: 'P-1', evidence: [{ uri: 'file://data/photos/c.jpg' }] }] },
+  ];
+  assert.deepEqual(unusedPhotoFiles(folder, answers), ['file:///data/photos/b.jpg']);
+  assert.deepEqual(unusedPhotoFiles(folder, []), folder);
+  assert.deepEqual(unusedPhotoFiles([], answers), []);
 });
