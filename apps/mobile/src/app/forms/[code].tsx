@@ -1,6 +1,6 @@
 import { formTitle } from '@nimzo/shared';
 import { router, Stack, useLocalSearchParams, usePreventRemove } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSession } from '@/auth/session-provider';
 import { announce } from '@/components/announcement-toast';
@@ -51,23 +51,79 @@ function initialTarget(
   return client && branch ? { clientId: client, branchId: branch, systemId: system ?? null } : null;
 }
 
-function FinishedReport({ onReopen }: { onReopen: () => void }) {
+type LockedNoticeProps = { message: string; actionLabel: string; onAction: () => void };
+
+function LockedNotice({ message, actionLabel, onAction }: LockedNoticeProps) {
   return (
-    <View className="flex-1 items-center justify-center gap-6 bg-canvas p-8">
-      <Icon name="checkmark-circle-outline" size={64} color={colors['primary-strong']} />
-      <View className="max-w-[480px] gap-2">
-        <Text className="text-center font-sans-bold text-xl text-foreground">
-          Este reporte ya está terminado
-        </Text>
-        <Text className="text-center font-sans text-base text-muted">
-          Para cambiarlo, reábrelo. Se borrarán las dos firmas y tendrán que firmar otra vez.
-        </Text>
-      </View>
-      <View className="flex-row gap-3">
-        <Button variant="secondary" label="Volver" onPress={() => router.back()} />
-        <Button label="Reabrir" icon="create-outline" onPress={onReopen} />
-      </View>
+    <View className="flex-row flex-wrap items-center gap-4 rounded-xl border border-border bg-background p-5">
+      <Icon name="lock-closed-outline" size={24} color={colors.muted} />
+      <Text className="min-w-64 flex-1 font-sans text-base text-foreground">{message}</Text>
+      <Button variant="secondary" icon="create-outline" label={actionLabel} onPress={onAction} />
     </View>
+  );
+}
+
+function FinishedReport({ report, onReopen }: { report: LocalReport; onReopen: () => void }) {
+  const session = useSession();
+  const technicianId = session.status === 'signed-in' ? session.session.user.id : '';
+  const definition = getDefinition(report.formCode);
+  const [confirming, setConfirming] = useState(false);
+  const target = {
+    clientId: report.clientId,
+    branchId: report.branchId,
+    systemId: report.systemId,
+  };
+
+  if (!definition || !technicianId) {
+    return (
+      <EmptyState
+        icon="document-text-outline"
+        title="Este formato aún no está disponible"
+        description="Actualiza la app para poder verlo."
+      />
+    );
+  }
+
+  return (
+    <>
+      <FormRenderer
+        definition={definition}
+        defaultValues={report.answers}
+        readOnly
+        header={
+          <LockedNotice
+            message="Este reporte ya está terminado. Para cambiarlo, reábrelo."
+            actionLabel="Reabrir"
+            onAction={() => setConfirming(true)}
+          />
+        }
+        lead={{
+          title: 'Cliente y sucursal',
+          icon: 'business-outline',
+          complete: true,
+          children: <ServiceSummary technicianId={technicianId} target={target} />,
+        }}
+        closing={{
+          title: 'Firmas',
+          icon: 'create-outline',
+          complete: true,
+          children: <SignaturesBlock value={report.signatures} />,
+        }}
+      />
+      {confirming ? (
+        <ConfirmDialog
+          title="¿Reabrir el reporte?"
+          message="Se borrarán las dos firmas y tendrán que firmar otra vez."
+          confirmLabel="Reabrir"
+          tone="destructive"
+          onClose={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            onReopen();
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -82,6 +138,7 @@ export default function FillFormScreen() {
       <>
         <Stack.Screen options={{ title }} />
         <FinishedReport
+          report={initial}
           onReopen={() => {
             reopen(initial.id);
             setInitial(readReport(initial.id));
@@ -123,14 +180,6 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
     profileSignaturePath,
   });
 
-  const lock = useMemo(
-    () =>
-      draft.sealed
-        ? { label: 'Cambiar el reporte firmado', onPress: () => setUnlocking(true) }
-        : undefined,
-    [draft.sealed],
-  );
-
   usePreventRemove(answered && !draft.reportId, ({ repeat }) => setLeaving(() => repeat));
 
   function track(values: FormValues) {
@@ -161,13 +210,24 @@ function ReportForm({ params, initial }: { params: ServiceParams; initial: Local
           onValuesChange={track}
           onFinish={finish}
           scrollEnabled={!drawing}
-          lock={lock}
+          readOnly={draft.sealed}
+          header={
+            draft.sealed ? (
+              <LockedNotice
+                message="El supervisor ya firmó. El reporte solo se puede ver."
+                actionLabel="Cambiar reporte"
+                onAction={() => setUnlocking(true)}
+              />
+            ) : undefined
+          }
           lead={{
             title: 'Cliente y sucursal',
             icon: 'business-outline',
             complete,
             action: complete ? (
-              <EditServiceButton onPress={() => setEditing(true)} />
+              draft.sealed ? undefined : (
+                <EditServiceButton onPress={() => setEditing(true)} />
+              )
             ) : target ? (
               <View />
             ) : (

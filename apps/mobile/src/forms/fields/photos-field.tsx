@@ -9,6 +9,7 @@ import { ConfirmDialog } from '@/components/confirm-dialog';
 import { RemoveImageButton } from '@/components/remove-image-button';
 import { savePhoto } from '@/lib/save-photo';
 import type { FieldProps, PhotosValue } from '@/forms/types';
+import { useFormReadOnly } from '@/forms/form-context';
 import { FieldFrame } from './field-frame';
 
 type PhotosFieldProps = FieldProps<Extract<FormField, { type: 'photos' }>, PhotosValue>;
@@ -59,6 +60,7 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
   const [removing, setRemoving] = useState<string>();
   const remaining = field.count - value.length;
   const full = remaining <= 0;
+  const readOnly = useFormReadOnly();
 
   async function add(source: Source, pick: () => Promise<ImagePicker.ImagePickerResult | null>) {
     if (running.current) return;
@@ -134,38 +136,44 @@ export function PhotosField({ field, value = [], onChange, error }: PhotosFieldP
                   accessibilityLabel={`Foto de evidencia ${index + 1}`}
                 />
               </View>
-              <RemoveImageButton
-                label={`Quitar la foto ${index + 1}`}
-                disabled={Boolean(busy)}
-                onPress={() => setRemoving(photo.uri)}
-              />
+              {readOnly ? null : (
+                <RemoveImageButton
+                  label={`Quitar la foto ${index + 1}`}
+                  disabled={Boolean(busy)}
+                  onPress={() => setRemoving(photo.uri)}
+                />
+              )}
             </View>
           ))}
         </View>
       ) : (
         <Text className="font-sans text-base text-muted">
-          Aún no hay fotos. Toma una foto o elige de la galería.
+          {readOnly ? 'Sin fotos.' : 'Aún no hay fotos. Toma una foto o elige de la galería.'}
         </Text>
       )}
-      <View className="flex-row flex-wrap items-center gap-4">
-        <Button
-          label="Tomar foto"
-          onPress={takePhoto}
-          loading={busy === 'camera'}
-          disabled={full || Boolean(busy)}
-        />
-        <Button
-          label="Elegir de la galería"
-          variant="secondary"
-          onPress={pickPhotos}
-          loading={busy === 'library'}
-          disabled={full || Boolean(busy)}
-        />
-        {full ? (
-          <Text className="font-sans-medium text-base text-muted">Máximo {field.count} fotos</Text>
-        ) : null}
-      </View>
-      {permission?.status === 'denied' ? (
+      {readOnly ? null : (
+        <View className="flex-row flex-wrap items-center gap-4">
+          <Button
+            label="Tomar foto"
+            onPress={takePhoto}
+            loading={busy === 'camera'}
+            disabled={full || Boolean(busy)}
+          />
+          <Button
+            label="Elegir de la galería"
+            variant="secondary"
+            onPress={pickPhotos}
+            loading={busy === 'library'}
+            disabled={full || Boolean(busy)}
+          />
+          {full ? (
+            <Text className="font-sans-medium text-base text-muted">
+              Máximo {field.count} fotos
+            </Text>
+          ) : null}
+        </View>
+      )}
+      {!readOnly && permission?.status === 'denied' ? (
         <View className="items-start gap-3 rounded-lg bg-surface p-4">
           <Text className="font-sans text-base text-foreground">
             Para tomar fotos de evidencia, Nimzo necesita permiso de cámara. Actívalo en Ajustes ›

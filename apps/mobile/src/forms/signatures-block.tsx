@@ -29,7 +29,7 @@ export function createSignatures(profileSignaturePath: string | null): Signature
 
 type SignaturesBlockProps = {
   value: SignaturesValue;
-  onChange: (value: SignaturesValue) => void;
+  onChange?: (value: SignaturesValue) => void;
   errors?: SignaturesErrors;
   onDrawingChange?: (drawing: boolean) => void;
 };
@@ -43,6 +43,8 @@ export function SignaturesBlock({
   onDrawingChange,
 }: SignaturesBlockProps) {
   const nameError = value.supervisorName.trim() ? undefined : errors?.supervisorName;
+  const update =
+    onChange && ((patch: Partial<SignaturesValue>) => onChange({ ...value, ...patch }));
 
   return (
     <View className="gap-10">
@@ -54,13 +56,14 @@ export function SignaturesBlock({
           autoCapitalize="words"
           surface="canvas"
           value={value.supervisorName}
-          onChangeText={(supervisorName) => onChange({ ...value, supervisorName })}
+          editable={Boolean(update)}
+          onChangeText={(supervisorName) => update?.({ supervisorName })}
           error={nameError}
         />
         <SignaturePad
           label="Firma del supervisor"
           value={value.supervisorSignature}
-          onChange={(supervisorSignature) => onChange({ ...value, supervisorSignature })}
+          onChange={update && ((supervisorSignature) => update({ supervisorSignature }))}
           error={errors?.supervisorSignature}
           onDrawingChange={onDrawingChange}
         />
@@ -68,7 +71,7 @@ export function SignaturesBlock({
       <SignaturePad
         label="Firma del técnico"
         value={value.technicianSignature}
-        onChange={(technicianSignature) => onChange({ ...value, technicianSignature })}
+        onChange={update && ((technicianSignature) => update({ technicianSignature }))}
         error={errors?.technicianSignature}
         onDrawingChange={onDrawingChange}
       />

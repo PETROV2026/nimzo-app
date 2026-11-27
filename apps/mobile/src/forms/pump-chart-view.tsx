@@ -5,6 +5,7 @@ import { useController, useWatch } from 'react-hook-form';
 import { DialogHeader } from '@/components/dialog-header';
 import { TextAction } from '@/components/text-action';
 import type { FormValues } from '@/forms/form-values';
+import { useFormReadOnly } from '@/forms/form-context';
 import {
   type ChartPoint,
   type PumpChartData,
@@ -118,6 +119,7 @@ function Verdict({ verdict }: { verdict: 'acceptable' | 'not_acceptable' }) {
   const { field } = useController<FormValues>({ name: verdictField });
   const acceptable = verdict === 'acceptable';
   const applied = field.value === verdict;
+  const readOnly = useFormReadOnly();
   return (
     <View
       className={`flex-row flex-wrap items-center gap-3 rounded-lg px-4 py-3 ${acceptable ? 'bg-success/10' : 'bg-danger/10'}`}
@@ -129,7 +131,7 @@ function Verdict({ verdict }: { verdict: 'acceptable' | 'not_acceptable' }) {
       </Text>
       {applied ? (
         <Text className="font-sans-semibold text-sm text-muted">Resultado aplicado</Text>
-      ) : (
+      ) : readOnly ? null : (
         <TextAction label="Usar este resultado" onPress={() => field.onChange(verdict)} />
       )}
     </View>

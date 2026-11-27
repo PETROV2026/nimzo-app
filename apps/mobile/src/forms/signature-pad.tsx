@@ -9,7 +9,7 @@ import { renderSignaturePng, signatureHint, useSignatureInk } from '@/lib/signat
 type SignaturePadProps = {
   label: string;
   value: string | null;
-  onChange: (uri: string | null) => void;
+  onChange?: (uri: string | null) => void;
   error?: string;
   onDrawingChange?: (drawing: boolean) => void;
 };
@@ -45,7 +45,7 @@ export function SignaturePad({
       return;
     }
     try {
-      onChange(saveSignaturePng(png));
+      onChange?.(saveSignaturePng(png));
       clear();
     } catch {
       setSaveError('No se pudo guardar la firma. Intenta de nuevo.');
@@ -53,10 +53,10 @@ export function SignaturePad({
   }
 
   function handleClear() {
-    onChange(null);
+    onChange?.(null);
   }
 
-  const help = value ? undefined : signatureHint(hasInk, readable, 'accept');
+  const help = value || !onChange ? undefined : signatureHint(hasInk, readable, 'accept');
 
   return (
     <View className="gap-2">
@@ -79,13 +79,15 @@ export function SignaturePad({
             style={{ flex: 1 }}
             accessibilityLabel={label}
           />
-          <ClearSignatureButton onPress={handleClear} />
+          {onChange ? <ClearSignatureButton onPress={handleClear} /> : null}
         </View>
-      ) : (
+      ) : onChange ? (
         <SignatureCanvas signature={signature} invalid={missing} />
+      ) : (
+        <View className="h-56 rounded-xl border-2 border-border" />
       )}
       {help && !message ? <Text className="font-sans text-base text-muted">{help}</Text> : null}
-      {value ? null : (
+      {value || !onChange ? null : (
         <View className="flex-row justify-end">
           <Button icon="checkmark" label="Listo" onPress={handleAccept} disabled={!readable} />
         </View>

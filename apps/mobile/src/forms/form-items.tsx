@@ -12,7 +12,7 @@ import { Button } from '@/components/button';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { Icon } from '@/components/icon';
 import { TextField } from '@/components/text-field';
-import { requiredMessage, useFormLayout } from '@/forms/form-context';
+import { requiredMessage, useFormLayout, useFormReadOnly } from '@/forms/form-context';
 import {
   customSectionsKey,
   customServiceType,
@@ -61,6 +61,7 @@ function RadioCard({
 
 export function ServiceTypePicker({ serviceType, sections, prefix = '' }: ServiceTypePickerProps) {
   const { width } = useWindowDimensions();
+  const readOnly = useFormReadOnly();
   const { registerField } = useFormLayout();
   const { clearErrors } = useFormContext<FormValues>();
   const typeName = `${prefix}${serviceTypeKey}`;
@@ -84,7 +85,11 @@ export function ServiceTypePicker({ serviceType, sections, prefix = '' }: Servic
   }
 
   return (
-    <View ref={ref} collapsable={false} className="gap-4">
+    <View
+      ref={ref}
+      collapsable={false}
+      className={`gap-4 ${readOnly ? 'pointer-events-none' : ''}`}
+    >
       {serviceType.help ? (
         <Text className="font-sans text-base text-muted">{serviceType.help}</Text>
       ) : null}
@@ -255,7 +260,7 @@ function ItemCard({
   index: number;
   open: boolean;
   onToggle: () => void;
-  onRemove: () => void;
+  onRemove?: () => void;
 }) {
   const items = definition.items!;
   const name = `${items.id}.${index}`;
@@ -301,14 +306,16 @@ function ItemCard({
           </View>
           <ItemProgress definition={definition} name={name} />
         </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Quitar ${title}`}
-          onPress={() => setConfirming(true)}
-          className="size-14 items-center justify-center rounded-lg active:bg-destructive/10"
-        >
-          <Icon name="trash-outline" size={22} color={colors.destructive} />
-        </Pressable>
+        {onRemove ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Quitar ${title}`}
+            onPress={() => setConfirming(true)}
+            className="size-14 items-center justify-center rounded-lg active:bg-destructive/10"
+          >
+            <Icon name="trash-outline" size={22} color={colors.destructive} />
+          </Pressable>
+        ) : null}
       </View>
       {open ? (
         <View className="border-t border-border p-5">
@@ -324,7 +331,7 @@ function ItemCard({
           onClose={() => setConfirming(false)}
           onConfirm={() => {
             setConfirming(false);
-            onRemove();
+            onRemove?.();
           }}
         />
       ) : null}
@@ -349,6 +356,7 @@ export function ItemsNode({ definition }: { definition: FormDefinition }) {
   const [key, setKey] = useState('');
   const [problem, setProblem] = useState<string>();
   const singular = singularOf(items.addLabel).toLowerCase();
+  const readOnly = useFormReadOnly();
 
   function add() {
     const entries = (getValues(items.id) as FormValues[] | undefined) ?? [];
@@ -384,30 +392,36 @@ export function ItemsNode({ definition }: { definition: FormDefinition }) {
           index={index}
           open={openIndex === index}
           onToggle={() => setOpenIndex(openIndex === index ? null : index)}
-          onRemove={() => {
-            remove(index);
-            setOpenIndex(null);
-          }}
+          onRemove={
+            readOnly
+              ? undefined
+              : () => {
+                  remove(index);
+                  setOpenIndex(null);
+                }
+          }
         />
       ))}
-      <View className="flex-row flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
-        {items.keyLabel ? (
-          <View className="min-w-64 flex-1">
-            <TextField
-              label={items.keyLabel}
-              value={key}
-              error={problem}
-              onChangeText={(text) => {
-                setKey(text);
-                if (problem) setProblem(undefined);
-              }}
-              onSubmitEditing={add}
-              returnKeyType="done"
-            />
-          </View>
-        ) : null}
-        <Button variant="secondary" icon="add" label={items.addLabel} onPress={add} />
-      </View>
+      {readOnly ? null : (
+        <View className="flex-row flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
+          {items.keyLabel ? (
+            <View className="min-w-64 flex-1">
+              <TextField
+                label={items.keyLabel}
+                value={key}
+                error={problem}
+                onChangeText={(text) => {
+                  setKey(text);
+                  if (problem) setProblem(undefined);
+                }}
+                onSubmitEditing={add}
+                returnKeyType="done"
+              />
+            </View>
+          ) : null}
+          <Button variant="secondary" icon="add" label={items.addLabel} onPress={add} />
+        </View>
+      )}
     </View>
   );
 }
